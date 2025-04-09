@@ -15,6 +15,7 @@
     .total { font-weight: bold; }
     button { padding: 8px 16px; margin-top: 20px; cursor: pointer; }
   </style>
+  <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 <body>
 
@@ -33,7 +34,9 @@
     <label><input type="checkbox" name="userType" value="dealer"> 한국 타미야 도·소매 업체</label>
   </div>
 
- 
+  <div class="section">
+    <label for="email">안내받을 이메일 (필수)</label>
+  
   <div class="section">
     <h2>고객 정보 입력</h2>
     <label for="customerName">고객 성명</label>
@@ -43,10 +46,13 @@
     <input type="text" id="phoneNumber" placeholder="010-1234-5678">
 
     <label for="zipcode">우편번호</label>
-    <input type="text" id="zipcode" placeholder="우편번호">
+    <div style="display: flex; gap: 8px;">
+      <input type="text" id="zipcode" placeholder="우편번호" readonly>
+      <button type="button" onclick="execDaumPostcode()">우편번호 검색</button>
+    </div>
 
     <label for="address">주소</label>
-    <input type="text" id="address" placeholder="도로명 주소">
+    <input type="text" id="address" placeholder="도로명 주소" readonly>
 
     <label for="email">안내받을 이메일 (필수)</label>
     <input type="email" id="email" required placeholder="example@example.com">
@@ -69,6 +75,10 @@
       section.style.display = checkbox.checked ? "block" : "none";
     }
   </script>
+
+    <input type="email" id="email" required placeholder="example@example.com">
+  </div>
+
   <div class="section">
     <h2>&lt;필독&gt; 입금 안내 및 주의사항</h2>
     <p>※ 입금 계좌는 주문 확정 시 제공됩니다.<br>
@@ -195,5 +205,17 @@
     }
   </script>
 
+
+  <script>
+    function execDaumPostcode() {
+      new daum.Postcode({
+        oncomplete: function(data) {
+          document.getElementById('zipcode').value = data.zonecode;
+          document.getElementById('address').value = data.roadAddress || data.jibunAddress;
+        }
+      }).open();
+    }
+  </script>
 </body>
+
 </html>
