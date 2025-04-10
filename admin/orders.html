@@ -5,95 +5,46 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>주문 관리 - 한국타미야 관리자</title>
+  <title>관리자 로그인 - 한국타미야</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
-    h1 { text-align: center; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background: #007bff; color: white; }
-    .logout-btn { float: right; background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .login-box { background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; }
+    h2 { text-align: center; margin-bottom: 20px; }
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box;
+    }
+    button {
+      width: 100%; padding: 10px; background-color: #007bff; border: none; color: white; font-size: 16px; border-radius: 5px; cursor: pointer;
+    }
+    .error { color: red; text-align: center; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <button class="logout-btn" onclick="logout()">로그아웃</button>
-  <h1>고객 주문 관리 페이지</h1>
-  <table id="orderTable">
-    <thead>
-      <tr>
-        <th>고객명</th>
-        <th>전화번호</th>
-        <th>이메일</th>
-        <th>우편번호</th>
-        <th>주소</th>
-        <th>상세주소</th>
-        <th>주문 상품</th>
-        <th>총 금액</th>
-        <th>주문일시</th>
-      </tr>
-    </thead>
-    <tbody id="orderBody">
-      <tr><td colspan="9">불러오는 중...</td></tr>
-    </tbody>
-  </table>
+  <div class="login-box">
+    <h2>관리자 로그인</h2>
+    <input type="text" id="adminId" placeholder="아이디">
+    <input type="password" id="adminPw" placeholder="비밀번호">
+    <button onclick="login()">로그인</button>
+    <div id="error" class="error"></div>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2?v=2.0.1"></script>
   <script>
-    const supabase = window.supabase.createClient(
-      'https://edgvrwekvnavkhcqwtxa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
-    );
+    const ADMIN_ID = "TAMIYAKOREA";
+    const ADMIN_PW = "tamiya1996*";
 
-    function logout() {
-      sessionStorage.removeItem("isAdmin");
-      window.location.href = "/tamiya-order-form/admin/login.html";
-    }
+    function login() {
+      const id = document.getElementById("adminId").value.trim();
+      const pw = document.getElementById("adminPw").value;
+      const errorBox = document.getElementById("error");
 
-    async function loadOrders() {
-      const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
-      const tbody = document.getElementById("orderBody");
-
-      if (error || !data.length) {
-        tbody.innerHTML = '<tr><td colspan="9">주문 내역이 없습니다.</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = "";
-      data.forEach(order => {
-        tbody.innerHTML += `
-          <tr>
-            <td>${order.name}</td>
-            <td>${order.phone}</td>
-            <td>${order.email}</td>
-            <td>${order.zipcode}</td>
-            <td>${order.address}</td>
-            <td>${order.address_detail}</td>
-            <td>
-              <ul style="list-style:none; padding-left: 0; text-align:left; font-size: 14px;">
-                ${JSON.parse(order.items).map(item => `
-                  <li><strong>${item.code}</strong> - ${item.name} (${item.qty}개)</li>
-                `).join('')}
-              </ul>
-              <div style="margin-top:5px;"><strong>총 ${JSON.parse(order.items).reduce((sum, item) => sum + item.qty, 0)}개</strong></div>
-            </td>
-            <td>₩${order.total.toLocaleString()}</td>
-            <td>${new Date(order.created_at).toLocaleString()}</td>
-          </tr>
-        `;
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const isAdmin = sessionStorage.getItem("isAdmin");
-      console.log("현재 세션 상태:", isAdmin);
-
-      if (isAdmin !== "true") {
-        alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
-        window.location.href = "/tamiya-order-form/admin/login.html";
+      if (id === ADMIN_ID && pw === ADMIN_PW) {
+        localStorage.setItem("isAdmin", "true");
+        console.log("로그인 성공 - 관리자 세션 저장됨");
+        window.location.href = "/tamiya-order-form/admin/orders.html";
       } else {
-        loadOrders();
+        errorBox.textContent = "아이디 또는 비밀번호가 잘못되었습니다.";
       }
-    });
+    }
   </script>
 </body>
 </html>
