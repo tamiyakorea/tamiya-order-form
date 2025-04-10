@@ -138,6 +138,13 @@
 
   const cart = [];
 
+  function generateOrderNumber() {
+    const timestamp = Date.now();  // 밀리초 기준 현재 시간
+    const randomPart = Math.floor(Math.random() * 1000000);  // 0 ~ 999999 범위의 랜덤 숫자
+    const orderNumber = (timestamp % 1000000000) + randomPart;  // 10자리로 조정
+    return orderNumber.toString().padStart(10, '0');  // 10자리로 맞추기 (모자르면 0을 앞에 붙임)
+  }
+
   async function searchProduct() {
     const serial = document.getElementById("serialSearch").value.trim();
     const serialNum = parseInt(serial, 10);
@@ -249,7 +256,11 @@ async function confirmOrder() {
     const shipping = subtotal < 30000 ? 3000 : 0;
     const total = subtotal + shipping;
 
+    // 주문번호 생성 (10자리 숫자)
+    const orderId = generateOrderNumber(); // 10자리 주문번호 생성
+
     const payload = {
+      order_id: orderId,
       name,
       phone,
       email,
@@ -274,7 +285,7 @@ async function confirmOrder() {
       alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
     } else {
       alert("주문이 완료되었습니다! 입금 안내 페이지로 이동합니다.");
-      window.location.href = "payment-info.html";
+      window.location.href = "payment-info.html?orderId=" + orderId;  // 주문번호와 함께 결제 페이지로 이동
     }
   }
 </script>
