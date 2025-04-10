@@ -2,77 +2,82 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>관리자 로그인 - 한국타미야</title>
+  <title>주문 관리 - 한국타미야 관리자</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .login-box {
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      width: 300px;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      box-sizing: border-box;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #007bff;
-      border: none;
-      color: white;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 10px;
-      height: 18px;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+    h1 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: #007bff; color: white; }
+    .logout-btn { float: right; background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>관리자 로그인</h2>
-    <input type="text" id="adminId" placeholder="아이디" />
-    <input type="password" id="adminPw" placeholder="비밀번호" />
-    <button onclick="loginAdmin()">로그인</button>
-    <div id="error" class="error"></div>
-  </div>
+  <button class="logout-btn" onclick="logout()">로그아웃</button>
+  <h1>고객 주문 관리 페이지</h1>
+  <table id="orderTable">
+    <thead>
+      <tr>
+        <th>고객명</th>
+        <th>전화번호</th>
+        <th>이메일</th>
+        <th>주소</th>
+        <th>주문 상품</th>
+        <th>총 금액</th>
+        <th>주문일시</th>
+      </tr>
+    </thead>
+    <tbody id="orderBody">
+      <tr><td colspan="7">불러오는 중...</td></tr>
+    </tbody>
+  </table>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const ADMIN_ID = "TAMIYAKOREA";
-    const ADMIN_PW = "tamiya1996*";
+    const supabase = window.supabase.createClient(
+      'https://YOUR_PROJECT_ID.supabase.co',
+      'YOUR_PUBLIC_ANON_KEY'
+    );
 
-    function loginAdmin() {
-      const id = document.getElementById("adminId").value.trim();
-      const pw = document.getElementById("adminPw").value;
-      const errorBox = document.getElementById("error");
-
-      if (id === ADMIN_ID && pw === ADMIN_PW) {
-        sessionStorage.setItem("isAdmin", "true");
-        window.location.href = "orders.html"; // 같은 폴더 안의 orders.html로 이동
+    // 관리자 로그인 여부 확인
+    supabase.auth.getUser().then(({ data: { user }, error }) => {
+      if (!user) {
+        alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
+        window.location.href = "login.html";
       } else {
-        errorBox.textContent = "아이디 또는 비밀번호가 잘못되었습니다.";
+        loadOrders();
       }
+    });
+
+    async function loadOrders() {
+      const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+      const tbody = document.getElementById("orderBody");
+
+      if (error || !data.length) {
+        tbody.innerHTML = '<tr><td colspan="7">주문 내역이 없습니다.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = "";
+      data.forEach(order => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${order.name}</td>
+            <td>${order.phone}</td>
+            <td>${order.email}</td>
+            <td>${order.zipcode} ${order.address} ${order.address_detail}</td>
+            <td>${order.items}</td>
+            <td>₩${order.total.toLocaleString()}</td>
+            <td>${new Date(order.created_at).toLocaleString()}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function logout() {
+      supabase.auth.signOut().then(() => {
+        window.location.href = "login.html";
+      });
     }
   </script>
 </body>
