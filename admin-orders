@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>주문 관리 - 한국타미야 관리자</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+    h1 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: #007bff; color: white; }
+    .logout-btn { float: right; background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <button class="logout-btn" onclick="logout()">로그아웃</button>
+  <h1>고객 주문 관리 페이지</h1>
+  <table id="orderTable">
+    <thead>
+      <tr>
+        <th>고객명</th>
+        <th>전화번호</th>
+        <th>이메일</th>
+        <th>주소</th>
+        <th>주문 상품</th>
+        <th>총 금액</th>
+        <th>주문일시</th>
+      </tr>
+    </thead>
+    <tbody id="orderBody">
+      <tr><td colspan="7">불러오는 중...</td></tr>
+    </tbody>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    if (sessionStorage.getItem("isAdmin") !== "true") {
+      alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "admin-login.html";
+    }
+
+    const supabase = window.supabase.createClient(
+      'https://YOUR_PROJECT_ID.supabase.co',
+      'YOUR_PUBLIC_ANON_KEY'
+    );
+
+    async function loadOrders() {
+      const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+      const tbody = document.getElementById("orderBody");
+
+      if (error || !data.length) {
+        tbody.innerHTML = '<tr><td colspan="7">주문 내역이 없습니다.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = "";
+      data.forEach(order => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${order.name}</td>
+            <td>${order.phone}</td>
+            <td>${order.email}</td>
+            <td>${order.zipcode} ${order.address} ${order.address_detail}</td>
+            <td>${order.items}</td>
+            <td>₩${order.total.toLocaleString()}</td>
+            <td>${new Date(order.created_at).toLocaleString()}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function logout() {
+      sessionStorage.removeItem("isAdmin");
+      window.location.href = "admin-login.html";
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>
