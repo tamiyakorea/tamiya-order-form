@@ -2,6 +2,9 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>주문 관리 - 한국타미야 관리자</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
@@ -34,15 +37,20 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    if (sessionStorage.getItem("isAdmin") !== "true") {
-      alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "../login.html"; // ✅ 수정된 경로
-    }
-
     const supabase = window.supabase.createClient(
       'https://YOUR_PROJECT_ID.supabase.co',
       'YOUR_PUBLIC_ANON_KEY'
     );
+
+    // 관리자 로그인 여부 확인
+    supabase.auth.getUser().then(({ data: { user }, error }) => {
+      if (!user) {
+        alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
+        window.location.href = "login.html";
+      } else {
+        loadOrders();
+      }
+    });
 
     async function loadOrders() {
       const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
@@ -70,11 +78,10 @@
     }
 
     function logout() {
-      sessionStorage.removeItem("isAdmin");
-      window.location.href = "../login.html"; // ✅ 수정된 경로
+      supabase.auth.signOut().then(() => {
+        window.location.href = "login.html";
+      });
     }
-
-    loadOrders();
   </script>
 </body>
 </html>
