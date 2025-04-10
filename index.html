@@ -247,8 +247,8 @@ async function confirmOrder() {
     const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
 
     if (!cart.length) {
-      alert("장바구니에 담긴 상품이 없습니다.");
-      return;
+        alert("장바구니에 담긴 상품이 없습니다.");
+        return;
     }
 
     // 총 금액 계산
@@ -260,34 +260,36 @@ async function confirmOrder() {
     const orderId = generateOrderNumber(); // 10자리 주문번호 생성
 
     const payload = {
-      order_id: orderId,
-      name,
-      phone,
-      email,
-      zipcode,
-      address,
-      address_detail: addressDetail,
-      receipt_info: receiptInfo,
-      items: JSON.stringify(cart.map(item => ({
-        code: item.item_code,
-        name: item.description,
-        qty: item.qty,
-        price: item.price
-      }))),
-      total: total
+        order_id: orderId,  // order_id를 포함시킴
+        name,
+        phone,
+        email,
+        zipcode,
+        address,
+        address_detail: addressDetail,
+        receipt_info: receiptInfo,
+        items: JSON.stringify(cart.map(item => ({
+            code: item.item_code,
+            name: item.description,
+            qty: item.qty,
+            price: item.price
+        }))),
+        total: total
     };
 
-    // Supabase로 저장
+    // Supabase로 주문 정보 저장
     const { error } = await supabase.from("orders").insert(payload);
 
     if (error) {
-      console.error("주문 저장 오류:", error);
-      alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
+        console.error("주문 저장 오류:", error);
+        alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
     } else {
-      alert("주문이 완료되었습니다! 입금 안내 페이지로 이동합니다.");
-      window.location.href = "payment-info.html?orderId=" + orderId;  // 주문번호와 함께 결제 페이지로 이동
+        alert("주문이 완료되었습니다! 입금 안내 페이지로 이동합니다.");
+        // 생성된 주문 번호를 결제 페이지로 넘겨줍니다.
+        window.location.href = "payment-info.html?orderId=" + orderId;  // 주문번호와 함께 결제 페이지로 이동
     }
-  }
+}
+
 </script>
 </body>
 </html>
