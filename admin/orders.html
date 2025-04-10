@@ -2,10 +2,10 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <title>주문 관리 - 한국타미야 관리자</title>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>주문 관리 - 한국타미야 관리자</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
     h1 { text-align: center; }
@@ -24,40 +24,37 @@
         <th>고객명</th>
         <th>전화번호</th>
         <th>이메일</th>
+        <th>우편번호</th>
         <th>주소</th>
+        <th>상세주소</th>
         <th>주문 상품</th>
         <th>총 금액</th>
         <th>주문일시</th>
       </tr>
     </thead>
     <tbody id="orderBody">
-      <tr><td colspan="7">불러오는 중...</td></tr>
+      <tr><td colspan="9">불러오는 중...</td></tr>
     </tbody>
   </table>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
+    if (sessionStorage.getItem("isAdmin") !== "true") {
+      alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "login.html";
+    }
+
     const supabase = window.supabase.createClient(
       'https://edgvrwekvnavkhcqwtxa.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
     );
-
-    // 관리자 로그인 여부 확인
-    supabase.auth.getUser().then(({ data: { user }, error }) => {
-      if (!user) {
-        alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
-        window.location.href = "login.html";
-      } else {
-        loadOrders();
-      }
-    });
 
     async function loadOrders() {
       const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
       const tbody = document.getElementById("orderBody");
 
       if (error || !data.length) {
-        tbody.innerHTML = '<tr><td colspan="7">주문 내역이 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9">주문 내역이 없습니다.</td></tr>';
         return;
       }
 
@@ -68,8 +65,17 @@
             <td>${order.name}</td>
             <td>${order.phone}</td>
             <td>${order.email}</td>
-            <td>${order.zipcode} ${order.address} ${order.address_detail}</td>
-            <td>${order.items}</td>
+            <td>${order.zipcode}</td>
+            <td>${order.address}</td>
+            <td>${order.address_detail}</td>
+            <td>
+              <ul style="list-style:none; padding-left: 0; text-align:left; font-size: 14px;">
+                ${JSON.parse(order.items).map(item => `
+                  <li><strong>${item.code}</strong> - ${item.name} (${item.qty}개)</li>
+                `).join('')}
+              </ul>
+              <div style="margin-top:5px;"><strong>총 ${JSON.parse(order.items).reduce((sum, item) => sum + item.qty, 0)}개</strong></div>
+            </td>
             <td>₩${order.total.toLocaleString()}</td>
             <td>${new Date(order.created_at).toLocaleString()}</td>
           </tr>
@@ -78,10 +84,11 @@
     }
 
     function logout() {
-      supabase.auth.signOut().then(() => {
-        window.location.href = "login.html";
-      });
+      sessionStorage.removeItem("isAdmin");
+      window.location.href = "login.html";
     }
+
+    loadOrders();
   </script>
 </body>
 </html>
