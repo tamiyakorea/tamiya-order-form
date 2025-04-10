@@ -64,7 +64,7 @@
       window.location.href = "https://tamiyakorea.github.io/tamiya-order-form/"; // 메인 페이지 경로로 변경 가능
     }
 
-    // URL에서 주문번호 가져오기
+    // URL에서 주문번호(orderId) 가져오기
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get("orderId");
 
@@ -72,7 +72,7 @@
     if (orderId) {
       document.getElementById("orderId").textContent = orderId;
     } else {
-      document.getElementById("orderId").textContent = "알 수 없음";
+      document.getElementById("orderId").textContent = "알 수 없음";  // 주문번호가 없으면 "알 수 없음" 표시
     }
   </script>
 
