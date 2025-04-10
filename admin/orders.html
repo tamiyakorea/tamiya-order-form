@@ -2,10 +2,10 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>주문 관리 - 한국타미야 관리자</title>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <title>주문 관리 - 한국타미야 관리자</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
     h1 { text-align: center; }
@@ -37,7 +37,7 @@
     </tbody>
   </table>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2?v=2.0.1"></script>
   <script>
     if (sessionStorage.getItem("isAdmin") !== "true") {
       alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
