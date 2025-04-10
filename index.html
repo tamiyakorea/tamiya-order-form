@@ -229,43 +229,54 @@
   }
 
 async function confirmOrder() {
-  if (!cart.length) {
-    alert("장바구니에 담긴 상품이 없습니다.");
-    return;
+    const get = id => document.getElementById(id);
+    const name = get("customerName").value.trim();
+    const phone = get("phoneNumber").value.trim();
+    const email = get("email").value.trim();
+    const zipcode = get("zipcode").value.trim();
+    const address = get("address").value.trim();
+    const addressDetail = get("addressDetail").value.trim();
+    const receiptChecked = get("receiptRequested").checked;
+    const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
+
+    if (!cart.length) {
+      alert("장바구니에 담긴 상품이 없습니다.");
+      return;
+    }
+
+    // 총 금액 계산
+    let subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const shipping = subtotal < 30000 ? 3000 : 0;
+    const total = subtotal + shipping;
+
+    const payload = {
+      name,
+      phone,
+      email,
+      zipcode,
+      address,
+      address_detail: addressDetail,
+      receipt_info: receiptInfo,
+      items: cart.map(item => ({
+        code: item.item_code,
+        name: item.description,
+        qty: item.qty,
+        price: item.price
+      })),
+      total: total
+    };
+
+    // Supabase로 저장
+    const { error } = await supabase.from("orders").insert(payload);
+
+    if (error) {
+      console.error("주문 저장 오류:", error);
+      alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
+    } else {
+      alert("주문이 완료되었습니다! 입금 안내 페이지로 이동합니다.");
+      window.location.href = "payment-info.html";
+    }
   }
-
-  const get = id => document.getElementById(id);
-  const subtotal = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
-  const shipping = subtotal < 30000 ? 3000 : 0;
-  const total = subtotal + shipping;
-
-  const payload = {
-    name: get("customerName").value.trim(),
-    phone: get("phoneNumber").value.trim(),
-    email: get("email").value.trim(),
-    zipcode: get("zipcode").value.trim(),
-    address: get("address").value.trim(),
-    address_detail: get("addressDetail").value.trim(),
-    receipt_info: get("receiptRequested").checked ? get("receiptInfo").value.trim() : null,
-    items: cart.map(item => ({
-      code: item.item_code,
-      name: item.description,
-      qty: item.qty,
-      price: item.price
-    })),
-    total: total
-  };
-
-  const { error } = await supabase.from('orders').insert([payload]);
-
-  if (error) {
-    alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
-    console.error(error);
-  } else {
-    alert("주문이 접수되었습니다!");
-    window.location.href = "payment-info.html";
-  }
-}
 </script>
 </body>
 </html>
