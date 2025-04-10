@@ -20,7 +20,13 @@
     th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
     th { background-color: #f2f2f2; }
     .total { font-weight: bold; }
-    button { padding: 8px 16px; margin-top: 10px; cursor: pointer; }
+    button { padding: 10px 20px; margin-top: 20px; cursor: pointer; font-size: 16px; }
+    button.confirm {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
     input.error { border: 1px solid red; }
     .error-container { display: flex; flex-direction: column; }
     .error-message { color: red; font-size: 0.9em; margin-top: 4px; opacity: 0; transition: opacity 0.3s ease, max-height 0.3s ease; max-height: 0; overflow: hidden; }
@@ -95,9 +101,8 @@
     ※ 동일 제품도 부품번호가 다를 수 있으니, 반드시 정확한 시리얼 넘버를 입력해주세요.<br />
     ※ 가격은 부가세 포함 소비자 기준입니다.
   </p>
+  <button onclick="confirmOrder()" class="confirm">✅ 주문 확정</button>
 </div>
-
-<button onclick="confirmOrder()">주문 확정</button>
 
 <script>
   const supabase = window.supabase.createClient(
