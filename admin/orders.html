@@ -39,15 +39,15 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2?v=2.0.1"></script>
   <script>
-    if (sessionStorage.getItem("isAdmin") !== "true") {
-      alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "login.html";
-    }
-
     const supabase = window.supabase.createClient(
       'https://edgvrwekvnavkhcqwtxa.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
     );
+
+    function logout() {
+      sessionStorage.removeItem("isAdmin");
+      window.location.href = "login.html";
+    }
 
     async function loadOrders() {
       const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
@@ -83,12 +83,14 @@
       });
     }
 
-    function logout() {
-      sessionStorage.removeItem("isAdmin");
-      window.location.href = "login.html";
-    }
-
-    loadOrders();
+    document.addEventListener("DOMContentLoaded", () => {
+      if (sessionStorage.getItem("isAdmin") !== "true") {
+        alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
+        window.location.href = "login.html";
+      } else {
+        loadOrders();
+      }
+    });
   </script>
 </body>
 </html>
