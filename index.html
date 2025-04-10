@@ -44,8 +44,53 @@
 
 <h2>고객 정보 입력</h2>
 
-<!-- 고객 입력 폼 영역 그대로 유지 -->
-<!-- (성명, 전화번호, 이메일, 주소, 현금영수증) -->
+<!-- 성명 -->
+<label for="customerName">성명</label>
+<div class="error-container">
+  <input id="customerName" placeholder="홍길동" type="text"/>
+</div>
+
+<!-- 전화번호 -->
+<label for="phoneNumber">전화번호</label>
+<div class="error-container">
+  <input id="phoneNumber" placeholder="010-1234-5678" type="text"/>
+</div>
+
+<!-- 이메일 -->
+<label for="email">이메일 주소</label>
+<div class="error-container">
+  <input id="email" placeholder="example@example.com" type="email"/>
+</div>
+
+<!-- 우편번호 + 검색 버튼 상하정렬 -->
+<label for="zipcode">우편번호</label>
+<div class="error-container">
+  <input id="zipcode" placeholder="우편번호" readonly type="text"/>
+  <button onclick="execDaumPostcode()" type="button" class="button-search">검색</button>
+</div>
+
+<!-- 주소 -->
+<label for="address">주소</label>
+<div class="error-container">
+  <input id="address" placeholder="도로명 주소" readonly type="text"/>
+</div>
+
+<!-- 상세주소 -->
+<label for="addressDetail">상세주소</label>
+<div class="error-container">
+  <input id="addressDetail" placeholder="상세 주소를 입력하세요" type="text"/>
+</div>
+
+<!-- 현금영수증 -->
+<label style="margin-top: 15px;">
+  <input id="receiptRequested" onchange="toggleCashReceipt()" type="checkbox"/> 현금영수증 신청
+</label>
+<div id="cashReceiptSection" style="display: none; margin-top: 10px;">
+  <label for="receiptInfo">현금영수증 정보 (휴대폰 번호 또는 사업자번호)</label>
+  <div class="error-container">
+    <input id="receiptInfo" placeholder="010-1234-5678 또는 123-45-67890" type="text"/>
+  </div>
+</div>
 
 <!-- 제품 검색 및 신청 -->
 <div class="section">
