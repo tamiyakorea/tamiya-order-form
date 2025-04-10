@@ -136,10 +136,16 @@
       return;
     }
 
+    const serialNum = parseInt(serial, 10);
+    if (isNaN(serialNum)) {
+      resultArea.textContent = "숫자만 입력해주세요.";
+      return;
+    }
+
     const { data, error } = await supabase
       .from('tamiya_items')
       .select('item_code, description, j_retail')
-      .filter('item_code', 'eq', serial)
+      .eq('item_code', serialNum)
       .single();
 
     if (error || !data) {
