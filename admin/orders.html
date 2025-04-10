@@ -36,7 +36,7 @@
   <script>
     if (sessionStorage.getItem("isAdmin") !== "true") {
       alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
-      window.location.href = "../login.htmll";
+      window.location.href = "../login.html"; // ✅ 수정된 경로
     }
 
     const supabase = window.supabase.createClient(
@@ -71,7 +71,7 @@
 
     function logout() {
       sessionStorage.removeItem("isAdmin");
-      window.location.href = "admin-login.html";
+      window.location.href = "../login.html"; // ✅ 수정된 경로
     }
 
     loadOrders();
