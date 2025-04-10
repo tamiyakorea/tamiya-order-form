@@ -53,12 +53,26 @@
       <li>주문 후 변경 또는 취소는 불가능하오니, 신중히 확인해주세요.</li>
     </ul>
 
+    <h3>🔢 주문 정보 확인</h3>
+    <p>고객님의 주문번호는 <span class="highlight" id="orderId"></span>입니다.</p>
+
     <button class="btn" onclick="goHome()">홈으로 돌아가기</button>
   </div>
 
   <script>
     function goHome() {
-      window.location.href = "/"; // 메인 페이지 경로로 변경 가능
+      window.location.href = "https://tamiyakorea.github.io/tamiya-order-form/"; // 메인 페이지 경로로 변경 가능
+    }
+
+    // URL에서 주문번호 가져오기
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get("orderId");
+
+    // 주문번호가 있는 경우 화면에 표시
+    if (orderId) {
+      document.getElementById("orderId").textContent = orderId;
+    } else {
+      document.getElementById("orderId").textContent = "알 수 없음";
     }
   </script>
 
