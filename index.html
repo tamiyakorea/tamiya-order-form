@@ -257,12 +257,12 @@ async function confirmOrder() {
       address,
       address_detail: addressDetail,
       receipt_info: receiptInfo,
-      items: cart.map(item => ({
+      items: JSON.stringify(cart.map(item => ({
         code: item.item_code,
         name: item.description,
         qty: item.qty,
         price: item.price
-      })),
+      }))),
       total: total
     };
 
