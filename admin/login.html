@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -62,9 +62,9 @@
   </div>
 
   <script>
-    const supabase = supabase.createClient(
-      'https://edgvrwekvnavkhcqwtxa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+    const supabaseClient = window.supabase.createClient(
+      'https://YOUR_PROJECT_ID.supabase.co',     // ← 실제 프로젝트 ID로 변경
+      'YOUR_PUBLIC_ANON_KEY'                     // ← 실제 anon key로 변경
     );
 
     async function login() {
@@ -72,7 +72,7 @@
       const password = document.getElementById('password').value.trim();
       const errorBox = document.getElementById('error');
 
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
       if (error) {
         errorBox.textContent = '로그인 실패: ' + error.message;
