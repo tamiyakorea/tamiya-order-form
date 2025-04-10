@@ -36,6 +36,10 @@
       border: 1px solid #ccc; margin-top: 5px; transition: background 0.2s;
     }
     .button-search:hover { background: #eaeaea; }
+    input.qty-input {
+      width: 60px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -91,7 +95,29 @@
   <label for="serialSearch">제품 시리얼 넘버 입력</label>
   <input id="serialSearch" placeholder="예: 12345" type="text" />
   <button onclick="searchProduct()">검색</button>
-  <div id="searchResult" style="margin-top: 10px;"></div>
+</div>
+
+<div class="section">
+  <h2>장바구니</h2>
+  <table id="cartTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>시리얼</th>
+        <th>제품명</th>
+        <th>단가</th>
+        <th>수량</th>
+        <th>합계</th>
+        <th>삭제</th>
+      </tr>
+    </thead>
+    <tbody id="cartBody"></tbody>
+    <tfoot>
+      <tr class="total">
+        <td colspan="4">총 주문금액</td>
+        <td colspan="2" id="cartTotal">₩0</td>
+      </tr>
+    </tfoot>
+  </table>
 </div>
 
 <div class="section">
@@ -106,24 +132,16 @@
 
 <script>
   const supabase = window.supabase.createClient(
-  'https://edgvrwekvnavkhcqwtxa.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+    'https://edgvrwekvnavkhcqwtxa.supabase.co',
+    'YOUR_ANON_KEY_HERE'
   );
+
+  const cart = [];
 
   async function searchProduct() {
     const serial = document.getElementById("serialSearch").value.trim();
-    const resultArea = document.getElementById("searchResult");
-
-    if (!serial) {
-      resultArea.textContent = "시리얼 넘버를 입력해주세요.";
-      return;
-    }
-
     const serialNum = parseInt(serial, 10);
-    if (isNaN(serialNum)) {
-      resultArea.textContent = "숫자만 입력해주세요.";
-      return;
-    }
+    if (isNaN(serialNum)) return;
 
     const { data, error } = await supabase
       .from('tamiya_items')
@@ -131,20 +149,69 @@
       .eq('item_code', serialNum)
       .single();
 
-    console.log("검색결과:", data, error);
-
-    if (error || !data) {
-      resultArea.textContent = "일치하는 제품이 없습니다.";
-      return;
+    if (!error && data) {
+      const existing = cart.find(item => item.item_code === serialNum);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({
+          item_code: data.item_code,
+          description: data.description,
+          price: Math.floor(data.j_retail * 15),
+          qty: 1
+        });
+      }
+      renderCart();
     }
+  }
 
-    const unitPrice = Math.floor(data.j_retail * 15);
-    resultArea.innerHTML = `
-      <strong>검색 결과:</strong><br>
-      <b>시리얼:</b> ${data.item_code}<br>
-      <b>제품명:</b> ${data.description}<br>
-      <b>단가:</b> ₩${unitPrice.toLocaleString()}
+  function renderCart() {
+    const tbody = document.getElementById("cartBody");
+    const table = document.getElementById("cartTable");
+    tbody.innerHTML = "";
+
+    let subtotal = 0;
+    cart.forEach((item, index) => {
+      const rowTotal = item.price * item.qty;
+      subtotal += rowTotal;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${item.item_code}</td>
+          <td>${item.description}</td>
+          <td>₩${item.price.toLocaleString()}</td>
+          <td><input type="number" class="qty-input" value="${item.qty}" min="1" onchange="updateQty(${index}, this.value)"></td>
+          <td>₩${rowTotal.toLocaleString()}</td>
+          <td><button onclick="removeItem(${index})">삭제</button></td>
+        </tr>
+      `;
+    });
+
+    const shipping = subtotal < 30000 ? 3000 : 0;
+    const total = subtotal + shipping;
+
+    tbody.innerHTML += `
+      <tr class="total">
+        <td colspan="4">배송비</td>
+        <td colspan="2">₩${shipping.toLocaleString()}</td>
+      </tr>
     `;
+
+    document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
+    table.style.display = cart.length ? "table" : "none";
+  }
+
+  function updateQty(index, newQty) {
+    const qty = parseInt(newQty);
+    if (qty > 0) {
+      cart[index].qty = qty;
+      renderCart();
+    }
+  }
+
+  function removeItem(index) {
+    cart.splice(index, 1);
+    renderCart();
   }
 
   function execDaumPostcode() {
@@ -162,6 +229,10 @@
   }
 
   function confirmOrder() {
+    if (!cart.length) {
+      alert("장바구니에 담긴 상품이 없습니다.");
+      return;
+    }
     alert("주문이 완료되었습니다!");
   }
 </script>
