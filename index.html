@@ -80,6 +80,14 @@
 <div class="error-container">
   <input id="addressDetail" placeholder="상세 주소를 입력하세요" type="text" />
 </div>
+<label style="margin-top: 15px;">
+  <input id="receiptRequested" onchange="toggleCashReceipt()" type="checkbox" /> 현금영수증 신청
+</label>
+<div id="cashReceiptSection" style="display: none; margin-top: 10px;">
+  <label for="receiptInfo">현금영수증 정보 (휴대폰 번호 또는 사업자번호)</label>
+  <div class="error-container">
+    <input id="receiptInfo" placeholder="010-1234-5678 또는 123-45-67890" type="text" />
+  </div>
 
 <div class="section">
   <h2>제품 검색 및 신청</h2>
