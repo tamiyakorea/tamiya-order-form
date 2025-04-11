@@ -3,8 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>입금 안내 및 주문 절차</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: auto; background-color: #fafafa; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      max-width: 800px;
+      margin: auto;
+      background-color: #fafafa;
+    }
     h1 { color: #2c3e50; }
     .box {
       background: #fff;
@@ -28,13 +35,19 @@
     .btn:hover {
       background-color: #1f6392;
     }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
 
   <h1>입금 안내</h1>
 
-  <div class="box">
+  <div class="box" id="receipt">
     <p>주문이 정상적으로 접수되었습니다. 아래 입금 정보를 확인하신 후, <span class="highlight">정확한 금액을 입금해주시기 바랍니다.</span></p>
 
     <h3>💳 입금 계좌 정보</h3>
@@ -55,24 +68,41 @@
 
     <h3>🔢 주문 정보 확인</h3>
     <p>고객님의 주문번호는 <span class="highlight" id="orderId"></span>입니다.</p>
+  </div>
 
+  <div class="btn-group">
     <button class="btn" onclick="goHome()">홈으로 돌아가기</button>
+    <button class="btn" onclick="downloadPDF()">PDF로 저장</button>
   </div>
 
   <script>
     function goHome() {
-      window.location.href = "https://tamiyakorea.github.io/tamiya-order-form/"; // 메인 페이지 경로로 변경 가능
+      window.location.href = "https://tamiyakorea.github.io/tamiya-order-form/";
     }
 
     // URL에서 주문번호(orderId) 가져오기
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get("orderId");
 
-    // 주문번호가 있는 경우 화면에 표시
+    // 주문번호 표시
+    const orderIdEl = document.getElementById("orderId");
     if (orderId) {
-      document.getElementById("orderId").textContent = orderId;
+      orderIdEl.textContent = orderId;
     } else {
-      document.getElementById("orderId").textContent = "알 수 없음";  // 주문번호가 없으면 "알 수 없음" 표시
+      orderIdEl.textContent = "알 수 없음";
+    }
+
+    // PDF 저장 함수
+    function downloadPDF() {
+      const element = document.getElementById("receipt");
+      const opt = {
+        margin: 0.5,
+        filename: `tamiya_order_${orderId || 'receipt'}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
     }
   </script>
 
