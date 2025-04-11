@@ -7,11 +7,21 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+    html, body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+      overflow-x: scroll;
+    }
     h1 { text-align: center; }
     .logout-btn {
-      float: right; background: #dc3545; color: white;
-      border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;
+      float: right;
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
     }
     .input-box { width: 100px; padding: 4px; }
     .pay-status { line-height: 1.4; }
@@ -23,12 +33,13 @@
     .order-separator td {
       border-top: 2px solid #333 !important;
     }
-
+    .confirmed-row {
+      background-color: #e6ffe6;
+    }
     .table-wrapper {
-      overflow-x: auto;
+      overflow-x: scroll;
       width: 100%;
     }
-
     table {
       width: max-content;
       min-width: 1500px;
@@ -37,7 +48,6 @@
       background: white;
       table-layout: fixed;
     }
-
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
@@ -46,7 +56,6 @@
       word-break: break-word;
       white-space: normal;
     }
-
     thead tr:nth-child(1) th,
     thead tr:nth-child(2) th {
       position: sticky;
@@ -54,12 +63,9 @@
       color: white;
       z-index: 3;
     }
-
     thead tr:nth-child(1) th { top: 0; }
     thead tr:nth-child(2) th { top: 42px; }
-
     th { position: relative; }
-
     .resizer {
       width: 5px;
       height: 100%;
@@ -94,7 +100,7 @@
           <th rowspan="2">이메일</th>
           <th rowspan="2">주소</th>
           <th rowspan="2">현금영수증</th>
-          <th colspan="3">주문 상품</th>
+          <th colspan="4">주문 상품</th>
           <th rowspan="2">총 금액</th>
           <th rowspan="2">입금 상태</th>
           <th rowspan="2">PO 정보</th>
@@ -105,9 +111,10 @@
           <th>시리얼</th>
           <th>상품명</th>
           <th>수량</th>
+          <th>단가</th>
         </tr>
       </thead>
-      <tbody id="orderBody"><tr><td colspan="15">불러오는 중...</td></tr></tbody>
+      <tbody id="orderBody"><tr><td colspan="16">불러오는 중...</td></tr></tbody>
     </table>
   </div>
 
@@ -132,7 +139,7 @@
     function injectColgroup() {
       const colgroup = document.getElementById("colgroup");
       colgroup.innerHTML = '';
-      for (let i = 1; i <= 15; i++) {
+      for (let i = 1; i <= 16; i++) {
         const col = document.createElement("col");
         const width = getStoredWidth(i);
         if (width) col.style.width = width;
@@ -143,30 +150,25 @@
     function makeColumnsResizable(table) {
       const headerRows = table.querySelectorAll("thead tr");
       const allThs = [...headerRows[0].children, ...headerRows[1]?.children || []];
-
       allThs.forEach((th, index) => {
         const resizer = document.createElement("div");
         resizer.className = "resizer";
         th.appendChild(resizer);
-
         resizer.addEventListener("mousedown", function (e) {
           e.preventDefault();
           const startX = e.pageX;
           const startWidth = th.offsetWidth;
-
           const onMouseMove = e => {
             const newWidth = startWidth + (e.pageX - startX);
             th.style.width = newWidth + "px";
             const col = document.querySelector(`colgroup col:nth-child(${index + 1})`);
             if (col) col.style.width = newWidth + "px";
           };
-
           const onMouseUp = () => {
             document.removeEventListener("mousemove", onMouseMove);
             document.removeEventListener("mouseup", onMouseUp);
             storeColumnWidths();
           };
-
           document.addEventListener("mousemove", onMouseMove);
           document.addEventListener("mouseup", onMouseUp);
         });
@@ -195,7 +197,7 @@
       tbody.innerHTML = "";
 
       if (error || !data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="15">주문 내역이 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16">주문 내역이 없습니다.</td></tr>';
         return;
       }
 
@@ -203,20 +205,29 @@
         const items = JSON.parse(order.items || "[]");
         items.forEach((i, idx) => {
           const isFirstRow = idx === 0;
+          const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
           tbody.innerHTML += `
-            <tr class="${isFirstRow ? 'order-separator' : ''}">
+            <tr class="${rowClass}">
               ${isFirstRow ? `
               <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
               <td rowspan="${items.length}">${order.order_id}</td>
               <td rowspan="${items.length}">${order.name}</td>
               <td rowspan="${items.length}">${order.phone}</td>
               <td rowspan="${items.length}" title="${order.email}">${order.email}</td>
-              <td rowspan="${items.length}">[${order.zipcode}] ${order.address} ${order.address_detail}</td>
+              <td rowspan="${items.length}">
+                ${order.address}<br>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
+                  <span>[${order.zipcode}]</span>
+                  <span>${order.address}</span>
+                  <span>${order.address_detail}</span>
+                </div>
+              </td>
               <td rowspan="${items.length}">${order.cash_receipt || ''}</td>
               ` : ''}
               <td>${i.code || '-'}</td>
               <td class="ellipsis" title="${i.name}">${i.name}</td>
               <td>${i.qty}</td>
+              <td>₩${i.price ? i.price.toLocaleString() : '-'}</td>
               ${isFirstRow ? `
               <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
               <td rowspan="${items.length}" class="pay-status">
@@ -226,12 +237,24 @@
                 ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
               </td>
               <td rowspan="${items.length}"><input class="input-box" value="${order.po_info || ''}" onchange="updateField(${order.order_id}, 'po_info', this.value)" /></td>
-              <td rowspan="${items.length}"><input class="input-box" value="${order.arrival_status || ''}" onchange="updateField(${order.order_id}, 'arrival_status', this.value)" /></td>
-              <td rowspan="${items.length}"><input class="input-box" value="${order.arrival_due || ''}" onchange="updateField(${order.order_id}, 'arrival_due', this.value)" /></td>
               ` : ''}
+              <td><input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_status', this.value)" /></td>
+              <td><input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_due', this.value)" /></td>
             </tr>`;
         });
       });
+    }
+
+    async function updateField(orderId, field, value) {
+      await supabase.from("orders").update({ [field]: value || null }).eq("order_id", orderId);
+    }
+
+    async function updateFieldByItem(orderId, itemCode, field, value) {
+      const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
+      if (!orderData || !orderData.items) return;
+      const items = JSON.parse(orderData.items);
+      const updatedItems = items.map(i => i.code === itemCode ? { ...i, [field]: value || null } : i);
+      await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
     }
 
     async function togglePayment(orderId, current) {
@@ -241,10 +264,6 @@
       };
       await supabase.from("orders").update(updates).eq("order_id", orderId);
       loadOrders();
-    }
-
-    async function updateField(orderId, field, value) {
-      await supabase.from("orders").update({ [field]: value || null }).eq("order_id", orderId);
     }
 
     async function searchOrders() {
@@ -260,7 +279,7 @@
       tbody.innerHTML = "";
 
       if (error || !data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="15">검색 결과가 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16">검색 결과가 없습니다.</td></tr>';
         return;
       }
 
@@ -268,20 +287,29 @@
         const items = JSON.parse(order.items || "[]");
         items.forEach((i, idx) => {
           const isFirstRow = idx === 0;
+          const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
           tbody.innerHTML += `
-            <tr class="${isFirstRow ? 'order-separator' : ''}">
+            <tr class="${rowClass}">
               ${isFirstRow ? `
               <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
               <td rowspan="${items.length}">${order.order_id}</td>
               <td rowspan="${items.length}">${order.name}</td>
               <td rowspan="${items.length}">${order.phone}</td>
               <td rowspan="${items.length}" title="${order.email}">${order.email}</td>
-              <td rowspan="${items.length}">[${order.zipcode}] ${order.address} ${order.address_detail}</td>
+              <td rowspan="${items.length}">
+                ${order.address}<br>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
+                  <span>[${order.zipcode}]</span>
+                  <span>${order.address}</span>
+                  <span>${order.address_detail}</span>
+                </div>
+              </td>
               <td rowspan="${items.length}">${order.cash_receipt || ''}</td>
               ` : ''}
               <td>${i.code || '-'}</td>
               <td class="ellipsis" title="${i.name}">${i.name}</td>
               <td>${i.qty}</td>
+              <td>₩${i.price ? i.price.toLocaleString() : '-'}</td>
               ${isFirstRow ? `
               <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
               <td rowspan="${items.length}" class="pay-status">
@@ -291,17 +319,12 @@
                 ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
               </td>
               <td rowspan="${items.length}"><input class="input-box" value="${order.po_info || ''}" onchange="updateField(${order.order_id}, 'po_info', this.value)" /></td>
-              <td rowspan="${items.length}"><input class="input-box" value="${order.arrival_status || ''}" onchange="updateField(${order.order_id}, 'arrival_status', this.value)" /></td>
-              <td rowspan="${items.length}"><input class="input-box" value="${order.arrival_due || ''}" onchange="updateField(${order.order_id}, 'arrival_due', this.value)" /></td>
               ` : ''}
+              <td><input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_status', this.value)" /></td>
+              <td><input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_due', this.value)" /></td>
             </tr>`;
         });
       });
-    }
-
-    async function logout() {
-      await supabase.auth.signOut();
-      window.location.href = "/tamiya-order-form/admin/login.html";
     }
 
     window.addEventListener("load", () => {
