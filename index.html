@@ -237,56 +237,60 @@
   }
 
   async function confirmOrder() {
-    const get = id => document.getElementById(id);
-    const name = get("customerName").value.trim();
-    const phone = get("phoneNumber").value.trim();
-    const email = get("email").value.trim();
-    const zipcode = get("zipcode").value.trim();
-    const address = get("address").value.trim();
-    const addressDetail = get("addressDetail").value.trim();
-    const receiptChecked = get("receiptRequested").checked;
-    const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
+  const get = id => document.getElementById(id);
+  const name = get("customerName").value.trim();
+  const phone = get("phoneNumber").value.trim();
+  const email = get("email").value.trim();
+  const zipcode = get("zipcode").value.trim();
+  const address = get("address").value.trim();
+  const addressDetail = get("addressDetail").value.trim();
+  const receiptChecked = get("receiptRequested").checked;
+  const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
 
-    if (!cart.length) {
-      alert("장바구니에 담긴 상품이 없습니다.");
-      return;
-    }
-
-    let subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-    const shipping = subtotal < 30000 ? 3000 : 0;
-    const total = subtotal + shipping;
-
-    const orderId = generateOrderNumber();
-
-    const payload = {
-      order_id: orderId,
-      name,
-      phone,
-      email,
-      zipcode,
-      address,
-      address_detail: addressDetail,
-      receipt_info: receiptInfo,
-      items: JSON.stringify(cart.map(item => ({
-        code: item.item_code,
-        name: item.description,
-        qty: item.qty,
-        price: item.price
-      }))),
-      total,
-      created_at: new Date().toISOString()
-    };
-
-    const { error } = await supabase.from("orders").insert(payload);
-
-    if (error) {
-      console.error("주문 저장 오류:", error);
-      alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
-    } else {
-      alert("주문이 완료되었습니다! 주문번호: " + orderId);
-      window.location.href = "payment-info.html?orderId=" + orderId;
-    }
+  if (!cart.length) {
+    alert("장바구니에 담긴 상품이 없습니다.");
+    return;
   }
+
+  // 총 금액 계산
+  let subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const shipping = subtotal < 30000 ? 3000 : 0;
+  const total = subtotal + shipping;
+
+  // 주문번호 생성 (여기서 생성된 값을 Supabase에 저장할 거야)
+  const orderId = generateOrderNumber();  // ← 이걸 DB에 넣을 거야
+
+  // 👇 여기! payload 정의
+  const payload = {
+    order_id: orderId,
+    name,
+    phone,
+    email,
+    zipcode,
+    address,
+    address_detail: addressDetail,
+    receipt_info: receiptInfo,
+    items: JSON.stringify(cart.map(item => ({
+      code: item.item_code,
+      name: item.description,
+      qty: item.qty,
+      price: item.price
+    }))),
+    total,
+    created_at: new Date().toISOString()
+  };
+
+  // 👇 여기! Supabase에 insert 요청
+  const { error } = await supabase.from("orders").insert(payload);
+
+  if (error) {
+    console.error("주문 저장 오류:", error);
+    alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
+  } else {
+    alert("주문이 완료되었습니다! 주문번호: " + orderId);
+    window.location.href = "payment-info.html?orderId=" + orderId;
+  }
+}
 </script>
 </body>
 </html>
