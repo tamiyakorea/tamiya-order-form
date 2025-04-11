@@ -88,6 +88,7 @@
 
   <div class="table-wrapper">
     <table id="orderTable">
+      <colgroup id="colgroup"></colgroup>
       <thead>
         <tr>
           <th rowspan="2">주문일시</th>
@@ -116,10 +117,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const { createClient } = supabase;
-    const supabase = createClient(
+    const supabase = window.supabase.createClient(
       'https://edgvrwekvnavkhcqwtxa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E' // 실제 키로 교체 필요
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
     );
 
     function getStoredWidth(index) {
@@ -134,15 +134,14 @@
     }
 
     function injectColgroup() {
-      const colgroup = document.createElement("colgroup");
+      const colgroup = document.getElementById("colgroup");
+      colgroup.innerHTML = '';
       for (let i = 1; i <= 15; i++) {
         const col = document.createElement("col");
         const width = getStoredWidth(i);
         if (width) col.style.width = width;
         colgroup.appendChild(col);
       }
-      const table = document.querySelector("table");
-      table.insertBefore(colgroup, table.firstChild);
     }
 
     function makeColumnsResizable(table) {
