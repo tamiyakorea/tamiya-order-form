@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>입금 안내 및 주문 절차</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
@@ -120,68 +121,92 @@
       window.location.href = "https://tamiyakorea.github.io/tamiya-order-form/";
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get("orderId");
-    const orderData = JSON.parse(localStorage.getItem('lastOrder')) || {};
+    // Supabase 초기화 - 사용자 입력 필요
+    const supabase = supabase.createClient(
+      'https://edgvrwekvnavkhcqwtxa.supabase.co',   // 🔁 Supabase URL
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'                   // 🔁 anon 키
+    );
 
-    // 주문번호 표시
-    document.getElementById("orderId").textContent = orderId || orderData.order_id || "알 수 없음";
-
-    // 고객정보 표시
-    document.getElementById("name").textContent = orderData.name || "-";
-    document.getElementById("phone").textContent = orderData.phone || "-";
-    document.getElementById("email").textContent = orderData.email || "-";
-    document.getElementById("address").textContent =
-      `${orderData.zipcode || ''} ${orderData.address || ''} ${orderData.address_detail || ''}`;
-
-    // 주문 상품표 생성
+    const orderId = new URLSearchParams(window.location.search).get("orderId");
+    const orderIdEl = document.getElementById("orderId");
+    const nameEl = document.getElementById("name");
+    const phoneEl = document.getElementById("phone");
+    const emailEl = document.getElementById("email");
+    const addressEl = document.getElementById("address");
     const tableContainer = document.getElementById("orderTableContainer");
-    if (Array.isArray(orderData.product)) {
-      let totalQty = 0;
-      let totalPrice = 0;
-      let html = `
-        <table>
-          <thead>
+
+    orderIdEl.textContent = orderId || "알 수 없음";
+
+    async function fetchOrder() {
+      if (!orderId) return;
+
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("order_id", orderId)
+        .single();
+
+      if (error || !data) {
+        alert("주문 정보를 불러올 수 없습니다.");
+        return;
+      }
+
+      const order = data;
+      nameEl.textContent = order.name || "-";
+      phoneEl.textContent = order.phone || "-";
+      emailEl.textContent = order.email || "-";
+      addressEl.textContent =
+        `${order.zipcode || ''} ${order.address || ''} ${order.address_detail || ''}`;
+
+      // 상품 내역
+      if (Array.isArray(order.product)) {
+        let totalQty = 0;
+        let totalPrice = 0;
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>상품명</th>
+                <th>수량</th>
+                <th>단가</th>
+                <th>합계</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+        order.product.forEach(item => {
+          const itemTotal = item.quantity * item.item_price;
+          totalQty += item.quantity;
+          totalPrice += itemTotal;
+          html += `
             <tr>
-              <th>상품명</th>
-              <th>수량</th>
-              <th>단가</th>
-              <th>합계</th>
-            </tr>
-          </thead>
-          <tbody>`;
+              <td>${item.item_name}</td>
+              <td>${item.quantity}</td>
+              <td>${item.item_price.toLocaleString()}원</td>
+              <td>${itemTotal.toLocaleString()}원</td>
+            </tr>`;
+        });
 
-      orderData.product.forEach(item => {
-        const itemTotal = item.quantity * item.item_price;
-        totalQty += item.quantity;
-        totalPrice += itemTotal;
         html += `
-          <tr>
-            <td>${item.item_name}</td>
-            <td>${item.quantity}</td>
-            <td>${item.item_price.toLocaleString()}원</td>
-            <td>${itemTotal.toLocaleString()}원</td>
-          </tr>`;
-      });
-
-      html += `
-        <tr class="total">
-          <td>총계</td>
-          <td>${totalQty}</td>
-          <td></td>
-          <td>${totalPrice.toLocaleString()}원</td>
-        </tr>
-        </tbody>
-        </table>`;
-      tableContainer.innerHTML = html;
+          <tr class="total">
+            <td>총계</td>
+            <td>${totalQty}</td>
+            <td></td>
+            <td>${totalPrice.toLocaleString()}원</td>
+          </tr>
+          </tbody>
+          </table>`;
+        tableContainer.innerHTML = html;
+      }
     }
 
-    // PDF 다운로드
+    fetchOrder();
+
     function downloadPDF() {
       const element = document.getElementById('receipt');
       const opt = {
         margin: 0.5,
-        filename: `tamiya_order_${orderId || orderData.order_id || 'receipt'}.pdf`,
+        filename: `tamiya_order_${orderId || 'receipt'}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
@@ -189,5 +214,6 @@
       html2pdf().set(opt).from(element).save();
     }
   </script>
+
 </body>
 </html>
