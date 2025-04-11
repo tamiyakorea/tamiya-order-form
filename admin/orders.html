@@ -43,14 +43,15 @@
     .order-separator td {
       border-top: 2px solid #333 !important;
     }
-    td:nth-child(1) { width: 90px; }
-    td:nth-child(2) { width: 110px; }
-    td:nth-child(4) { width: 110px; }
-    td:nth-child(5) { width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    td:nth-child(7) { width: 120px; }
-    td:nth-child(8) { width: 60px; }
-    td:nth-child(9) { width: 200px; }
-    td:nth-child(10) { width: 50px; }
+    td:nth-child(1) { width: 80px; }   /* 주문일시 (YY.MM.DD + 여백) */
+    td:nth-child(2) { width: 100px; }  /* 주문번호 (9자리 숫자 + 여백) */
+    td:nth-child(4) { width: 135px; }  /* 전화번호 (000-0000-0000 + 여백) */
+    td:nth-child(5) { width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* 이메일 */
+    td:nth-child(6) { width: 300px; }  /* 주소 - 여유공간 재할당 */
+    td:nth-child(7) { width: 120px; }  /* 현금영수증 */
+    td:nth-child(8) { width: 75px; }   /* 시리얼 (8자리 숫자 + 여백) */
+    td:nth-child(9) { width: 200px; }  /* 상품명 */
+    td:nth-child(10) { width: 55px; }  /* 수량 (최대 3자리 + 여백) */
   </style>
 </head>
 <body>
