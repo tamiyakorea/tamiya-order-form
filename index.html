@@ -257,6 +257,8 @@
     const shipping = subtotal < 30000 ? 3000 : 0;
     const total = subtotal + shipping;
 
+    const orderId = generateOrderNumber();
+
     const payload = {
       order_id: orderId,
       name,
