@@ -282,10 +282,10 @@ async function confirmOrder() {
   } else {
     alert("주문이 완료되었습니다! 입금 안내 페이지로 이동합니다.");
     // DB에서 저장된 order_id 값 가져오기
-    window.location.href = "payment-info.html?orderId=" + data.order_id;  // DB에서 받아온 주문번호로 이동
+    // 생성된 주문번호(order_id)를 결제 페이지로 전달
+    window.location.href = `payment-info.html?orderId=${data.order_id}`;  // DB에서 받아온 주문번호로 이동
   }
 }
-
 </script>
 </body>
 </html>
