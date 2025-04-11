@@ -81,13 +81,11 @@
 <body>
   <button class="logout-btn" onclick="logout()">로그아웃</button>
   <h1>고객 주문 관리 페이지</h1>
-
   <div style="margin: 20px 0; text-align: center;">
     <input id="searchInput" type="text" placeholder="주문번호 또는 고객명을 입력하세요" style="padding: 6px; width: 300px;" />
     <button onclick="searchOrders()" style="padding: 6px 12px;">검색</button>
     <button onclick="loadOrders()" style="padding: 6px 12px;">전체보기</button>
   </div>
-
   <div class="table-wrapper">
     <table id="orderTable">
       <colgroup id="colgroup"></colgroup>
