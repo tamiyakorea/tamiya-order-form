@@ -184,63 +184,16 @@
       }
     }
 
-    async function loadOrders() {
-      const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
-      const tbody = document.getElementById("orderBody");
-      tbody.innerHTML = "";
-      if (error || !data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="18">주문 내역이 없습니다.</td></tr>';
-        return;
-      }
-      data.forEach(order => {
-        const items = JSON.parse(order.items || "[]");
-        items.forEach((i, idx) => {
-          const isFirstRow = idx === 0;
-          const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
-          tbody.innerHTML += `
-            <tr class="${rowClass}">
-              ${isFirstRow ? `
-                <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
-                <td rowspan="${items.length}">${order.order_id}</td>
-                <td rowspan="${items.length}">${order.name}</td>
-                <td rowspan="${items.length}">${order.phone}</td>
-                <td rowspan="${items.length}" title="${order.email}">${order.email}</td>
-                <td rowspan="${items.length}">${order.zipcode}</td>
-                <td rowspan="${items.length}">${order.address}</td>
-                <td rowspan="${items.length}">${order.address_detail}</td>
-                <td rowspan="${items.length}">${order.cash_receipt || ''}</td>
-              ` : ''}
-              <td>${i.code || '-'}</td>
-              <td class="ellipsis" title="${i.name}">${i.name}</td>
-              <td>${i.qty}</td>
-              <td>₩${i.price ? i.price.toLocaleString() : '-'}</td>
-              ${isFirstRow ? `
-                <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
-                <td rowspan="${items.length}" class="pay-status">
-                  <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed})">
-                    ${order.payment_confirmed ? '✅ 입금 확인' : '❌ 입금 전'}
-                  </button><br>
-                  ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
-                </td>
-                <td rowspan="${items.length}"><input class="input-box" value="${order.po_info || ''}" onchange="updateField(${order.order_id}, 'po_info', this.value)" /></td>
-              ` : ''}
-              <td><input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_status', this.value)" /></td>
-              <td><input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_due', this.value)" /></td>
-            </tr>`;
-        });
-      });
-    }
-
-    async function updateField(orderId, field, value) {
-      await supabase.from("orders").update({ [field]: value || null }).eq("order_id", orderId);
-    }
-
     async function updateFieldByItem(orderId, itemCode, field, value) {
       const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
       if (!orderData || !orderData.items) return;
       const items = JSON.parse(orderData.items);
-      const updatedItems = items.map(i => i.code === itemCode ? { ...i, [field]: value || null } : i);
+      const updatedItems = items.map(i => String(i.code) === String(itemCode) ? { ...i, [field]: value || null } : i);
       await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
+    }
+
+    async function updateField(orderId, field, value) {
+      await supabase.from("orders").update({ [field]: value || null }).eq("order_id", orderId);
     }
 
     async function togglePayment(orderId, current) {
@@ -261,11 +214,21 @@
         : supabase.from("orders").select("*").ilike("name", `%${keyword}%`);
 
       const { data, error } = await query;
+      if (error) return alert("검색 오류 발생");
+      renderOrders(data);
+    }
+
+    async function loadOrders() {
+      const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+      if (error) return alert("데이터 불러오기 실패");
+      renderOrders(data);
+    }
+
+    function renderOrders(data) {
       const tbody = document.getElementById("orderBody");
       tbody.innerHTML = "";
-
-      if (error || !data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="18">검색 결과가 없습니다.</td></tr>';
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="18">주문 내역이 없습니다.</td></tr>';
         return;
       }
 
