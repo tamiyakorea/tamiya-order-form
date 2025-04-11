@@ -139,12 +139,11 @@
   const cart = [];
 
   function generateOrderNumber() {
-    // 8자리: 날짜(월일) + 시간(분초) + 랜덤 2자리
     const now = new Date();
-    const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2); // 월일
-    const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);   // 분초
-    const rand = Math.floor(10 + Math.random() * 90); // 2자리
-    return Number(MMDD + mmss + rand); // 예: 0411143042
+    const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
+    const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
+    const rand = Math.floor(10 + Math.random() * 90);
+    return Number(MMDD + mmss + rand);
   }
 
   async function searchProduct() {
@@ -238,7 +237,7 @@
   }
 
   async function confirmOrder() {
-    const orderId = generateOrderNumber();
+    const orderId = generateOrderNumber(); // ✅ 중복 제거 완료
     const get = id => document.getElementById(id);
     const name = get("customerName").value.trim();
     const phone = get("phoneNumber").value.trim();
@@ -257,8 +256,6 @@
     let subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
     const shipping = subtotal < 30000 ? 3000 : 0;
     const total = subtotal + shipping;
-
-    const orderId = generateOrderNumber();
 
     const payload = {
       order_id: orderId,
