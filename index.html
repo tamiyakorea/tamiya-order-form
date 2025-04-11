@@ -280,10 +280,14 @@ async function confirmOrder() {
     console.error("주문 저장 오류:", error);
     alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
   } else {
-    alert("주문이 완료되었습니다! 입금 안내 페이지로 이동합니다.");
-    // DB에서 저장된 order_id 값 가져오기
-    // 생성된 주문번호(order_id)를 결제 페이지로 전달
-    window.location.href = `payment-info.html?orderId=${data.order_id}`;  // DB에서 받아온 주문번호로 이동
+    // DB에서 주문이 성공적으로 저장되면, 그 주문의 order_id를 가져와서 결제 페이지로 넘겨줍니다.
+    const orderId = data ? data.order_id : null;
+    if (orderId) {
+      alert("주문이 완료되었습니다! 입금 안내 페이지로 이동합니다.");
+      window.location.href = `payment-info.html?orderId=${orderId}`;  // 주문번호와 함께 결제 페이지로 이동
+    } else {
+      alert("주문번호가 생성되지 않았습니다. 다시 시도해주세요.");
+    }
   }
 }
 </script>
