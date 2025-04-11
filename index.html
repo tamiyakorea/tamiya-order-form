@@ -9,43 +9,125 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
-    h2 { border-bottom: 2px solid #333; padding-bottom: 5px; }
-    .section { margin-bottom: 30px; }
-    label { display: block; margin: 8px 0 4px; }
-    input[type="text"], input[type="email"] {
-      width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box;
+    html {
+      scroll-behavior: smooth;
     }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background-color: #f2f2f2; }
-    .total { font-weight: bold; }
-    button { padding: 10px 20px; margin-top: 20px; cursor: pointer; font-size: 16px; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      padding: 10px 0;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+      z-index: 1000;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 0;
+      margin: 0;
+    }
+    nav li {
+      display: inline;
+    }
+    nav a {
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+    }
+    h2 {
+      border-bottom: 2px solid #333;
+      padding-bottom: 5px;
+    }
+    .section {
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin: 8px 0 4px;
+    }
+    input[type="text"], input[type="email"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .total {
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 20px;
+      cursor: pointer;
+      font-size: 16px;
+    }
     button.confirm {
       background-color: #007bff;
       color: white;
       border: none;
       border-radius: 5px;
     }
-    input.error { border: 1px solid red; }
-    .error-container { display: flex; flex-direction: column; }
-    .error-message { color: red; font-size: 0.9em; margin-top: 4px; opacity: 0; transition: opacity 0.3s ease, max-height: 0.3s ease; max-height: 0; overflow: hidden; }
-    .error-message.show { opacity: 1; max-height: 100px; }
-    .button-search {
-      width: fit-content; padding: 6px 12px; background: #f5f5f5;
-      border: 1px solid #ccc; margin-top: 5px; transition: background 0.2s;
+    input.error {
+      border: 1px solid red;
     }
-    .button-search:hover { background: #eaeaea; }
+    .button-search {
+      width: fit-content;
+      padding: 6px 12px;
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      transition: background 0.2s;
+    }
+    .button-search:hover {
+      background: #eaeaea;
+    }
     input.qty-input {
       width: 60px;
       text-align: center;
     }
+    #orderResult {
+      margin-top: 15px;
+      background: #f4f4f4;
+      padding: 15px;
+      border: 1px solid #ccc;
+    }
   </style>
 </head>
 <body>
-<h1>한국타미야 개별주문 신청</h1>
 
-<div class="section">
+<!-- ✅ 네비게이션 바 -->
+<nav>
+  <ul>
+    <li><a href="#notice">개별주문 안내</a></li>
+    <li><a href="#form">개별주문 신청</a></li>
+    <li><a href="#orderCheck">주문 확인</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+</nav>
+
+<!-- ✅ 개별주문 안내 -->
+<div id="notice" class="section">
   <h2>신청 전 고객 안내사항</h2>
   <p>
     ※ 부품 주문은 국내에서 유통 중인 제품에 한해 가능합니다.<br />
@@ -54,82 +136,87 @@
   </p>
 </div>
 
-<h2>고객 정보 입력</h2>
-<label for="customerName">성명</label>
-<div class="error-container">
+<!-- ✅ 개별주문 신청 -->
+<div id="form">
+  <h2>고객 정보 입력</h2>
+  <label for="customerName">성명</label>
   <input id="customerName" placeholder="홍길동" type="text" />
-</div>
-<label for="phoneNumber">전화번호</label>
-<div class="error-container">
+  <label for="phoneNumber">전화번호</label>
   <input id="phoneNumber" placeholder="010-1234-5678" type="text" />
-</div>
-<label for="email">이메일 주소</label>
-<div class="error-container">
+  <label for="email">이메일 주소</label>
   <input id="email" placeholder="example@example.com" type="email" />
-</div>
-<label for="zipcode">우편번호</label>
-<div class="error-container">
+  <label for="zipcode">우편번호</label>
   <input id="zipcode" placeholder="우편번호" readonly type="text" />
   <button onclick="execDaumPostcode()" type="button" class="button-search">검색</button>
-</div>
-<label for="address">주소</label>
-<div class="error-container">
+  <label for="address">주소</label>
   <input id="address" placeholder="도로명 주소" readonly type="text" />
-</div>
-<label for="addressDetail">상세주소</label>
-<div class="error-container">
+  <label for="addressDetail">상세주소</label>
   <input id="addressDetail" placeholder="상세 주소를 입력하세요" type="text" />
-</div>
-<label style="margin-top: 15px;">
-  <input id="receiptRequested" onchange="toggleCashReceipt()" type="checkbox" /> 현금영수증 신청
-</label>
-<div id="cashReceiptSection" style="display: none; margin-top: 10px;">
-  <label for="receiptInfo">현금영수증 정보 (휴대폰 번호 또는 사업자번호)</label>
-  <div class="error-container">
+  <label style="margin-top: 15px;">
+    <input id="receiptRequested" onchange="toggleCashReceipt()" type="checkbox" /> 현금영수증 신청
+  </label>
+  <div id="cashReceiptSection" style="display: none;">
+    <label for="receiptInfo">현금영수증 정보</label>
     <input id="receiptInfo" placeholder="010-1234-5678 또는 123-45-67890" type="text" />
   </div>
+
+  <div class="section">
+    <h2>제품 검색 및 신청</h2>
+    <label for="serialSearch">제품 시리얼 넘버 입력</label>
+    <input id="serialSearch" placeholder="예: 12345" type="text" />
+    <button onclick="searchProduct()">검색</button>
+  </div>
+
+  <div class="section">
+    <h2>장바구니</h2>
+    <table id="cartTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>시리얼</th>
+          <th>제품명</th>
+          <th>단가</th>
+          <th>수량</th>
+          <th>합계</th>
+          <th>삭제</th>
+        </tr>
+      </thead>
+      <tbody id="cartBody"></tbody>
+      <tfoot>
+        <tr class="total">
+          <td colspan="4">총 주문금액</td>
+          <td colspan="2" id="cartTotal">₩0</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>주문 확정 전 안내 및 주의사항</h2>
+    <p>
+      ※ 입금 계좌는 주문 확정 시 제공됩니다.<br />
+      ※ 동일 제품도 부품번호가 다를 수 있으니, 반드시 정확한 시리얼 넘버를 입력해주세요.<br />
+      ※ 가격은 부가세 포함 소비자 기준입니다.
+    </p>
+    <button onclick="confirmOrder()" class="confirm">✅ 주문 확정</button>
+  </div>
+</div>
+<!-- ✅ 주문 확인 섹션 -->
+<div id="orderCheck" class="section">
+  <h2>주문 확인</h2>
+  <p>주문번호를 입력하시면 주문 정보를 확인하실 수 있습니다.</p>
+  <input id="orderSearchInput" type="text" placeholder="주문번호 8자리 입력" style="padding:8px; width: 200px;" />
+  <button onclick="searchOrderById()">검색</button>
+
+  <div id="orderResult"></div>
 </div>
 
-<div class="section">
-  <h2>제품 검색 및 신청</h2>
-  <label for="serialSearch">제품 시리얼 넘버 입력</label>
-  <input id="serialSearch" placeholder="예: 12345" type="text" />
-  <button onclick="searchProduct()">검색</button>
+<!-- ✅ FAQ 섹션 (추후 구성 가능) -->
+<div id="faq" class="section">
+  <h2>FAQ</h2>
+  <p>자주 묻는 질문은 현재 준비 중입니다.</p>
 </div>
 
-<div class="section">
-  <h2>장바구니</h2>
-  <table id="cartTable" style="display:none;">
-    <thead>
-      <tr>
-        <th>시리얼</th>
-        <th>제품명</th>
-        <th>단가</th>
-        <th>수량</th>
-        <th>합계</th>
-        <th>삭제</th>
-      </tr>
-    </thead>
-    <tbody id="cartBody"></tbody>
-    <tfoot>
-      <tr class="total">
-        <td colspan="4">총 주문금액</td>
-        <td colspan="2" id="cartTotal">₩0</td>
-      </tr>
-    </tfoot>
-  </table>
-</div>
-
-<div class="section">
-  <h2>주문 확정 전 안내 및 주의사항</h2>
-  <p>
-    ※ 입금 계좌는 주문 확정 시 제공됩니다.<br />
-    ※ 동일 제품도 부품번호가 다를 수 있으니, 반드시 정확한 시리얼 넘버를 입력해주세요.<br />
-    ※ 가격은 부가세 포함 소비자 기준입니다.
-  </p>
-  <button onclick="confirmOrder()" class="confirm">✅ 주문 확정</button>
-</div>
-
+<!-- ✅ JavaScript -->
 <script>
   const supabase = window.supabase.createClient(
     'https://edgvrwekvnavkhcqwtxa.supabase.co',
@@ -144,6 +231,20 @@
     const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
     const rand = Math.floor(10 + Math.random() * 90);
     return Number(MMDD + mmss + rand);
+  }
+
+  function execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        document.getElementById('zipcode').value = data.zonecode;
+        document.getElementById('address').value = data.roadAddress || data.jibunAddress;
+      }
+    }).open();
+  }
+
+  function toggleCashReceipt() {
+    document.getElementById("cashReceiptSection").style.display =
+      document.getElementById("receiptRequested").checked ? "block" : "none";
   }
 
   async function searchProduct() {
@@ -222,22 +323,8 @@
     renderCart();
   }
 
-  function execDaumPostcode() {
-    new daum.Postcode({
-      oncomplete: function(data) {
-        document.getElementById('zipcode').value = data.zonecode;
-        document.getElementById('address').value = data.roadAddress || data.jibunAddress;
-      }
-    }).open();
-  }
-
-  function toggleCashReceipt() {
-    document.getElementById("cashReceiptSection").style.display =
-      document.getElementById("receiptRequested").checked ? "block" : "none";
-  }
-
   async function confirmOrder() {
-    const orderId = generateOrderNumber(); // ✅ 중복 제거 완료
+    const orderId = generateOrderNumber();
     const get = id => document.getElementById(id);
     const name = get("customerName").value.trim();
     const phone = get("phoneNumber").value.trim();
@@ -285,6 +372,44 @@
       alert("주문이 완료되었습니다! 주문번호: " + orderId);
       window.location.href = "payment-info.html?orderId=" + orderId;
     }
+  }
+
+  async function searchOrderById() {
+    const input = document.getElementById("orderSearchInput").value.trim();
+    const resultDiv = document.getElementById("orderResult");
+    resultDiv.innerHTML = "";
+
+    if (!input) {
+      resultDiv.innerHTML = "<p>주문번호를 입력해주세요.</p>";
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("order_id", input)
+      .single();
+
+    if (error || !data) {
+      resultDiv.innerHTML = "<p>주문 내역을 찾을 수 없습니다. 주문번호를 확인해주세요.</p>";
+      return;
+    }
+
+    const items = JSON.parse(data.items || "[]");
+    const itemList = items.map(item => `
+      <li>${item.name} (${item.qty}개)</li>
+    `).join("");
+
+    resultDiv.innerHTML = `
+      <h3>주문 정보</h3>
+      <p><strong>주문번호:</strong> ${data.order_id}</p>
+      <p><strong>고객명:</strong> ${data.name}</p>
+      <p><strong>전화번호:</strong> ${data.phone}</p>
+      <p><strong>주문일시:</strong> ${new Date(data.created_at).toLocaleString()}</p>
+      <p><strong>총 금액:</strong> ₩${data.total.toLocaleString()}</p>
+      <p><strong>주문 상품:</strong></p>
+      <ul>${itemList}</ul>
+    `;
   }
 </script>
 </body>
