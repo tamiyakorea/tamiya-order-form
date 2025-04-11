@@ -238,6 +238,7 @@
   }
 
   async function confirmOrder() {
+    const orderId = generateOrderNumber();
     const get = id => document.getElementById(id);
     const name = get("customerName").value.trim();
     const phone = get("phoneNumber").value.trim();
