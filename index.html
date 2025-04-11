@@ -128,12 +128,14 @@
   );
 
   const cart = [];
-  
-  let serialNum; // 중복 선언을 피하기 위해 변수만 한 번 선언
+
+  // 기존에 선언된 serialNum을 재사용
+  let serialNum;
 
   async function searchProduct() {
     const serial = document.getElementById("serialSearch").value.trim();
     serialNum = parseInt(serial, 10);
+
     if (isNaN(serialNum)) return;
 
     const { data, error } = await supabase
@@ -156,6 +158,16 @@
       }
       renderCart();
     }
+  }
+
+  // 주소 검색 함수
+  function execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        document.getElementById('zipcode').value = data.zonecode;
+        document.getElementById('address').value = data.roadAddress || data.jibunAddress;
+      }
+    }).open();
   }
 
   function renderCart() {
@@ -207,74 +219,64 @@
     renderCart();
   }
 
-  function execDaumPostcode() {
-    new daum.Postcode({
-      oncomplete: function(data) {
-        document.getElementById('zipcode').value = data.zonecode;
-        document.getElementById('address').value = data.roadAddress || data.jibunAddress;
-      }
-    }).open();
-  }
+  async function confirmOrder() {
+    const get = id => document.getElementById(id);
+    const name = get("customerName").value.trim();
+    const phone = get("phoneNumber").value.trim();
+    const email = get("email").value.trim();
+    const zipcode = get("zipcode").value.trim();
+    const address = get("address").value.trim();
+    const addressDetail = get("addressDetail").value.trim();
+    const receiptChecked = get("receiptRequested").checked;
+    const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
 
-  function toggleCashReceipt() {
-    document.getElementById("cashReceiptSection").style.display =
-      document.getElementById("receiptRequested").checked ? "block" : "none";
-  }
+    if (!cart.length) {
+      alert("장바구니에 담긴 상품이 없습니다.");
+      return;
+    }
 
-async function confirmOrder() {
-  const get = id => document.getElementById(id);
-  const name = get("customerName").value.trim();
-  const phone = get("phoneNumber").value.trim();
-  const email = get("email").value.trim();
-  const zipcode = get("zipcode").value.trim();
-  const address = get("address").value.trim();
-  const addressDetail = get("addressDetail").value.trim();
-  const receiptChecked = get("receiptRequested").checked;
-  const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
+    // 총 금액 계산
+    let subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const shipping = subtotal < 30000 ? 3000 : 0;
+    const total = subtotal + shipping;
 
-  if (!cart.length) {
-    alert("장바구니에 담긴 상품이 없습니다.");
-    return;
-  }
+    const payload = {
+      order_id: generateOrderNumber(),  // 10자리 주문번호 생성
+      name,
+      phone,
+      email,
+      zipcode,
+      address,
+      address_detail: addressDetail,
+      receipt_info: receiptInfo,
+      items: JSON.stringify(cart.map(item => ({
+        code: item.item_code,
+        name: item.description,
+        qty: item.qty,
+        price: item.price
+      }))),
+      total: total
+    };
 
-  // 총 금액 계산
-  let subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const shipping = subtotal < 30000 ? 3000 : 0;
-  const total = subtotal + shipping;
+    // Supabase로 저장
+    const { error } = await supabase.from("orders").insert(payload);
 
-  const payload = {
-    name,
-    phone,
-    email,
-    zipcode,
-    address,
-    address_detail: addressDetail,
-    receipt_info: receiptInfo,
-    items: JSON.stringify(cart.map(item => ({
-      code: item.item_code,
-      name: item.description,
-      qty: item.qty,
-      price: item.price
-    }))),
-    total: total
-  };
-
-  // Supabase로 저장
-  const { data, error } = await supabase.from("orders").insert(payload).single();
-
-  if (error) {
-    console.error("주문 저장 오류:", error);
-    alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
-  } else {
-    const orderId = data ? data.order_id : null;
-    if (orderId) {
-      alert("주문이 완료되었습니다! 입금 안내 페이지로 이동합니다.");
-      window.location.href = `payment-info.html?orderId=${orderId}`;  // 주문번호와 함께 결제 페이지로 이동
+    if (error) {
+      console.error("주문 저장 오류:", error);
+      alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
     } else {
-      alert("주문번호가 생성되지 않았습니다. 다시 시도해주세요.");
+      alert("주문이 완료되었습니다! 입금 안내 페이지로 이동합니다.");
+      window.location.href = "payment-info.html?orderId=" + payload.order_id;  // 주문번호와 함께 결제 페이지로 이동
     }
   }
-}
+
+  function generateOrderNumber() {
+    const timestamp = Date.now();  // 밀리초 기준 현재 시간
+    const randomPart = Math.floor(Math.random() * 1000000);  // 0 ~ 999999 범위의 랜덤 숫자
+    const orderNumber = (timestamp % 1000000000) + randomPart;  // 10자리로 조정
+    return orderNumber.toString().padStart(10, '0');  // 10자리로 맞추기 (모자르면 0을 앞에 붙임)
+  }
 </script>
+
 </body>
 </html>
