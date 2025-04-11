@@ -45,95 +45,95 @@
 <body>
 <h1>한국타미야 개별주문 신청</h1>
 
-  <div class="section">
-   <h2>신청 전 고객 안내사항</h2>
-   <p>
-     ※ 부품 주문은 국내에서 유통 중인 제품에 한해 가능합니다.<br />
-     ※ 주문 후 취소는 불가능합니다.<br />
-     ※ 부품은 소요 기간이 있으니 여유있게 신청 바랍니다.
-   </p>
- </div>
- 
- <h2>고객 정보 입력</h2>
- <label for="customerName">성명</label>
- <div class="error-container">
-   <input id="customerName" placeholder="홍길동" type="text" />
- </div>
- <label for="phoneNumber">전화번호</label>
- <div class="error-container">
-   <input id="phoneNumber" placeholder="010-1234-5678" type="text" />
- </div>
- <label for="email">이메일 주소</label>
- <div class="error-container">
-   <input id="email" placeholder="example@example.com" type="email" />
- </div>
- <label for="zipcode">우편번호</label>
- <div class="error-container">
-   <input id="zipcode" placeholder="우편번호" readonly type="text" />
-   <button onclick="execDaumPostcode()" type="button" class="button-search">검색</button>
- </div>
- <label for="address">주소</label>
- <div class="error-container">
-   <input id="address" placeholder="도로명 주소" readonly type="text" />
- </div>
- <label for="addressDetail">상세주소</label>
- <div class="error-container">
-   <input id="addressDetail" placeholder="상세 주소를 입력하세요" type="text" />
- </div>
- <label style="margin-top: 15px;">
-   <input id="receiptRequested" onchange="toggleCashReceipt()" type="checkbox" /> 현금영수증 신청
- </label>
- <div id="cashReceiptSection" style="display: none; margin-top: 10px;">
-   <label for="receiptInfo">현금영수증 정보 (휴대폰 번호 또는 사업자번호)</label>
-   <div class="error-container">
-     <input id="receiptInfo" placeholder="010-1234-5678 또는 123-45-67890" type="text" />
-   </div>
- </div>
- 
- <div class="section">
-   <h2>제품 검색 및 신청</h2>
-   <label for="serialSearch">제품 시리얼 넘버 입력</label>
-   <input id="serialSearch" placeholder="예: 12345" type="text" />
-   <button onclick="searchProduct()">검색</button>
- </div>
- 
- <div class="section">
-   <h2>장바구니</h2>
-   <table id="cartTable" style="display:none;">
-     <thead>
-       <tr>
-         <th>시리얼</th>
-         <th>제품명</th>
-         <th>단가</th>
-         <th>수량</th>
-         <th>합계</th>
-         <th>삭제</th>
-       </tr>
-     </thead>
-     <tbody id="cartBody"></tbody>
-     <tfoot>
-       <tr class="total">
-         <td colspan="4">총 주문금액</td>
-         <td colspan="2" id="cartTotal">₩0</td>
-       </tr>
-     </tfoot>
-   </table>
- </div>
- 
- <div class="section">
-   <h2>주문 확정 전 안내 및 주의사항</h2>
-   <p>
-     ※ 입금 계좌는 주문 확정 시 제공됩니다.<br />
-     ※ 동일 제품도 부품번호가 다를 수 있으니, 반드시 정확한 시리얼 넘버를 입력해주세요.<br />
-     ※ 가격은 부가세 포함 소비자 기준입니다.
-   </p>
-   <button onclick="confirmOrder()" class="confirm">✅ 주문 확정</button>
- </div>
- 
+<div class="section">
+  <h2>신청 전 고객 안내사항</h2>
+  <p>
+    ※ 부품 주문은 국내에서 유통 중인 제품에 한해 가능합니다.<br />
+    ※ 주문 후 취소는 불가능합니다.<br />
+    ※ 부품은 소요 기간이 있으니 여유있게 신청 바랍니다.
+  </p>
+</div>
+
+<h2>고객 정보 입력</h2>
+<label for="customerName">성명</label>
+<div class="error-container">
+  <input id="customerName" placeholder="홍길동" type="text" />
+</div>
+<label for="phoneNumber">전화번호</label>
+<div class="error-container">
+  <input id="phoneNumber" placeholder="010-1234-5678" type="text" />
+</div>
+<label for="email">이메일 주소</label>
+<div class="error-container">
+  <input id="email" placeholder="example@example.com" type="email" />
+</div>
+<label for="zipcode">우편번호</label>
+<div class="error-container">
+  <input id="zipcode" placeholder="우편번호" readonly type="text" />
+  <button onclick="execDaumPostcode()" type="button" class="button-search">검색</button>
+</div>
+<label for="address">주소</label>
+<div class="error-container">
+  <input id="address" placeholder="도로명 주소" readonly type="text" />
+</div>
+<label for="addressDetail">상세주소</label>
+<div class="error-container">
+  <input id="addressDetail" placeholder="상세 주소를 입력하세요" type="text" />
+</div>
+<label style="margin-top: 15px;">
+  <input id="receiptRequested" onchange="toggleCashReceipt()" type="checkbox" /> 현금영수증 신청
+</label>
+<div id="cashReceiptSection" style="display: none; margin-top: 10px;">
+  <label for="receiptInfo">현금영수증 정보 (휴대폰 번호 또는 사업자번호)</label>
+  <div class="error-container">
+    <input id="receiptInfo" placeholder="010-1234-5678 또는 123-45-67890" type="text" />
+  </div>
+</div>
+
+<div class="section">
+  <h2>제품 검색 및 신청</h2>
+  <label for="serialSearch">제품 시리얼 넘버 입력</label>
+  <input id="serialSearch" placeholder="예: 12345" type="text" />
+  <button onclick="searchProduct()">검색</button>
+</div>
+
+<div class="section">
+  <h2>장바구니</h2>
+  <table id="cartTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>시리얼</th>
+        <th>제품명</th>
+        <th>단가</th>
+        <th>수량</th>
+        <th>합계</th>
+        <th>삭제</th>
+      </tr>
+    </thead>
+    <tbody id="cartBody"></tbody>
+    <tfoot>
+      <tr class="total">
+        <td colspan="4">총 주문금액</td>
+        <td colspan="2" id="cartTotal">₩0</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<div class="section">
+  <h2>주문 확정 전 안내 및 주의사항</h2>
+  <p>
+    ※ 입금 계좌는 주문 확정 시 제공됩니다.<br />
+    ※ 동일 제품도 부품번호가 다를 수 있으니, 반드시 정확한 시리얼 넘버를 입력해주세요.<br />
+    ※ 가격은 부가세 포함 소비자 기준입니다.
+  </p>
+  <button onclick="confirmOrder()" class="confirm">✅ 주문 확정</button>
+</div>
+
 <script>
   const supabase = window.supabase.createClient(
     'https://edgvrwekvnavkhcqwtxa.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E' // 올바른 anon 키로 교체하세요
   );
 
   const cart = [];
@@ -144,6 +144,96 @@
     const time = now.toTimeString().slice(0, 8).replace(/:/g, '');
     const rand = Math.floor(10 + Math.random() * 90);
     return Number(date + time + rand); // 예: 2025041110452382
+  }
+
+  async function searchProduct() {
+    const serial = document.getElementById("serialSearch").value.trim();
+    const serialNum = parseInt(serial, 10);
+    if (isNaN(serialNum)) return;
+
+    const { data, error } = await supabase
+      .from('tamiya_items')
+      .select('item_code, description, j_retail')
+      .eq('item_code', serialNum)
+      .single();
+
+    if (!error && data) {
+      const existing = cart.find(item => item.item_code === serialNum);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({
+          item_code: data.item_code,
+          description: data.description,
+          price: Math.floor(data.j_retail * 15),
+          qty: 1
+        });
+      }
+      renderCart();
+    }
+  }
+
+  function renderCart() {
+    const tbody = document.getElementById("cartBody");
+    const table = document.getElementById("cartTable");
+    tbody.innerHTML = "";
+
+    let subtotal = 0;
+    cart.forEach((item, index) => {
+      const rowTotal = item.price * item.qty;
+      subtotal += rowTotal;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${item.item_code}</td>
+          <td>${item.description}</td>
+          <td>₩${item.price.toLocaleString()}</td>
+          <td><input type="number" class="qty-input" value="${item.qty}" min="1" onchange="updateQty(${index}, this.value)"></td>
+          <td>₩${rowTotal.toLocaleString()}</td>
+          <td><button onclick="removeItem(${index})">삭제</button></td>
+        </tr>
+      `;
+    });
+
+    const shipping = subtotal < 30000 ? 3000 : 0;
+    const total = subtotal + shipping;
+
+    tbody.innerHTML += `
+      <tr class="total">
+        <td colspan="4">배송비</td>
+        <td colspan="2">₩${shipping.toLocaleString()}</td>
+      </tr>
+    `;
+
+    document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
+    table.style.display = cart.length ? "table" : "none";
+  }
+
+  function updateQty(index, newQty) {
+    const qty = parseInt(newQty);
+    if (qty > 0) {
+      cart[index].qty = qty;
+      renderCart();
+    }
+  }
+
+  function removeItem(index) {
+    cart.splice(index, 1);
+    renderCart();
+  }
+
+  function execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        document.getElementById('zipcode').value = data.zonecode;
+        document.getElementById('address').value = data.roadAddress || data.jibunAddress;
+      }
+    }).open();
+  }
+
+  function toggleCashReceipt() {
+    document.getElementById("cashReceiptSection").style.display =
+      document.getElementById("receiptRequested").checked ? "block" : "none";
   }
 
   async function confirmOrder() {
@@ -177,12 +267,12 @@
       address,
       address_detail: addressDetail,
       receipt_info: receiptInfo,
-      items: cart.map(item => ({
+      items: JSON.stringify(cart.map(item => ({
         code: item.item_code,
         name: item.description,
         qty: item.qty,
         price: item.price
-      })),
+      }))),
       total,
       created_at: new Date().toISOString()
     };
