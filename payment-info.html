@@ -117,17 +117,17 @@
   </div>
 
   <script>
-    function goHome() {
-      window.location.href = "https://tamiyakorea.github.io/tamiya-order-form/";
-    }
+    // 페이지 초기 변수 설정
+    const orderId = new URLSearchParams(window.location.search).get("orderId");
 
     // Supabase 초기화 - 사용자 입력 필요
-    const supabase = supabase.createClient(
-      'https://edgvrwekvnavkhcqwtxa.supabase.co',   // 🔁 Supabase URL
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'                   // 🔁 anon 키
+    const { createClient } = supabase;
+    const supabaseClient = createClient(
+      'https://edgvrwekvnavkhcqwtxa.supabase.co', // <-- 여기에 입력
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'                 // <-- 여기에 입력
     );
 
-    const orderId = new URLSearchParams(window.location.search).get("orderId");
+    // 기본 요소 참조
     const orderIdEl = document.getElementById("orderId");
     const nameEl = document.getElementById("name");
     const phoneEl = document.getElementById("phone");
@@ -140,7 +140,7 @@
     async function fetchOrder() {
       if (!orderId) return;
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from("orders")
         .select("*")
         .eq("order_id", orderId)
@@ -152,13 +152,15 @@
       }
 
       const order = data;
+
+      // 고객정보 표시
       nameEl.textContent = order.name || "-";
       phoneEl.textContent = order.phone || "-";
       emailEl.textContent = order.email || "-";
       addressEl.textContent =
         `${order.zipcode || ''} ${order.address || ''} ${order.address_detail || ''}`;
 
-      // 상품 내역
+      // 상품 내역 표시
       if (Array.isArray(order.product)) {
         let totalQty = 0;
         let totalPrice = 0;
@@ -202,6 +204,10 @@
 
     fetchOrder();
 
+    function goHome() {
+      window.location.href = "https://tamiyakorea.github.io/tamiya-order-form/";
+    }
+
     function downloadPDF() {
       const element = document.getElementById('receipt');
       const opt = {
@@ -214,6 +220,5 @@
       html2pdf().set(opt).from(element).save();
     }
   </script>
-
 </body>
 </html>
