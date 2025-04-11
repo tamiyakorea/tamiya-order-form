@@ -12,7 +12,6 @@
     table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; table-layout: fixed; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; }
 
-    /* Sticky header styling for both header rows */
     thead tr:nth-child(1) th {
       position: sticky;
       top: 0;
@@ -43,15 +42,16 @@
     .order-separator td {
       border-top: 2px solid #333 !important;
     }
-    td:nth-child(1) { width: 80px; }   /* 주문일시 (YY.MM.DD + 여백) */
-    td:nth-child(2) { width: 100px; }  /* 주문번호 (9자리 숫자 + 여백) */
-    td:nth-child(4) { width: 135px; }  /* 전화번호 (000-0000-0000 + 여백) */
-    td:nth-child(5) { width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* 이메일 */
-    td:nth-child(6) { width: 300px; }  /* 주소 - 여유공간 재할당 */
-    td:nth-child(7) { width: 120px; }  /* 현금영수증 */
-    td:nth-child(8) { width: 75px; }   /* 시리얼 (8자리 숫자 + 여백) */
-    td:nth-child(9) { width: 200px; }  /* 상품명 */
-    td:nth-child(10) { width: 55px; }  /* 수량 (최대 3자리 + 여백) */
+
+    col:nth-child(1) { width: 80px; }
+    col:nth-child(2) { width: 100px; }
+    col:nth-child(4) { width: 135px; }
+    col:nth-child(5) { width: 200px; }
+    col:nth-child(6) { width: 300px; }
+    col:nth-child(7) { width: 120px; }
+    col:nth-child(8) { width: 75px; }
+    col:nth-child(9) { width: 200px; }
+    col:nth-child(10) { width: 55px; }
   </style>
 </head>
 <body>
@@ -65,6 +65,23 @@
   </div>
 
   <table>
+    <colgroup>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+      <col>
+    </colgroup>
     <thead>
       <tr>
         <th rowspan="2">주문일시</th>
