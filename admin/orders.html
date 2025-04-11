@@ -16,10 +16,9 @@
     .input-box { width: 100px; padding: 4px; }
     .pay-status { line-height: 1.4; }
     .ellipsis {
-      max-width: 180px;
-      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .order-separator td {
       border-top: 2px solid #333 !important;
@@ -27,11 +26,11 @@
 
     .table-wrapper {
       overflow-x: auto;
-      max-width: 100%;
+      width: 100%;
     }
 
     table {
-      width: 100%;
+      width: max-content;
       min-width: 1500px;
       border-collapse: collapse;
       margin-top: 20px;
@@ -44,23 +43,22 @@
       padding: 8px;
       text-align: center;
       vertical-align: middle;
+      word-break: break-word;
+      white-space: normal;
     }
 
-    thead tr:nth-child(1) th {
+    thead tr:nth-child(1) th,
+    thead tr:nth-child(2) th {
       position: sticky;
-      top: 0;
       background: #007bff;
       color: white;
       z-index: 3;
     }
 
-    thead tr:nth-child(2) th {
-      position: sticky;
-      top: 42px;
-      background: #007bff;
-      color: white;
-      z-index: 2;
-    }
+    thead tr:nth-child(1) th { top: 0; }
+    thead tr:nth-child(2) th { top: 42px; }
+
+    th { position: relative; }
 
     .resizer {
       width: 5px;
@@ -72,8 +70,6 @@
       user-select: none;
       z-index: 5;
     }
-
-    th { position: relative; }
   </style>
 </head>
 <body>
@@ -145,8 +141,10 @@
     }
 
     function makeColumnsResizable(table) {
-      const ths = table.querySelectorAll("thead tr:first-child th");
-      ths.forEach((th, index) => {
+      const headerRows = table.querySelectorAll("thead tr");
+      const allThs = [...headerRows[0].children, ...headerRows[1]?.children || []];
+
+      allThs.forEach((th, index) => {
         const resizer = document.createElement("div");
         resizer.className = "resizer";
         th.appendChild(resizer);
