@@ -9,11 +9,13 @@
   <style>
     html, body {
       font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f9f9f9;
-      overflow-x: scroll;
+      padding: 0;
+      margin: 0;
+      overflow-x: auto;
+      overflow-y: auto;
+      height: 100%;
     }
-    h1 { text-align: center; }
+    h1 { text-align: center; margin-top: 20px; }
     .logout-btn {
       float: right;
       background: #dc3545;
@@ -22,6 +24,7 @@
       padding: 8px 12px;
       border-radius: 4px;
       cursor: pointer;
+      margin: 10px;
     }
     .input-box { width: 100px; padding: 4px; }
     .pay-status { line-height: 1.4; }
@@ -37,16 +40,16 @@
       background-color: #e6ffe6;
     }
     .table-wrapper {
-      overflow-x: scroll;
-      width: 100%;
+      width: fit-content;
+      min-width: 1500px;
+      margin: 0 auto;
     }
     table {
-      width: max-content;
-      min-width: 1500px;
       border-collapse: collapse;
-      margin-top: 20px;
       background: white;
       table-layout: fixed;
+      width: max-content;
+      min-width: 1500px;
     }
     th, td {
       border: 1px solid #ddd;
@@ -96,7 +99,7 @@
           <th rowspan="2">고객명</th>
           <th rowspan="2">전화번호</th>
           <th rowspan="2">이메일</th>
-          <th rowspan="2">주소</th>
+          <th colspan="3">주소</th>
           <th rowspan="2">현금영수증</th>
           <th colspan="4">주문 상품</th>
           <th rowspan="2">총 금액</th>
@@ -106,82 +109,21 @@
           <th rowspan="2">입고 예정</th>
         </tr>
         <tr>
+          <th>우편번호</th>
+          <th>주소</th>
+          <th>상세주소</th>
           <th>시리얼</th>
           <th>상품명</th>
           <th>수량</th>
           <th>단가</th>
         </tr>
       </thead>
-      <tbody id="orderBody"><tr><td colspan="16">불러오는 중...</td></tr></tbody>
+      <tbody id="orderBody"><tr><td colspan="18">불러오는 중...</td></tr></tbody>
     </table>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const supabase = window.supabase.createClient(
-      'https://edgvrwekvnavkhcqwtxa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
-    );
-
-    function getStoredWidth(index) {
-      const saved = JSON.parse(localStorage.getItem("columnWidths") || "[]");
-      return saved[index - 1] ? saved[index - 1] + "px" : "";
-    }
-
-    function storeColumnWidths() {
-      const cols = document.querySelectorAll("colgroup col");
-      const widths = Array.from(cols).map(col => parseInt(col.style.width));
-      localStorage.setItem("columnWidths", JSON.stringify(widths));
-    }
-
-    function injectColgroup() {
-      const colgroup = document.getElementById("colgroup");
-      colgroup.innerHTML = '';
-      for (let i = 1; i <= 16; i++) {
-        const col = document.createElement("col");
-        const width = getStoredWidth(i);
-        if (width) col.style.width = width;
-        colgroup.appendChild(col);
-      }
-    }
-
-    function makeColumnsResizable(table) {
-      const headerRows = table.querySelectorAll("thead tr");
-      const allThs = [...headerRows[0].children, ...headerRows[1]?.children || []];
-      allThs.forEach((th, index) => {
-        const resizer = document.createElement("div");
-        resizer.className = "resizer";
-        th.appendChild(resizer);
-        resizer.addEventListener("mousedown", function (e) {
-          e.preventDefault();
-          const startX = e.pageX;
-          const startWidth = th.offsetWidth;
-          const onMouseMove = e => {
-            const newWidth = startWidth + (e.pageX - startX);
-            th.style.width = newWidth + "px";
-            const col = document.querySelector(`colgroup col:nth-child(${index + 1})`);
-            if (col) col.style.width = newWidth + "px";
-          };
-          const onMouseUp = () => {
-            document.removeEventListener("mousemove", onMouseMove);
-            document.removeEventListener("mouseup", onMouseUp);
-            storeColumnWidths();
-          };
-          document.addEventListener("mousemove", onMouseMove);
-          document.addEventListener("mouseup", onMouseUp);
-        });
-      });
-    }
-
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
-        window.location.href = "/tamiya-order-form/admin/login.html";
-      } else {
-        loadOrders();
-      }
-    }
+    const supabase = window.supabase.createClient('https://edgvrwekvnavkhcqwtxa.supabase.co', 'YOUR_PUBLIC_ANON_KEY');
 
     function formatDateOnly(iso) {
       if (!iso) return '';
@@ -193,12 +135,10 @@
       const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
       const tbody = document.getElementById("orderBody");
       tbody.innerHTML = "";
-
       if (error || !data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="16">주문 내역이 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="18">주문 내역이 없습니다.</td></tr>';
         return;
       }
-
       data.forEach(order => {
         const items = JSON.parse(order.items || "[]");
         items.forEach((i, idx) => {
@@ -207,37 +147,32 @@
           tbody.innerHTML += `
             <tr class="${rowClass}">
               ${isFirstRow ? `
-              <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
-              <td rowspan="${items.length}">${order.order_id}</td>
-              <td rowspan="${items.length}">${order.name}</td>
-              <td rowspan="${items.length}">${order.phone}</td>
-              <td rowspan="${items.length}" title="${order.email}">${order.email}</td>
-              <td rowspan="${items.length}">
-                ${order.address}<br>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
-                  <span>[${order.zipcode}]</span>
-                  <span>${order.address}</span>
-                  <span>${order.address_detail}</span>
-                </div>
-              </td>
-              <td rowspan="${items.length}">${order.cash_receipt || ''}</td>
+                <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
+                <td rowspan="${items.length}">${order.order_id}</td>
+                <td rowspan="${items.length}">${order.name}</td>
+                <td rowspan="${items.length}">${order.phone}</td>
+                <td rowspan="${items.length}" title="${order.email}">${order.email}</td>
+                <td rowspan="${items.length}">${order.zipcode}</td>
+                <td rowspan="${items.length}">${order.address}</td>
+                <td rowspan="${items.length}">${order.address_detail}</td>
+                <td rowspan="${items.length}">${order.cash_receipt || ''}</td>
               ` : ''}
               <td>${i.code || '-'}</td>
               <td class="ellipsis" title="${i.name}">${i.name}</td>
               <td>${i.qty}</td>
               <td>₩${i.price ? i.price.toLocaleString() : '-'}</td>
               ${isFirstRow ? `
-              <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
-              <td rowspan="${items.length}" class="pay-status">
-                <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed})">
-                  ${order.payment_confirmed ? '✅ 입금 확인' : '❌ 입금 전'}
-                </button><br>
-                ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
-              </td>
-              <td rowspan="${items.length}"><input class="input-box" value="${order.po_info || ''}" onchange="updateField(${order.order_id}, 'po_info', this.value)" /></td>
+                <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
+                <td rowspan="${items.length}" class="pay-status">
+                  <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed})">
+                    ${order.payment_confirmed ? '✅ 입금 확인' : '❌ 입금 전'}
+                  </button><br>
+                  ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+                </td>
+                <td rowspan="${items.length}"><input class="input-box" value="${order.po_info || ''}" onchange="updateField(${order.order_id}, 'po_info', this.value)" /></td>
+                <td><input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_status', this.value)" /></td>
+                <td><input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_due', this.value)" /></td>
               ` : ''}
-              <td><input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_status', this.value)" /></td>
-              <td><input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_due', this.value)" /></td>
             </tr>`;
         });
       });
@@ -267,20 +202,16 @@
     async function searchOrders() {
       const keyword = document.getElementById("searchInput").value.trim();
       if (!keyword) return loadOrders();
-
       const query = /^\d+$/.test(keyword)
         ? supabase.from("orders").select("*").eq("order_id", keyword)
         : supabase.from("orders").select("*").ilike("name", `%${keyword}%`);
-
       const { data, error } = await query;
       const tbody = document.getElementById("orderBody");
       tbody.innerHTML = "";
-
       if (error || !data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="16">검색 결과가 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="18">검색 결과가 없습니다.</td></tr>';
         return;
       }
-
       data.forEach(order => {
         const items = JSON.parse(order.items || "[]");
         items.forEach((i, idx) => {
@@ -289,40 +220,40 @@
           tbody.innerHTML += `
             <tr class="${rowClass}">
               ${isFirstRow ? `
-              <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
-              <td rowspan="${items.length}">${order.order_id}</td>
-              <td rowspan="${items.length}">${order.name}</td>
-              <td rowspan="${items.length}">${order.phone}</td>
-              <td rowspan="${items.length}" title="${order.email}">${order.email}</td>
-              <td rowspan="${items.length}">
-                ${order.address}<br>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
-                  <span>[${order.zipcode}]</span>
-                  <span>${order.address}</span>
-                  <span>${order.address_detail}</span>
-                </div>
-              </td>
-              <td rowspan="${items.length}">${order.cash_receipt || ''}</td>
+                <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
+                <td rowspan="${items.length}">${order.order_id}</td>
+                <td rowspan="${items.length}">${order.name}</td>
+                <td rowspan="${items.length}">${order.phone}</td>
+                <td rowspan="${items.length}" title="${order.email}">${order.email}</td>
+                <td rowspan="${items.length}">${order.zipcode}</td>
+                <td rowspan="${items.length}">${order.address}</td>
+                <td rowspan="${items.length}">${order.address_detail}</td>
+                <td rowspan="${items.length}">${order.cash_receipt || ''}</td>
               ` : ''}
               <td>${i.code || '-'}</td>
               <td class="ellipsis" title="${i.name}">${i.name}</td>
               <td>${i.qty}</td>
               <td>₩${i.price ? i.price.toLocaleString() : '-'}</td>
               ${isFirstRow ? `
-              <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
-              <td rowspan="${items.length}" class="pay-status">
-                <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed})">
-                  ${order.payment_confirmed ? '✅ 입금 확인' : '❌ 입금 전'}
-                </button><br>
-                ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
-              </td>
-              <td rowspan="${items.length}"><input class="input-box" value="${order.po_info || ''}" onchange="updateField(${order.order_id}, 'po_info', this.value)" /></td>
+                <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
+                <td rowspan="${items.length}" class="pay-status">
+                  <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed})">
+                    ${order.payment_confirmed ? '✅ 입금 확인' : '❌ 입금 전'}
+                  </button><br>
+                  ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+                </td>
+                <td rowspan="${items.length}"><input class="input-box" value="${order.po_info || ''}" onchange="updateField(${order.order_id}, 'po_info', this.value)" /></td>
+                <td><input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_status', this.value)" /></td>
+                <td><input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_due', this.value)" /></td>
               ` : ''}
-              <td><input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_status', this.value)" /></td>
-              <td><input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_due', this.value)" /></td>
             </tr>`;
         });
       });
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = "/tamiya-order-form/admin/login.html";
     }
 
     window.addEventListener("load", () => {
