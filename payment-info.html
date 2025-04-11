@@ -161,7 +161,17 @@
         `${order.zipcode || ''} ${order.address || ''} ${order.address_detail || ''}`;
 
       // 상품 내역 표시
-      if (Array.isArray(order.product)) {
+      let products = [];
+
+      try {
+        products = Array.isArray(order.items)
+          ? order.items
+          : JSON.parse(order.items);
+      } catch (e) {
+        console.error("상품 정보 파싱 오류:", e);
+      }
+
+      if (products.length > 0) {
         let totalQty = 0;
         let totalPrice = 0;
         let html = `
@@ -176,7 +186,7 @@
             </thead>
             <tbody>`;
 
-        order.product.forEach(item => {
+        products.forEach(item => {
           const itemTotal = item.quantity * item.item_price;
           totalQty += item.quantity;
           totalPrice += itemTotal;
@@ -199,8 +209,9 @@
           </tbody>
           </table>`;
         tableContainer.innerHTML = html;
+      } else {
+        tableContainer.innerHTML = "<p>주문 상품 내역이 없습니다.</p>";
       }
-    }
 
     fetchOrder();
 
