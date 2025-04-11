@@ -9,24 +9,6 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
     h1 { text-align: center; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; table-layout: fixed; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: middle; }
-
-    thead tr:nth-child(1) th {
-      position: sticky;
-      top: 0;
-      background: #007bff;
-      color: white;
-      z-index: 3;
-    }
-    thead tr:nth-child(2) th {
-      position: sticky;
-      top: 42px;
-      background: #007bff;
-      color: white;
-      z-index: 2;
-    }
-
     .logout-btn {
       float: right; background: #dc3545; color: white;
       border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;
@@ -42,16 +24,56 @@
     .order-separator td {
       border-top: 2px solid #333 !important;
     }
-    .resizer {
-      position: absolute;
-      right: 0;
+
+    .table-wrapper {
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1500px;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    thead tr:nth-child(1) th {
+      position: sticky;
       top: 0;
+      background: #007bff;
+      color: white;
+      z-index: 3;
+    }
+
+    thead tr:nth-child(2) th {
+      position: sticky;
+      top: 42px;
+      background: #007bff;
+      color: white;
+      z-index: 2;
+    }
+
+    .resizer {
       width: 5px;
       height: 100%;
+      position: absolute;
+      top: 0;
+      right: 0;
       cursor: col-resize;
       user-select: none;
-      z-index: 10;
+      z-index: 5;
     }
+
+    th { position: relative; }
   </style>
 </head>
 <body>
@@ -64,41 +86,85 @@
     <button onclick="loadOrders()" style="padding: 6px 12px;">전체보기</button>
   </div>
 
-  <table>
-    <colgroup id="colgroup">
-      <col><col><col><col><col><col><col><col><col><col><col><col><col><col><col>
-    </colgroup>
-    <thead>
-      <tr>
-        <th rowspan="2">주문일시</th>
-        <th rowspan="2">주문번호</th>
-        <th rowspan="2">고객명</th>
-        <th rowspan="2">전화번호</th>
-        <th rowspan="2">이메일</th>
-        <th rowspan="2">주소</th>
-        <th rowspan="2">현금영수증</th>
-        <th colspan="3">주문 상품</th>
-        <th rowspan="2">총 금액</th>
-        <th rowspan="2">입금 상태</th>
-        <th rowspan="2">PO 정보</th>
-        <th rowspan="2">입고 정보</th>
-        <th rowspan="2">입고 예정</th>
-      </tr>
-      <tr>
-        <th>시리얼</th>
-        <th>상품명</th>
-        <th>수량</th>
-      </tr>
-    </thead>
-    <tbody id="orderBody"><tr><td colspan="15">불러오는 중...</td></tr></tbody>
-  </table>
+  <div class="table-wrapper">
+    <table>
+      <colgroup id="colgroup">
+        ${Array(15).fill().map((_, i) => `<col style="width: ${getStoredWidth(i + 1)}">`).join("")}
+      </colgroup>
+      <thead>
+        <tr>
+          <th rowspan="2">주문일시</th>
+          <th rowspan="2">주문번호</th>
+          <th rowspan="2">고객명</th>
+          <th rowspan="2">전화번호</th>
+          <th rowspan="2">이메일</th>
+          <th rowspan="2">주소</th>
+          <th rowspan="2">현금영수증</th>
+          <th colspan="3">주문 상품</th>
+          <th rowspan="2">총 금액</th>
+          <th rowspan="2">입금 상태</th>
+          <th rowspan="2">PO 정보</th>
+          <th rowspan="2">입고 정보</th>
+          <th rowspan="2">입고 예정</th>
+        </tr>
+        <tr>
+          <th>시리얼</th>
+          <th>상품명</th>
+          <th>수량</th>
+        </tr>
+      </thead>
+      <tbody id="orderBody"><tr><td colspan="15">불러오는 중...</td></tr></tbody>
+    </table>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const supabase = window.supabase.createClient(
       'https://edgvrwekvnavkhcqwtxa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+      'public-anon-key'
     );
+
+    function getStoredWidth(index) {
+      const saved = JSON.parse(localStorage.getItem("columnWidths") || "[]");
+      return saved[index - 1] ? saved[index - 1] + "px" : "";
+    }
+
+    function storeColumnWidths() {
+      const cols = document.querySelectorAll("colgroup col");
+      const widths = Array.from(cols).map(col => parseInt(col.style.width));
+      localStorage.setItem("columnWidths", JSON.stringify(widths));
+    }
+
+    function makeColumnsResizable(table) {
+      const ths = table.querySelectorAll("thead tr:first-child th");
+      ths.forEach((th, index) => {
+        const resizer = document.createElement("div");
+        resizer.className = "resizer";
+        th.appendChild(resizer);
+
+        resizer.addEventListener("mousedown", function (e) {
+          e.preventDefault();
+          const startX = e.pageX;
+          const startWidth = th.offsetWidth;
+
+          const onMouseMove = e => {
+            const newWidth = startWidth + (e.pageX - startX);
+            th.style.width = newWidth + "px";
+            const col = document.querySelector(`colgroup col:nth-child(${index + 1})`);
+            if (col) col.style.width = newWidth + "px";
+          };
+
+          const onMouseUp = () => {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+            storeColumnWidths();
+          };
+
+          document.addEventListener("mousemove", onMouseMove);
+          document.addEventListener("mouseup", onMouseUp);
+        });
+      });
+    }
 
     async function checkAuth() {
       const { data: { session } } = await supabase.auth.getSession();
@@ -113,17 +179,19 @@
     function formatDateOnly(iso) {
       if (!iso) return '';
       const d = new Date(iso);
-      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+      return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
     }
 
     async function loadOrders() {
       const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
       const tbody = document.getElementById("orderBody");
       tbody.innerHTML = "";
+
       if (error || !data || data.length === 0) {
         tbody.innerHTML = '<tr><td colspan="15">주문 내역이 없습니다.</td></tr>';
         return;
       }
+
       data.forEach(order => {
         const items = JSON.parse(order.items || "[]");
         items.forEach((i, idx) => {
@@ -160,10 +228,11 @@
     }
 
     async function togglePayment(orderId, current) {
-      await supabase.from("orders").update({
+      const updates = {
         payment_confirmed: !current,
         payment_date: !current ? new Date().toISOString() : null
-      }).eq("order_id", orderId);
+      };
+      await supabase.from("orders").update(updates).eq("order_id", orderId);
       loadOrders();
     }
 
@@ -174,14 +243,17 @@
     async function searchOrders() {
       const keyword = document.getElementById("searchInput").value.trim();
       if (!keyword) return loadOrders();
+
       const query = /^\d+$/.test(keyword)
         ? supabase.from("orders").select("*").eq("order_id", keyword)
         : supabase.from("orders").select("*").ilike("name", `%${keyword}%`);
+
       const { data, error } = await query;
       if (error || !data || data.length === 0) {
         document.getElementById("orderBody").innerHTML = '<tr><td colspan="15">검색 결과가 없습니다.</td></tr>';
         return;
       }
+
       const tbody = document.getElementById("orderBody");
       tbody.innerHTML = "";
       data.forEach(order => {
@@ -224,41 +296,8 @@
       window.location.href = "/tamiya-order-form/admin/login.html";
     }
 
-    function makeColumnsResizable(table) {
-      const ths = table.querySelectorAll("thead tr:first-child th");
-      const colgroup = document.querySelector("colgroup");
-      const saved = JSON.parse(localStorage.getItem("admin-col-widths") || "[]");
-      ths.forEach((th, i) => {
-        if (saved[i]) {
-          th.style.width = saved[i] + "px";
-          colgroup.children[i].style.width = saved[i] + "px";
-        }
-        const resizer = document.createElement("div");
-        resizer.className = "resizer";
-        th.style.position = "relative";
-        th.appendChild(resizer);
-        resizer.addEventListener("mousedown", function (e) {
-          const startX = e.pageX;
-          const startWidth = th.offsetWidth;
-          function onMouseMove(e) {
-            const newWidth = startWidth + (e.pageX - startX);
-            th.style.width = newWidth + "px";
-            colgroup.children[i].style.width = newWidth + "px";
-          }
-          function onMouseUp() {
-            document.removeEventListener("mousemove", onMouseMove);
-            document.removeEventListener("mouseup", onMouseUp);
-            const widths = Array.from(colgroup.children).map(col => parseInt(col.style.width));
-            localStorage.setItem("admin-col-widths", JSON.stringify(widths));
-          }
-          document.addEventListener("mousemove", onMouseMove);
-          document.addEventListener("mouseup", onMouseUp);
-        });
-      });
-    }
-
+    checkAuth();
     window.addEventListener("load", () => {
-      checkAuth();
       makeColumnsResizable(document.querySelector("table"));
     });
   </script>
