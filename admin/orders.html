@@ -17,8 +17,20 @@
       border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;
     }
     .input-box { width: 100px; padding: 4px; }
-    .product-cell { display: inline-block; border: 1px solid #ccc; margin: 2px; padding: 4px; background: #f0f0f0; font-size: 13px; }
     .pay-status { line-height: 1.4; }
+
+    .product-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .product-table th, .product-table td {
+      border: 1px solid #ccc;
+      padding: 4px;
+      text-align: center;
+    }
+    .ellipsis {
+      max-width: 180px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   </style>
 </head>
 <body>
@@ -89,9 +101,19 @@
 
       data.forEach(order => {
         const items = JSON.parse(order.items || "[]");
-        const productCells = items.map(i =>
-          `<div class="product-cell">${i.name}<br>수량: ${i.qty}</div>`
-        ).join("");
+        const productTable = `
+          <table class="product-table">
+            <thead><tr><th>시리얼</th><th>상품명</th><th>수량</th></tr></thead>
+            <tbody>
+              ${items.map(i => `
+                <tr>
+                  <td>${i.code || '-'}</td>
+                  <td class="ellipsis" title="${i.name}">${i.name}</td>
+                  <td>${i.qty}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>`;
 
         tbody.innerHTML += `
           <tr>
@@ -101,7 +123,7 @@
             <td>${order.phone}</td>
             <td>${order.email}</td>
             <td>[${order.zipcode}] ${order.address} ${order.address_detail}</td>
-            <td>${productCells}</td>
+            <td>${productTable}</td>
             <td>₩${order.total.toLocaleString()}</td>
             <td class="pay-status">
               <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed})">
@@ -158,9 +180,19 @@
 
       data.forEach(order => {
         const items = JSON.parse(order.items || "[]");
-        const productCells = items.map(i =>
-          `<div class="product-cell">${i.name}<br>수량: ${i.qty}</div>`
-        ).join("");
+        const productTable = `
+          <table class="product-table">
+            <thead><tr><th>시리얼</th><th>상품명</th><th>수량</th></tr></thead>
+            <tbody>
+              ${items.map(i => `
+                <tr>
+                  <td>${i.code || '-'}</td>
+                  <td class="ellipsis" title="${i.name}">${i.name}</td>
+                  <td>${i.qty}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>`;
 
         tbody.innerHTML += `
           <tr>
@@ -170,7 +202,7 @@
             <td>${order.phone}</td>
             <td>${order.email}</td>
             <td>[${order.zipcode}] ${order.address} ${order.address_detail}</td>
-            <td>${productCells}</td>
+            <td>${productTable}</td>
             <td>₩${order.total.toLocaleString()}</td>
             <td class="pay-status">
               <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed})">
