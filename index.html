@@ -9,114 +9,56 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <style>
-    html {
-      scroll-behavior: smooth;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
-    }
+    html { scroll-behavior: smooth; }
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
     nav {
-      position: sticky;
-      top: 0;
-      background: #fff;
-      padding: 10px 0;
-      margin-bottom: 20px;
-      border-bottom: 1px solid #ccc;
-      z-index: 1000;
+      position: sticky; top: 0; background: #fff; padding: 10px 0;
+      margin-bottom: 20px; border-bottom: 1px solid #ccc; z-index: 1000;
     }
     nav ul {
-      list-style: none;
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      padding: 0;
-      margin: 0;
-    }
-    nav li {
-      display: inline;
+      list-style: none; display: flex; justify-content: center;
+      gap: 30px; padding: 0; margin: 0;
     }
     nav a {
-      text-decoration: none;
-      color: #007bff;
-      font-weight: bold;
+      text-decoration: none; color: #007bff; font-weight: bold;
     }
-    h2 {
-      border-bottom: 2px solid #333;
-      padding-bottom: 5px;
-    }
-    .section {
-      margin-bottom: 30px;
-    }
-    label {
-      display: block;
-      margin: 8px 0 4px;
-    }
+    h2 { border-bottom: 2px solid #333; padding-bottom: 5px; }
+    .section { margin-bottom: 30px; }
+    label { display: block; margin: 8px 0 4px; }
     input[type="text"], input[type="email"] {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      box-sizing: border-box;
+      width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box;
     }
     table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
+      width: 100%; border-collapse: collapse; margin-top: 10px;
     }
     th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
+      border: 1px solid #ddd; padding: 8px; text-align: center;
     }
-    th {
-      background-color: #f2f2f2;
-    }
-    .total {
-      font-weight: bold;
-    }
+    th { background-color: #f2f2f2; }
+    .total { font-weight: bold; }
     button {
-      padding: 10px 20px;
-      margin-top: 20px;
-      cursor: pointer;
-      font-size: 16px;
+      padding: 10px 20px; margin-top: 20px; cursor: pointer; font-size: 16px;
     }
     button.confirm {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-    input.error {
-      border: 1px solid red;
+      background-color: #007bff; color: white;
+      border: none; border-radius: 5px;
     }
     .button-search {
-      width: fit-content;
-      padding: 6px 12px;
-      background: #f5f5f5;
-      border: 1px solid #ccc;
-      margin-top: 5px;
-      transition: background 0.2s;
+      width: fit-content; padding: 6px 12px; background: #f5f5f5;
+      border: 1px solid #ccc; margin-top: 5px; transition: background 0.2s;
     }
-    .button-search:hover {
-      background: #eaeaea;
-    }
+    .button-search:hover { background: #eaeaea; }
     input.qty-input {
-      width: 60px;
-      text-align: center;
+      width: 60px; text-align: center;
     }
     #orderResult {
-      margin-top: 15px;
-      background: #f4f4f4;
-      padding: 15px;
-      border: 1px solid #ccc;
+      margin-top: 15px; background: #f4f4f4;
+      padding: 15px; border: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
 
-<!-- ✅ 네비게이션 바 -->
 <nav>
   <ul>
     <li><a href="#notice">개별주문 안내</a></li>
@@ -126,7 +68,6 @@
   </ul>
 </nav>
 
-<!-- ✅ 개별주문 안내 -->
 <div id="notice" class="section">
   <h2>신청 전 고객 안내사항</h2>
   <p>
@@ -136,7 +77,6 @@
   </p>
 </div>
 
-<!-- ✅ 개별주문 신청 -->
 <div id="form">
   <h2>고객 정보 입력</h2>
   <label for="customerName">성명</label>
@@ -159,7 +99,6 @@
     <label for="receiptInfo">현금영수증 정보</label>
     <input id="receiptInfo" placeholder="010-1234-5678 또는 123-45-67890" type="text" />
   </div>
-
   <div class="section">
     <h2>제품 검색 및 신청</h2>
     <label for="serialSearch">제품 시리얼 넘버 입력</label>
@@ -200,27 +139,23 @@
     <button onclick="confirmOrder()" class="confirm">✅ 주문 확정</button>
   </div>
 </div>
-<!-- ✅ 주문 확인 섹션 -->
+
 <div id="orderCheck" class="section">
   <h2>주문 확인</h2>
   <p>주문번호를 입력하시면 주문 정보를 확인하실 수 있습니다.</p>
   <input id="orderSearchInput" type="text" placeholder="주문번호 8자리 입력" style="padding:8px; width: 200px;" />
   <button onclick="searchOrderById()">검색</button>
-
   <div id="orderResult"></div>
 </div>
 
-<!-- ✅ FAQ 섹션 (추후 구성 가능) -->
 <div id="faq" class="section">
   <h2>FAQ</h2>
   <p>자주 묻는 질문은 현재 준비 중입니다.</p>
 </div>
-
-<!-- ✅ JavaScript -->
 <script>
   const supabase = window.supabase.createClient(
     'https://edgvrwekvnavkhcqwtxa.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+    'YOUR_SUPABASE_ANON_KEY'
   );
 
   const cart = [];
@@ -396,17 +331,31 @@
     }
 
     const items = JSON.parse(data.items || "[]");
-    const itemList = items.map(item => `
-      <li>${item.name} (${item.qty}개)</li>
-    `).join("");
+    const itemList = items.map(item => `<li>${item.name} (${item.qty}개)</li>`).join("");
+
+    function formatDate(d) {
+      const date = new Date(d);
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}.${mm}.${dd}`;
+    }
+
+    const depositStatus = data.payment_confirmed
+      ? `입금 확인 (${formatDate(data.payment_date)})`
+      : "입금 전";
+
+    const arrivalDue = data.arrival_due?.trim() ? data.arrival_due : "미정";
 
     resultDiv.innerHTML = `
       <h3>주문 정보</h3>
       <p><strong>주문번호:</strong> ${data.order_id}</p>
       <p><strong>고객명:</strong> ${data.name}</p>
       <p><strong>전화번호:</strong> ${data.phone}</p>
-      <p><strong>주문일시:</strong> ${new Date(data.created_at).toLocaleString()}</p>
+      <p><strong>주문일시:</strong> ${formatDate(data.created_at)}</p>
       <p><strong>총 금액:</strong> ₩${data.total.toLocaleString()}</p>
+      <p><strong>입금 상태:</strong> ${depositStatus}</p>
+      <p><strong>입고 예정일:</strong> ${arrivalDue}</p>
       <p><strong>주문 상품:</strong></p>
       <ul>${itemList}</ul>
     `;
