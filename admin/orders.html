@@ -42,16 +42,16 @@
     .order-separator td {
       border-top: 2px solid #333 !important;
     }
-
-    col:nth-child(1) { width: 80px; }
-    col:nth-child(2) { width: 100px; }
-    col:nth-child(4) { width: 135px; }
-    col:nth-child(5) { width: 200px; }
-    col:nth-child(6) { width: 300px; }
-    col:nth-child(7) { width: 120px; }
-    col:nth-child(8) { width: 75px; }
-    col:nth-child(9) { width: 200px; }
-    col:nth-child(10) { width: 55px; }
+    .resizer {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 5px;
+      height: 100%;
+      cursor: col-resize;
+      user-select: none;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
@@ -65,22 +65,8 @@
   </div>
 
   <table>
-    <colgroup>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
-      <col>
+    <colgroup id="colgroup">
+      <col><col><col><col><col><col><col><col><col><col><col><col><col><col><col>
     </colgroup>
     <thead>
       <tr>
@@ -127,22 +113,17 @@
     function formatDateOnly(iso) {
       if (!iso) return '';
       const d = new Date(iso);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      return `${yyyy}.${mm}.${dd}`;
+      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
     }
 
     async function loadOrders() {
       const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
       const tbody = document.getElementById("orderBody");
       tbody.innerHTML = "";
-
       if (error || !data || data.length === 0) {
         tbody.innerHTML = '<tr><td colspan="15">주문 내역이 없습니다.</td></tr>';
         return;
       }
-
       data.forEach(order => {
         const items = JSON.parse(order.items || "[]");
         items.forEach((i, idx) => {
@@ -179,11 +160,10 @@
     }
 
     async function togglePayment(orderId, current) {
-      const updates = {
+      await supabase.from("orders").update({
         payment_confirmed: !current,
         payment_date: !current ? new Date().toISOString() : null
-      };
-      await supabase.from("orders").update(updates).eq("order_id", orderId);
+      }).eq("order_id", orderId);
       loadOrders();
     }
 
@@ -194,17 +174,14 @@
     async function searchOrders() {
       const keyword = document.getElementById("searchInput").value.trim();
       if (!keyword) return loadOrders();
-
       const query = /^\d+$/.test(keyword)
         ? supabase.from("orders").select("*").eq("order_id", keyword)
         : supabase.from("orders").select("*").ilike("name", `%${keyword}%`);
-
       const { data, error } = await query;
       if (error || !data || data.length === 0) {
         document.getElementById("orderBody").innerHTML = '<tr><td colspan="15">검색 결과가 없습니다.</td></tr>';
         return;
       }
-
       const tbody = document.getElementById("orderBody");
       tbody.innerHTML = "";
       data.forEach(order => {
@@ -247,7 +224,43 @@
       window.location.href = "/tamiya-order-form/admin/login.html";
     }
 
-    checkAuth();
+    function makeColumnsResizable(table) {
+      const ths = table.querySelectorAll("thead tr:first-child th");
+      const colgroup = document.querySelector("colgroup");
+      const saved = JSON.parse(localStorage.getItem("admin-col-widths") || "[]");
+      ths.forEach((th, i) => {
+        if (saved[i]) {
+          th.style.width = saved[i] + "px";
+          colgroup.children[i].style.width = saved[i] + "px";
+        }
+        const resizer = document.createElement("div");
+        resizer.className = "resizer";
+        th.style.position = "relative";
+        th.appendChild(resizer);
+        resizer.addEventListener("mousedown", function (e) {
+          const startX = e.pageX;
+          const startWidth = th.offsetWidth;
+          function onMouseMove(e) {
+            const newWidth = startWidth + (e.pageX - startX);
+            th.style.width = newWidth + "px";
+            colgroup.children[i].style.width = newWidth + "px";
+          }
+          function onMouseUp() {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+            const widths = Array.from(colgroup.children).map(col => parseInt(col.style.width));
+            localStorage.setItem("admin-col-widths", JSON.stringify(widths));
+          }
+          document.addEventListener("mousemove", onMouseMove);
+          document.addEventListener("mouseup", onMouseUp);
+        });
+      });
+    }
+
+    window.addEventListener("load", () => {
+      checkAuth();
+      makeColumnsResizable(document.querySelector("table"));
+    });
   </script>
 </body>
 </html>
