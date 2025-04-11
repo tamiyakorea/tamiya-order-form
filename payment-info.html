@@ -179,14 +179,16 @@
             <tbody>`;
 
         products.forEach(item => {
-          const itemTotal = item.quantity * item.item_price;
-          totalQty += item.quantity;
+          const unitPrice = Number(item.item_price || 0);
+          const qty = Number(item.quantity || 0);
+          const itemTotal = qty * unitPrice;
+          totalQty += qty;
           totalPrice += itemTotal;
           html += `
             <tr>
-              <td>${item.item_name}</td>
-              <td>${item.quantity}</td>
-              <td>${item.item_price.toLocaleString()}원</td>
+              <td>${item.item_name || '-'}</td>
+              <td>${qty}</td>
+              <td>${unitPrice.toLocaleString()}원</td>
               <td>${itemTotal.toLocaleString()}원</td>
             </tr>`;
         });
@@ -204,7 +206,7 @@
       } else {
         tableContainer.innerHTML = "<p>주문 상품 내역이 없습니다.</p>";
       }
-    } // ✅ fetchOrder 함수 닫기
+    }
 
     fetchOrder();
 
