@@ -255,7 +255,14 @@
       await supabase.auth.signOut();
       window.location.href = "/tamiya-order-form/admin/login.html";
     }
-
+function injectColgroup() {
+  const colgroup = document.getElementById("colgroup");
+  colgroup.innerHTML = '';
+  for (let i = 1; i <= 18; i++) { // 현재 총 18열에 맞춰 반복
+    const col = document.createElement("col");
+    colgroup.appendChild(col);
+  }
+}
     window.addEventListener("load", () => {
       injectColgroup();
       makeColumnsResizable(document.querySelector("table"));
