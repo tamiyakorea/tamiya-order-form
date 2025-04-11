@@ -87,10 +87,7 @@
   </div>
 
   <div class="table-wrapper">
-    <table>
-      <colgroup id="colgroup">
-        ${Array(15).fill().map((_, i) => `<col style="width: ${getStoredWidth(i + 1)}">`).join("")}
-      </colgroup>
+    <table id="orderTable">
       <thead>
         <tr>
           <th rowspan="2">주문일시</th>
@@ -117,13 +114,13 @@
     </table>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const { createClient } = supabase;
-  const supabase = createClient(
-    'https://edgvrwekvnavkhcqwtxa.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E' // ← 기존과 동일한 키
-  );
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const { createClient } = supabase;
+    const supabase = createClient(
+      'https://edgvrwekvnavkhcqwtxa.supabase.co',
+      'YOUR_PUBLIC_ANON_KEY' // 실제 키로 교체 필요
+    );
 
     function getStoredWidth(index) {
       const saved = JSON.parse(localStorage.getItem("columnWidths") || "[]");
@@ -134,6 +131,18 @@
       const cols = document.querySelectorAll("colgroup col");
       const widths = Array.from(cols).map(col => parseInt(col.style.width));
       localStorage.setItem("columnWidths", JSON.stringify(widths));
+    }
+
+    function injectColgroup() {
+      const colgroup = document.createElement("colgroup");
+      for (let i = 1; i <= 15; i++) {
+        const col = document.createElement("col");
+        const width = getStoredWidth(i);
+        if (width) col.style.width = width;
+        colgroup.appendChild(col);
+      }
+      const table = document.querySelector("table");
+      table.insertBefore(colgroup, table.firstChild);
     }
 
     function makeColumnsResizable(table) {
@@ -250,13 +259,14 @@
         : supabase.from("orders").select("*").ilike("name", `%${keyword}%`);
 
       const { data, error } = await query;
+      const tbody = document.getElementById("orderBody");
+      tbody.innerHTML = "";
+
       if (error || !data || data.length === 0) {
-        document.getElementById("orderBody").innerHTML = '<tr><td colspan="15">검색 결과가 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="15">검색 결과가 없습니다.</td></tr>';
         return;
       }
 
-      const tbody = document.getElementById("orderBody");
-      tbody.innerHTML = "";
       data.forEach(order => {
         const items = JSON.parse(order.items || "[]");
         items.forEach((i, idx) => {
@@ -297,9 +307,10 @@
       window.location.href = "/tamiya-order-form/admin/login.html";
     }
 
-    checkAuth();
     window.addEventListener("load", () => {
+      injectColgroup();
       makeColumnsResizable(document.querySelector("table"));
+      checkAuth();
     });
   </script>
 </body>
