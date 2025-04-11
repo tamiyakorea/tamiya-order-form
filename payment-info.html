@@ -71,7 +71,6 @@
 
   <div class="box" id="receipt">
 
-    <!-- 입금 안내 -->
     <div class="section">
       <p>주문이 정상적으로 접수되었습니다. 아래 입금 정보를 확인하신 후, <span class="highlight">정확한 금액을 입금해주시기 바랍니다.</span></p>
 
@@ -84,7 +83,6 @@
       </ul>
     </div>
 
-    <!-- 주문 안내 -->
     <div class="section">
       <h3>⚠️ 주문 진행 안내</h3>
       <ul>
@@ -95,7 +93,6 @@
       </ul>
     </div>
 
-    <!-- 주문 정보 -->
     <div class="section">
       <h2>🧾 주문서</h2>
       <p>주문번호: <span class="highlight" id="orderId"></span></p>
@@ -117,17 +114,14 @@
   </div>
 
   <script>
-    // 페이지 초기 변수 설정
     const orderId = new URLSearchParams(window.location.search).get("orderId");
 
-    // Supabase 초기화 - 사용자 입력 필요
     const { createClient } = supabase;
     const supabaseClient = createClient(
-      'https://edgvrwekvnavkhcqwtxa.supabase.co', // <-- 여기에 입력
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'                 // <-- 여기에 입력
+      'https://edgvrwekvnavkhcqwtxa.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
     );
 
-    // 기본 요소 참조
     const orderIdEl = document.getElementById("orderId");
     const nameEl = document.getElementById("name");
     const phoneEl = document.getElementById("phone");
@@ -153,14 +147,12 @@
 
       const order = data;
 
-      // 고객정보 표시
       nameEl.textContent = order.name || "-";
       phoneEl.textContent = order.phone || "-";
       emailEl.textContent = order.email || "-";
       addressEl.textContent =
         `${order.zipcode || ''} ${order.address || ''} ${order.address_detail || ''}`;
 
-      // 상품 내역 표시
       let products = [];
 
       try {
@@ -212,6 +204,7 @@
       } else {
         tableContainer.innerHTML = "<p>주문 상품 내역이 없습니다.</p>";
       }
+    } // ✅ fetchOrder 함수 닫기
 
     fetchOrder();
 
