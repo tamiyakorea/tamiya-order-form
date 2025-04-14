@@ -79,7 +79,7 @@ function renderOrders(data) {
   const tbody = document.getElementById("orderBody");
   tbody.innerHTML = "";
   if (!data || data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="21">주문 내역이 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="22">주문 내역이 없습니다.</td></tr>';
     return;
   }
   data.forEach(order => {
@@ -87,10 +87,16 @@ function renderOrders(data) {
     items.forEach((i, idx) => {
       const isFirstRow = idx === 0;
       const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
+
+      const proofButtons = (order.proof_images || []).map((url, index) => {
+        return `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`;
+      }).join(" ");
+
       tbody.innerHTML += `
         <tr class="${rowClass}">
           ${isFirstRow ? `
             <td rowspan="${items.length}"><button class="delete-btn" onclick="deleteOrder(${order.order_id}, ${order.payment_confirmed})">삭제</button></td>
+            <td rowspan="${items.length}">${proofButtons}</td>
             <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
             <td rowspan="${items.length}">${order.order_id}</td>
             <td rowspan="${items.length}">${order.name}</td>
@@ -138,7 +144,7 @@ async function updateFieldByItem(orderId, itemCode, field, value) {
 function injectColgroup() {
   const colgroup = document.getElementById("colgroup");
   colgroup.innerHTML = '';
-  for (let i = 1; i <= 21; i++) {
+  for (let i = 1; i <= 22; i++) {
     const col = document.createElement("col");
     colgroup.appendChild(col);
   }
