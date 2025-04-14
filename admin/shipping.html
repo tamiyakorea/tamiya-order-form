@@ -31,10 +31,22 @@
       loadShippingOrders();
     }
 
+    async function updateTrackingNumber(orderId, value) {
+      const date = value ? new Date().toISOString() : null;
+      await supabase.from('orders').update({ tracking_number: value || null, tracking_date: date }).eq('order_id', orderId);
+      loadShippingOrders();
+    }
+
+    function formatDateOnly(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+    }
+
     async function loadShippingOrders() {
       const { data, error } = await supabase
         .from('orders')
-        .select('order_id, name, phone, zipcode, address, address_detail, total, items')
+        .select('order_id, name, phone, zipcode, address, address_detail, total, items, tracking_number, tracking_date')
         .eq('is_ready_to_ship', true)
         .order('created_at', { ascending: false })
         .limit(50);
@@ -43,12 +55,12 @@
       tbody.innerHTML = '';
 
       if (error) {
-        tbody.innerHTML = `<tr><td colspan="12">오류 발생: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="13">오류 발생: ${error.message}</td></tr>`;
         return;
       }
 
       if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12">배송 준비된 주문이 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="13">배송 준비된 주문이 없습니다.</td></tr>';
         return;
       }
 
@@ -71,6 +83,12 @@
             <td>${item.qty || '-'}</td>
             <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
             ${isFirstRow ? `<td rowspan="${items.length}">₩${order.total ? order.total.toLocaleString() : '-'}</td>` : ''}
+            ${isFirstRow ? `<td rowspan="${items.length}">
+              <input class="input-box" value="${order.tracking_number || ''}" onchange="updateTrackingNumber(${order.order_id}, this.value)" />
+              <div style="font-size: 0.85em; color: gray; margin-top: 4px;">
+                ${order.tracking_date ? formatDateOnly(order.tracking_date) : ''}
+              </div>
+            </td>` : ''}
           `;
           tbody.appendChild(row);
         });
@@ -78,6 +96,7 @@
     }
 
     window.returnToOrders = returnToOrders;
+    window.updateTrackingNumber = updateTrackingNumber;
     document.addEventListener('DOMContentLoaded', checkAuth);
   </script>
   <style>
@@ -147,15 +166,16 @@
         <th>우편번호</th>
         <th>주소</th>
         <th>상세주소</th>
-        <th>시리얼</th>
-        <th>아이템</th>
+        <th>아이템 시리얼</th>
+        <th>아이템명</th>
         <th>수량</th>
-        <th>단가</th>
-        <th>총 금액</th>
+        <th>개별금액</th>
+        <th>총금액</th>
+        <th>송장번호</th>
       </tr>
     </thead>
     <tbody id="shipping-table-body">
-      <tr><td colspan="12">불러오는 중...</td></tr>
+      <tr><td colspan="13">불러오는 중...</td></tr>
     </tbody>
   </table>
 </body>
