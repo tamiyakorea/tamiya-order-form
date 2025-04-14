@@ -60,7 +60,14 @@ async function searchOrders() {
 }
 
 async function loadOrders() {
-  const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("is_ready_to_ship", false)
+    .order("created_at", { ascending: false });
+
+  if (!error) renderOrders(data);
+} = await supabase.from("orders").select("*").order("created_at", { ascending: false });
   if (!error) renderOrders(data);
 }
 
