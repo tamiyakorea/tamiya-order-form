@@ -33,7 +33,6 @@ async function togglePayment(orderId, current) {
     return;
   }
 
-  // 성공 시 새로고침
   loadOrders();
 }
 
@@ -94,9 +93,7 @@ function renderOrders(data) {
   }
 
   data.forEach(order => {
-  const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
-  ...
-});
+    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
 
     items.forEach((i, idx) => {
       const isFirstRow = idx === 0;
@@ -150,15 +147,15 @@ function renderOrders(data) {
 async function updateFieldByItem(orderId, itemCode, field, value) {
   const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
   if (!orderData || !orderData.items) return;
-  const items = JSON.parse(orderData.items);
+  const items = Array.isArray(orderData.items) ? orderData.items : JSON.parse(orderData.items);
   const updatedItems = items.map(i => {
-  if (String(i.code) === String(itemCode)) {
-    const updated = Object.assign({}, i);
-    updated[field] = value || null;
-    return updated;
-  }
-  return i;
-});
+    if (String(i.code) === String(itemCode)) {
+      const updated = Object.assign({}, i);
+      updated[field] = value || null;
+      return updated;
+    }
+    return i;
+  });
   const { error } = await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
   if (error) alert("항목 업데이트 실패: " + error.message);
 }
