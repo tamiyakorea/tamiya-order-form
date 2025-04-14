@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>배송 관리</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    nav {
+      background-color: #343a40;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 20px;
+      font-weight: bold;
+    }
+    nav a.active {
+      text-decoration: underline;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px auto;
+      max-width: 1200px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div>
+      <a href="orders.html">주문 관리</a>
+      <a href="shipping.html" class="active">배송 관리</a>
+    </div>
+  </nav>
+
+  <h1>배송 관리</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>주문번호</th>
+        <th>고객명</th>
+        <th>입고 상태</th>
+        <th>입고 예정</th>
+        <th>비고</th>
+      </tr>
+    </thead>
+    <tbody id="shipping-table-body">
+      <tr><td colspan="5">불러오는 중...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const supabase = createClient(
+      'https://edgvrwekvnavkhcqwtxa.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+    );
+
+    async function loadShippingOrders() {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('order_id, name, arrival_status, arrival_estimate, remarks')
+        .eq('is_ready_to_ship', true)
+        .order('created_at', { ascending: false });
+
+      const tbody = document.getElementById('shipping-table-body');
+      tbody.innerHTML = '';
+
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="5">오류 발생: ${error.message}</td></tr>`;
+        return;
+      }
+
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">배송 준비된 주문이 없습니다.</td></tr>';
+        return;
+      }
+
+      data.forEach(order => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${order.order_id}</td>
+          <td>${order.name}</td>
+          <td>${order.arrival_status || ''}</td>
+          <td>${order.arrival_estimate || '미정'}</td>
+          <td>${order.remarks || ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadShippingOrders);
+  </script>
+</body>
+</html>
