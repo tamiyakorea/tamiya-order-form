@@ -3,16 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <title>엑셀 주문 등록</title>
-  <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- 404 파비콘 제거 -->
-
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
   <script type="module">
     import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs";
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
     const supabase = createClient(
       "https://edgvrwekvnavkhcqwtxa.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E" // 실제 프로젝트 키로 교체
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E"
     );
+
+    // ✅ 인증 확인 함수
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert("로그인이 필요합니다. 창을 닫습니다.");
+        window.close(); // 또는 window.location.href = '/admin/login.html';
+      }
+    }
 
     function generateOrderNumber() {
       const now = new Date();
@@ -73,7 +81,9 @@
       return items;
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
+      await checkAuth(); // ✅ 인증 확인 먼저
+
       const uploadInput = document.getElementById("excel-upload");
 
       uploadInput.addEventListener("change", async (e) => {
@@ -121,7 +131,7 @@
           console.error(error);
         } else {
           alert("주문이 성공적으로 업로드되었습니다.");
-          window.close(); // ✅ 업로드 성공 시 창 닫기
+          window.close();
         }
       });
     });
