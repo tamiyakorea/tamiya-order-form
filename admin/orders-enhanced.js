@@ -94,7 +94,9 @@ function renderOrders(data) {
   }
 
   data.forEach(order => {
-    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+  const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+  ...
+});
 
     items.forEach((i, idx) => {
       const isFirstRow = idx === 0;
