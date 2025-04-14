@@ -29,7 +29,8 @@
         .from('orders')
         .select('order_id, name, arrival_status, arrival_estimate, remarks')
         .eq('is_ready_to_ship', true)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       const tbody = document.getElementById('shipping-table-body');
       tbody.innerHTML = '';
