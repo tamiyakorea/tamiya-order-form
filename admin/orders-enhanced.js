@@ -1,4 +1,3 @@
-// /tamiya-order-form/admin/orders-enhanced.js
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const supabase = createClient(
@@ -18,7 +17,8 @@ async function logout() {
 }
 
 async function updateField(orderId, field, value) {
-  await supabase.from("orders").update({ [field]: value || null }).eq("order_id", orderId);
+  const { error } = await supabase.from("orders").update({ [field]: value || null }).eq("order_id", orderId);
+  if (error) alert("업데이트 실패: " + error.message);
 }
 
 async function togglePayment(orderId, current) {
@@ -26,15 +26,23 @@ async function togglePayment(orderId, current) {
     payment_confirmed: !current,
     payment_date: !current ? new Date().toISOString() : null
   };
-  await supabase.from("orders").update(updates).eq("order_id", orderId);
+
+  const { error } = await supabase.from("orders").update(updates).eq("order_id", orderId);
+  if (error) {
+    alert("입금 상태 업데이트 실패: " + error.message);
+    return;
+  }
+
+  // 성공 시 새로고침
   loadOrders();
 }
 
 async function markAsReadyToShip(orderId, btn) {
   const confirmed = confirm("이 주문을 배송 준비 상태로 이동하시겠습니까?");
   if (!confirmed) return;
-  await supabase.from("orders").update({ is_ready_to_ship: true }).eq("order_id", orderId);
-  loadOrders();
+  const { error } = await supabase.from("orders").update({ is_ready_to_ship: true }).eq("order_id", orderId);
+  if (error) alert("업데이트 실패: " + error.message);
+  else loadOrders();
 }
 
 async function deleteOrder(orderId, isPaid) {
@@ -63,6 +71,7 @@ async function searchOrders() {
 
   const { data, error } = await query;
   if (!error) renderOrders(data);
+  else alert("검색 실패: " + error.message);
 }
 
 async function loadOrders() {
@@ -73,6 +82,7 @@ async function loadOrders() {
     .order("created_at", { ascending: false });
 
   if (!error) renderOrders(data);
+  else alert("주문 목록 불러오기 실패: " + error.message);
 }
 
 function renderOrders(data) {
@@ -82,8 +92,10 @@ function renderOrders(data) {
     tbody.innerHTML = '<tr><td colspan="22">주문 내역이 없습니다.</td></tr>';
     return;
   }
+
   data.forEach(order => {
     const items = JSON.parse(order.items || "[]");
+
     items.forEach((i, idx) => {
       const isFirstRow = idx === 0;
       const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
@@ -138,7 +150,8 @@ async function updateFieldByItem(orderId, itemCode, field, value) {
   if (!orderData || !orderData.items) return;
   const items = JSON.parse(orderData.items);
   const updatedItems = items.map(i => String(i.code) === String(itemCode) ? { ...i, [field]: value || null } : i);
-  await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
+  const { error } = await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
+  if (error) alert("항목 업데이트 실패: " + error.message);
 }
 
 function injectColgroup() {
