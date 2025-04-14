@@ -6,6 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>한국타미야 개별주문 신청</title>
+  <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
   <style>
@@ -103,19 +104,10 @@
     </tr>
   </thead>
   <tbody id="orderBody">
-    <tr>
-      <td colspan="22">불러오는 중...</td>
-    </tr>
   </tbody>
 </table>
 
-<!-- 주문 렌더링 시 다음과 같이 proof_images를 버튼으로 출력 -->
-<!--
-<td rowspan="${items.length}">
-  ${(order.proof_images || []).map((url, idx) => `
-    <a href="${url}" class="download-btn" target="_blank">파일${idx + 1} 다운로드</a><br>`).join('')}
-</td>
--->
+<script type="module" src="/tamiya-order-form/admin/orders-enhanced.js"></script>
 
 </body>
 </html>
