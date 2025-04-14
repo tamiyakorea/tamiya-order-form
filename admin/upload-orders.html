@@ -9,7 +9,7 @@
 
     const supabase = createClient(
       "https://edgvrwekvnavkhcqwtxa.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E" // 🔁 실제 프로젝트의 키로 교체해주세요
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E"
     );
 
     function generateOrderNumber() {
@@ -123,9 +123,12 @@
           console.error(error);
         } else {
           alert("주문이 성공적으로 업로드되었습니다.");
-          location.reload();
+          window.close(); // 업로드 완료 시 새 창 닫기
         }
       });
+
+      // 페이지 로드되면 바로 파일 선택창 열기
+      setTimeout(() => document.getElementById("excel-upload").click(), 300);
     });
   </script>
   <style>
@@ -155,6 +158,6 @@
 <body>
   <h1>엑셀 주문 등록</h1>
   <input type="file" id="excel-upload" accept=".xlsx,.xls,.csv" style="display:none" />
-  <button id="upload-button" onclick="document.getElementById('excel-upload').click()">엑셀 파일 선택</button>
+  <button id="upload-button" onclick="document.getElementById('excel-upload').click()">엑셀 파일 다시 선택</button>
 </body>
 </html>
