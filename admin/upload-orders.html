@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <title>엑셀 주문 등록</title>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- 404 파비콘 제거 -->
+
   <script type="module">
     import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs";
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
     const supabase = createClient(
       "https://edgvrwekvnavkhcqwtxa.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E"
+      "YOUR_PUBLIC_ANON_KEY" // 실제 프로젝트 키로 교체
     );
 
     function generateOrderNumber() {
@@ -61,14 +63,10 @@
 
         if (serial && product) {
           const code = String(serial).trim();
+          const name = String(product).trim();
           const price = itemPriceMap.get(code) || 0;
 
-          items.push({
-            code: code,
-            name: product.trim(),
-            qty: qty,
-            price: price
-          });
+          items.push({ code, name, qty, price });
         }
       }
 
@@ -100,15 +98,15 @@
 
           ordersToInsert.push({
             order_id: generateOrderNumber(),
-            name: row.customer_name,
-            phone: row.phone,
-            email: row.email,
-            zipcode: row.zip_code,
-            address: row.address,
-            address_detail: row.detail_address,
-            receipt_info: row.cash_receipt || null,
-            items: items,
-            total: total,
+            name: String(row.customer_name || '').trim(),
+            phone: String(row.phone || '').trim(),
+            email: String(row.email || '').trim(),
+            zipcode: String(row.zip_code || '').trim(),
+            address: String(row.address || '').trim(),
+            address_detail: String(row.detail_address || '').trim(),
+            receipt_info: String(row.cash_receipt || '').trim(),
+            items,
+            total,
             created_at: row.order_date || new Date().toISOString(),
             payment_confirmed: false,
             payment_date: null,
@@ -123,14 +121,12 @@
           console.error(error);
         } else {
           alert("주문이 성공적으로 업로드되었습니다.");
-          window.close(); // 업로드 완료 시 새 창 닫기
+          window.close(); // ✅ 업로드 성공 시 창 닫기
         }
       });
-
-      // 페이지 로드되면 바로 파일 선택창 열기
-      setTimeout(() => document.getElementById("excel-upload").click(), 300);
     });
   </script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -158,6 +154,6 @@
 <body>
   <h1>엑셀 주문 등록</h1>
   <input type="file" id="excel-upload" accept=".xlsx,.xls,.csv" style="display:none" />
-  <button id="upload-button" onclick="document.getElementById('excel-upload').click()">엑셀 파일 다시 선택</button>
+  <button id="upload-button" onclick="document.getElementById('excel-upload').click()">엑셀 파일 선택</button>
 </body>
 </html>
