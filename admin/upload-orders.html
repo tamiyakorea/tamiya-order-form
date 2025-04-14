@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>엑셀 주문 등록</title>
+  <script type="module">
+    import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs";
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const supabase = createClient(
+      "https://edgvrwekvnavkhcqwtxa.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E" // 🔁 실제 프로젝트의 키로 교체해주세요
+    );
+
+    function generateOrderNumber() {
+      const now = new Date();
+      const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
+      const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
+      const rand = Math.floor(10 + Math.random() * 90);
+      return Number(MMDD + mmss + rand);
+    }
+
+    const itemPriceMap = new Map();
+
+    async function fetchPricesForCodes(codes) {
+      const uniqueCodes = [...new Set(codes.map(code => Number(code)))];
+      const { data, error } = await supabase
+        .from('tamiya_items')
+        .select('item_code, price')
+        .in('item_code', uniqueCodes);
+
+      if (error) {
+        alert("가격 조회 실패: " + error.message);
+        console.error(error);
+        return;
+      }
+
+      for (const item of data) {
+        itemPriceMap.set(String(item.item_code), item.price);
+      }
+    }
+
+    async function extractItemsWithPrice(row) {
+      const items = [];
+      const codesToFetch = [];
+
+      for (let i = 1; i <= 10; i++) {
+        const serial = row[`serial_${i}`];
+        const product = row[`product_name_${i}`];
+        if (serial && product) {
+          codesToFetch.push(serial.trim());
+        }
+      }
+
+      await fetchPricesForCodes(codesToFetch);
+
+      for (let i = 1; i <= 10; i++) {
+        const serial = row[`serial_${i}`];
+        const product = row[`product_name_${i}`];
+        const qty = parseInt(row[`qty_${i}`]) || 1;
+
+        if (serial && product) {
+          const code = serial.trim();
+          const price = itemPriceMap.get(code) || 0;
+
+          items.push({
+            code: code,
+            name: product.trim(),
+            qty: qty,
+            price: price
+          });
+        }
+      }
+
+      return items;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const uploadInput = document.getElementById("excel-upload");
+
+      uploadInput.addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+
+        const ordersToInsert = [];
+
+        for (const row of rows) {
+          const items = await extractItemsWithPrice(row);
+          if (items.length === 0) {
+            alert(`상품 정보 누락: 고객명 "${row.customer_name}"`);
+            return;
+          }
+
+          const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+          ordersToInsert.push({
+            order_id: generateOrderNumber(),
+            name: row.customer_name,
+            phone: row.phone,
+            email: row.email,
+            zipcode: row.zip_code,
+            address: row.address,
+            address_detail: row.detail_address,
+            receipt_info: row.cash_receipt || null,
+            items: items,
+            total: total,
+            created_at: row.order_date || new Date().toISOString(),
+            payment_confirmed: false,
+            payment_date: null,
+            arrival_status: null,
+            arrival_due: null
+          });
+        }
+
+        const { error } = await supabase.from('orders').insert(ordersToInsert);
+        if (error) {
+          alert("업로드 실패: " + error.message);
+          console.error(error);
+        } else {
+          alert("주문이 성공적으로 업로드되었습니다.");
+          location.reload();
+        }
+      });
+    });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #upload-button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #upload-button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>엑셀 주문 등록</h1>
+  <input type="file" id="excel-upload" accept=".xlsx,.xls,.csv" style="display:none" />
+  <button id="upload-button" onclick="document.getElementById('excel-upload').click()">엑셀 파일 선택</button>
+</body>
+</html>
