@@ -72,7 +72,7 @@
         if (serial && product) {
           const code = String(serial).trim();
           const name = String(product).trim();
-          const price = itemPriceMap.get(code) || 0;
+          const price = (itemPriceMap.get(code) || 0) * 15;
 
           items.push({ code, name, qty, price });
         }
