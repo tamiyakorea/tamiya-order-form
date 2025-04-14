@@ -48,19 +48,21 @@
       data.forEach(order => {
         const items = JSON.parse(order.items || '[]');
         items.forEach((item, index) => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${order.order_id}</td>
-            <td>${order.name}</td>
-            <td>${order.phone}</td>
-            <td>[${order.zipcode}] ${order.address} ${order.address_detail}</td>
+          const isFirstRow = index === 0;
+          const row = document.createElement('tr');
+          row.className = isFirstRow ? 'order-group' : '';
+          row.innerHTML = `
+            ${isFirstRow ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
+            ${isFirstRow ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
+            ${isFirstRow ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
+            ${isFirstRow ? `<td rowspan="${items.length}">[${order.zipcode}] ${order.address} ${order.address_detail}</td>` : ''}
             <td>${item.code || '-'}</td>
             <td>${item.name || '-'}</td>
             <td>${item.qty || '-'}</td>
             <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
-            <td>₩${order.total ? order.total.toLocaleString() : '-'}</td>
+            ${isFirstRow ? `<td rowspan="${items.length}">₩${order.total ? order.total.toLocaleString() : '-'}</td>` : ''}
           `;
-          tbody.appendChild(tr);
+          tbody.appendChild(row);
         });
       });
     }
@@ -104,9 +106,13 @@
       border: 1px solid #ddd;
       padding: 10px;
       text-align: center;
+      vertical-align: middle;
     }
     th {
       background-color: #f2f2f2;
+    }
+    tr.order-group td {
+      border-top: 2px solid #333;
     }
   </style>
 </head>
