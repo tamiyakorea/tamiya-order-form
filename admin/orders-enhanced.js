@@ -99,7 +99,7 @@ function renderOrders(data) {
             <td rowspan="${items.length}">${order.zipcode}</td>
             <td rowspan="${items.length}">${order.address}</td>
             <td rowspan="${items.length}">${order.address_detail}</td>
-            <td rowspan="${items.length}">${order.cash_receipt || ''}</td>
+            <td rowspan="${items.length}">${order.receipt_info || ''}</td>
           ` : ''}
           <td>${i.code || '-'}</td>
           <td class="ellipsis" title="${i.name}">${i.name}</td>
