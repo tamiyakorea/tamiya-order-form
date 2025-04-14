@@ -107,7 +107,7 @@ function renderOrders(data) {
       tbody.innerHTML += `
         <tr class="${rowClass}">
           ${isFirstRow ? `
-            <td rowspan="${items.length}"><button class="delete-btn" onclick="deleteOrder(${order.order_id}, ${order.payment_confirmed})">삭제</button></td>
+            <td rowspan="${items.length}"><button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button></td>
             <td rowspan="${items.length}">${proofButtons}</td>
             <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
             <td rowspan="${items.length}">${order.order_id}</td>
@@ -131,13 +131,13 @@ function renderOrders(data) {
               </button><br>
               ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
             </td>
-            <td rowspan="${items.length}"><input class="input-box" value="${order.po_info || ''}" onchange="updateField(${order.order_id}, 'po_info', this.value)" /></td>
-            <td rowspan="${items.length}"><input class="input-box" value="${order.remarks || ''}" onchange="updateField(${order.order_id}, 'remarks', this.value)" /></td>
+            <td rowspan="${items.length}"><input class="input-box" value="${order.po_info || ''}" onchange="updateField('${order.order_id}', 'po_info', this.value)" /></td>
+            <td rowspan="${items.length}"><input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" /></td>
           ` : ''}
-          <td><input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_status', this.value)" /></td>
-          <td><input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_due', this.value)" /></td>
+          <td><input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem('${order.order_id}', '${i.code}', 'arrival_status', this.value)" /></td>
+          <td><input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem('${order.order_id}', '${i.code}', 'arrival_due', this.value)" /></td>
           ${isFirstRow ? `
-            <td rowspan="${items.length}"><button class="ship-btn" onclick="markAsReadyToShip(${order.order_id}, this)" ${order.is_ready_to_ship ? 'disabled' : ''}>준비</button></td>
+            <td rowspan="${items.length}"><button class="ship-btn" onclick="markAsReadyToShip('${order.order_id}', this)" ${order.is_ready_to_ship ? 'disabled' : ''}>준비</button></td>
           ` : ''}
         </tr>
       `;
