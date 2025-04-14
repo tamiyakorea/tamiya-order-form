@@ -98,32 +98,33 @@
         const ordersToInsert = [];
 
         for (const row of rows) {
-          const items = await extractItemsWithPrice(row);
-          if (items.length === 0) {
-            alert(`상품 정보 누락: 고객명 "${row.customer_name}"`);
-            return;
-          }
+  const items = await extractItemsWithPrice(row);
+  if (items.length === 0) {
+    alert(`상품 정보 누락: 고객명 "${row.customer_name}"`);
+    return;
+  }
 
-          const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  let total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  if (total < 30000) total += 3000;  // ✅ 조건 적용
 
-          ordersToInsert.push({
-            order_id: generateOrderNumber(),
-            name: String(row.customer_name || '').trim(),
-            phone: String(row.phone || '').trim(),
-            email: String(row.email || '').trim(),
-            zipcode: String(row.zip_code || '').trim(),
-            address: String(row.address || '').trim(),
-            address_detail: String(row.detail_address || '').trim(),
-            receipt_info: String(row.cash_receipt || '').trim(),
-            items,
-            total,
-            created_at: row.order_date || new Date().toISOString(),
-            payment_confirmed: false,
-            payment_date: null,
-            arrival_status: null,
-            arrival_due: null
-          });
-        }
+  ordersToInsert.push({
+    order_id: generateOrderNumber(),
+    name: String(row.customer_name || '').trim(),
+    phone: String(row.phone || '').trim(),
+    email: String(row.email || '').trim(),
+    zipcode: String(row.zip_code || '').trim(),
+    address: String(row.address || '').trim(),
+    address_detail: String(row.detail_address || '').trim(),
+    receipt_info: String(row.cash_receipt || '').trim(),
+    items,
+    total,
+    created_at: row.order_date || new Date().toISOString(),
+    payment_confirmed: false,
+    payment_date: null,
+    arrival_status: null,
+    arrival_due: null
+  });
+}
 
         const { error } = await supabase.from('orders').insert(ordersToInsert);
         if (error) {
