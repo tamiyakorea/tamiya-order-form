@@ -95,15 +95,15 @@ function renderOrders(data) {
   data.forEach(order => {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
 
+    const proofButtons = (order.proof_images || []).map((url, index) => {
+      return `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`;
+    }).join(" ");
+
     items.forEach((i, idx) => {
       const isFirstRow = idx === 0;
       const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
 
-      const proofButtons = (order.proof_images || []).map((url, index) => {
-        return `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`;
-      }).join(" ");
-
-      tbody.innerHTML += `
+      const rowHtml = `
         <tr class="${rowClass}">
           ${isFirstRow ? `
             <td rowspan="${items.length}"><button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button></td>
@@ -140,6 +140,8 @@ function renderOrders(data) {
           ` : ''}
         </tr>
       `;
+
+      tbody.insertAdjacentHTML('beforeend', rowHtml);
     });
   });
 }
