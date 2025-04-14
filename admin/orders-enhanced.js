@@ -106,7 +106,9 @@ function renderOrders(data) {
       const rowHtml = `
         <tr class="${rowClass}">
           ${isFirstRow ? `
-            <td rowspan="${items.length}"><button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button></td>
+            <td rowspan="${items.length}">
+  <button class="delete-btn" onclick="deleteOrder(&quot;${order.order_id}&quot;, ${order.payment_confirmed})">삭제</button>
+</td>>
             <td rowspan="${items.length}">${proofButtons}</td>
             <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
             <td rowspan="${items.length}">${order.order_id}</td>
