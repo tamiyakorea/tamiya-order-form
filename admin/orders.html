@@ -16,21 +16,33 @@
       height: 100%;
     }
     h1 { text-align: center; margin-top: 20px; }
-    .logout-btn {
+
+    .logout-btn, .upload-btn {
       float: right;
-      background: #dc3545;
       color: white;
       border: none;
       padding: 8px 12px;
       border-radius: 4px;
       cursor: pointer;
-      margin: 10px;
+      margin: 10px 5px 10px 0;
     }
+
+    .logout-btn {
+      background: #dc3545;
+    }
+    .upload-btn {
+      background-color: #007bff;
+    }
+    .upload-btn:hover {
+      background-color: #0056b3;
+    }
+
     nav {
       background-color: #343a40;
       color: white;
       padding: 10px 20px;
       display: flex;
+      align-items: center;
     }
     nav a {
       color: white;
@@ -120,21 +132,32 @@
       cursor: pointer;
     }
   </style>
+  <script>
+    function logout() {
+      // 실제 로그아웃 처리 함수
+    }
+    function openUploadWindow() {
+      window.open('upload-orders.html', '_blank', 'width=800,height=700');
+    }
+  </script>
   <script type="module" src="orders-enhanced.js"></script>
 </head>
 <body>
   <nav>
     <a href="orders.html" class="active">주문 관리</a>
     <a href="shipping.html">배송 관리</a>
+    <button class="upload-btn" onclick="openUploadWindow()">엑셀 주문 등록</button>
+    <button class="logout-btn" onclick="logout()">로그아웃</button>
   </nav>
-  <button class="logout-btn" onclick="logout()">로그아웃</button>
-  <button class="upload-btn" onclick="openUploadWindow()">엑셀 주문 등록</button>
+
   <h1>고객 주문 관리 페이지</h1>
+
   <div style="margin: 20px 0; text-align: center;">
     <input id="searchInput" type="text" placeholder="주문번호 또는 고객명을 입력하세요" style="padding: 6px; width: 300px;" />
     <button onclick="searchOrders()" style="padding: 6px 12px;">검색</button>
     <button onclick="loadOrders()" style="padding: 6px 12px;">전체보기</button>
   </div>
+
   <div class="table-wrapper">
     <table id="orderTable">
       <colgroup id="colgroup"></colgroup>
