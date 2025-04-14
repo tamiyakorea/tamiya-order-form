@@ -36,7 +36,7 @@
       const uniqueCodes = [...new Set(codes.map(code => Number(code)))];
       const { data, error } = await supabase
         .from('tamiya_items')
-        .select('item_code, price')
+        .select('item_code, j_retail')
         .in('item_code', uniqueCodes);
 
       if (error) {
@@ -46,7 +46,7 @@
       }
 
       for (const item of data) {
-        itemPriceMap.set(String(item.item_code), item.price);
+        itemPriceMap.set(String(item.item_code), item.j_retail);
       }
     }
 
