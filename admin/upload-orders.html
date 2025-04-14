@@ -60,7 +60,7 @@
         const qty = parseInt(row[`qty_${i}`]) || 1;
 
         if (serial && product) {
-          const code = serial.trim();
+          const code = String(serial).trim();
           const price = itemPriceMap.get(code) || 0;
 
           items.push({
