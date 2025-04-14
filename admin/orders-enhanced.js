@@ -119,7 +119,7 @@ function renderOrders(data) {
           <td><input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_status', this.value)" /></td>
           <td><input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem(${order.order_id}, '${i.code}', 'arrival_due', this.value)" /></td>
           ${isFirstRow ? `
-            <td rowspan="${items.length}"><button class="ship-btn" onclick="markAsReadyToShip(${order.order_id}, this)" ${order.is_ready_to_ship ? 'disabled' : ''}>배송 준비</button></td>
+            <td rowspan="${items.length}"><button class="ship-btn" onclick="markAsReadyToShip(${order.order_id}, this)" ${order.is_ready_to_ship ? 'disabled' : ''}>준비</button></td>
           ` : ''}
         </tr>`;
     });
