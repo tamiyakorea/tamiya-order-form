@@ -173,3 +173,15 @@ window.addEventListener("load", () => {
   makeColumnsResizable(document.querySelector("table"));
   checkAuth();
 });
+
+// ✅ 외부에서 호출 가능한 함수 등록
+Object.assign(window, {
+  logout,
+  searchOrders,
+  loadOrders,
+  deleteOrder,
+  updateField,
+  updateFieldByItem,
+  togglePayment,
+  markAsReadyToShip
+});
