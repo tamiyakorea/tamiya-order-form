@@ -52,9 +52,15 @@ async function deleteOrder(orderId, isPaid) {
 async function searchOrders() {
   const keyword = document.getElementById("searchInput").value.trim();
   if (!keyword) return loadOrders();
-  const query = /^\d+$/.test(keyword)
-    ? supabase.from("orders").select("*").eq("order_id", keyword)
-    : supabase.from("orders").select("*").ilike("name", `%${keyword}%`);
+
+  let query = supabase.from("orders").select("*").eq("is_ready_to_ship", false);
+
+  if (/^\d+$/.test(keyword)) {
+    query = query.eq("order_id", keyword);
+  } else {
+    query = query.ilike("name", `%${keyword}%`);
+  }
+
   const { data, error } = await query;
   if (!error) renderOrders(data);
 }
@@ -66,8 +72,6 @@ async function loadOrders() {
     .eq("is_ready_to_ship", false)
     .order("created_at", { ascending: false });
 
-  if (!error) renderOrders(data);
-} = await supabase.from("orders").select("*").order("created_at", { ascending: false });
   if (!error) renderOrders(data);
 }
 
@@ -181,7 +185,6 @@ window.addEventListener("load", () => {
   checkAuth();
 });
 
-// ✅ 외부에서 호출 가능한 함수 등록
 Object.assign(window, {
   logout,
   searchOrders,
