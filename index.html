@@ -249,19 +249,31 @@ async function confirmOrder() {
   const imageUrls = [];
 
   for (let file of fileInput.files) {
-    if (file.size > 1024 * 1024) {
-      alert("각 파일은 1MB 이하로 제한됩니다.");
-      return;
-    }
-    const filePath = `proof/${orderId}_${file.name}`;
-    const { error: uploadError } = await supabase.storage.from("order-proof").upload(filePath, file);
-    if (uploadError) {
-      alert("이미지 업로드 중 오류가 발생했습니다.");
-      return;
-    }
-    const { data: { publicUrl } } = supabase.storage.from("order-proof").getPublicUrl(filePath);
-    imageUrls.push(publicUrl);
+  if (file.size > 1024 * 1024) {
+    alert("각 파일은 1MB 이하로 제한됩니다.");
+    return;
   }
+
+  const ext = file.name.split('.').pop();
+  const safeName = `${orderId}_${Date.now()}.${ext}`;
+  const filePath = `proof/${safeName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("order-proof")
+    .upload(filePath, file);
+
+  if (uploadError) {
+    alert("이미지 업로드 중 오류가 발생했습니다.");
+    console.error(uploadError);
+    return;
+  }
+
+  const { data: { publicUrl } } = supabase.storage
+    .from("order-proof")
+    .getPublicUrl(filePath);
+
+  imageUrls.push(publicUrl);
+}
 
   const get = id => document.getElementById(id);
   const name = get("customerName").value.trim();
