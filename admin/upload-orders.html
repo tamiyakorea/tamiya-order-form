@@ -48,7 +48,7 @@
         const serial = row[`serial_${i}`];
         const product = row[`product_name_${i}`];
         if (serial && product) {
-          codesToFetch.push(serial.trim());
+          codesToFetch.push(String(serial).trim());
         }
       }
 
