@@ -24,6 +24,13 @@
       }
     }
 
+    async function returnToOrders(orderId) {
+      const confirmed = confirm("이 주문을 다시 주문 관리 탭으로 이동하시겠습니까?");
+      if (!confirmed) return;
+      await supabase.from('orders').update({ is_ready_to_ship: false }).eq('order_id', orderId);
+      loadShippingOrders();
+    }
+
     async function loadShippingOrders() {
       const { data, error } = await supabase
         .from('orders')
@@ -36,12 +43,12 @@
       tbody.innerHTML = '';
 
       if (error) {
-        tbody.innerHTML = `<tr><td colspan="9">오류 발생: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="12">오류 발생: ${error.message}</td></tr>`;
         return;
       }
 
       if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9">배송 준비된 주문이 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12">배송 준비된 주문이 없습니다.</td></tr>';
         return;
       }
 
@@ -52,10 +59,13 @@
           const row = document.createElement('tr');
           row.className = isFirstRow ? 'order-group' : '';
           row.innerHTML = `
+            ${isFirstRow ? `<td rowspan="${items.length}"><button onclick="returnToOrders(${order.order_id})">❌</button></td>` : ''}
             ${isFirstRow ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
             ${isFirstRow ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
             ${isFirstRow ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}">[${order.zipcode}] ${order.address} ${order.address_detail}</td>` : ''}
+            ${isFirstRow ? `<td rowspan="${items.length}">${order.zipcode}</td>` : ''}
+            ${isFirstRow ? `<td rowspan="${items.length}">${order.address}</td>` : ''}
+            ${isFirstRow ? `<td rowspan="${items.length}">${order.address_detail}</td>` : ''}
             <td>${item.code || '-'}</td>
             <td>${item.name || '-'}</td>
             <td>${item.qty || '-'}</td>
@@ -67,6 +77,7 @@
       });
     }
 
+    window.returnToOrders = returnToOrders;
     document.addEventListener('DOMContentLoaded', checkAuth);
   </script>
   <style>
@@ -100,7 +111,7 @@
       width: 100%;
       border-collapse: collapse;
       margin: 20px auto;
-      max-width: 1400px;
+      max-width: 1600px;
     }
     th, td {
       border: 1px solid #ddd;
@@ -129,10 +140,13 @@
   <table>
     <thead>
       <tr>
+        <th>이동</th>
         <th>주문번호</th>
         <th>고객명</th>
         <th>연락처</th>
-        <th>고객주소</th>
+        <th>우편번호</th>
+        <th>주소</th>
+        <th>상세주소</th>
         <th>아이템 시리얼</th>
         <th>아이템명</th>
         <th>수량</th>
@@ -141,7 +155,7 @@
       </tr>
     </thead>
     <tbody id="shipping-table-body">
-      <tr><td colspan="9">불러오는 중...</td></tr>
+      <tr><td colspan="12">불러오는 중...</td></tr>
     </tbody>
   </table>
 </body>
