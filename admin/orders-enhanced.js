@@ -109,7 +109,7 @@ function renderOrders(data) {
             <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
             <td rowspan="${items.length}" class="pay-status">
               <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed})">
-                ${order.payment_confirmed ? '✅ 입금 확인' : '❌ 입금 전'}
+                ${order.payment_confirmed ? '입금 확인' : '입금 전'}
               </button><br>
               ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
             </td>
