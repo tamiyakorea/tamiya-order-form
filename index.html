@@ -58,100 +58,338 @@
   </style>
 </head>
 <body>
-  <div id="form">
-    <h2>고객 정보 입력</h2>
-    <label for="customerName">성명</label>
-    <input id="customerName" placeholder="홍길동" type="text" />
-    <label for="phoneNumber">전화번호</label>
-    <input id="phoneNumber" placeholder="010-1234-5678" type="text" />
-    <label for="email">이메일 주소</label>
-    <input id="email" placeholder="example@example.com" type="email" />
-    <label for="zipcode">우편번호</label>
-    <input id="zipcode" placeholder="우편번호" readonly type="text" />
-    <button onclick="execDaumPostcode()" type="button" class="button-search">검색</button>
-    <label for="address">주소</label>
-    <input id="address" placeholder="도로명 주소" readonly type="text" />
-    <label for="addressDetail">상세주소</label>
-    <input id="addressDetail" placeholder="상세 주소를 입력하세요" type="text" />
-    <label style="margin-top: 15px;">
-      <input id="receiptRequested" onchange="toggleCashReceipt()" type="checkbox" /> 현금영수증 신청
-    </label>
-    <div id="cashReceiptSection" style="display: none;">
-      <label for="receiptInfo">현금영수증 정보</label>
-      <input id="receiptInfo" placeholder="010-1234-5678 또는 123-45-67890" type="text" />
-    </div>
-    <label for="proofImages">구매 이력 및 정품 스티커 업로드</label>
-    <input type="file" id="proofImages" accept="image/*" multiple required />
-    <p style="font-size: 0.9em; color: #666;">※ 사진 1~2장을 첨부해주세요. 파일당 1MB 이하</p>
+
+<nav>
+  <ul>
+    <li><a href="#notice">개별주문 안내</a></li>
+    <li><a href="#form">개별주문 신청</a></li>
+    <li><a href="#orderCheck">주문 확인</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+</nav>
+
+<div id="notice" class="section">
+  <h2>신청 전 고객 안내사항</h2>
+  <p>
+    ※ 부품 주문은 국내에서 유통 중인 제품에 한해 가능합니다.<br />
+    ※ 주문 후 취소는 불가능합니다.<br />
+    ※ 부품은 소요 기간이 있으니 여유있게 신청 바랍니다.
+  </p>
+</div>
+
+<div id="form" class="section">
+  <h2>고객 정보 입력</h2>
+  <label for="customerName">성명</label>
+  <input id="customerName" placeholder="홍길동" type="text" />
+  <label for="phoneNumber">전화번호</label>
+  <input id="phoneNumber" placeholder="010-1234-5678" type="text" />
+  <label for="email">이메일 주소</label>
+  <input id="email" placeholder="example@example.com" type="email" />
+  <label for="zipcode">우편번호</label>
+  <input id="zipcode" placeholder="우편번호" readonly type="text" />
+  <button onclick="execDaumPostcode()" type="button" class="button-search">검색</button>
+  <label for="address">주소</label>
+  <input id="address" placeholder="도로명 주소" readonly type="text" />
+  <label for="addressDetail">상세주소</label>
+  <input id="addressDetail" placeholder="상세 주소를 입력하세요" type="text" />
+  <label style="margin-top: 15px;">
+    <input id="receiptRequested" onchange="toggleCashReceipt()" type="checkbox" /> 현금영수증 신청
+  </label>
+  <div id="cashReceiptSection" style="display: none;">
+    <label for="receiptInfo">현금영수증 정보</label>
+    <input id="receiptInfo" placeholder="010-1234-5678 또는 123-45-67890" type="text" />
   </div>
+  <label for="proofImages">정품 스티커 및 증상 사진 (최대 2장, 필수)</label>
+  <input type="file" id="proofImages" accept="image/*" multiple required />
+  <p style="font-size: 0.9em; color: #666;">※ 사진 1~2장을 첨부해주세요. 파일당 1MB 이하</p>
+</div>
 
-  <script>
-    const supabase = window.supabase.createClient(
-      'https://edgvrwekvnavkhcqwtxa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
-    );
+  <div class="section">
+  <h2>제품 검색 및 신청</h2>
+  <label for="serialSearch">제품 시리얼 넘버 입력</label>
+  <input id="serialSearch" placeholder="예: 12345" type="text" />
+  <button onclick="searchProduct()">검색</button>
+</div>
 
-    async function confirmOrder() {
-      const fileInput = document.getElementById("proofImages");
-      if (!fileInput.files.length) {
-        alert("정품 스티커 및 구매 이력 사진을 1장 이상 첨부해주세요.");
+<div class="section">
+  <h2>장바구니</h2>
+  <table id="cartTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>시리얼</th>
+        <th>제품명</th>
+        <th>단가</th>
+        <th>수량</th>
+        <th>합계</th>
+        <th>삭제</th>
+      </tr>
+    </thead>
+    <tbody id="cartBody"></tbody>
+    <tfoot>
+      <tr class="total">
+        <td colspan="4">총 주문금액</td>
+        <td colspan="2" id="cartTotal">₩0</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<div class="section">
+  <h2>주문 확정 전 안내 및 주의사항</h2>
+  <p>
+    ※ 입금 계좌는 주문 확정 시 제공됩니다.<br />
+    ※ 동일 제품도 부품번호가 다를 수 있으니, 반드시 정확한 시리얼 넘버를 입력해주세요.<br />
+    ※ 가격은 부가세 포함 소비자 기준입니다.
+  </p>
+  <button onclick="confirmOrder()" class="confirm">주문 확정</button>
+</div>
+
+<div id="orderCheck" class="section">
+  <h2>주문 확인</h2>
+  <p>주문번호를 입력하시면 주문 정보를 확인하실 수 있습니다.</p>
+  <input id="orderSearchInput" type="text" placeholder="주문번호 8자리 입력" style="padding:8px; width: 200px;" />
+  <button onclick="searchOrderById()">검색</button>
+  <div id="orderResult"></div>
+</div>
+
+<div id="faq" class="section">
+  <h2>FAQ</h2>
+  <p>자주 묻는 질문은 현재 준비 중입니다.</p>
+</div>
+
+<script>
+  const supabase = window.supabase.createClient(
+    'https://edgvrwekvnavkhcqwtxa.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+  );
+
+  const cart = [];
+
+    function execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        document.getElementById('zipcode').value = data.zonecode;
+        document.getElementById('address').value = data.roadAddress || data.jibunAddress;
+      }
+    }).open();
+  }
+
+  function toggleCashReceipt() {
+    document.getElementById("cashReceiptSection").style.display =
+      document.getElementById("receiptRequested").checked ? "block" : "none";
+  }
+
+  function generateOrderNumber() {
+    const now = new Date();
+    const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
+    const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
+    const rand = Math.floor(10 + Math.random() * 90);
+    return Number(MMDD + mmss + rand);
+  }
+
+  async function searchProduct() {
+    const serial = document.getElementById("serialSearch").value.trim();
+    const serialNum = parseInt(serial, 10);
+    if (isNaN(serialNum)) return;
+
+    const { data, error } = await supabase
+      .from('tamiya_items')
+      .select('item_code, description, j_retail')
+      .eq('item_code', serialNum)
+      .single();
+
+    if (!error && data) {
+      const existing = cart.find(item => item.item_code === serialNum);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({
+          item_code: data.item_code,
+          description: data.description,
+          price: Math.floor(data.j_retail * 15),
+          qty: 1
+        });
+      }
+      renderCart();
+    }
+  }
+
+  function renderCart() {
+    const tbody = document.getElementById("cartBody");
+    const table = document.getElementById("cartTable");
+    tbody.innerHTML = "";
+
+    let subtotal = 0;
+    cart.forEach((item, index) => {
+      const rowTotal = item.price * item.qty;
+      subtotal += rowTotal;
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${item.item_code}</td>
+          <td>${item.description}</td>
+          <td>₩${item.price.toLocaleString()}</td>
+          <td><input type="number" class="qty-input" value="${item.qty}" min="1" onchange="updateQty(${index}, this.value)"></td>
+          <td>₩${rowTotal.toLocaleString()}</td>
+          <td><button onclick="removeItem(${index})">삭제</button></td>
+        </tr>
+      `;
+    });
+
+    const shipping = subtotal < 30000 ? 3000 : 0;
+    const total = subtotal + shipping;
+
+    tbody.innerHTML += `
+      <tr class="total">
+        <td colspan="4">배송비</td>
+        <td colspan="2">₩${shipping.toLocaleString()}</td>
+      </tr>
+    `;
+
+    document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
+    table.style.display = cart.length ? "table" : "none";
+  }
+
+  function updateQty(index, newQty) {
+    const qty = parseInt(newQty);
+    if (qty > 0) {
+      cart[index].qty = qty;
+      renderCart();
+    }
+  }
+
+  function removeItem(index) {
+    cart.splice(index, 1);
+    renderCart();
+  }
+
+  async function confirmOrder() {
+    const fileInput = document.getElementById("proofImages");
+    if (!fileInput.files.length) {
+      alert("사진 첨부는 필수입니다. 정품 스티커 또는 증상 사진을 등록해주세요.");
+      return;
+    }
+
+    const orderId = generateOrderNumber();
+    const imageUrls = [];
+
+    for (let file of fileInput.files) {
+      if (file.size > 1024 * 1024) {
+        alert("각 파일은 1MB 이하로 제한됩니다.");
         return;
       }
-
-      const orderId = generateOrderNumber();
-      const imageUrls = [];
-      for (let file of fileInput.files) {
-        if (file.size > 1024 * 1024) {
-          alert("각 파일은 1MB 이하로 제한됩니다.");
-          return;
-        }
-        const filePath = `proof/${orderId}_${file.name}`;
-        const { error: uploadError } = await supabase.storage
-          .from("order-proof")
-          .upload(filePath, file);
-        if (uploadError) {
-          alert("이미지 업로드 중 오류가 발생했습니다.");
-          return;
-        }
-        const { data: { publicUrl } } = supabase.storage.from("order-proof").getPublicUrl(filePath);
-        imageUrls.push(publicUrl);
+      const filePath = `proof/${orderId}_${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("order-proof")
+        .upload(filePath, file);
+      if (uploadError) {
+        alert("이미지 업로드 중 오류가 발생했습니다.");
+        return;
       }
-
-      const get = id => document.getElementById(id);
-      const name = get("customerName").value.trim();
-      const phone = get("phoneNumber").value.trim();
-      const email = get("email").value.trim();
-      const zipcode = get("zipcode").value.trim();
-      const address = get("address").value.trim();
-      const addressDetail = get("addressDetail").value.trim();
-      const receiptChecked = get("receiptRequested").checked;
-      const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
-
-      const payload = {
-        order_id: orderId,
-        name,
-        phone,
-        email,
-        zipcode,
-        address,
-        address_detail: addressDetail,
-        receipt_info: receiptInfo,
-        proof_images: imageUrls,
-        items: JSON.stringify([]), // 장바구니 항목은 기존 로직에서 추가됨
-        total: 0, // 합산 로직은 생략됨
-        created_at: new Date().toISOString()
-      };
-
-      const { error } = await supabase.from("orders").insert(payload);
-
-      if (error) {
-        console.error("주문 저장 오류:", error);
-        alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
-      } else {
-        alert("주문이 완료되었습니다! 주문번호: " + orderId);
-        window.location.href = "payment-info.html?orderId=" + orderId;
-      }
+      const { data: { publicUrl } } = supabase.storage.from("order-proof").getPublicUrl(filePath);
+      imageUrls.push(publicUrl);
     }
-  </script>
+
+    const get = id => document.getElementById(id);
+    const name = get("customerName").value.trim();
+    const phone = get("phoneNumber").value.trim();
+    const email = get("email").value.trim();
+    const zipcode = get("zipcode").value.trim();
+    const address = get("address").value.trim();
+    const addressDetail = get("addressDetail").value.trim();
+    const receiptChecked = get("receiptRequested").checked;
+    const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
+
+    if (!cart.length) {
+      alert("장바구니에 담긴 상품이 없습니다.");
+      return;
+    }
+
+    const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + (cart.length && cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
+
+    const payload = {
+      order_id: orderId,
+      name,
+      phone,
+      email,
+      zipcode,
+      address,
+      address_detail: addressDetail,
+      receipt_info: receiptInfo,
+      proof_images: imageUrls,
+      items: JSON.stringify(cart.map(item => ({
+        code: item.item_code,
+        name: item.description,
+        qty: item.qty,
+        price: item.price
+      }))),
+      total,
+      created_at: new Date().toISOString()
+    };
+
+    const { error } = await supabase.from("orders").insert(payload);
+
+    if (error) {
+      console.error("주문 저장 오류:", error);
+      alert("주문 저장에 실패했습니다. 다시 시도해주세요.");
+    } else {
+      alert("주문이 완료되었습니다! 주문번호: " + orderId);
+      window.location.href = "payment-info.html?orderId=" + orderId;
+    }
+  }
+
+  async function searchOrderById() {
+    const input = document.getElementById("orderSearchInput").value.trim();
+    const resultDiv = document.getElementById("orderResult");
+    resultDiv.innerHTML = "";
+
+    if (!input) {
+      resultDiv.innerHTML = "<p>주문번호를 입력해주세요.</p>";
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("order_id", input)
+      .single();
+
+    if (error || !data) {
+      resultDiv.innerHTML = "<p>주문 내역을 찾을 수 없습니다. 주문번호를 확인해주세요.</p>";
+      return;
+    }
+
+    const items = JSON.parse(data.items || "[]");
+    const itemList = items.map(item => `<li>${item.name} (${item.qty}개)</li>`).join("");
+
+    function formatDate(d) {
+      const date = new Date(d);
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}.${mm}.${dd}`;
+    }
+
+    const depositStatus = data.payment_confirmed
+      ? `입금 확인 (${formatDate(data.payment_date)})`
+      : "입금 전";
+
+    const arrivalDue = data.arrival_due?.trim() ? data.arrival_due : "미정";
+
+    resultDiv.innerHTML = `
+      <h3>주문 정보</h3>
+      <p><strong>주문번호:</strong> ${data.order_id}</p>
+      <p><strong>고객명:</strong> ${data.name}</p>
+      <p><strong>전화번호:</strong> ${data.phone}</p>
+      <p><strong>주문일시:</strong> ${formatDate(data.created_at)}</p>
+      <p><strong>총 금액:</strong> ₩${data.total.toLocaleString()}</p>
+      <p><strong>입금 상태:</strong> ${depositStatus}</p>
+      <p><strong>입고 예정일:</strong> ${arrivalDue}</p>
+      <p><strong>주문 상품:</strong></p>
+      <ul>${itemList}</ul>
+    `;
+  }
+</script>
+
 </body>
 </html>
