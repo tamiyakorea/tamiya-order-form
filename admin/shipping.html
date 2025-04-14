@@ -37,41 +37,59 @@
       loadShippingOrders();
     }
 
+    async function updateShippingNote(orderId, value) {
+      await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
+    }
+
     function formatDateOnly(iso) {
       if (!iso) return '';
       const d = new Date(iso);
       return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    async function loadShippingOrders() {
-      const { data, error } = await supabase
+    async function loadShippingOrders(keyword = '') {
+      let query = supabase
         .from('orders')
-        .select('order_id, name, phone, zipcode, address, address_detail, total, items, tracking_number, tracking_date')
+        .select('order_id, name, phone, zipcode, address, address_detail, total, items, tracking_number, tracking_date, remarks, shipping_note')
         .eq('is_ready_to_ship', true)
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(100);
 
+      if (keyword) {
+        if (/^\d{6,}$/.test(keyword)) {
+          query = query.ilike('tracking_number', `%${keyword}%`);
+        } else if (/^\d+$/.test(keyword)) {
+          query = query.eq('order_id', keyword);
+        } else {
+          query = query.ilike('name', `%${keyword}%`);
+        }
+      }
+
+      const { data, error } = await query;
       const tbody = document.getElementById('shipping-table-body');
       tbody.innerHTML = '';
 
       if (error) {
-        tbody.innerHTML = `<tr><td colspan="13">오류 발생: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="16">오류 발생: ${error.message}</td></tr>`;
         return;
       }
 
       if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="13">배송 준비된 주문이 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="16">배송 준비된 주문이 없습니다.</td></tr>';
         return;
       }
 
       data.forEach(order => {
         const items = JSON.parse(order.items || '[]');
+        const arrivalDue = items[0]?.arrival_due || '미정';
+
         items.forEach((item, index) => {
           const isFirstRow = index === 0;
           const row = document.createElement('tr');
           row.className = isFirstRow ? 'order-group' : '';
           row.innerHTML = `
             ${isFirstRow ? `<td rowspan="${items.length}"><button onclick="returnToOrders(${order.order_id})">❌</button></td>` : ''}
+            ${isFirstRow ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
             ${isFirstRow ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
             ${isFirstRow ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
             ${isFirstRow ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
@@ -89,6 +107,8 @@
                 ${order.tracking_date ? formatDateOnly(order.tracking_date) : ''}
               </div>
             </td>` : ''}
+            ${isFirstRow ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
+            ${isFirstRow ? `<td rowspan="${items.length}"><input class="input-box" value="${order.shipping_note || ''}" onchange="updateShippingNote(${order.order_id}, this.value)" /></td>` : ''}
           `;
           tbody.appendChild(row);
         });
@@ -97,7 +117,13 @@
 
     window.returnToOrders = returnToOrders;
     window.updateTrackingNumber = updateTrackingNumber;
-    document.addEventListener('DOMContentLoaded', checkAuth);
+    window.updateShippingNote = updateShippingNote;
+    window.loadShippingOrders = () => {
+      const keyword = document.getElementById('searchInput')?.value?.trim();
+      loadShippingOrders(keyword || '');
+    };
+
+    document.addEventListener('DOMContentLoaded', () => loadShippingOrders());
   </script>
   <style>
     body {
@@ -126,11 +152,23 @@
       text-align: center;
       margin-top: 20px;
     }
+    .search-bar {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .search-bar input {
+      padding: 8px;
+      width: 300px;
+      margin-right: 10px;
+    }
+    .search-bar button {
+      padding: 8px 16px;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
       margin: 20px auto;
-      max-width: 1600px;
+      max-width: 1800px;
     }
     th, td {
       border: 1px solid #ddd;
@@ -156,10 +194,16 @@
 
   <h1>배송 관리</h1>
 
+  <div class="search-bar">
+    <input id="searchInput" type="text" placeholder="주문번호, 고객명 또는 송장번호로 검색" />
+    <button onclick="loadShippingOrders()">검색</button>
+  </div>
+
   <table>
     <thead>
       <tr>
         <th>이동</th>
+        <th>입고 예정</th>
         <th>주문번호</th>
         <th>고객명</th>
         <th>연락처</th>
@@ -172,10 +216,12 @@
         <th>개별금액</th>
         <th>총금액</th>
         <th>송장번호</th>
+        <th>비고</th>
+        <th>배송 비고</th>
       </tr>
     </thead>
     <tbody id="shipping-table-body">
-      <tr><td colspan="13">불러오는 중...</td></tr>
+      <tr><td colspan="16">불러오는 중...</td></tr>
     </tbody>
   </table>
 </body>
