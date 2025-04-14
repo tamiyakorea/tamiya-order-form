@@ -224,7 +224,7 @@
       const rowTotal = item.price * item.qty;
       subtotal += rowTotal;
 
-      tbody.innerHTML += `
+      tbody.innerHTML += 
         <tr>
           <td>${item.item_code}</td>
           <td>${item.description}</td>
@@ -233,20 +233,20 @@
           <td>₩${rowTotal.toLocaleString()}</td>
           <td><button onclick="removeItem(${index})">삭제</button></td>
         </tr>
-      `;
+      ;
     });
 
     const shipping = subtotal < 30000 ? 3000 : 0;
     const total = subtotal + shipping;
 
-    tbody.innerHTML += `
+    tbody.innerHTML += 
       <tr class="total">
         <td colspan="4">배송비</td>
         <td colspan="2">₩${shipping.toLocaleString()}</td>
       </tr>
-    `;
+    ;
 
-    document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
+    document.getElementById("cartTotal").textContent = ₩${total.toLocaleString()};
     table.style.display = cart.length ? "table" : "none";
   }
 
@@ -278,7 +278,7 @@
         alert("각 파일은 1MB 이하로 제한됩니다.");
         return;
       }
-      const filePath = `proof/${orderId}_${file.name}`;
+      const filePath = proof/${orderId}_${file.name};
       const { error: uploadError } = await supabase.storage
         .from("order-proof")
         .upload(filePath, file);
@@ -360,23 +360,23 @@
     }
 
     const items = JSON.parse(data.items || "[]");
-    const itemList = items.map(item => `<li>${item.name} (${item.qty}개)</li>`).join("");
+    const itemList = items.map(item => <li>${item.name} (${item.qty}개)</li>).join("");
 
     function formatDate(d) {
       const date = new Date(d);
       const yyyy = date.getFullYear();
       const mm = String(date.getMonth() + 1).padStart(2, '0');
       const dd = String(date.getDate()).padStart(2, '0');
-      return `${yyyy}.${mm}.${dd}`;
+      return ${yyyy}.${mm}.${dd};
     }
 
     const depositStatus = data.payment_confirmed
-      ? `입금 확인 (${formatDate(data.payment_date)})`
+      ? 입금 확인 (${formatDate(data.payment_date)})
       : "입금 전";
 
     const arrivalDue = data.arrival_due?.trim() ? data.arrival_due : "미정";
 
-    resultDiv.innerHTML = `
+    resultDiv.innerHTML = 
       <h3>주문 정보</h3>
       <p><strong>주문번호:</strong> ${data.order_id}</p>
       <p><strong>고객명:</strong> ${data.name}</p>
@@ -387,7 +387,7 @@
       <p><strong>입고 예정일:</strong> ${arrivalDue}</p>
       <p><strong>주문 상품:</strong></p>
       <ul>${itemList}</ul>
-    `;
+    ;
   }
 </script>
 
