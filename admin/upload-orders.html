@@ -13,12 +13,11 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E"
     );
 
-    // ✅ 인증 확인 함수
     async function checkAuth() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         alert("로그인이 필요합니다. 창을 닫습니다.");
-        window.close(); // 또는 window.location.href = '/admin/login.html';
+        window.close();
       }
     }
 
@@ -72,7 +71,9 @@
         if (serial && product) {
           const code = String(serial).trim();
           const name = String(product).trim();
-          const price = (itemPriceMap.get(code) || 0) * 15;
+          const jRetail = itemPriceMap.get(code) || 0;
+          const multiplier = code.length === 8 ? 15 : (code.length === 5 ? 13 : 0);
+          const price = Math.floor(jRetail * multiplier);
 
           items.push({ code, name, qty, price });
         }
@@ -82,7 +83,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
-      await checkAuth(); // ✅ 인증 확인 먼저
+      await checkAuth();
 
       const uploadInput = document.getElementById("excel-upload");
 
@@ -98,33 +99,33 @@
         const ordersToInsert = [];
 
         for (const row of rows) {
-  const items = await extractItemsWithPrice(row);
-  if (items.length === 0) {
-    alert(`상품 정보 누락: 고객명 "${row.customer_name}"`);
-    return;
-  }
+          const items = await extractItemsWithPrice(row);
+          if (items.length === 0) {
+            alert(`상품 정보 누락: 고객명 "${row.customer_name}"`);
+            return;
+          }
 
-  let total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-  if (total < 30000) total += 3000;  // ✅ 조건 적용
+          let total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+          if (total < 30000) total += 3000;
 
-  ordersToInsert.push({
-    order_id: generateOrderNumber(),
-    name: String(row.customer_name || '').trim(),
-    phone: String(row.phone || '').trim(),
-    email: String(row.email || '').trim(),
-    zipcode: String(row.zip_code || '').trim(),
-    address: String(row.address || '').trim(),
-    address_detail: String(row.detail_address || '').trim(),
-    receipt_info: String(row.cash_receipt || '').trim(),
-    items,
-    total,
-    created_at: row.order_date || new Date().toISOString(),
-    payment_confirmed: false,
-    payment_date: null,
-    arrival_status: null,
-    arrival_due: null
-  });
-}
+          ordersToInsert.push({
+            order_id: generateOrderNumber(),
+            name: String(row.customer_name || '').trim(),
+            phone: String(row.phone || '').trim(),
+            email: String(row.email || '').trim(),
+            zipcode: String(row.zip_code || '').trim(),
+            address: String(row.address || '').trim(),
+            address_detail: String(row.detail_address || '').trim(),
+            receipt_info: String(row.cash_receipt || '').trim(),
+            items,
+            total,
+            created_at: row.order_date || new Date().toISOString(),
+            payment_confirmed: false,
+            payment_date: null,
+            arrival_status: null,
+            arrival_due: null
+          });
+        }
 
         const { error } = await supabase.from('orders').insert(ordersToInsert);
         if (error) {
