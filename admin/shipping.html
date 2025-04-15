@@ -12,7 +12,7 @@
 
     const supabase = createClient(
       'https://edgvrwekvnavkhcqwtxa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+      '공개키'
     );
 
     async function checkAuth() {
@@ -26,19 +26,21 @@
     }
 
     async function downloadExcel() {
+      const checkboxes = document.querySelectorAll('.select-order:checked');
+      const selectedOrderIds = Array.from(checkboxes).map(cb => cb.value);
+      if (!selectedOrderIds.length) return alert("선택된 주문이 없습니다.");
+
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .eq('is_ready_to_ship', true)
-        .order('created_at', { ascending: false });
+        .in('order_id', selectedOrderIds);
 
       if (error || !data) {
-        alert("데이터를 불러오는 중 오류 발생");
+        alert("엑셀 생성 중 오류 발생");
         return;
       }
 
       const rows = [];
-
       data.forEach(order => {
         const items = JSON.parse(order.items || '[]');
         const total = order.total || 0;
@@ -52,7 +54,6 @@
 
         let subtotal = 0;
         items.forEach(i => subtotal += (i.qty || 0) * (i.price || 0));
-
         const addShipping = subtotal < 30000;
         const finalTotal = addShipping ? subtotal + 3000 : subtotal;
 
@@ -100,58 +101,37 @@
       XLSX.writeFile(wb, 'shipping_export.xls');
     }
 
-    async function returnToOrders(orderId) {
-      const confirmed = confirm("이 주문을 다시 주문 관리 탭으로 이동하시겠습니까?");
-      if (!confirmed) return;
-      await supabase.from('orders').update({ is_ready_to_ship: false }).eq('order_id', orderId);
+    async function markShipped(orderId) {
+      await supabase.from('orders').update({ is_shipped: true }).eq('order_id', orderId);
       loadShippingOrders();
     }
 
     async function updateTrackingNumber(orderId, value) {
       const date = value ? new Date().toISOString() : null;
       await supabase.from('orders').update({ tracking_number: value || null, tracking_date: date }).eq('order_id', orderId);
-      loadShippingOrders();
     }
 
     async function updateShippingNote(orderId, value) {
       await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
     }
-
-    function formatDateOnly(iso) {
-      if (!iso) return '';
-      const d = new Date(iso);
-      return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-    }
-
-    async function loadShippingOrders(keyword = '') {
-      let query = supabase
+    async function loadShippingOrders() {
+      const { data, error } = await supabase
         .from('orders')
-        .select('order_id, name, phone, zipcode, address, address_detail, total, items, tracking_number, tracking_date, remarks, shipping_note')
+        .select('*')
         .eq('is_ready_to_ship', true)
-        .order('created_at', { ascending: false })
-        .limit(100);
+        .eq('is_shipped', false)
+        .order('created_at', { ascending: false });
 
-      if (keyword) {
-        if (/^\d{6,}$/.test(keyword)) {
-          query = query.ilike('tracking_number', `%${keyword}%`);
-        } else if (/^\d+$/.test(keyword)) {
-          query = query.eq('order_id', keyword);
-        } else {
-          query = query.ilike('name', `%${keyword}%`);
-        }
-      }
+      const tbody = document.getElementById("shipping-table-body");
+      tbody.innerHTML = "";
 
-      const { data, error } = await query;
-      const tbody = document.getElementById('shipping-table-body');
-      tbody.innerHTML = '';
-
-      if (error) {
-        tbody.innerHTML = `<tr><td colspan="16">오류 발생: ${error.message}</td></tr>`;
+      if (error || !data) {
+        tbody.innerHTML = `<tr><td colspan="17">오류 발생: ${error.message}</td></tr>`;
         return;
       }
 
       if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="16">배송 준비된 주문이 없습니다.</td></tr>';
+        tbody.innerHTML = "<tr><td colspan='17'>배송 준비된 주문이 없습니다.</td></tr>";
         return;
       }
 
@@ -159,48 +139,48 @@
         const items = JSON.parse(order.items || '[]');
         const arrivalDue = items[0]?.arrival_due || '미정';
 
-        items.forEach((item, index) => {
-          const isFirstRow = index === 0;
-          const row = document.createElement('tr');
-          row.className = isFirstRow ? 'order-group' : '';
+        items.forEach((item, idx) => {
+          const isFirst = idx === 0;
+          const row = document.createElement("tr");
+
           row.innerHTML = `
-            ${isFirstRow ? `<td rowspan="${items.length}"><button onclick="returnToOrders(${order.order_id})">❌</button></td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}">${order.zipcode}</td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}">${order.address}</td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}">${order.address_detail}</td>` : ''}
-            <td>${item.code || '-'}</td>
-            <td>${item.name || '-'}</td>
-            <td>${item.qty || '-'}</td>
-            <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
-            ${isFirstRow ? `<td rowspan="${items.length}">₩${order.total ? order.total.toLocaleString() : '-'}</td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}">
-              <input class="input-box" value="${order.tracking_number || ''}" onchange="updateTrackingNumber(${order.order_id}, this.value)" />
-              <div style="font-size: 0.85em; color: gray; margin-top: 4px;">
-                ${order.tracking_date ? formatDateOnly(order.tracking_date) : ''}
-              </div>
+            ${isFirst ? `<td rowspan="${items.length}"><input type="checkbox" class="select-order" value="${order.order_id}" /></td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.zipcode}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.address}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.address_detail}</td>` : ''}
+            <td>${item.code}</td>
+            <td>${item.name}</td>
+            <td>${item.qty}</td>
+            <td>${item.price.toLocaleString()}</td>
+            ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">
+              <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
+              <div style="font-size: 0.85em; color: gray;">${formatDateOnly(order.tracking_date)}</div>
             </td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
-            ${isFirstRow ? `<td rowspan="${items.length}"><input class="input-box" value="${order.shipping_note || ''}" onchange="updateShippingNote(${order.order_id}, this.value)" /></td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">
+              <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
+            </td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">
+              <button onclick="markShipped('${order.order_id}')" ${order.is_shipped ? 'disabled' : ''}>
+                출고 완료
+              </button>
+            </td>` : ''}
           `;
+
           tbody.appendChild(row);
         });
       });
     }
 
-    window.returnToOrders = returnToOrders;
-    window.updateTrackingNumber = updateTrackingNumber;
-    window.updateShippingNote = updateShippingNote;
-    window.loadShippingOrders = () => {
-      const keyword = document.getElementById('searchInput')?.value?.trim();
-      loadShippingOrders(keyword || '');
-    };
-    window.downloadExcel = downloadExcel;
-
-    document.addEventListener('DOMContentLoaded', () => loadShippingOrders());
+    document.addEventListener("DOMContentLoaded", () => {
+      checkAuth();
+      document.getElementById("download-selected").addEventListener("click", downloadExcel);
+    });
   </script>
   <style>
     body {
@@ -209,12 +189,11 @@
       padding: 0;
     }
     nav {
-      background-color: #343a40;
+      background: #343a40;
       color: white;
       padding: 10px 20px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
     }
     nav a {
       color: white;
@@ -225,54 +204,21 @@
     nav a.active {
       text-decoration: underline;
     }
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-    }
-    .search-bar {
-      text-align: center;
-      margin: 20px 0;
-    }
-    .search-bar input {
-      padding: 8px;
-      width: 300px;
-      margin-right: 10px;
-    }
-    .search-bar button {
-      padding: 8px 16px;
-    }
     .export-bar {
       text-align: center;
       margin: 10px 0;
     }
-    .export-bar button {
-      padding: 8px 16px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .export-bar button:hover {
-      background-color: #0056b3;
-    }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 20px auto;
-      max-width: 1800px;
     }
     th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
+      border: 1px solid #ccc;
+      padding: 8px;
       text-align: center;
-      vertical-align: middle;
     }
     th {
-      background-color: #f2f2f2;
-    }
-    tr.order-group td {
-      border-top: 2px solid #333;
+      background: #eee;
     }
   </style>
 </head>
@@ -281,24 +227,20 @@
     <div>
       <a href="orders.html">주문 관리</a>
       <a href="shipping.html" class="active">배송 관리</a>
+      <a href="shipped.html">배송 완료</a>
     </div>
   </nav>
 
-  <h1>배송 관리</h1>
-
-  <div class="search-bar">
-    <input id="searchInput" type="text" placeholder="주문번호, 고객명 또는 송장번호로 검색" />
-    <button onclick="loadShippingOrders()">검색</button>
-  </div>
+  <h1 style="text-align:center">배송 관리</h1>
 
   <div class="export-bar">
-    <button onclick="downloadExcel()">📥 엑셀 다운로드</button>
+    <button id="download-selected">✅ 선택 항목 엑셀 다운로드</button>
   </div>
 
   <table>
     <thead>
       <tr>
-        <th>이동</th>
+        <th>선택</th>
         <th>입고 예정</th>
         <th>주문번호</th>
         <th>고객명</th>
@@ -306,18 +248,19 @@
         <th>우편번호</th>
         <th>주소</th>
         <th>상세주소</th>
-        <th>아이템 시리얼</th>
+        <th>시리얼</th>
         <th>아이템명</th>
         <th>수량</th>
-        <th>개별금액</th>
+        <th>단가</th>
         <th>총금액</th>
         <th>송장번호</th>
         <th>비고</th>
-        <th>배송 비고</th>
+        <th>배송비고</th>
+        <th>작업</th>
       </tr>
     </thead>
     <tbody id="shipping-table-body">
-      <tr><td colspan="16">불러오는 중...</td></tr>
+      <tr><td colspan="17">불러오는 중...</td></tr>
     </tbody>
   </table>
 </body>
