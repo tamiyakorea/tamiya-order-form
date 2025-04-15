@@ -1,0 +1,28 @@
+html { scroll-behavior: smooth; }
+body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+nav { position: sticky; top: 0; background: #fff; padding: 10px 0; margin-bottom: 20px; border-bottom: 1px solid #ccc; z-index: 1000; }
+nav ul { list-style: none; display: flex; justify-content: center; gap: 30px; padding: 0; margin: 0; }
+nav a { text-decoration: none; color: #007bff; font-weight: bold; }
+h2 { border-bottom: 2px solid #333; padding-bottom: 5px; }
+.section { margin-bottom: 30px; }
+label { display: block; margin: 8px 0 4px; }
+input[type="text"], input[type="email"], input[type="file"] {
+  width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box;
+}
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+th { background-color: #f2f2f2; }
+.total { font-weight: bold; }
+button { padding: 10px 20px; margin-top: 20px; cursor: pointer; font-size: 16px; }
+button.confirm {
+  background-color: #007bff; color: white; border: none; border-radius: 5px;
+}
+.button-search {
+  width: fit-content; padding: 6px 12px; background: #f5f5f5;
+  border: 1px solid #ccc; margin-top: 5px; transition: background 0.2s;
+}
+.button-search:hover { background: #eaeaea; }
+input.qty-input { width: 60px; text-align: center; }
+#orderResult {
+  margin-top: 15px; background: #f4f4f4; padding: 15px; border: 1px solid #ccc;
+}
