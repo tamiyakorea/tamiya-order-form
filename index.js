@@ -29,6 +29,29 @@ function generateOrderNumber() {
   return Number(MMDD + mmss + rand);
 }
 
+function compressImage(file, maxWidth = 2000, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = event => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(maxWidth / img.width, 1);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+          if (blob) resolve(blob);
+          else reject(new Error("Blob 변환 실패"));
+        }, 'image/jpeg', quality);
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 window.searchProduct = async function () {
   const serial = document.getElementById("serialSearch").value.trim();
   const serialNum = parseInt(serial, 10);
@@ -124,31 +147,30 @@ window.confirmOrder = async function () {
   }
 
   const fileInput = document.getElementById("proofImages");
-  if (!fileInput.files.length) {
-    alert("사진 첨부는 필수입니다.");
+  if (fileInput.files.length !== 1) {
+    alert("사진 1장을 반드시 첨부해야 합니다.");
+    return;
+  }
+
+  const rawFile = fileInput.files[0];
+  const compressedFile = await compressImage(rawFile, 2000, 0.8);
+
+  if (compressedFile.size > 5 * 1024 * 1024) {
+    alert("압축 후에도 파일이 5MB를 초과합니다. 더 작은 이미지를 첨부해주세요.");
     return;
   }
 
   const orderId = generateOrderNumber();
-  const imageUrls = [];
-  for (let i = 0; i < fileInput.files.length; i++) {
-    const file = fileInput.files[i];
-    if (file.size > 1024 * 1024) {
-      alert("각 파일은 1MB 이하로 제한됩니다.");
-      return;
-    }
-    const ext = file.name.split('.').pop();
-    const safeName = `${orderId}_${Date.now()}_${i}.${ext}`;
-    const filePath = `proof/${safeName}`;
-    const { error: uploadError } = await supabase.storage.from("order-proof").upload(filePath, file, { upsert: false });
-    if (uploadError) {
-      alert("이미지 업로드 중 오류가 발생했습니다.");
-      console.error(uploadError);
-      return;
-    }
-    const { data: { publicUrl } } = supabase.storage.from("order-proof").getPublicUrl(filePath);
-    imageUrls.push(publicUrl);
+  const ext = 'jpg';
+  const safeName = `${orderId}_${Date.now()}.${ext}`;
+  const filePath = `proof/${safeName}`;
+  const { error: uploadError } = await supabase.storage.from("order-proof").upload(filePath, compressedFile, { upsert: false });
+  if (uploadError) {
+    alert("이미지 업로드 중 오류가 발생했습니다.");
+    console.error(uploadError);
+    return;
   }
+  const { data: { publicUrl } } = supabase.storage.from("order-proof").getPublicUrl(filePath);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
   const payload = {
@@ -160,7 +182,7 @@ window.confirmOrder = async function () {
     address,
     address_detail: addressDetail,
     receipt_info: receiptInfo,
-    proof_images: imageUrls,
+    proof_images: [publicUrl],
     items: JSON.stringify(cart.map(item => ({ code: item.item_code, name: item.description, qty: item.qty, price: item.price }))),
     total,
     created_at: new Date().toISOString()
