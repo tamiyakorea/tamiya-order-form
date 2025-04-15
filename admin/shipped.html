@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>배송 완료</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://edgvrwekvnavkhcqwtxa.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+    );
+
+    function formatDateOnly(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    async function returnToShipping(orderId) {
+      const confirmBack = confirm("배송 관리 탭으로 다시 이동시키겠습니까?");
+      if (!confirmBack) return;
+      const { error } = await supabase.from('orders').update({ is_delivered: false }).eq('order_id', orderId);
+      if (!error) loadDeliveredOrders();
+    }
+
+    async function loadDeliveredOrders() {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('is_delivered', true)
+        .order('created_at', { ascending: false });
+
+      const tbody = document.getElementById('delivered-table-body');
+      tbody.innerHTML = '';
+
+      if (error) {
+        tbody.innerHTML = `<tr><td colspan="17">오류 발생: ${error.message}</td></tr>`;
+        return;
+      }
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="17">배송 완료된 주문이 없습니다.</td></tr>`;
+        return;
+      }
+
+      data.forEach(order => {
+        const items = JSON.parse(order.items || '[]');
+        const arrivalDue = items[0]?.arrival_due || '미정';
+
+        items.forEach((item, index) => {
+          const isFirst = index === 0;
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            ${isFirst ? `<td rowspan="${items.length}"><button onclick="returnToShipping(${order.order_id})">❌</button></td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.zipcode}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.address}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.address_detail}</td>` : ''}
+            <td>${item.code}</td>
+            <td>${item.name}</td>
+            <td>${item.qty}</td>
+            <td>₩${item.price.toLocaleString()}</td>
+            ${isFirst ? `<td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.tracking_number || '-'}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.remarks || '-'}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.shipping_note || '-'}</td>` : ''}
+          `;
+          tbody.appendChild(row);
+        });
+      });
+    }
+
+    window.returnToShipping = returnToShipping;
+
+    document.addEventListener('DOMContentLoaded', loadDeliveredOrders);
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    nav {
+      background-color: #343a40;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-right: 20px;
+      font-weight: bold;
+    }
+    nav a.active {
+      text-decoration: underline;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px auto;
+      max-width: 1800px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    tr.order-group td {
+      border-top: 2px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div>
+      <a href="orders.html">주문 관리</a>
+      <a href="shipping.html">배송 관리</a>
+      <a href="shipped.html" class="active">배송 완료</a>
+    </div>
+  </nav>
+
+  <h1>배송 완료</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>이동</th>
+        <th>입고 예정</th>
+        <th>주문번호</th>
+        <th>고객명</th>
+        <th>연락처</th>
+        <th>우편번호</th>
+        <th>주소</th>
+        <th>상세주소</th>
+        <th>아이템 시리얼</th>
+        <th>아이템명</th>
+        <th>수량</th>
+        <th>개별금액</th>
+        <th>총금액</th>
+        <th>송장번호</th>
+        <th>비고</th>
+        <th>배송 비고</th>
+      </tr>
+    </thead>
+    <tbody id="delivered-table-body">
+      <tr><td colspan="17">불러오는 중...</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>
