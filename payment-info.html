@@ -137,7 +137,7 @@
       const { data, error } = await supabaseClient
         .from("orders")
         .select("*")
-        .eq("order_id", orderId)
+        .eq("order_id", Number(orderId))  // ← 숫자로 변환
         .single();
 
       if (error || !data) {
