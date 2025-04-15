@@ -26,14 +26,20 @@
     }
 
     async function downloadExcel() {
-      const checkboxes = document.querySelectorAll('.select-order:checked');
-      const selectedOrderIds = Array.from(checkboxes).map(cb => cb.value);
-      if (!selectedOrderIds.length) return alert("선택된 주문이 없습니다.");
+  const checkboxes = document.querySelectorAll('.select-order:checked');
+  const selectedOrderIds = Array.from(checkboxes)
+    .map(cb => cb.value)
+    .filter(v => /^\d+$/.test(v)); // 숫자 ID만 허용
 
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .in('order_id', selectedOrderIds);
+  if (!selectedOrderIds.length) {
+    alert("선택된 주문이 없습니다.");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .in('order_id', selectedOrderIds);
 
       if (error || !data) {
         alert("엑셀 생성 중 오류 발생");
