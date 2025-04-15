@@ -116,8 +116,13 @@
       XLSX.writeFile(wb, 'shipping_export.xls');
     }
 
-    async function markShipped(orderId) {
+        async function markShipped(orderId) {
       await supabase.from('orders').update({ is_shipped: true }).eq('order_id', orderId);
+      loadShippingOrders();
+    }
+
+    async function markDelivered(orderId) {
+      await supabase.from('orders').update({ is_delivered: true }).eq('order_id', orderId);
       loadShippingOrders();
     }
 
@@ -129,12 +134,13 @@
     async function updateShippingNote(orderId, value) {
       await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
     }
+
     async function loadShippingOrders() {
       const { data, error } = await supabase
         .from('orders')
         .select('*')
         .eq('is_ready_to_ship', true)
-        .eq('is_shipped', false)
+        .eq('is_delivered', false)  // ❗ 배송 완료된 주문은 제외
         .order('created_at', { ascending: false });
 
       const tbody = document.getElementById("shipping-table-body");
@@ -181,9 +187,11 @@
               <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
             </td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">
-              <button onclick="markShipped('${order.order_id}')" ${order.is_shipped ? 'disabled' : ''}>
-                출고 완료
-              </button>
+              ${
+                order.is_shipped
+                  ? `<button onclick="markDelivered('${order.order_id}')">배송 완료</button>`
+                  : `<button onclick="markShipped('${order.order_id}')">출고 완료</button>`
+              }
             </td>` : ''}
           `;
 
@@ -198,6 +206,7 @@
     });
 
     window.markShipped = markShipped;
+    window.markDelivered = markDelivered;
   </script>
   
   <style>
