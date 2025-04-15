@@ -8,6 +8,7 @@
   <meta http-equiv="Expires" content="0" />
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    import * as XLSX from 'https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs';
 
     const supabase = createClient(
       'https://edgvrwekvnavkhcqwtxa.supabase.co',
@@ -22,6 +23,81 @@
       } else {
         loadShippingOrders();
       }
+    }
+
+    async function downloadExcel() {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('is_ready_to_ship', true)
+        .order('created_at', { ascending: false });
+
+      if (error || !data) {
+        alert("데이터를 불러오는 중 오류 발생");
+        return;
+      }
+
+      const rows = [];
+
+      data.forEach(order => {
+        const items = JSON.parse(order.items || '[]');
+        const total = order.total || 0;
+        const name = order.name || '-';
+        const phone = order.phone || '-';
+        const zip = order.zipcode || '-';
+        const addr = order.address || '-';
+        const detail = order.address_detail || '-';
+        const paidDate = order.payment_date ? new Date(order.payment_date).toISOString().slice(0, 10).replace(/-/g, '.') : '';
+        const remark = `${paidDate.replace(/\./g, '').slice(2)} ${name} 개별주문`;
+
+        let subtotal = 0;
+        items.forEach(i => subtotal += (i.qty || 0) * (i.price || 0));
+
+        const addShipping = subtotal < 30000;
+        const finalTotal = addShipping ? subtotal + 3000 : subtotal;
+
+        items.forEach(i => {
+          const is8Digit = String(i.code || '').length === 8;
+          rows.push({
+            고객명: name,
+            연락처: phone,
+            우편번호: zip,
+            주소: addr,
+            상세주소: detail,
+            시리얼번호: is8Digit ? '5727777' : i.code,
+            아이템명: is8Digit ? 'AFTER PARTS SERVICE' : i.name,
+            수량: i.qty,
+            개별금액: i.price,
+            총금액: finalTotal,
+            입금확인일: paidDate,
+            비고: remark,
+            아이템비고: i.code
+          });
+        });
+
+        if (addShipping) {
+          rows.push({
+            고객명: name,
+            연락처: phone,
+            우편번호: zip,
+            주소: addr,
+            상세주소: detail,
+            시리얼번호: '15774577',
+            아이템명: '배송비',
+            수량: 1,
+            개별금액: 3000,
+            총금액: finalTotal,
+            입금확인일: paidDate,
+            비고: remark,
+            아이템비고: '15774577'
+          });
+        }
+      });
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '배송목록');
+      XLSX.writeFile(wb, 'shipping_export.xls');
     }
 
     async function returnToOrders(orderId) {
@@ -122,6 +198,7 @@
       const keyword = document.getElementById('searchInput')?.value?.trim();
       loadShippingOrders(keyword || '');
     };
+    window.downloadExcel = downloadExcel;
 
     document.addEventListener('DOMContentLoaded', () => loadShippingOrders());
   </script>
@@ -164,6 +241,21 @@
     .search-bar button {
       padding: 8px 16px;
     }
+    .export-bar {
+      text-align: center;
+      margin: 10px 0;
+    }
+    .export-bar button {
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .export-bar button:hover {
+      background-color: #0056b3;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -197,6 +289,10 @@
   <div class="search-bar">
     <input id="searchInput" type="text" placeholder="주문번호, 고객명 또는 송장번호로 검색" />
     <button onclick="loadShippingOrders()">검색</button>
+  </div>
+
+  <div class="export-bar">
+    <button onclick="downloadExcel()">📥 엑셀 다운로드</button>
   </div>
 
   <table>
