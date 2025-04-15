@@ -59,7 +59,7 @@ window.searchProduct = async function () {
 
   const { data, error } = await supabase
     .from('tamiya_items')
-    .select('item_code, description, j_retail')
+    .select('item_code, description, j_retail, order_unit_ctn, order_unit_pck')
     .eq('item_code', serialNum)
     .single();
 
@@ -71,11 +71,13 @@ window.searchProduct = async function () {
       const codeLen = String(data.item_code).length;
       const multiplier = codeLen === 8 ? 15 : 13;
       const price = Math.floor(data.j_retail * multiplier);
+      const minQty = data.order_unit_pck > 0 ? data.order_unit_pck : (data.order_unit_ctn > 0 ? data.order_unit_ctn : 0);
       cart.push({
         item_code: data.item_code,
         description: data.description,
         price,
-        qty: 1
+        qty: minQty > 0 ? minQty : 1,
+        min_qty: minQty
       });
     }
     renderCart();
@@ -103,10 +105,11 @@ function renderCart() {
   cart.forEach((item, index) => {
     const rowTotal = item.price * item.qty;
     subtotal += rowTotal;
+    const minQtyNote = item.min_qty > 0 ? `<div style='color: red; font-size: 0.8em'>(최소 주문 수량: ${item.min_qty}개)</div>` : "";
     tbody.innerHTML += `
       <tr>
         <td>${item.item_code}</td>
-        <td>${item.description}</td>
+        <td>${item.description}${minQtyNote}</td>
         <td>₩${item.price.toLocaleString()}</td>
         <td><input type="number" class="qty-input" value="${item.qty}" min="1" onchange="updateQty(${index}, this.value)"></td>
         <td>₩${rowTotal.toLocaleString()}</td>
@@ -144,6 +147,13 @@ window.confirmOrder = async function () {
   if (!cart.length) {
     alert("장바구니에 담긴 상품이 없습니다.");
     return;
+  }
+
+  for (let item of cart) {
+    if (item.min_qty > 0 && item.qty < item.min_qty) {
+      alert("상품별 최소 주문 수량을 확인해주세요.");
+      return;
+    }
   }
 
   const fileInput = document.getElementById("proofImages");
@@ -196,42 +206,4 @@ window.confirmOrder = async function () {
     alert("주문이 완료되었습니다! 주문번호: " + orderId);
     window.location.href = "payment-info.html?orderId=" + orderId;
   }
-};
-
-window.searchOrderById = async function () {
-  const input = document.getElementById("orderSearchInput").value.trim();
-  const resultDiv = document.getElementById("orderResult");
-  resultDiv.innerHTML = "";
-  if (!input) {
-    resultDiv.innerHTML = "<p>주문번호를 입력해주세요.</p>";
-    return;
-  }
-  const { data, error } = await supabase.from("orders").select("*").eq("order_id", input).single();
-  if (error || !data) {
-    resultDiv.innerHTML = "<p>주문 내역을 찾을 수 없습니다. 주문번호를 확인해주세요.</p>";
-    return;
-  }
-  const items = JSON.parse(data.items || "[]");
-  const itemList = items.map(item => `<li>${item.name} (${item.qty}개)</li>`).join("");
-  function formatDate(d) {
-    const date = new Date(d);
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}.${mm}.${dd}`;
-  }
-  const depositStatus = data.payment_confirmed ? `입금 확인 (${formatDate(data.payment_date)})` : "입금 전";
-  const arrivalDue = data.arrival_due?.trim() ? data.arrival_due : "미정";
-  resultDiv.innerHTML = `
-    <h3>주문 정보</h3>
-    <p><strong>주문번호:</strong> ${data.order_id}</p>
-    <p><strong>고객명:</strong> ${data.name}</p>
-    <p><strong>전화번호:</strong> ${data.phone}</p>
-    <p><strong>주문일시:</strong> ${formatDate(data.created_at)}</p>
-    <p><strong>총 금액:</strong> ₩${data.total.toLocaleString()}</p>
-    <p><strong>입금 상태:</strong> ${depositStatus}</p>
-    <p><strong>입고 예정일:</strong> ${arrivalDue}</p>
-    <p><strong>주문 상품:</strong></p>
-    <ul>${itemList}</ul>
-  `;
 };
