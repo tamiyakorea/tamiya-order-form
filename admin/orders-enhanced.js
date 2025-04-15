@@ -11,6 +11,16 @@ function formatDateOnly(iso) {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function formatDateInput(iso) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function getTodayDateString() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
 async function logout() {
   await supabase.auth.signOut();
   window.location.href = "/tamiya-order-form/admin/login.html";
@@ -21,10 +31,14 @@ async function updateField(orderId, field, value) {
   if (error) alert("업데이트 실패: " + error.message);
 }
 
-async function togglePayment(orderId, current) {
+async function togglePayment(orderId, current, button) {
+  const row = button.closest('tr');
+  const dateInput = row.querySelector('.payment-date');
+  const selectedDate = dateInput?.value || getTodayDateString();
+
   const updates = {
     payment_confirmed: !current,
-    payment_date: !current ? new Date().toISOString() : null
+    payment_date: !current ? selectedDate : null
   };
 
   const { error } = await supabase.from("orders").update(updates).eq("order_id", orderId);
@@ -94,6 +108,7 @@ function renderOrders(data) {
 
   data.forEach(order => {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+    const paymentDateInput = order.payment_date ? formatDateInput(order.payment_date) : getTodayDateString();
 
     const proofButtons = (order.proof_images || []).map((url, index) => {
       return `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`;
@@ -107,7 +122,7 @@ function renderOrders(data) {
         <tr class="${rowClass}">
           ${isFirstRow ? `
             <td rowspan="${items.length}">
-              <button class="delete-btn" onclick="deleteOrder(&quot;${order.order_id}&quot;, ${order.payment_confirmed})">삭제</button>
+              <button class="delete-btn" onclick="deleteOrder(\"${order.order_id}\", ${order.payment_confirmed})">삭제</button>
             </td>
             <td rowspan="${items.length}">${proofButtons}</td>
             <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
@@ -127,8 +142,9 @@ function renderOrders(data) {
           ${isFirstRow ? `
             <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
             <td rowspan="${items.length}" class="pay-status">
-              <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed})">
-                ${order.payment_confirmed ? '입금 확인' : '입금 전'}
+              <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
+              <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
+                ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
               </button><br>
               ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
             </td>
