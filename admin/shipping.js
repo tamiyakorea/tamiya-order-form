@@ -16,6 +16,16 @@ function getGroupKey(order) {
   return [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
 }
 
+async function getGroupedIds(orderId, groupKey) {
+  if (!groupKey) {
+    const { data } = await supabase.from('orders').select('*').eq('order_id', orderId).limit(1);
+    if (!data || data.length === 0) return [orderId];
+    groupKey = getGroupKey(data[0]);
+  }
+  const { data } = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  return data.filter(o => getGroupKey(o) === groupKey).map(o => o.order_id);
+}
+
 function groupLeader(order, allOrders) {
   if (!order.is_merged) return false;
   const sameGroup = allOrders.filter(o => getGroupKey(o) === getGroupKey(order) && o.is_merged);
@@ -77,6 +87,7 @@ async function markRefunded(orderId, groupKey = null) {
   const ids = await getGroupedIds(orderId, groupKey);
   await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).in('order_id', ids);
   loadShippingOrders();
+} // ✅ 중괄호 닫기 필요
 
 async function markDelivered(orderId, groupKey = null) {
   const ids = await getGroupedIds(orderId, groupKey);
@@ -337,7 +348,7 @@ async function markDeliveredGroup(groupKey) {
 
 async function updateShippingNote(orderId, value) {
   await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
-} // ← 닫혀야 함
+} // ← ✅ 이 주석은 "닫혀야 함"이 아니라 "정상 닫힘"
 
 async function unmergeOrder(orderId) {
   const confirmCancel = confirm("합배송 처리를 취소하시겠습니까?");
