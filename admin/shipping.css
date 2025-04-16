@@ -68,28 +68,44 @@ tbody td {
   padding: 4px;
 }
 
-/* 합배송 테두리 강조 */
+/* ============================= */
+/* ✅ 개선된 합배송 테두리 강조 영역 */
+/* ============================= */
+
+/* 기본 셀 테두리 제거 (겹침 방지) */
 .merged-order td {
-  border: 1px solid #ff4d4d;
+  border: none;
 }
 
+/* 좌우 테두리는 셀마다 적용 */
+.merged-order td {
+  border-left: 1px solid #ff4d4d;
+  border-right: 1px solid #ff4d4d;
+}
+
+/* 위쪽 그룹 테두리 강조 */
 .merged-top td {
-  border-top: 3px solid red;
+  border-top: 2px solid red;
 }
 
+/* 아래쪽 그룹 테두리 강조 */
 .merged-bottom td {
-  border-bottom: 3px solid red;
+  border-bottom: 2px solid red;
 }
 
+/* 왼쪽 끝 셀 강조 */
 .merged-top td:first-child,
 .merged-bottom td:first-child {
-  border-left: 3px solid red;
+  border-left: 2px solid red;
 }
 
+/* 오른쪽 끝 셀 강조 */
 .merged-top td:last-child,
 .merged-bottom td:last-child {
-  border-right: 3px solid red;
+  border-right: 2px solid red;
 }
+
+/* ============================= */
 
 /* 버튼 스타일 */
 button {
@@ -111,7 +127,7 @@ button[disabled] {
   border: 1px solid #aaa;
 }
 
-/* 환불예상 텍스트 스타일 */
+/* 환불예상 텍스트 강조 */
 td > div[style*="color:red"] {
   font-weight: bold;
 }
