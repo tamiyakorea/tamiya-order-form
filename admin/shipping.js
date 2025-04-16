@@ -268,16 +268,18 @@ async function loadShippingOrders() {
         <td>${item.price.toLocaleString()}</td>
         ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
         ${
-          isFirst && isGroupLeader && order.is_merged
-            ? `<td rowspan="${groupRowspan}">
-                <div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
-                ${!order.is_refunded ? `<button onclick="markRefunded('${order.order_id}')">환불처리 완료</button>` : ''}
-                ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;cursor:pointer;" onclick="unmarkRefunded('${order.order_id}')">${formatDateOnly(order.refunded_at)}</div>` : ''}
-              </td>`
-            : isFirst
-              ? `<td rowspan="${items.length}"></td>`
-              : ''
-        }
+  isFirst
+    ? order.is_merged
+      ? isGroupLeader
+        ? `<td rowspan="${groupRowspan}">
+            <div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
+            ${!order.is_refunded ? `<button onclick="markRefunded('${order.order_id}')">환불처리 완료</button>` : ''}
+            ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;cursor:pointer;" onclick="unmarkRefunded('${order.order_id}')">${formatDateOnly(order.refunded_at)}</div>` : ''}
+          </td>`
+        : ''  // ❗ 비대표주문은 <td> 출력 X (이미 rowspan 되어있기 때문)
+      : `<td rowspan="${items.length}"></td>`  // 일반 주문일 경우 빈 td 출력
+    : ''
+}
         ${isFirst ? `<td rowspan="${items.length}">
           <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
           <div style="font-size: 0.85em; color: gray;">${formatDateOnly(order.tracking_date)}</div>
