@@ -253,7 +253,7 @@ async function loadShippingOrders() {
         ${isFirst ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
 
         ${
-          isFirst && order.is_merged && !shippedHandled.has('note-' + groupKey)
+          isFirst && !shippedHandled.has('note-' + groupKey)
             ? (() => {
                 shippedHandled.add('note-' + groupKey);
                 return `<td rowspan="${items.length}">
@@ -264,7 +264,7 @@ async function loadShippingOrders() {
         }
 
         ${
-          isFirst && order.is_merged && !shippedHandled.has('work-' + groupKey)
+          isFirst && !shippedHandled.has('work-' + groupKey)
             ? (() => {
                 shippedHandled.add('work-' + groupKey);
                 return `<td rowspan="${items.length}">
