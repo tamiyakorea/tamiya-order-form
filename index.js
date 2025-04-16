@@ -21,6 +21,31 @@ window.toggleCashReceipt = function () {
     document.getElementById("receiptRequested").checked ? "block" : "none";
 };
 
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("phoneNumber").addEventListener("input", function (e) {
+    e.target.value = formatPhoneNumberLive(e.target.value);
+  });
+
+  document.getElementById("receiptInfo").addEventListener("input", function (e) {
+    e.target.value = formatReceiptInfo(e.target.value);
+  });
+});
+
+function formatPhoneNumberLive(value) {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length < 4) return digits;
+  if (digits.length < 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  if (digits.length <= 11) return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+}
+
+function formatReceiptInfo(value) {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length === 11) return digits.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+  if (digits.length === 10) return digits.replace(/(\d{3})(\d{2})(\d{5})/, "$1-$2-$3");
+  return digits;
+}
+
 function generateOrderNumber() {
   const now = new Date();
   const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
@@ -132,13 +157,15 @@ function renderCart() {
 window.confirmOrder = async function () {
   const get = id => document.getElementById(id);
   const name = get("customerName").value.trim();
-  const phone = get("phoneNumber").value.trim();
+  const phoneRaw = get("phoneNumber").value.trim();
+  const phone = formatPhoneNumberLive(phoneRaw);
   const email = get("email").value.trim();
   const zipcode = get("zipcode").value.trim();
   const address = get("address").value.trim();
   const addressDetail = get("addressDetail").value.trim();
   const receiptChecked = get("receiptRequested").checked;
-  const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
+  const receiptInfoRaw = receiptChecked ? get("receiptInfo").value.trim() : null;
+  const receiptInfo = receiptInfoRaw ? formatReceiptInfo(receiptInfoRaw) : null;
 
   if (!name || !phone || !email || !zipcode || !address || !addressDetail) {
     alert("모든 고객 정보를 정확히 입력해 주세요.");
@@ -193,7 +220,7 @@ window.confirmOrder = async function () {
     address_detail: addressDetail,
     receipt_info: receiptInfo,
     proof_images: [publicUrl],
-    items: JSON.stringify(cart.map(item => ({ code: item.item_code, name: item.description, qty: item.qty, price: item.price }))),
+    items: JSON.stringify(cart.map(item => ({ code: item.item_code, name: item.description, qty: item.qty, price: item.price })));
     total,
     created_at: new Date().toISOString()
   };
