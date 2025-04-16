@@ -3,7 +3,7 @@ import * as XLSX from 'https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs';
 
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+  'eyJhbGciOiJI...<중략>...yp21E'
 );
 
 function formatDateOnly(isoString) {
@@ -12,29 +12,19 @@ function formatDateOnly(isoString) {
   return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 }
 
+function getGroupKey(order) {
+  return [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
+}
+
 function groupLeader(order, allOrders) {
   if (!order.is_merged) return false;
-  const sameGroup = allOrders.filter(o =>
-    o.name === order.name &&
-    o.phone === order.phone &&
-    o.zipcode === order.zipcode &&
-    o.address === order.address &&
-    o.address_detail === order.address_detail &&
-    o.is_merged
-  );
+  const sameGroup = allOrders.filter(o => getGroupKey(o) === getGroupKey(order) && o.is_merged);
   const minId = Math.min(...sameGroup.map(o => o.order_id));
   return order.order_id === minId;
 }
 
 function groupMemberCount(order, allOrders) {
-  return allOrders.filter(o =>
-    o.name === order.name &&
-    o.phone === order.phone &&
-    o.zipcode === order.zipcode &&
-    o.address === order.address &&
-    o.address_detail === order.address_detail &&
-    o.is_merged
-  ).length;
+  return allOrders.filter(o => getGroupKey(o) === getGroupKey(order) && o.is_merged).length;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -42,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("download-selected").addEventListener("click", downloadExcel);
   document.getElementById("merge-shipping").addEventListener("click", handleMergeShipping);
 });
+
 async function checkAuth() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
@@ -51,20 +42,47 @@ async function checkAuth() {
     loadShippingOrders();
   }
 }
-
-async function markShipped(orderId) {
-  await supabase.from('orders').update({ is_shipped: true }).eq('order_id', orderId);
+async function markShipped(orderId, groupKey = null) {
+  const ids = await getGroupedIds(orderId, groupKey);
+  await supabase.from('orders').update({ is_shipped: true }).in('order_id', ids);
   loadShippingOrders();
 }
 
-async function markDelivered(orderId) {
-  await supabase.from('orders').update({ is_delivered: true }).eq('order_id', orderId);
+async function markDelivered(orderId, groupKey = null) {
+  const ids = await getGroupedIds(orderId, groupKey);
+  await supabase.from('orders').update({ is_delivered: true }).in('order_id', ids);
   loadShippingOrders();
 }
 
-async function revertShipping(orderId) {
-  await supabase.from('orders').update({ is_shipped: false, is_delivered: false }).eq('order_id', orderId);
+async function revertShipping(orderId, groupKey = null) {
+  const ids = await getGroupedIds(orderId, groupKey);
+  await supabase.from('orders').update({ is_shipped: false, is_delivered: false }).in('order_id', ids);
   loadShippingOrders();
+}
+
+async function markRefunded(orderId, groupKey = null) {
+  const now = new Date().toISOString();
+  const ids = await getGroupedIds(orderId, groupKey);
+  await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).in('order_id', ids);
+  loadShippingOrders();
+}
+
+async function unmarkRefunded(orderId, groupKey = null) {
+  const confirmCancel = confirm("환불 완료 상태를 취소하시겠습니까?");
+  if (!confirmCancel) return;
+  const ids = await getGroupedIds(orderId, groupKey);
+  await supabase.from('orders').update({ is_refunded: false, refunded_at: null }).in('order_id', ids);
+  loadShippingOrders();
+}
+
+async function getGroupedIds(orderId, groupKey) {
+  if (!groupKey) {
+    const { data } = await supabase.from('orders').select('*').eq('order_id', orderId).limit(1);
+    if (!data?.[0]) return [orderId];
+    groupKey = getGroupKey(data[0]);
+  }
+  const { data } = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  return data.filter(o => getGroupKey(o) === groupKey).map(o => o.order_id);
 }
 
 async function moveToOrderManagement(orderId) {
@@ -82,38 +100,41 @@ async function updateTrackingNumber(orderId, value) {
 async function updateShippingNote(orderId, value) {
   await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
 }
-async function markRefunded(orderId) {
-  const now = new Date().toISOString();
-  await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).eq('order_id', orderId);
-  loadShippingOrders();
-}
-
-async function unmarkRefunded(orderId) {
-  const confirmCancel = confirm("환불 완료 상태를 취소하시겠습니까?");
-  if (!confirmCancel) return;
-  await supabase.from('orders').update({ is_refunded: false, refunded_at: null }).eq('order_id', orderId);
-  loadShippingOrders();
-}
 
 async function unmergeOrder(orderId) {
   const confirmCancel = confirm("합배송 처리를 취소하시겠습니까?");
   if (!confirmCancel) return;
+  const { data } = await supabase.from('orders').select('*').eq('order_id', orderId).limit(1);
+  const groupKey = getGroupKey(data[0]);
+  const groupOrders = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  const ids = groupOrders.data.filter(o => getGroupKey(o) === groupKey).map(o => o.order_id);
   await supabase.from('orders').update({
     is_merged: false,
     refund_amount: null,
     is_refunded: false,
     refunded_at: null
-  }).eq('order_id', orderId);
+  }).in('order_id', ids);
   loadShippingOrders();
 }
 
-window.unmergeOrder = unmergeOrder;
+// 외부 함수 등록
+window.markShipped = markShipped;
+window.markDelivered = markDelivered;
+window.revertShipping = revertShipping;
+window.moveToOrderManagement = moveToOrderManagement;
+window.markRefunded = markRefunded;
 window.unmarkRefunded = unmarkRefunded;
+window.unmergeOrder = unmergeOrder;
+window.updateTrackingNumber = updateTrackingNumber;
+window.updateShippingNote = updateShippingNote;
+function getGroupKey(order) {
+  return [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
+}
 
 function groupByCustomerInfo(orders) {
   const map = new Map();
   for (const order of orders) {
-    const key = [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
+    const key = getGroupKey(order);
     if (!map.has(key)) map.set(key, []);
     map.get(key).push(order);
   }
@@ -136,6 +157,7 @@ function calculateRefundAmount(group) {
 async function handleMergeShipping() {
   const selectedIds = Array.from(document.querySelectorAll('.select-order:checked')).map(cb => Number(cb.value));
   if (selectedIds.length < 2) return alert("2개 이상 주문을 선택해야 합니다.");
+
   const { data, error } = await supabase.from('orders').select('*').in('order_id', selectedIds);
   if (error || !data) return alert("주문 데이터 로딩 실패");
 
@@ -144,13 +166,14 @@ async function handleMergeShipping() {
 
   for (const group of groups) {
     const refund = calculateRefundAmount(group);
-    for (const order of group) {
-      await supabase.from('orders').update({ is_merged: true, refund_amount: refund }).eq('order_id', order.order_id);
-    }
+    const ids = group.map(o => o.order_id);
+    await supabase.from('orders').update({ is_merged: true, refund_amount: refund }).in('order_id', ids);
   }
+
   alert("합배송 처리가 완료되었습니다.");
   loadShippingOrders();
 }
+
 async function downloadExcel() {
   const selected = Array.from(document.querySelectorAll('.select-order:checked')).map(cb => cb.value);
   if (!selected.length) return alert("선택된 주문이 없습니다.");
@@ -214,29 +237,26 @@ async function loadShippingOrders() {
     return a.order_id - b.order_id;
   });
 
-  if (data.length === 0) {
-    tbody.innerHTML = "<tr><td colspan='18'>배송 준비된 주문이 없습니다.</td></tr>";
-    return;
-  }
-
   const groupMap = new Map();
   for (const order of data) {
-    const key = [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
+    const key = getGroupKey(order);
     if (!groupMap.has(key)) groupMap.set(key, []);
     groupMap.get(key).push(order);
   }
+
+  const refundHandled = new Set();
+  const shippedHandled = new Set();
 
   data.forEach(order => {
     const items = JSON.parse(order.items || '[]');
     const arrivalDue = items[0]?.arrival_due || '미정';
     const refund = order.refund_amount || 0;
+    const groupKey = getGroupKey(order);
+    const groupOrders = groupMap.get(groupKey);
+    const groupRowspan = items.length * groupOrders.length;
     const isGroupLeader = groupLeader(order, data);
-    const groupKey = [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
-    const groupRowspan = items.length * groupMap.get(groupKey).length;
-
-    const sameGroup = groupMap.get(groupKey);
-    const isFirstOrderInGroup = order.is_merged && order.order_id === Math.min(...sameGroup.map(o => o.order_id));
-    const isLastOrderInGroup = order.is_merged && order.order_id === Math.max(...sameGroup.map(o => o.order_id));
+    const isFirstOrderInGroup = order.order_id === Math.min(...groupOrders.map(o => o.order_id));
+    const isLastOrderInGroup = order.order_id === Math.max(...groupOrders.map(o => o.order_id));
 
     items.forEach((item, idx) => {
       const isFirst = idx === 0;
@@ -267,48 +287,121 @@ async function loadShippingOrders() {
         <td>${item.qty}</td>
         <td>${item.price.toLocaleString()}</td>
         ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
+
         ${
-  isFirst
-    ? order.is_merged
-      ? isGroupLeader
-        ? `<td rowspan="${groupRowspan}">
-            <div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
-            ${!order.is_refunded ? `<button onclick="markRefunded('${order.order_id}')">환불처리 완료</button>` : ''}
-            ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;cursor:pointer;" onclick="unmarkRefunded('${order.order_id}')">${formatDateOnly(order.refunded_at)}</div>` : ''}
-          </td>`
-        : ''  // ❗ 비대표주문은 <td> 출력 X (이미 rowspan 되어있기 때문)
-      : `<td rowspan="${items.length}"></td>`  // 일반 주문일 경우 빈 td 출력
-    : ''
-}
-        ${isFirst ? `<td rowspan="${items.length}">
-          <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
-          <div style="font-size: 0.85em; color: gray;">${formatDateOnly(order.tracking_date)}</div>
-        </td>` : ''}
+          isFirst && isGroupLeader && order.is_merged && !refundHandled.has(groupKey)
+            ? (() => {
+                refundHandled.add(groupKey);
+                return `<td rowspan="${groupRowspan}">
+                  <div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
+                  ${!order.is_refunded ? `<button onclick="markRefundedGroup('${groupKey}')">환불처리 완료</button>` : ''}
+                  ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;cursor:pointer;" onclick="unmarkRefundedGroup('${groupKey}')">${formatDateOnly(order.refunded_at)}</div>` : ''}
+                </td>`;
+              })()
+            : isFirst ? `<td rowspan="${items.length}"></td>` : ''
+        }
+
+        ${
+          isFirst && !shippedHandled.has(groupKey)
+            ? (() => {
+                shippedHandled.add(groupKey);
+                return `<td rowspan="${items.length}">
+                  <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
+                  <div style="font-size: 0.85em; color: gray;">${formatDateOnly(order.tracking_date)}</div>
+                </td>`;
+              })()
+            : ''
+        }
+
         ${isFirst ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">
-          <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
-        </td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">
-          ${
-            order.is_shipped
-              ? `<button onclick="markDelivered('${order.order_id}')">배송 완료</button><br/>
-                 <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShipping('${order.order_id}')">⟲ 되돌리기</span>`
-              : order.is_merged && !order.is_refunded && !isGroupLeader
-                ? `<button disabled>출고 완료 (환불 필요)</button>`
-                : `<button onclick="markShipped('${order.order_id}')">출고 완료</button>`
-          }
-        </td>` : ''}
+
+        ${
+          isFirst && !shippedHandled.has('note-' + groupKey)
+            ? (() => {
+                shippedHandled.add('note-' + groupKey);
+                return `<td rowspan="${items.length}">
+                  <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
+                </td>`;
+              })()
+            : ''
+        }
+
+        ${
+          isFirst && !shippedHandled.has('work-' + groupKey)
+            ? (() => {
+                shippedHandled.add('work-' + groupKey);
+                return `<td rowspan="${items.length}">
+                  ${
+                    order.is_shipped
+                      ? `<button onclick="markDeliveredGroup('${groupKey}')">배송 완료</button><br/>
+                        <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShippingGroup('${groupKey}')">⟲ 되돌리기</span>`
+                      : order.is_merged && !order.is_refunded && !isGroupLeader
+                        ? `<button disabled>출고 완료 (환불 필요)</button>`
+                        : `<button onclick="markShippedGroup('${groupKey}')">출고 완료</button>`
+                  }
+                </td>`;
+              })()
+            : ''
+        }
       `;
 
       tbody.appendChild(row);
     });
   });
 }
+// 그룹 키로 주문 목록을 반환
+function getGroupKey(order) {
+  return [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
+}
 
-window.markShipped = markShipped;
-window.markDelivered = markDelivered;
-window.revertShipping = revertShipping;
-window.moveToOrderManagement = moveToOrderManagement;
-window.markRefunded = markRefunded;
-window.updateTrackingNumber = updateTrackingNumber;
-window.updateShippingNote = updateShippingNote;
+function getGroupOrders(groupKey, allOrders) {
+  return allOrders.filter(o => getGroupKey(o) === groupKey && o.is_merged);
+}
+
+async function markRefundedGroup(groupKey) {
+  const { data } = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  const group = data.filter(o => getGroupKey(o) === groupKey);
+  const now = new Date().toISOString();
+  const ids = group.map(o => o.order_id);
+  await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).in('order_id', ids);
+  loadShippingOrders();
+}
+
+async function unmarkRefundedGroup(groupKey) {
+  const { data } = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  const group = data.filter(o => getGroupKey(o) === groupKey);
+  const ids = group.map(o => o.order_id);
+  await supabase.from('orders').update({ is_refunded: false, refunded_at: null }).in('order_id', ids);
+  loadShippingOrders();
+}
+
+async function markShippedGroup(groupKey) {
+  const { data } = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  const group = data.filter(o => getGroupKey(o) === groupKey);
+  const ids = group.map(o => o.order_id);
+  await supabase.from('orders').update({ is_shipped: true }).in('order_id', ids);
+  loadShippingOrders();
+}
+
+async function markDeliveredGroup(groupKey) {
+  const { data } = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  const group = data.filter(o => getGroupKey(o) === groupKey);
+  const ids = group.map(o => o.order_id);
+  await supabase.from('orders').update({ is_delivered: true }).in('order_id', ids);
+  loadShippingOrders();
+}
+
+async function revertShippingGroup(groupKey) {
+  const { data } = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  const group = data.filter(o => getGroupKey(o) === groupKey);
+  const ids = group.map(o => o.order_id);
+  await supabase.from('orders').update({ is_shipped: false, is_delivered: false }).in('order_id', ids);
+  loadShippingOrders();
+}
+
+// 외부에서 접근 가능하도록 등록
+window.markRefundedGroup = markRefundedGroup;
+window.unmarkRefundedGroup = unmarkRefundedGroup;
+window.markShippedGroup = markShippedGroup;
+window.markDeliveredGroup = markDeliveredGroup;
+window.revertShippingGroup = revertShippingGroup;
