@@ -151,6 +151,87 @@ async function downloadExcel() {
   XLSX.writeFile(wb, 'shipping_export.xls');
 }
 
+async function loadShippingOrders() {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('is_ready_to_ship', true)
+    .eq('is_delivered', false)
+    .order('created_at', { ascending: false });
+
+  const tbody = document.getElementById("shipping-table-body");
+  tbody.innerHTML = "";
+
+  if (error || !data) {
+    tbody.innerHTML = `<tr><td colspan="18">오류 발생: ${error.message}</td></tr>`;
+    return;
+  }
+
+  if (data.length === 0) {
+    tbody.innerHTML = "<tr><td colspan='18'>배송 준비된 주문이 없습니다.</td></tr>";
+    return;
+  }
+
+  data.forEach(order => {
+    const items = JSON.parse(order.items || '[]');
+    const arrivalDue = items[0]?.arrival_due || '미정';
+    const refund = order.refund_amount || 0;
+
+    items.forEach((item, idx) => {
+      const isFirst = idx === 0;
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        ${isFirst ? `<td rowspan="${items.length}">
+          <button onclick="moveToOrderManagement('${order.order_id}')" style="color:red;font-weight:bold;border:none;background:none;cursor:pointer;">✖</button><br/>
+          <input type="checkbox" class="select-order" value="${order.order_id}" />
+        </td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">${order.order_id}
+          ${order.is_merged ? `<div style="color:red; font-size:0.8em;">합배송 처리</div>` : ''}
+        </td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">${order.zipcode}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">${order.address}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">${order.address_detail}</td>` : ''}
+        <td>${item.code}</td>
+        <td>${item.name}</td>
+        <td>${item.qty}</td>
+        <td>${item.price.toLocaleString()}</td>
+        ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">
+          ${order.is_merged ? `
+            <div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
+            ${!order.is_refunded ? `<button onclick="markRefunded('${order.order_id}')">환불처리 완료</button>` : ''}
+            ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;">${formatDateOnly(order.refunded_at)}</div>` : ''}
+          ` : ''}
+        </td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">
+          <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
+          <div style="font-size: 0.85em; color: gray;">${formatDateOnly(order.tracking_date)}</div>
+        </td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">
+          <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
+        </td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">
+          ${
+            order.is_shipped
+              ? `<button onclick="markDelivered('${order.order_id}')">배송 완료</button><br/>
+                 <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShipping('${order.order_id}')">⟲ 되돌리기</span>`
+              : order.is_merged && !order.is_refunded
+                ? `<button disabled>출고 완료 (환불 필요)</button>`
+                : `<button onclick="markShipped('${order.order_id}')">출고 완료</button>`
+          }
+        </td>` : ''}
+      `;
+
+      tbody.appendChild(row);
+    });
+  });
+}
+
 window.markShipped = markShipped;
 window.markDelivered = markDelivered;
 window.revertShipping = revertShipping;
