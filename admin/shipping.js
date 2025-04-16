@@ -186,7 +186,8 @@ if (shippingItemPrice > 0) {
     비고: remark,
     아이템비고: "15774577"
   });
-}
+    }
+  });
     
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
