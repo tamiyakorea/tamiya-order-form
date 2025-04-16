@@ -201,7 +201,7 @@ window.confirmOrder = async function () {
   const ext = 'jpg';
   const safeName = `${orderId}_${Date.now()}.${ext}`;
   const filePath = `proof/${safeName}`;
-  const { error: uploadError } = await supabase.storage.from("order-proof").upload(filePath, compressedFile, { upsert: false });
+  await supabase.storage.from("order-proof").upload(filePath, compressedFile, { upsert: false });
   if (uploadError) {
     alert("이미지 업로드 중 오류가 발생했습니다.");
     console.error(uploadError);
