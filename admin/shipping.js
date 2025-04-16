@@ -64,15 +64,19 @@ async function unmarkRefunded(orderId, groupKey = null) {
 }
 
 async function updateGroupStatus(groupKey, updates) {
-  const { data } = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  console.log("[DEBUG] updateGroupStatus groupKey:", groupKey, "updates:", updates);
+  const { data } = await supabase.from('orders').select('*').eq('is_merged', true);
   const group = data.filter(o => getGroupKey(o) === groupKey);
+  console.log("[DEBUG] matching group size:", group.length);
   const ids = group.map(o => o.order_id);
   await supabase.from('orders').update(updates).in('order_id', ids);
   loadShippingOrders();
 }
 
+
 async function markRefundedGroup(groupKey) {
   const now = new Date().toISOString();
+  console.log("[DEBUG] markRefundedGroup called with:", groupKey);
   await updateGroupStatus(groupKey, { is_refunded: true, refunded_at: now });
 }
 
