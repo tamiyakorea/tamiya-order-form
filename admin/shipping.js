@@ -268,6 +268,25 @@ async function loadShippingOrders() {
 
 // 그룹 작업 함수들
 
+async function handleMergeShipping() {
+  const selectedIds = Array.from(document.querySelectorAll('.select-order:checked')).map(cb => Number(cb.value));
+  if (selectedIds.length < 2) return alert("2개 이상 주문을 선택해야 합니다.");
+
+  const { data, error } = await supabase.from('orders').select('*').in('order_id', selectedIds);
+  if (error || !data) return alert("주문 데이터 로딩 실패");
+
+  const groups = groupByCustomerInfo(data);
+  if (!groups.length) return alert("고객정보가 일치하는 주문이 없습니다.");
+
+  for (const group of groups) {
+    const refund = calculateRefundAmount(group);
+    const ids = group.map(o => o.order_id);
+    await supabase.from('orders').update({ is_merged: true, refund_amount: refund }).in('order_id', ids);
+  }
+
+  alert("합배송 처리가 완료되었습니다.");
+  loadShippingOrders();
+}
 
 // 개별 주문 관리 함수 (move, unmerge, update input 등)
 async function moveToOrderManagement(orderId) {
@@ -322,3 +341,4 @@ window.unmarkRefunded = unmarkRefunded;
 window.unmergeOrder = unmergeOrder;
 window.updateTrackingNumber = updateTrackingNumber;
 window.updateShippingNote = updateShippingNote;
+window.handleMergeShipping = handleMergeShipping;
