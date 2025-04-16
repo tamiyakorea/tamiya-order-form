@@ -362,21 +362,40 @@ async function unmergeOrder(orderId) {
   const confirmCancel = confirm("합배송 처리를 취소하시겠습니까?");
   if (!confirmCancel) return;
 
-  const { data } = await supabase.from('orders').select('*').eq('order_id', orderId).limit(1);
-  const groupKey = getGroupKey(data[0]);
+  const { data: orderData, error } = await supabase.from('orders').select('*').eq('order_id', orderId).limit(1);
 
-  const groupOrders = await supabase.from('orders').select('order_id').eq('is_merged', true);
-  const ids = groupOrders.data.filter(o => getGroupKey(o) === groupKey).map(o => o.order_id);
+  if (error || !orderData || orderData.length === 0) {
+    alert("주문 정보를 불러오지 못했습니다.");
+    console.error('Error loading order:', error);
+    return;
+  }
 
-  await supabase.from('orders').update({
+  const groupKey = getGroupKey(orderData[0]);
+
+  const { data: allMergedOrders } = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  const ids = allMergedOrders.filter(o => getGroupKey(o) === groupKey).map(o => o.order_id);
+
+  if (ids.length === 0) {
+    alert("해당 그룹의 주문을 찾을 수 없습니다.");
+    return;
+  }
+
+  const { error: updateError } = await supabase.from('orders').update({
     is_merged: false,
     refund_amount: null,
     is_refunded: false,
     refunded_at: null
   }).in('order_id', ids);
 
-  loadShippingOrders();
+  if (updateError) {
+    alert("합배송 취소에 실패했습니다.");
+    console.error('Update error:', updateError);
+    return;
+  }
+
+  loadShippingOrders();  // 새로고침
 }
+
 
 
 // 외부에서 접근 가능하도록 등록
