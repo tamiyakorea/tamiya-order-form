@@ -37,12 +37,14 @@ th, td {
   border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
+  vertical-align: middle;
 }
 
 th {
   background: #eee;
 }
 
+/* 입력 필드 */
 .input-box {
   width: 100%;
   box-sizing: border-box;
@@ -50,25 +52,23 @@ th {
   font-size: 14px;
 }
 
-/* ✅ 합배송 외곽만 붉은 테두리 표시 */
-.merged-order:first-child td {
-  border-top: 2px solid red;
-}
-
-.merged-order:last-child td {
-  border-bottom: 2px solid red;
-}
-
+/* ✅ 합배송 외곽 테두리만 강조 */
 .merged-order td:first-child {
   border-left: 2px solid red;
 }
-
 .merged-order td:last-child {
   border-right: 2px solid red;
 }
+.merged-top td {
+  border-top: 2px solid red;
+}
+.merged-bottom td {
+  border-bottom: 2px solid red;
+}
 
-/* 마우스 오버 시 합배송 취소 텍스트 강조 */
-.merged-order div[onclick]:hover {
+/* 환불 처리 완료 날짜에 hover 효과 */
+.merged-order .refunded-date:hover {
   text-decoration: underline;
   cursor: pointer;
+  color: darkred;
 }
