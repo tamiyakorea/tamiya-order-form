@@ -61,7 +61,6 @@ tbody td {
   word-break: break-word;
 }
 
-/* 입력박스 */
 .input-box {
   width: 100%;
   box-sizing: border-box;
@@ -69,43 +68,38 @@ tbody td {
 }
 
 /* ============================= */
-/* ✅ 개선된 합배송 테두리 강조 영역 */
+/* ✅ 합배송 테두리 스타일 정리 */
 /* ============================= */
 
-/* 기본 셀 테두리 제거 (겹침 방지) */
+/* 합배송된 행 전체에 좌우선 제거 */
 .merged-order td {
-  border: none;
+  border-left: none;
+  border-right: none;
 }
 
-/* 좌우 테두리는 셀마다 적용 */
-.merged-order td {
-  border-left: 1px solid #ff4d4d;
-  border-right: 1px solid #ff4d4d;
-}
-
-/* 위쪽 그룹 테두리 강조 */
+/* 상단 테두리 강조 */
 .merged-top td {
   border-top: 2px solid red;
 }
 
-/* 아래쪽 그룹 테두리 강조 */
+/* 하단 테두리 강조 */
 .merged-bottom td {
   border-bottom: 2px solid red;
 }
 
-/* 왼쪽 끝 셀 강조 */
+/* 가장 왼쪽 셀 (선택 열) 강조 */
 .merged-top td:first-child,
 .merged-bottom td:first-child {
   border-left: 2px solid red;
 }
 
-/* 오른쪽 끝 셀 강조 */
-.merged-top td:last-child,
-.merged-bottom td:last-child {
+/* 가장 오른쪽 셀 강조 - 마지막 td만 적용 (빈칸 출력 방지) */
+.merged-top td:last-of-type,
+.merged-bottom td:last-of-type {
   border-right: 2px solid red;
 }
 
-/* ============================= */
+/* ================================= */
 
 /* 버튼 스타일 */
 button {
