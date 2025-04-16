@@ -354,14 +354,15 @@ window.unmarkRefundedGroup = unmarkRefundedGroup;
 window.markShippedGroup = markShippedGroup;
 window.markDeliveredGroup = markDeliveredGroup;
 window.revertShippingGroup = revertShippingGroup;
+
 window.downloadExcel = downloadExcel;
 window.markShipped = markShipped;
 window.markDelivered = markDelivered;
-window.revertShipping = revertShipping;
+window.revertShipping = revertShipping;   // ✅ 추가
 window.moveToOrderManagement = moveToOrderManagement;
 window.markRefunded = markRefunded;
 window.unmarkRefunded = unmarkRefunded;
-window.unmergeOrder = unmergeOrder;
+window.unmergeOrder = unmergeOrder;       // ✅ 추가
 window.updateTrackingNumber = updateTrackingNumber;
 window.updateShippingNote = updateShippingNote;
 window.handleMergeShipping = handleMergeShipping;
