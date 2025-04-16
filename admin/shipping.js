@@ -372,7 +372,7 @@ async function unmergeOrder(orderId) {
 
   const groupKey = getGroupKey(orderData[0]);
 
-  const { data: allMergedOrders } = await supabase.from('orders').select('order_id').eq('is_merged', true);
+  const { data: allMergedOrders } = await supabase.from('orders').select('*').eq('is_merged', true); // ← 핵심 수정
   const ids = allMergedOrders.filter(o => getGroupKey(o) === groupKey).map(o => o.order_id);
 
   if (ids.length === 0) {
@@ -393,8 +393,9 @@ async function unmergeOrder(orderId) {
     return;
   }
 
-  loadShippingOrders();  // 새로고침
+  loadShippingOrders();
 }
+
 
 
 
