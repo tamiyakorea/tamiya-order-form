@@ -288,6 +288,29 @@ async function handleMergeShipping() {
   loadShippingOrders();
 }
 
+function groupByCustomerInfo(orders) {
+  const map = new Map();
+  for (const order of orders) {
+    const key = getGroupKey(order);
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(order);
+  }
+  return Array.from(map.values()).filter(group => group.length > 1);
+}
+
+function calculateRefundAmount(group) {
+  let totalItems = 0, shippingPaid = 0;
+  for (const order of group) {
+    const items = JSON.parse(order.items || '[]');
+    const itemTotal = items.reduce((sum, i) => sum + (i.qty * i.price), 0);
+    const shipping = order.total - itemTotal;
+    totalItems += itemTotal;
+    if (shipping > 0) shippingPaid += shipping;
+  }
+  const needsShippingFee = totalItems < 30000 ? 3000 : 0;
+  return Math.max(0, shippingPaid - needsShippingFee);
+}
+
 // 개별 주문 관리 함수 (move, unmerge, update input 등)
 async function moveToOrderManagement(orderId) {
   if (confirm("이 주문을 배송관리에서 제외하고 주문관리로 이동하시겠습니까?")) {
