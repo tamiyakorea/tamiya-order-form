@@ -346,10 +346,6 @@ async function loadShippingOrders() {
     });
   });
 }
-// 그룹 키로 주문 목록을 반환
-function getGroupKey(order) {
-  return [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
-}
 
 function getGroupOrders(groupKey, allOrders) {
   return allOrders.filter(o => getGroupKey(o) === groupKey && o.is_merged);
