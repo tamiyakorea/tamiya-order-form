@@ -337,7 +337,7 @@ async function markDeliveredGroup(groupKey) {
 
 async function updateShippingNote(orderId, value) {
   await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
-}
+} // ← 닫혀야 함
 
 async function unmergeOrder(orderId) {
   const confirmCancel = confirm("합배송 처리를 취소하시겠습니까?");
