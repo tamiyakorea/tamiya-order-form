@@ -127,9 +127,6 @@ window.unmarkRefunded = unmarkRefunded;
 window.unmergeOrder = unmergeOrder;
 window.updateTrackingNumber = updateTrackingNumber;
 window.updateShippingNote = updateShippingNote;
-function getGroupKey(order) {
-  return [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
-}
 
 function groupByCustomerInfo(orders) {
   const map = new Map();
