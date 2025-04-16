@@ -1,9 +1,11 @@
+// shipping.js 전체 코드
+
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 import * as XLSX from 'https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs';
 
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+  'YOUR_PUBLIC_ANON_KEY'
 );
 
 function formatDateOnly(isoString) {
@@ -24,6 +26,17 @@ function groupLeader(order, allOrders) {
   );
   const minId = Math.min(...sameGroup.map(o => o.order_id));
   return order.order_id === minId;
+}
+
+function groupMemberCount(order, allOrders) {
+  return allOrders.filter(o =>
+    o.name === order.name &&
+    o.phone === order.phone &&
+    o.zipcode === order.zipcode &&
+    o.address === order.address &&
+    o.address_detail === order.address_detail &&
+    o.is_merged
+  ).length;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -79,6 +92,13 @@ async function markRefunded(orderId) {
   loadShippingOrders();
 }
 
+async function unmarkRefunded(orderId) {
+  const confirmCancel = confirm("환불 완료 상태를 취소하시겠습니까?");
+  if (!confirmCancel) return;
+  await supabase.from('orders').update({ is_refunded: false, refunded_at: null }).eq('order_id', orderId);
+  loadShippingOrders();
+}
+
 async function unmergeOrder(orderId) {
   const confirmCancel = confirm("합배송 처리를 취소하시겠습니까?");
   if (!confirmCancel) return;
@@ -91,6 +111,7 @@ async function unmergeOrder(orderId) {
   loadShippingOrders();
 }
 window.unmergeOrder = unmergeOrder;
+window.unmarkRefunded = unmarkRefunded;
 
 function groupByCustomerInfo(orders) {
   const map = new Map();
@@ -208,6 +229,7 @@ async function loadShippingOrders() {
     const arrivalDue = items[0]?.arrival_due || '미정';
     const refund = order.refund_amount || 0;
     const isGroupLeader = groupLeader(order, data);
+    const groupRowspan = items.length * groupMemberCount(order, data);
 
     items.forEach((item, idx) => {
       const isFirst = idx === 0;
@@ -215,6 +237,8 @@ async function loadShippingOrders() {
 
       if (order.is_merged) {
         row.classList.add('merged-order');
+        if (idx === 0) row.classList.add('merged-top');
+        if (idx === items.length - 1) row.classList.add('merged-bottom');
       }
 
       row.innerHTML = `
@@ -236,10 +260,10 @@ async function loadShippingOrders() {
         <td>${item.qty}</td>
         <td>${item.price.toLocaleString()}</td>
         ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
-        ${isFirst && isGroupLeader ? `<td rowspan="${items.length}">
+        ${isFirst && isGroupLeader ? `<td rowspan="${groupRowspan}">
           ${order.is_merged ? `<div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
           ${!order.is_refunded ? `<button onclick="markRefunded('${order.order_id}')">환불처리 완료</button>` : ''}
-          ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;">${formatDateOnly(order.refunded_at)}</div>` : ''}` : ''}
+          ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;cursor:pointer;" onclick="unmarkRefunded('${order.order_id}')">${formatDateOnly(order.refunded_at)}</div>` : ''}` : ''}
         </td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">
           <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
