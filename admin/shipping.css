@@ -39,20 +39,36 @@ th, td {
   text-align: center;
 }
 
-/* 헤더 강조 */
 th {
   background: #eee;
 }
 
-/* ✅ 합배송 주문 강조: 붉은 테두리 */
-.merged-order td {
-  border: 2px solid red !important;
-}
-
-/* 입력창 기본 스타일 (송장번호, 배송비고 등) */
 .input-box {
   width: 100%;
   box-sizing: border-box;
   padding: 4px;
   font-size: 14px;
+}
+
+/* ✅ 합배송 외곽만 붉은 테두리 표시 */
+.merged-order:first-child td {
+  border-top: 2px solid red;
+}
+
+.merged-order:last-child td {
+  border-bottom: 2px solid red;
+}
+
+.merged-order td:first-child {
+  border-left: 2px solid red;
+}
+
+.merged-order td:last-child {
+  border-right: 2px solid red;
+}
+
+/* 마우스 오버 시 합배송 취소 텍스트 강조 */
+.merged-order div[onclick]:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
