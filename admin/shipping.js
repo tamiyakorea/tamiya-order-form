@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("download-selected").addEventListener("click", downloadExcel);
   document.getElementById("merge-shipping").addEventListener("click", handleMergeShipping);
 });
-
 async function checkAuth() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
@@ -83,7 +82,6 @@ async function updateTrackingNumber(orderId, value) {
 async function updateShippingNote(orderId, value) {
   await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
 }
-
 async function markRefunded(orderId) {
   const now = new Date().toISOString();
   await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).eq('order_id', orderId);
@@ -109,7 +107,6 @@ async function unmergeOrder(orderId) {
   loadShippingOrders();
 }
 
-// 외부에서 접근 가능한 함수 등록
 window.unmergeOrder = unmergeOrder;
 window.unmarkRefunded = unmarkRefunded;
 
@@ -154,7 +151,6 @@ async function handleMergeShipping() {
   alert("합배송 처리가 완료되었습니다.");
   loadShippingOrders();
 }
-
 async function downloadExcel() {
   const selected = Array.from(document.querySelectorAll('.select-order:checked')).map(cb => cb.value);
   if (!selected.length) return alert("선택된 주문이 없습니다.");
@@ -198,7 +194,6 @@ async function downloadExcel() {
   XLSX.utils.book_append_sheet(wb, ws, '배송목록');
   XLSX.writeFile(wb, 'shipping_export.xls');
 }
-
 async function loadShippingOrders() {
   const { data, error } = await supabase
     .from('orders')
@@ -224,21 +219,22 @@ async function loadShippingOrders() {
     return;
   }
 
+  const groupMap = new Map();
+  for (const order of data) {
+    const key = [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
+    if (!groupMap.has(key)) groupMap.set(key, []);
+    groupMap.get(key).push(order);
+  }
+
   data.forEach(order => {
     const items = JSON.parse(order.items || '[]');
     const arrivalDue = items[0]?.arrival_due || '미정';
     const refund = order.refund_amount || 0;
     const isGroupLeader = groupLeader(order, data);
-    const groupRowspan = items.length * groupMemberCount(order, data);
+    const groupKey = [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
+    const groupRowspan = items.length * groupMap.get(groupKey).length;
 
-    const sameGroup = data.filter(o =>
-      o.name === order.name &&
-      o.phone === order.phone &&
-      o.zipcode === order.zipcode &&
-      o.address === order.address &&
-      o.address_detail === order.address_detail &&
-      o.is_merged
-    );
+    const sameGroup = groupMap.get(groupKey);
     const isFirstOrderInGroup = order.is_merged && order.order_id === Math.min(...sameGroup.map(o => o.order_id));
     const isLastOrderInGroup = order.is_merged && order.order_id === Math.max(...sameGroup.map(o => o.order_id));
 
@@ -271,34 +267,35 @@ async function loadShippingOrders() {
         <td>${item.qty}</td>
         <td>${item.price.toLocaleString()}</td>
         ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
-
-        ${isFirst && isGroupLeader && order.is_merged ? `<td rowspan="${groupRowspan}">
-  <div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
-  ${!order.is_refunded ? `<button onclick="markRefunded('${order.order_id}')">환불처리 완료</button>` : ''}
-  ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;cursor:pointer;" onclick="unmarkRefunded('${order.order_id}')">${formatDateOnly(order.refunded_at)}</div>` : ''}
-</td>` : ''}
-
-${isFirst ? `<td rowspan="${items.length}">
-  <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
-  <div style="font-size: 0.85em; color: gray;">${formatDateOnly(order.tracking_date)}</div>
-</td>` : ''}
-
-${isFirst ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
-
-${isFirst ? `<td rowspan="${items.length}">
-  <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
-</td>` : ''}
-
-${isFirst ? `<td rowspan="${items.length}">
-  ${
-    order.is_shipped
-      ? `<button onclick="markDelivered('${order.order_id}')">배송 완료</button><br/>
-         <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShipping('${order.order_id}')">⟲ 되돌리기</span>`
-      : order.is_merged && !order.is_refunded && !isGroupLeader
-        ? `<button disabled>출고 완료 (환불 필요)</button>`
-        : `<button onclick="markShipped('${order.order_id}')">출고 완료</button>`
-  }
-</td>` : ''}
+        ${
+          isFirst && isGroupLeader && order.is_merged
+            ? `<td rowspan="${groupRowspan}">
+                <div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
+                ${!order.is_refunded ? `<button onclick="markRefunded('${order.order_id}')">환불처리 완료</button>` : ''}
+                ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;cursor:pointer;" onclick="unmarkRefunded('${order.order_id}')">${formatDateOnly(order.refunded_at)}</div>` : ''}
+              </td>`
+            : isFirst
+              ? `<td rowspan="${items.length}"></td>`
+              : ''
+        }
+        ${isFirst ? `<td rowspan="${items.length}">
+          <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
+          <div style="font-size: 0.85em; color: gray;">${formatDateOnly(order.tracking_date)}</div>
+        </td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">
+          <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
+        </td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">
+          ${
+            order.is_shipped
+              ? `<button onclick="markDelivered('${order.order_id}')">배송 완료</button><br/>
+                 <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShipping('${order.order_id}')">⟲ 되돌리기</span>`
+              : order.is_merged && !order.is_refunded && !isGroupLeader
+                ? `<button disabled>출고 완료 (환불 필요)</button>`
+                : `<button onclick="markShipped('${order.order_id}')">출고 완료</button>`
+          }
+        </td>` : ''}
       `;
 
       tbody.appendChild(row);
@@ -306,7 +303,6 @@ ${isFirst ? `<td rowspan="${items.length}">
   });
 }
 
-// 최종 window 전역 함수 등록
 window.markShipped = markShipped;
 window.markDelivered = markDelivered;
 window.revertShipping = revertShipping;
