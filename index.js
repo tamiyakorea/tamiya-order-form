@@ -220,7 +220,7 @@ window.confirmOrder = async function () {
     address_detail: addressDetail,
     receipt_info: receiptInfo,
     proof_images: [publicUrl],
-    items: JSON.stringify(cart.map(item => ({ code: item.item_code, name: item.description, qty: item.qty, price: item.price })));
+    items: JSON.stringify(cart.map(item => ({ code: item.item_code, name: item.description, qty: item.qty, price: item.price }))),
     total,
     created_at: new Date().toISOString()
   };
