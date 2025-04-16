@@ -253,7 +253,7 @@ async function loadShippingOrders() {
         ${isFirst ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
 
         ${
-          isFirst && !shippedHandled.has('note-' + groupKey)
+          isFirst && order.is_merged && !shippedHandled.has('note-' + groupKey)
             ? (() => {
                 shippedHandled.add('note-' + groupKey);
                 return `<td rowspan="${items.length}">
