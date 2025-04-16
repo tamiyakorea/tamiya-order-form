@@ -135,23 +135,23 @@ async function downloadExcel() {
     items.forEach(i => subtotal += i.qty * i.price);
     const finalTotal = subtotal < 30000 ? subtotal + 3000 : subtotal;
 
-    items.forEach(i => {
-  rows.push({
-    고객명: name,
-    연락처: phone,
-    우편번호: zip,
-    주소: addr,
-    상세주소: detail,
-    시리얼번호: i.code,
-    아이템명: i.name,
-    수량: i.qty,
-    개별금액: i.price,
-    총금액: finalTotal,
-    입금확인일: paidDate,
-    비고: remark,
-    아이템비고: i.code
-  });
-});
+     items.forEach(i => {
+      rows.push({
+        고객명: name,
+        연락처: phone,
+        우편번호: zip,
+        주소: addr,
+        상세주소: detail,
+        시리얼번호: i.code,
+        아이템명: i.name,
+        수량: i.qty,
+        개별금액: i.price,
+        총금액: finalTotal,
+        입금확인일: paidDate,
+        비고: remark,
+        아이템비고: i.code
+      });
+    }); // ✅ 누락되었던 닫는 괄호
 
 // 📦 배송비 항목 추가
 const isMerged = order.is_merged;
