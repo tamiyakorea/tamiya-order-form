@@ -53,6 +53,14 @@ async function checkAuth() {
   }
 }
 
+async function unmarkRefunded(orderId, groupKey = null) {
+  const confirmCancel = confirm("환불 완료 상태를 취소하시겠습니까?");
+  if (!confirmCancel) return;
+  const ids = await getGroupedIds(orderId, groupKey);
+  await supabase.from('orders').update({ is_refunded: false, refunded_at: null }).in('order_id', ids);
+  loadShippingOrders();
+}
+
 async function updateGroupStatus(groupKey, updates) {
   const { data } = await supabase.from('orders').select('order_id').eq('is_merged', true);
   const group = data.filter(o => getGroupKey(o) === groupKey);
@@ -369,6 +377,7 @@ async function unmergeOrder(orderId) {
 
   loadShippingOrders();
 }
+
 
 // 외부에서 접근 가능하도록 등록
 window.markRefundedGroup = markRefundedGroup;
