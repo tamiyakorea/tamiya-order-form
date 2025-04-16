@@ -11,14 +11,14 @@
     import * as XLSX from 'https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs';
 
     function formatDateOnly(isoString) {
-  if (!isoString) return '';
-  const date = new Date(isoString);
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  return `${yyyy}.${mm}.${dd}`;
-}
-    
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}.${mm}.${dd}`;
+    }
+
     const supabase = createClient(
       'https://edgvrwekvnavkhcqwtxa.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
@@ -34,22 +34,47 @@
       }
     }
 
- async function downloadExcel() {
-  const checkboxes = document.querySelectorAll('.select-order:checked');
-  const selectedOrderIds = Array.from(checkboxes)
-    .map(cb => cb.value)
-    .filter(v => /^\d+$/.test(v)); // 숫자 ID만 허용
+    async function markShipped(orderId) {
+      await supabase.from('orders').update({ is_shipped: true }).eq('order_id', orderId);
+      loadShippingOrders();
+    }
 
-  if (!selectedOrderIds.length) {
-    alert("선택된 주문이 없습니다.");
-    return;
-  }
+    async function markDelivered(orderId) {
+      await supabase.from('orders').update({ is_delivered: true }).eq('order_id', orderId);
+      loadShippingOrders();
+    }
 
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .in('order_id', selectedOrderIds);
+    async function revertShipping(orderId) {
+      await supabase.from('orders').update({ is_shipped: false, is_delivered: false }).eq('order_id', orderId);
+      loadShippingOrders();
+    }
 
+    async function moveToOrderManagement(orderId) {
+      if (confirm("이 주문을 배송관리에서 제외하고 주문관리로 이동하시겠습니까?")) {
+        await supabase.from('orders').update({ is_ready_to_ship: false }).eq('order_id', orderId);
+        loadShippingOrders();
+      }
+    }
+
+    async function updateTrackingNumber(orderId, value) {
+      const date = value ? new Date().toISOString() : null;
+      await supabase.from('orders').update({ tracking_number: value || null, tracking_date: date }).eq('order_id', orderId);
+    }
+
+    async function updateShippingNote(orderId, value) {
+      await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
+    }
+
+    async function downloadExcel() {
+      const checkboxes = document.querySelectorAll('.select-order:checked');
+      const selectedOrderIds = Array.from(checkboxes).map(cb => cb.value).filter(v => /^\d+$/.test(v));
+
+      if (!selectedOrderIds.length) {
+        alert("선택된 주문이 없습니다.");
+        return;
+      }
+
+      const { data, error } = await supabase.from('orders').select('*').in('order_id', selectedOrderIds);
       if (error || !data) {
         alert("엑셀 생성 중 오류 발생");
         return;
@@ -116,31 +141,12 @@
       XLSX.writeFile(wb, 'shipping_export.xls');
     }
 
-        async function markShipped(orderId) {
-      await supabase.from('orders').update({ is_shipped: true }).eq('order_id', orderId);
-      loadShippingOrders();
-    }
-
-    async function markDelivered(orderId) {
-      await supabase.from('orders').update({ is_delivered: true }).eq('order_id', orderId);
-      loadShippingOrders();
-    }
-
-    async function updateTrackingNumber(orderId, value) {
-      const date = value ? new Date().toISOString() : null;
-      await supabase.from('orders').update({ tracking_number: value || null, tracking_date: date }).eq('order_id', orderId);
-    }
-
-    async function updateShippingNote(orderId, value) {
-      await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
-    }
-
     async function loadShippingOrders() {
       const { data, error } = await supabase
         .from('orders')
         .select('*')
         .eq('is_ready_to_ship', true)
-        .eq('is_delivered', false)  // ❗ 배송 완료된 주문은 제외
+        .eq('is_delivered', false)
         .order('created_at', { ascending: false });
 
       const tbody = document.getElementById("shipping-table-body");
@@ -165,7 +171,10 @@
           const row = document.createElement("tr");
 
           row.innerHTML = `
-            ${isFirst ? `<td rowspan="${items.length}"><input type="checkbox" class="select-order" value="${order.order_id}" /></td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">
+              <button onclick="moveToOrderManagement('${order.order_id}')" style="color:red;font-weight:bold;border:none;background:none;cursor:pointer;">✖</button><br/>
+              <input type="checkbox" class="select-order" value="${order.order_id}" />
+            </td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
@@ -189,7 +198,10 @@
             ${isFirst ? `<td rowspan="${items.length}">
               ${
                 order.is_shipped
-                  ? `<button onclick="markDelivered('${order.order_id}')">배송 완료</button>`
+                  ? `
+                    <button onclick="markDelivered('${order.order_id}')">배송 완료</button><br/>
+                    <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShipping('${order.order_id}')">⟲ 되돌리기</span>
+                  `
                   : `<button onclick="markShipped('${order.order_id}')">출고 완료</button>`
               }
             </td>` : ''}
@@ -207,8 +219,10 @@
 
     window.markShipped = markShipped;
     window.markDelivered = markDelivered;
+    window.revertShipping = revertShipping;
+    window.moveToOrderManagement = moveToOrderManagement;
   </script>
-  
+
   <style>
     body {
       font-family: Arial, sans-serif;
