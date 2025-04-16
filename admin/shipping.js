@@ -72,6 +72,11 @@ async function markShippedGroup(groupKey) {
   await updateGroupStatus(groupKey, { is_shipped: true });
 }
 
+async function markRefunded(orderId, groupKey = null) {
+  const now = new Date().toISOString();
+  const ids = await getGroupedIds(orderId, groupKey);
+  await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).in('order_id', ids);
+  loadShippingOrders();
 
 async function markDelivered(orderId, groupKey = null) {
   const ids = await getGroupedIds(orderId, groupKey);
