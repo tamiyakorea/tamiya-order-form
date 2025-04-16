@@ -109,10 +109,6 @@ async function markDelivered(orderId, groupKey = null) {
   loadShippingOrders();
 }
 
-async function revertShippingGroup(groupKey) {
-  await updateGroupStatus(groupKey, { is_shipped: false, is_delivered: false });
-}
-
 async function downloadExcel() {
   const selected = Array.from(document.querySelectorAll('.select-order:checked')).map(cb => cb.value);
   if (!selected.length) return alert("선택된 주문이 없습니다.");
@@ -121,6 +117,7 @@ async function downloadExcel() {
   if (error || !data) return alert("엑셀 생성 실패");
 
   const rows = [];
+
   data.forEach(order => {
     const items = JSON.parse(order.items || '[]');
     const name = order.name;
@@ -135,7 +132,8 @@ async function downloadExcel() {
     items.forEach(i => subtotal += i.qty * i.price);
     const finalTotal = subtotal < 30000 ? subtotal + 3000 : subtotal;
 
-     items.forEach(i => {
+    // 주문 아이템별 행 추가
+    items.forEach(i => {
       rows.push({
         고객명: name,
         연락처: phone,
@@ -151,49 +149,48 @@ async function downloadExcel() {
         비고: remark,
         아이템비고: i.code
       });
-    }); // ✅ 누락되었던 닫는 괄호
+    });
 
-// 📦 배송비 항목 추가
-const isMerged = order.is_merged;
-let shippingItemPrice = 0;
-const itemSubtotal = items.reduce((sum, i) => sum + i.qty * i.price, 0);
-const totalShippingFee = finalTotal - itemSubtotal;
+    // 📦 배송비 항목 추가
+    const isMerged = order.is_merged;
+    let shippingItemPrice = 0;
+    const itemSubtotal = items.reduce((sum, i) => sum + i.qty * i.price, 0);
+    const totalShippingFee = finalTotal - itemSubtotal;
 
-if (isMerged) {
-  // 합배송인 경우 환불금 제외한 배송비만 표시
-  const remainShippingFee = totalShippingFee - (order.refund_amount || 0);
-  if (remainShippingFee > 0) {
-    shippingItemPrice = remainShippingFee;
-  }
-} else {
-  // 개별 주문은 고정 3,000원
-  shippingItemPrice = totalShippingFee > 0 ? 3000 : 0;
-}
-
-if (shippingItemPrice > 0) {
-  rows.push({
-    고객명: name,
-    연락처: phone,
-    우편번호: zip,
-    주소: addr,
-    상세주소: detail,
-    시리얼번호: "15774577",
-    아이템명: "배송비",
-    수량: 1,
-    개별금액: shippingItemPrice,
-    총금액: finalTotal,
-    입금확인일: paidDate,
-    비고: remark,
-    아이템비고: "15774577"
-  });
+    if (isMerged) {
+      const remainShippingFee = totalShippingFee - (order.refund_amount || 0);
+      if (remainShippingFee > 0) {
+        shippingItemPrice = remainShippingFee;
+      }
+    } else {
+      shippingItemPrice = totalShippingFee > 0 ? 3000 : 0;
     }
-  });
-    
+
+    if (shippingItemPrice > 0) {
+      rows.push({
+        고객명: name,
+        연락처: phone,
+        우편번호: zip,
+        주소: addr,
+        상세주소: detail,
+        시리얼번호: "15774577",
+        아이템명: "배송비",
+        수량: 1,
+        개별금액: shippingItemPrice,
+        총금액: finalTotal,
+        입금확인일: paidDate,
+        비고: remark,
+        아이템비고: "15774577"
+      });
+    }
+  }); // ← data.forEach 닫는 괄호
+
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, '배송목록');
   XLSX.writeFile(wb, 'shipping_export.xls');
-}     
+}
+
 
 async function loadShippingOrders() {
   const { data, error } = await supabase
