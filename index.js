@@ -207,7 +207,7 @@ window.confirmOrder = async function () {
     console.error(uploadError);
     return;
   }
-  const { data: { publicUrl } } = supabase.storage.from("order-proof").getPublicUrl(filePath);
+  const { publicUrl } = supabase.storage.from("order-proof").getPublicUrl(filePath);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
   const payload = {
