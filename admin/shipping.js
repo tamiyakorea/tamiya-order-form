@@ -72,9 +72,6 @@ async function markShippedGroup(groupKey) {
   await updateGroupStatus(groupKey, { is_shipped: true });
 }
 
-async function markDeliveredGroup(groupKey) {
-  await updateGroupStatus(groupKey, { is_delivered: true });
-}
 
 async function markDelivered(orderId, groupKey = null) {
   const ids = await getGroupedIds(orderId, groupKey);
@@ -287,6 +284,11 @@ async function handleMergeShipping() {
   alert("합배송 처리가 완료되었습니다.");
   loadShippingOrders();
 }
+async function revertShipping(orderId, groupKey = null) {
+  const ids = await getGroupedIds(orderId, groupKey);
+  await supabase.from('orders').update({ is_shipped: false, is_delivered: false }).in('order_id', ids);
+  loadShippingOrders();
+}
 
 function groupByCustomerInfo(orders) {
   const map = new Map();
@@ -322,6 +324,10 @@ async function moveToOrderManagement(orderId) {
 async function updateTrackingNumber(orderId, value) {
   const date = value ? new Date().toISOString() : null;
   await supabase.from('orders').update({ tracking_number: value || null, tracking_date: date }).eq('order_id', orderId);
+}
+
+async function markDeliveredGroup(groupKey) {
+  await updateGroupStatus(groupKey, { is_delivered: true });
 }
 
 async function updateShippingNote(orderId, value) {
