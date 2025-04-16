@@ -190,7 +190,7 @@ async function loadShippingOrders() {
     const refund = order.refund_amount || 0;
     const groupKey = getGroupKey(order);
     const groupOrders = groupMap.get(groupKey);
-    const groupRowspan = items.length * groupOrders.length;
+    const groupRowspan = groupOrders.reduce((sum, o) => sum + JSON.parse(o.items || '[]').length, 0);
     const isGroupLeader = groupLeader(order, data);
     const isFirstOrderInGroup = order.order_id === Math.min(...groupOrders.map(o => o.order_id));
     const isLastOrderInGroup = order.order_id === Math.max(...groupOrders.map(o => o.order_id));
