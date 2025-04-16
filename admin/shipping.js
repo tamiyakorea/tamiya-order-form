@@ -13,6 +13,8 @@ function formatDateOnly(isoString) {
 }
 
 function getGroupKey(order) {
+  // 기존에는 고객 정보만으로 groupKey 생성
+  if (!order.is_merged) return `single-${order.order_id}`; // ✅ is_merged가 false인 경우 고유 키 반환
   return [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
 }
 
