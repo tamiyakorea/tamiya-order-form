@@ -1,73 +1,103 @@
 body {
   font-family: Arial, sans-serif;
-  margin: 0;
   padding: 0;
+  margin: 0;
+  background: #fff;
 }
 
 nav {
-  background: #343a40;
-  color: white;
+  background: #333;
   padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
+  color: white;
+  font-weight: bold;
 }
 
 nav a {
   color: white;
-  text-decoration: none;
   margin-right: 20px;
-  font-weight: bold;
+  text-decoration: none;
 }
 
 nav a.active {
   text-decoration: underline;
 }
 
+h1 {
+  margin: 20px auto;
+  text-align: center;
+}
+
 .export-bar {
   text-align: center;
-  margin: 10px 0;
+  margin-bottom: 20px;
+}
+
+.export-bar button {
+  padding: 8px 16px;
+  margin: 0 5px;
+  font-weight: bold;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  margin: 0 auto;
 }
 
-th, td {
+thead th {
+  background-color: #f2f2f2;
+  font-weight: bold;
   border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
-  vertical-align: middle;
+}
+
+tbody td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
   word-break: break-word;
 }
 
-th {
-  background: #eee;
-}
-
-input.input-box {
+.input-box {
   width: 100%;
   box-sizing: border-box;
   padding: 4px;
-  font-size: 14px;
 }
 
-/* ✅ 합배송 테두리 외곽 강조만 */
-.merged-order {
-  border-left: 2px solid red;
-  border-right: 2px solid red;
+.merged-order td {
+  border: 1px solid #ff4d4d;
 }
 
-.merged-top {
-  border-top: 2px solid red;
+.merged-top td {
+  border-top: 3px solid red;
 }
 
-.merged-bottom {
-  border-bottom: 2px solid red;
+.merged-bottom td {
+  border-bottom: 3px solid red;
 }
 
-/* 버튼 간격 */
+/* 합배송된 전체 영역 강조를 위해 왼쪽/오른쪽 강조 */
+.merged-top td:first-child,
+.merged-bottom td:first-child {
+  border-left: 3px solid red;
+}
+
+.merged-top td:last-child,
+.merged-bottom td:last-child {
+  border-right: 3px solid red;
+}
+
+/* 버튼 스타일 */
 button {
-  margin: 2px 0;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button[disabled] {
+  background-color: #ccc;
+  color: #777;
+  cursor: not-allowed;
 }
