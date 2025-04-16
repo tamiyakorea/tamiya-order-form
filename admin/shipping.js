@@ -12,6 +12,20 @@ function formatDateOnly(isoString) {
   return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
 }
 
+function groupLeader(order, allOrders) {
+  if (!order.is_merged) return true;
+  const sameGroup = allOrders.filter(o =>
+    o.name === order.name &&
+    o.phone === order.phone &&
+    o.zipcode === order.zipcode &&
+    o.address === order.address &&
+    o.address_detail === order.address_detail &&
+    o.is_merged
+  );
+  const minId = Math.min(...sameGroup.map(o => o.order_id));
+  return order.order_id === minId;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   checkAuth();
   document.getElementById("download-selected").addEventListener("click", downloadExcel);
@@ -29,39 +43,39 @@ async function checkAuth() {
 }
 
 async function markShipped(orderId) {
-  await supabase.from('orders').update({ is_shipped: true }).eq('order_id', String(orderId)) ;
+  await supabase.from('orders').update({ is_shipped: true }).eq('order_id', orderId);
   loadShippingOrders();
 }
 
 async function markDelivered(orderId) {
-  await supabase.from('orders').update({ is_delivered: true }).eq('order_id', String(orderId)) ;
+  await supabase.from('orders').update({ is_delivered: true }).eq('order_id', orderId);
   loadShippingOrders();
 }
 
 async function revertShipping(orderId) {
-  await supabase.from('orders').update({ is_shipped: false, is_delivered: false }).eq('order_id', String(orderId)) ;
+  await supabase.from('orders').update({ is_shipped: false, is_delivered: false }).eq('order_id', orderId);
   loadShippingOrders();
 }
 
 async function moveToOrderManagement(orderId) {
   if (confirm("이 주문을 배송관리에서 제외하고 주문관리로 이동하시겠습니까?")) {
-    await supabase.from('orders').update({ is_ready_to_ship: false }).eq('order_id', String(orderId)) ;
+    await supabase.from('orders').update({ is_ready_to_ship: false }).eq('order_id', orderId);
     loadShippingOrders();
   }
 }
 
 async function updateTrackingNumber(orderId, value) {
   const date = value ? new Date().toISOString() : null;
-  await supabase.from('orders').update({ tracking_number: value || null, tracking_date: date }).eq('order_id', String(orderId)) ;
+  await supabase.from('orders').update({ tracking_number: value || null, tracking_date: date }).eq('order_id', orderId);
 }
 
 async function updateShippingNote(orderId, value) {
-  await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', String(orderId)) ;
+  await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
 }
 
 async function markRefunded(orderId) {
   const now = new Date().toISOString();
-  await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).eq('order_id', String(orderId)) ;
+  await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).eq('order_id', orderId);
   loadShippingOrders();
 }
 
@@ -73,7 +87,7 @@ async function unmergeOrder(orderId) {
     refund_amount: null,
     is_refunded: false,
     refunded_at: null
-  }).eq('order_id', String(orderId)) ;
+  }).eq('order_id', orderId);
   loadShippingOrders();
 }
 window.unmergeOrder = unmergeOrder;
@@ -193,6 +207,7 @@ async function loadShippingOrders() {
     const items = JSON.parse(order.items || '[]');
     const arrivalDue = items[0]?.arrival_due || '미정';
     const refund = order.refund_amount || 0;
+    const isGroupLeader = groupLeader(order, data);
 
     items.forEach((item, idx) => {
       const isFirst = idx === 0;
@@ -209,10 +224,7 @@ async function loadShippingOrders() {
         </td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.order_id}
-          ${order.is_merged ? `
-            <div style="color:red; font-size:0.8em; cursor:pointer;" onclick="unmergeOrder('${order.order_id}')">
-              합배송 처리됨 (클릭 시 취소)
-            </div>` : ''}
+          ${order.is_merged ? `<div style="color:red; font-size:0.8em; cursor:pointer;" onclick="unmergeOrder('${order.order_id}')">합배송 처리됨 (클릭 시 취소)</div>` : ''}
         </td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
@@ -224,12 +236,10 @@ async function loadShippingOrders() {
         <td>${item.qty}</td>
         <td>${item.price.toLocaleString()}</td>
         ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">
-          ${order.is_merged ? `
-            <div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
-            ${!order.is_refunded ? `<button onclick="markRefunded('${order.order_id}')">환불처리 완료</button>` : ''}
-            ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;">${formatDateOnly(order.refunded_at)}</div>` : ''}
-          ` : ''}
+        ${isFirst && isGroupLeader ? `<td rowspan="${items.length}">
+          ${order.is_merged ? `<div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
+          ${!order.is_refunded ? `<button onclick="markRefunded('${order.order_id}')">환불처리 완료</button>` : ''}
+          ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;">${formatDateOnly(order.refunded_at)}</div>` : ''}` : ''}
         </td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">
           <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
@@ -240,14 +250,10 @@ async function loadShippingOrders() {
           <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
         </td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">
-          ${
-            order.is_shipped
-              ? `<button onclick="markDelivered('${order.order_id}')">배송 완료</button><br/>
-                 <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShipping('${order.order_id}')">⟲ 되돌리기</span>`
-              : order.is_merged && !order.is_refunded
-                ? `<button disabled>출고 완료 (환불 필요)</button>`
-                : `<button onclick="markShipped('${order.order_id}')">출고 완료</button>`
-          }
+          ${order.is_shipped ? `<button onclick="markDelivered('${order.order_id}')">배송 완료</button><br/>
+            <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShipping('${order.order_id}')">⟲ 되돌리기</span>`
+            : order.is_merged && !order.is_refunded && !isGroupLeader ? `<button disabled>출고 완료 (환불 필요)</button>`
+            : `<button onclick="markShipped('${order.order_id}')">출고 완료</button>`}
         </td>` : ''}
       `;
 
