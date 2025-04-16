@@ -317,13 +317,21 @@ async function revertShipping(orderId, groupKey = null) {
 
 function groupByCustomerInfo(orders) {
   const map = new Map();
+
+  // 고객정보 기준으로 그룹 키 생성 (is_merged와 무관하게 동일한 고객이면 묶이도록)
+  function makeCustomerKey(order) {
+    return [order.name, order.phone, order.zipcode, order.address, order.address_detail].join('|');
+  }
+
   for (const order of orders) {
-    const key = getGroupKey(order);
+    const key = makeCustomerKey(order); // getGroupKey 대신 사용
     if (!map.has(key)) map.set(key, []);
     map.get(key).push(order);
   }
+
   return Array.from(map.values()).filter(group => group.length > 1);
 }
+
 
 function calculateRefundAmount(group) {
   let totalItems = 0, shippingPaid = 0;
