@@ -187,6 +187,12 @@ if (shippingItemPrice > 0) {
     아이템비고: "15774577"
   });
 }
+    
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '배송목록');
+  XLSX.writeFile(wb, 'shipping_export.xls');
+}     
 
 async function loadShippingOrders() {
   const { data, error } = await supabase
