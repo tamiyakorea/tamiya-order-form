@@ -201,15 +201,22 @@ window.confirmOrder = async function () {
   const ext = 'jpg';
   const safeName = `${orderId}_${Date.now()}.${ext}`;
   const filePath = `proof/${safeName}`;
-  await supabase.storage.from("order-proof").upload(filePath, compressedFile, { upsert: false });
+
+  const { error: uploadError } = await supabase.storage
+    .from("order-proof")
+    .upload(filePath, compressedFile, { upsert: false });
+
   if (uploadError) {
     alert("이미지 업로드 중 오류가 발생했습니다.");
     console.error(uploadError);
     return;
   }
+
   const { publicUrl } = supabase.storage.from("order-proof").getPublicUrl(filePath);
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + 
+    (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
+
   const payload = {
     order_id: orderId,
     name,
@@ -220,7 +227,12 @@ window.confirmOrder = async function () {
     address_detail: addressDetail,
     receipt_info: receiptInfo,
     proof_images: [publicUrl],
-    items: JSON.stringify(cart.map(item => ({ code: item.item_code, name: item.description, qty: item.qty, price: item.price }))),
+    items: JSON.stringify(cart.map(item => ({
+      code: item.item_code,
+      name: item.description,
+      qty: item.qty,
+      price: item.price
+    }))),
     total,
     created_at: new Date().toISOString()
   };
