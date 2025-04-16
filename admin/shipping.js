@@ -227,7 +227,7 @@ async function loadShippingOrders() {
         ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
 
         ${
-          order.is_merged && isFirst && isGroupLeader && !refundHandled.has(groupKey)
+          isFirst && isGroupLeader && order.is_merged && !refundHandled.has(groupKey)
             ? (() => {
                 refundHandled.add(groupKey);
                 return `<td rowspan="${groupRowspan}">
@@ -239,52 +239,26 @@ async function loadShippingOrders() {
             : isFirst ? `<td rowspan="${items.length}"></td>` : ''
         }
 
-        ${
-          order.is_merged && isFirstOrderInGroup && !shippedHandled.has('tracking-' + groupKey)
-            ? (() => {
-                shippedHandled.add('tracking-' + groupKey);
-                return `<td rowspan="${groupRowspan}">
-                  <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
-                  <div style="font-size: 0.85em; color: gray;">${formatDateOnly(order.tracking_date)}</div>
-                </td>`;
-              })()
-            : ''
-        }
+        ${isFirst ? `<td rowspan="${items.length}">
+          <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
+          <div style="font-size: 0.85em; color: gray;">${formatDateOnly(order.tracking_date)}</div>
+        </td>` : ''}
 
-        ${order.is_merged && isFirstOrderInGroup && !shippedHandled.has('remark-' + groupKey)
-          ? (() => {
-              shippedHandled.add('remark-' + groupKey);
-              return `<td rowspan="${groupRowspan}">${order.remarks || ''}</td>`;
-            })()
-          : ''
-        }
+        ${isFirst ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">
+          <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
+        </td>` : ''}
 
-        ${order.is_merged && isFirstOrderInGroup && !shippedHandled.has('note-' + groupKey)
-          ? (() => {
-              shippedHandled.add('note-' + groupKey);
-              return `<td rowspan="${groupRowspan}">
-                <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
-              </td>`;
-            })()
-          : ''
-        }
-
-        ${order.is_merged && isFirstOrderInGroup && !shippedHandled.has('work-' + groupKey)
-          ? (() => {
-              shippedHandled.add('work-' + groupKey);
-              return `<td rowspan="${groupRowspan}">
-                ${
-                  order.is_shipped
-                    ? `<button onclick="markDeliveredGroup('${groupKey}')">배송 완료</button><br/>
-                      <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShippingGroup('${groupKey}')">⟲ 되돌리기</span>`
-                    : order.is_merged && !order.is_refunded && !isGroupLeader
-                      ? `<button disabled>출고 완료 (환불 필요)</button>`
-                      : `<button onclick="markShippedGroup('${groupKey}')">출고 완료</button>`
-                }
-              </td>`;
-            })()
-          : ''
-        }
+        ${isFirst ? `<td rowspan="${items.length}">
+          ${
+            order.is_shipped
+              ? `<button onclick="markDeliveredGroup('${groupKey}')">배송 완료</button><br/>
+                <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShippingGroup('${groupKey}')">⟲ 되돌리기</span>`
+              : order.is_merged && !order.is_refunded && !isGroupLeader
+                ? `<button disabled>출고 완료 (환불 필요)</button>`
+                : `<button onclick="markShippedGroup('${groupKey}')">출고 완료</button>`
+          }
+        </td>` : ''}
       `;
 
       tbody.appendChild(row);
