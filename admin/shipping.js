@@ -227,7 +227,7 @@ async function loadShippingOrders() {
         ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
 
         ${
-          isFirst && isGroupLeader && order.is_merged && !refundHandled.has(groupKey)
+          order.is_merged && isFirst && isGroupLeader && !refundHandled.has(groupKey)
             ? (() => {
                 refundHandled.add(groupKey);
                 return `<td rowspan="${groupRowspan}">
@@ -240,7 +240,7 @@ async function loadShippingOrders() {
         }
 
         ${
-          isFirstOrderInGroup && !shippedHandled.has('tracking-' + groupKey)
+          order.is_merged && isFirstOrderInGroup && !shippedHandled.has('tracking-' + groupKey)
             ? (() => {
                 shippedHandled.add('tracking-' + groupKey);
                 return `<td rowspan="${groupRowspan}">
@@ -251,7 +251,7 @@ async function loadShippingOrders() {
             : ''
         }
 
-        ${isFirstOrderInGroup && !shippedHandled.has('remark-' + groupKey)
+        ${order.is_merged && isFirstOrderInGroup && !shippedHandled.has('remark-' + groupKey)
           ? (() => {
               shippedHandled.add('remark-' + groupKey);
               return `<td rowspan="${groupRowspan}">${order.remarks || ''}</td>`;
@@ -259,7 +259,7 @@ async function loadShippingOrders() {
           : ''
         }
 
-        ${isFirstOrderInGroup && !shippedHandled.has('note-' + groupKey)
+        ${order.is_merged && isFirstOrderInGroup && !shippedHandled.has('note-' + groupKey)
           ? (() => {
               shippedHandled.add('note-' + groupKey);
               return `<td rowspan="${groupRowspan}">
@@ -269,7 +269,7 @@ async function loadShippingOrders() {
           : ''
         }
 
-        ${isFirstOrderInGroup && !shippedHandled.has('work-' + groupKey)
+        ${order.is_merged && isFirstOrderInGroup && !shippedHandled.has('work-' + groupKey)
           ? (() => {
               shippedHandled.add('work-' + groupKey);
               return `<td rowspan="${groupRowspan}">
