@@ -76,15 +76,29 @@ async function updateGroupStatus(groupKey, updates) {
 
 async function markRefundedGroup(groupKey) {
   const now = new Date().toISOString();
-  console.log("[DEBUG] markRefundedGroup called with:", groupKey);
-  await updateGroupStatus(groupKey, { is_refunded: true, refunded_at: now });
+  if (groupKey.startsWith("single-")) {
+    const orderId = parseInt(groupKey.replace("single-", ""));
+    await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).eq('order_id', orderId);
+  } else {
+    await updateGroupStatus(groupKey, { is_refunded: true, refunded_at: now });
+  }
+  loadShippingOrders();
 }
+
 
 async function unmarkRefundedGroup(groupKey) {
   const confirmCancel = confirm("환불 완료 상태를 취소하시겠습니까?");
   if (!confirmCancel) return;
-  await updateGroupStatus(groupKey, { is_refunded: false, refunded_at: null });
+
+  if (groupKey.startsWith("single-")) {
+    const orderId = parseInt(groupKey.replace("single-", ""));
+    await supabase.from('orders').update({ is_refunded: false, refunded_at: null }).eq('order_id', orderId);
+  } else {
+    await updateGroupStatus(groupKey, { is_refunded: false, refunded_at: null });
+  }
+  loadShippingOrders();
 }
+
 
 async function markShipped(orderId, groupKey = null) {
   const ids = await getGroupedIds(orderId, groupKey);
@@ -93,7 +107,13 @@ async function markShipped(orderId, groupKey = null) {
 }
 
 async function markShippedGroup(groupKey) {
-  await updateGroupStatus(groupKey, { is_shipped: true });
+  if (groupKey.startsWith("single-")) {
+    const orderId = parseInt(groupKey.replace("single-", ""));
+    await supabase.from('orders').update({ is_shipped: true }).eq('order_id', orderId);
+  } else {
+    await updateGroupStatus(groupKey, { is_shipped: true });
+  }
+  loadShippingOrders();
 }
 
 async function markRefunded(orderId, groupKey = null) {
@@ -110,8 +130,15 @@ async function markDelivered(orderId, groupKey = null) {
 }
 
 async function revertShippingGroup(groupKey) {
-  await updateGroupStatus(groupKey, { is_shipped: false, is_delivered: false });
+  if (groupKey.startsWith("single-")) {
+    const orderId = parseInt(groupKey.replace("single-", ""));
+    await supabase.from('orders').update({ is_shipped: false, is_delivered: false }).eq('order_id', orderId);
+  } else {
+    await updateGroupStatus(groupKey, { is_shipped: false, is_delivered: false });
+  }
+  loadShippingOrders();
 }
+
 
 async function downloadExcel() {
   const selected = Array.from(document.querySelectorAll('.select-order:checked')).map(cb => cb.value);
@@ -400,8 +427,15 @@ async function updateTrackingNumber(orderId, value) {
 }
 
 async function markDeliveredGroup(groupKey) {
-  await updateGroupStatus(groupKey, { is_delivered: true });
+  if (groupKey.startsWith("single-")) {
+    const orderId = parseInt(groupKey.replace("single-", ""));
+    await supabase.from('orders').update({ is_delivered: true }).eq('order_id', orderId);
+  } else {
+    await updateGroupStatus(groupKey, { is_delivered: true });
+  }
+  loadShippingOrders();
 }
+
 
 async function updateShippingNote(orderId, value) {
   await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
