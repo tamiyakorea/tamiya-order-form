@@ -109,6 +109,10 @@ async function markDelivered(orderId, groupKey = null) {
   loadShippingOrders();
 }
 
+async function revertShippingGroup(groupKey) {
+  await updateGroupStatus(groupKey, { is_shipped: false, is_delivered: false });
+}
+
 async function downloadExcel() {
   const selected = Array.from(document.querySelectorAll('.select-order:checked')).map(cb => cb.value);
   if (!selected.length) return alert("선택된 주문이 없습니다.");
@@ -441,9 +445,6 @@ async function unmergeOrder(orderId) {
   loadShippingOrders();
 }
 
-
-
-
 // 외부에서 접근 가능하도록 등록
 window.markRefundedGroup = markRefundedGroup;
 window.unmarkRefundedGroup = unmarkRefundedGroup;
@@ -454,11 +455,11 @@ window.revertShippingGroup = revertShippingGroup;
 window.downloadExcel = downloadExcel;
 window.markShipped = markShipped;
 window.markDelivered = markDelivered;
-window.revertShipping = revertShipping;   // ✅ 추가
+window.revertShipping = revertShipping;   // ✅ OK
 window.moveToOrderManagement = moveToOrderManagement;
 window.markRefunded = markRefunded;
 window.unmarkRefunded = unmarkRefunded;
-window.unmergeOrder = unmergeOrder;       // ✅ 추가
+window.unmergeOrder = unmergeOrder;       // ✅ OK
 window.updateTrackingNumber = updateTrackingNumber;
 window.updateShippingNote = updateShippingNote;
 window.handleMergeShipping = handleMergeShipping;
