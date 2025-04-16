@@ -264,7 +264,7 @@ async function loadShippingOrders() {
         }
 
         ${
-          isFirst && !shippedHandled.has('work-' + groupKey)
+          isFirst && order.is_merged && !shippedHandled.has('work-' + groupKey)
             ? (() => {
                 shippedHandled.add('work-' + groupKey);
                 return `<td rowspan="${items.length}">
