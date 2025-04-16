@@ -65,6 +65,19 @@ async function markRefunded(orderId) {
   loadShippingOrders();
 }
 
+async function unmergeOrder(orderId) {
+  const confirmCancel = confirm("합배송 처리를 취소하시겠습니까?");
+  if (!confirmCancel) return;
+  await supabase.from('orders').update({
+    is_merged: false,
+    refund_amount: null,
+    is_refunded: false,
+    refunded_at: null
+  }).eq('order_id', orderId);
+  loadShippingOrders();
+}
+window.unmergeOrder = unmergeOrder;
+
 function groupByCustomerInfo(orders) {
   const map = new Map();
   for (const order of orders) {
@@ -156,8 +169,7 @@ async function loadShippingOrders() {
     .from('orders')
     .select('*')
     .eq('is_ready_to_ship', true)
-    .eq('is_delivered', false)
-    .order('created_at', { ascending: false });
+    .eq('is_delivered', false);
 
   const tbody = document.getElementById("shipping-table-body");
   tbody.innerHTML = "";
@@ -166,6 +178,11 @@ async function loadShippingOrders() {
     tbody.innerHTML = `<tr><td colspan="18">오류 발생: ${error.message}</td></tr>`;
     return;
   }
+
+  data.sort((a, b) => {
+    if (a.is_merged !== b.is_merged) return b.is_merged - a.is_merged;
+    return a.order_id - b.order_id;
+  });
 
   if (data.length === 0) {
     tbody.innerHTML = "<tr><td colspan='18'>배송 준비된 주문이 없습니다.</td></tr>";
@@ -181,6 +198,10 @@ async function loadShippingOrders() {
       const isFirst = idx === 0;
       const row = document.createElement("tr");
 
+      if (order.is_merged) {
+        row.classList.add('merged-order');
+      }
+
       row.innerHTML = `
         ${isFirst ? `<td rowspan="${items.length}">
           <button onclick="moveToOrderManagement('${order.order_id}')" style="color:red;font-weight:bold;border:none;background:none;cursor:pointer;">✖</button><br/>
@@ -188,7 +209,10 @@ async function loadShippingOrders() {
         </td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.order_id}
-          ${order.is_merged ? `<div style="color:red; font-size:0.8em;">합배송 처리</div>` : ''}
+          ${order.is_merged ? `
+            <div style="color:red; font-size:0.8em; cursor:pointer;" onclick="unmergeOrder('${order.order_id}')">
+              합배송 처리됨 (클릭 시 취소)
+            </div>` : ''}
         </td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
