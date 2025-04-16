@@ -31,6 +31,7 @@ nav a.active {
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 th, td {
@@ -38,37 +39,35 @@ th, td {
   padding: 8px;
   text-align: center;
   vertical-align: middle;
+  word-break: break-word;
 }
 
 th {
   background: #eee;
 }
 
-/* 입력 필드 */
-.input-box {
+input.input-box {
   width: 100%;
   box-sizing: border-box;
   padding: 4px;
   font-size: 14px;
 }
 
-/* ✅ 합배송 외곽 테두리만 강조 */
-.merged-order td:first-child {
+/* ✅ 합배송 테두리 외곽 강조만 */
+.merged-order {
   border-left: 2px solid red;
-}
-.merged-order td:last-child {
   border-right: 2px solid red;
 }
-.merged-top td {
+
+.merged-top {
   border-top: 2px solid red;
 }
-.merged-bottom td {
+
+.merged-bottom {
   border-bottom: 2px solid red;
 }
 
-/* 환불 처리 완료 날짜에 hover 효과 */
-.merged-order .refunded-date:hover {
-  text-decoration: underline;
-  cursor: pointer;
-  color: darkred;
+/* 버튼 간격 */
+button {
+  margin: 2px 0;
 }
