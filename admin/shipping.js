@@ -1,5 +1,3 @@
-// shipping.js 전체 코드
-
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 import * as XLSX from 'https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs';
 
@@ -15,7 +13,7 @@ function formatDateOnly(isoString) {
 }
 
 function groupLeader(order, allOrders) {
-  if (!order.is_merged) return true;
+  if (!order.is_merged) return false;
   const sameGroup = allOrders.filter(o =>
     o.name === order.name &&
     o.phone === order.phone &&
@@ -110,6 +108,8 @@ async function unmergeOrder(orderId) {
   }).eq('order_id', orderId);
   loadShippingOrders();
 }
+
+// 외부에서 접근 가능한 함수 등록
 window.unmergeOrder = unmergeOrder;
 window.unmarkRefunded = unmarkRefunded;
 
@@ -231,14 +231,25 @@ async function loadShippingOrders() {
     const isGroupLeader = groupLeader(order, data);
     const groupRowspan = items.length * groupMemberCount(order, data);
 
+    const sameGroup = data.filter(o =>
+      o.name === order.name &&
+      o.phone === order.phone &&
+      o.zipcode === order.zipcode &&
+      o.address === order.address &&
+      o.address_detail === order.address_detail &&
+      o.is_merged
+    );
+    const isFirstOrderInGroup = order.is_merged && order.order_id === Math.min(...sameGroup.map(o => o.order_id));
+    const isLastOrderInGroup = order.is_merged && order.order_id === Math.max(...sameGroup.map(o => o.order_id));
+
     items.forEach((item, idx) => {
       const isFirst = idx === 0;
       const row = document.createElement("tr");
 
       if (order.is_merged) {
         row.classList.add('merged-order');
-        if (idx === 0) row.classList.add('merged-top');
-        if (idx === items.length - 1) row.classList.add('merged-bottom');
+        if (isFirstOrderInGroup && idx === 0) row.classList.add('merged-top');
+        if (isLastOrderInGroup && idx === items.length - 1) row.classList.add('merged-bottom');
       }
 
       row.innerHTML = `
@@ -260,24 +271,31 @@ async function loadShippingOrders() {
         <td>${item.qty}</td>
         <td>${item.price.toLocaleString()}</td>
         ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
-        ${isFirst && isGroupLeader ? `<td rowspan="${groupRowspan}">
-          ${order.is_merged ? `<div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
+
+        ${isFirst && isGroupLeader && order.is_merged ? `<td rowspan="${groupRowspan}">
+          <div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
           ${!order.is_refunded ? `<button onclick="markRefunded('${order.order_id}')">환불처리 완료</button>` : ''}
-          ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;cursor:pointer;" onclick="unmarkRefunded('${order.order_id}')">${formatDateOnly(order.refunded_at)}</div>` : ''}` : ''}
+          ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;cursor:pointer;" onclick="unmarkRefunded('${order.order_id}')">${formatDateOnly(order.refunded_at)}</div>` : ''}
         </td>` : ''}
+
         ${isFirst ? `<td rowspan="${items.length}">
           <input class="input-box" value="${order.tracking_number || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateTrackingNumber('${order.order_id}', this.value)" />
           <div style="font-size: 0.85em; color: gray;">${formatDateOnly(order.tracking_date)}</div>
         </td>` : ''}
+
         ${isFirst ? `<td rowspan="${items.length}">${order.remarks || ''}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">
           <input class="input-box" value="${order.shipping_note || ''}" ${order.is_shipped ? 'disabled' : ''} onchange="updateShippingNote('${order.order_id}', this.value)" />
         </td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">
-          ${order.is_shipped ? `<button onclick="markDelivered('${order.order_id}')">배송 완료</button><br/>
-            <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShipping('${order.order_id}')">⟲ 되돌리기</span>`
-            : order.is_merged && !order.is_refunded && !isGroupLeader ? `<button disabled>출고 완료 (환불 필요)</button>`
-            : `<button onclick="markShipped('${order.order_id}')">출고 완료</button>`}
+          ${
+            order.is_shipped
+              ? `<button onclick="markDelivered('${order.order_id}')">배송 완료</button><br/>
+                 <span style="color:red;font-size:0.8em;cursor:pointer;" onclick="revertShipping('${order.order_id}')">⟲ 되돌리기</span>`
+              : order.is_merged && !order.is_refunded && !isGroupLeader
+                ? `<button disabled>출고 완료 (환불 필요)</button>`
+                : `<button onclick="markShipped('${order.order_id}')">출고 완료</button>`
+          }
         </td>` : ''}
       `;
 
@@ -286,6 +304,7 @@ async function loadShippingOrders() {
   });
 }
 
+// 최종 window 전역 함수 등록
 window.markShipped = markShipped;
 window.markDelivered = markDelivered;
 window.revertShipping = revertShipping;
