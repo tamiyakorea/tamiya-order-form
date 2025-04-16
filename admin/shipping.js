@@ -208,28 +208,7 @@ async function loadShippingOrders() {
 }
 
 // 그룹 작업 함수들
-async function markRefundedGroup(groupKey) {
-  const now = new Date().toISOString();
-  await updateGroupStatus(groupKey, { is_refunded: true, refunded_at: now });
-}
 
-async function unmarkRefundedGroup(groupKey) {
-  const confirmCancel = confirm("환불 완료 상태를 취소하시겠습니까?");
-  if (!confirmCancel) return;
-  await updateGroupStatus(groupKey, { is_refunded: false, refunded_at: null });
-}
-
-async function markShippedGroup(groupKey) {
-  await updateGroupStatus(groupKey, { is_shipped: true });
-}
-
-async function markDeliveredGroup(groupKey) {
-  await updateGroupStatus(groupKey, { is_delivered: true });
-}
-
-async function revertShippingGroup(groupKey) {
-  await updateGroupStatus(groupKey, { is_shipped: false, is_delivered: false });
-}
 
 // 개별 주문 관리 함수 (move, unmerge, update input 등)
 async function moveToOrderManagement(orderId) {
