@@ -62,6 +62,12 @@ async function unmarkRefundedGroup(groupKey) {
   await updateGroupStatus(groupKey, { is_refunded: false, refunded_at: null });
 }
 
+async function markShipped(orderId, groupKey = null) {
+  const ids = await getGroupedIds(orderId, groupKey);
+  await supabase.from('orders').update({ is_shipped: true }).in('order_id', ids);
+  loadShippingOrders();
+}
+
 async function markShippedGroup(groupKey) {
   await updateGroupStatus(groupKey, { is_shipped: true });
 }
@@ -72,6 +78,53 @@ async function markDeliveredGroup(groupKey) {
 
 async function revertShippingGroup(groupKey) {
   await updateGroupStatus(groupKey, { is_shipped: false, is_delivered: false });
+}
+
+async function downloadExcel() {
+  const selected = Array.from(document.querySelectorAll('.select-order:checked')).map(cb => cb.value);
+  if (!selected.length) return alert("선택된 주문이 없습니다.");
+
+  const { data, error } = await supabase.from('orders').select('*').in('order_id', selected);
+  if (error || !data) return alert("엑셀 생성 실패");
+
+  const rows = [];
+  data.forEach(order => {
+    const items = JSON.parse(order.items || '[]');
+    const name = order.name;
+    const phone = order.phone;
+    const zip = order.zipcode;
+    const addr = order.address;
+    const detail = order.address_detail;
+    const paidDate = order.payment_date ? formatDateOnly(order.payment_date) : '';
+    const remark = `${paidDate.replace(/\./g, '').slice(2)} ${name} 개별주문`;
+
+    let subtotal = 0;
+    items.forEach(i => subtotal += i.qty * i.price);
+    const finalTotal = subtotal < 30000 ? subtotal + 3000 : subtotal;
+
+    items.forEach(i => {
+      rows.push({
+        고객명: name,
+        연락처: phone,
+        우편번호: zip,
+        주소: addr,
+        상세주소: detail,
+        시리얼번호: i.code,
+        아이템명: i.name,
+        수량: i.qty,
+        개별금액: i.price,
+        총금액: finalTotal,
+        입금확인일: paidDate,
+        비고: remark,
+        아이템비고: i.code
+      });
+    });
+  });
+
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, '배송목록');
+  XLSX.writeFile(wb, 'shipping_export.xls');
 }
 
 async function loadShippingOrders() {
@@ -253,7 +306,7 @@ window.unmarkRefundedGroup = unmarkRefundedGroup;
 window.markShippedGroup = markShippedGroup;
 window.markDeliveredGroup = markDeliveredGroup;
 window.revertShippingGroup = revertShippingGroup;
-
+window.downloadExcel = downloadExcel;
 window.markShipped = markShipped;
 window.markDelivered = markDelivered;
 window.revertShipping = revertShipping;
