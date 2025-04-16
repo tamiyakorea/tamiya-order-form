@@ -29,39 +29,39 @@ async function checkAuth() {
 }
 
 async function markShipped(orderId) {
-  await supabase.from('orders').update({ is_shipped: true }).eq('order_id', orderId);
+  await supabase.from('orders').update({ is_shipped: true }).eq('order_id', String(orderId)) ;
   loadShippingOrders();
 }
 
 async function markDelivered(orderId) {
-  await supabase.from('orders').update({ is_delivered: true }).eq('order_id', orderId);
+  await supabase.from('orders').update({ is_delivered: true }).eq('order_id', String(orderId)) ;
   loadShippingOrders();
 }
 
 async function revertShipping(orderId) {
-  await supabase.from('orders').update({ is_shipped: false, is_delivered: false }).eq('order_id', orderId);
+  await supabase.from('orders').update({ is_shipped: false, is_delivered: false }).eq('order_id', String(orderId)) ;
   loadShippingOrders();
 }
 
 async function moveToOrderManagement(orderId) {
   if (confirm("이 주문을 배송관리에서 제외하고 주문관리로 이동하시겠습니까?")) {
-    await supabase.from('orders').update({ is_ready_to_ship: false }).eq('order_id', orderId);
+    await supabase.from('orders').update({ is_ready_to_ship: false }).eq('order_id', String(orderId)) ;
     loadShippingOrders();
   }
 }
 
 async function updateTrackingNumber(orderId, value) {
   const date = value ? new Date().toISOString() : null;
-  await supabase.from('orders').update({ tracking_number: value || null, tracking_date: date }).eq('order_id', orderId);
+  await supabase.from('orders').update({ tracking_number: value || null, tracking_date: date }).eq('order_id', String(orderId)) ;
 }
 
 async function updateShippingNote(orderId, value) {
-  await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', orderId);
+  await supabase.from('orders').update({ shipping_note: value || null }).eq('order_id', String(orderId)) ;
 }
 
 async function markRefunded(orderId) {
   const now = new Date().toISOString();
-  await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).eq('order_id', orderId);
+  await supabase.from('orders').update({ is_refunded: true, refunded_at: now }).eq('order_id', String(orderId)) ;
   loadShippingOrders();
 }
 
@@ -73,7 +73,7 @@ async function unmergeOrder(orderId) {
     refund_amount: null,
     is_refunded: false,
     refunded_at: null
-  }).eq('order_id', orderId);
+  }).eq('order_id', String(orderId)) ;
   loadShippingOrders();
 }
 window.unmergeOrder = unmergeOrder;
@@ -102,7 +102,7 @@ function calculateRefundAmount(group) {
 }
 
 async function handleMergeShipping() {
-  const selectedIds = Array.from(document.querySelectorAll('.select-order:checked')).map(cb => cb.value);
+  const selectedIds = Array.from(document.querySelectorAll('.select-order:checked')).map(cb => Number(cb.value));
   if (selectedIds.length < 2) return alert("2개 이상 주문을 선택해야 합니다.");
   const { data, error } = await supabase.from('orders').select('*').in('order_id', selectedIds);
   if (error || !data) return alert("주문 데이터 로딩 실패");
