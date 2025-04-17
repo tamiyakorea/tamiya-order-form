@@ -70,7 +70,10 @@
             return;
           }
 
-          const total = items.reduce((sum, item) => sum + item.qty * item.price, 0);
+          const total = items.reduce((sum, item) => {
+            const sub = item.qty * item.price;
+            return sum + (isNaN(sub) ? 0 : sub);
+          }, 0);
 
           orders.push({
             order_id: generateOrderNumber(),
@@ -85,9 +88,7 @@
             total,
             created_at: row.order_date || new Date().toISOString(),
             payment_confirmed: false,
-            payment_date: null,
-            arrival_status: null,
-            arrival_due: null
+            payment_date: null
           });
         }
 
