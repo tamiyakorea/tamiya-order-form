@@ -132,6 +132,9 @@
     function openUploadWindow() {
       window.open('upload-orders.html', '_blank', 'width=800,height=700');
     }
+    function openDirectUploadWindow() {
+      window.open('upload-custom-price.html', '_blank', 'width=800,height=700');
+    }
   </script>
 </head>
 <body>
@@ -139,6 +142,7 @@
     <a href="orders.html" class="active">주문 관리</a>
     <a href="shipping.html">배송 관리</a>
     <button class="upload-btn" onclick="openUploadWindow()">엑셀 주문 등록</button>
+    <button class="upload-btn" onclick="openDirectUploadWindow()">직접 단가 업로드</button>
     <button class="logout-btn" onclick="logout()">로그아웃</button>
   </nav>
 
