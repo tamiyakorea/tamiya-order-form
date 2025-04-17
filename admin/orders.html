@@ -27,15 +27,9 @@
       margin: 10px 5px 10px 0;
     }
 
-    .logout-btn {
-      background: #dc3545;
-    }
-    .upload-btn {
-      background-color: #007bff;
-    }
-    .upload-btn:hover {
-      background-color: #0056b3;
-    }
+    .logout-btn { background: #dc3545; }
+    .upload-btn { background-color: #007bff; }
+    .upload-btn:hover { background-color: #0056b3; }
 
     nav {
       background-color: #343a40;
@@ -50,9 +44,7 @@
       margin-right: 20px;
       font-weight: bold;
     }
-    nav a.active {
-      text-decoration: underline;
-    }
+    nav a.active { text-decoration: underline; }
 
     .input-box { width: 100px; padding: 4px; }
     .pay-status { line-height: 1.4; }
@@ -133,17 +125,14 @@
       cursor: pointer;
     }
   </style>
-
   <script>
     function logout() {
-      // 이 함수는 orders-enhanced.js에서 override됨
+      // 실제 로그아웃 로직은 JS에서 전역 등록된 logout 함수로 실행됨
     }
     function openUploadWindow() {
       window.open('upload-orders.html', '_blank', 'width=800,height=700');
     }
   </script>
-
-  <script type="module" src="orders-enhanced.js"></script>
 </head>
 <body>
   <nav>
@@ -163,4 +152,44 @@
 
   <div class="table-wrapper">
     <table id="orderTable">
-      <colgroup
+      <colgroup id="colgroup"></colgroup>
+      <thead>
+        <tr>
+          <th rowspan="2">삭제</th>
+          <th rowspan="2">첨부파일</th>
+          <th rowspan="2">주문일시</th>
+          <th rowspan="2">주문번호</th>
+          <th rowspan="2">고객명</th>
+          <th rowspan="2">전화번호</th>
+          <th rowspan="2">이메일</th>
+          <th colspan="3">주소</th>
+          <th rowspan="2">현금영수증</th>
+          <th colspan="4">주문 상품</th>
+          <th rowspan="2">총 금액</th>
+          <th rowspan="2">입금 상태</th>
+          <th rowspan="2">PO 정보</th>
+          <th rowspan="2">비고</th>
+          <th rowspan="2">입고 정보</th>
+          <th rowspan="2">입고 예정</th>
+          <th rowspan="2">배송</th>
+        </tr>
+        <tr>
+          <th>우편번호</th>
+          <th>주소</th>
+          <th>상세주소</th>
+          <th>시리얼</th>
+          <th>상품명</th>
+          <th>수량</th>
+          <th>단가</th>
+        </tr>
+      </thead>
+      <tbody id="orderBody">
+        <tr><td colspan="22">불러오는 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ✅ JS 로딩 위치를 body 맨 아래로 이동 -->
+  <script type="module" src="orders-enhanced.js"></script>
+</body>
+</html>
