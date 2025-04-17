@@ -251,3 +251,5 @@ window.confirmOrder = async function () {
     window.location.href = "payment-info.html?orderId=" + orderId;
   }
 };
+
+console.log("index.js loaded successfully.");
