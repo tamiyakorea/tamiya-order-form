@@ -122,7 +122,7 @@ function renderOrders(data) {
         <tr class="${rowClass}">
           ${isFirstRow ? `
             <td rowspan="${items.length}">
-              <button class="delete-btn" onclick="deleteOrder(\"${order.order_id}\", ${order.payment_confirmed})">삭제</button>
+              <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
             </td>
             <td rowspan="${items.length}">${proofButtons}</td>
             <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
@@ -192,6 +192,10 @@ async function updateFieldByItem(orderId, itemCode, field, value) {
 
 function injectColgroup() {
   const colgroup = document.getElementById("colgroup");
+  if (!colgroup) {
+    console.warn("⚠️ <colgroup> 요소를 찾을 수 없습니다. DOM이 준비되었는지 확인하세요.");
+    return;
+  }
   colgroup.innerHTML = '';
   for (let i = 1; i <= 22; i++) {
     const col = document.createElement("col");
