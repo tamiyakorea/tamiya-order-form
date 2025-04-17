@@ -28,6 +28,16 @@
       return Number(MMDD + mmss + rand);
     }
 
+    function excelDateToISOString(excelDate) {
+      if (!excelDate) return new Date().toISOString();
+      if (typeof excelDate === "number") {
+        const date = new Date((excelDate - 25569) * 86400 * 1000);
+        return date.toISOString();
+      }
+      const date = new Date(excelDate);
+      return isNaN(date) ? new Date().toISOString() : date.toISOString();
+    }
+
     function extractItemsFromRow(row) {
       const items = [];
       for (let i = 1; i <= 10; i++) {
@@ -86,7 +96,7 @@
             receipt_info: String(row.cash_receipt || '').trim(),
             items,
             total,
-            created_at: row.order_date || new Date().toISOString(),
+            created_at: excelDateToISOString(row.order_date),
             payment_confirmed: false,
             payment_date: null
           });
