@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>엑셀 업로드 (단가 직접입력)</title>
+  <script type="module">
+    import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs";
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const supabase = createClient(
+      "https://edgvrwekvnavkhcqwtxa.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E"
+    );
+
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert("로그인이 필요합니다. 창을 닫습니다.");
+        window.close();
+      }
+    }
+
+    function generateOrderNumber() {
+      const now = new Date();
+      const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
+      const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
+      const rand = Math.floor(10 + Math.random() * 90);
+      return Number(MMDD + mmss + rand);
+    }
+
+    function extractItemsFromRow(row) {
+      const items = [];
+      for (let i = 1; i <= 10; i++) {
+        const serial = row[`serial_${i}`];
+        const product = row[`product_name_${i}`];
+        const qty = parseInt(row[`qty_${i}`]) || 1;
+        const price = parseInt(row[`price_${i}`]) || 0;
+
+        if (serial && product && price > 0) {
+          items.push({
+            code: String(serial).trim(),
+            name: String(product).trim(),
+            qty,
+            price
+          });
+        }
+      }
+      return items;
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      await checkAuth();
+
+      const input = document.getElementById("excel-upload");
+      input.addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+
+        const orders = [];
+
+        for (const row of rows) {
+          const items = extractItemsFromRow(row);
+          if (items.length === 0) {
+            alert(`상품 정보 누락: 고객명 "${row.customer_name}"`);
+            return;
+          }
+
+          const total = items.reduce((sum, item) => sum + item.qty * item.price, 0);
+
+          orders.push({
+            order_id: generateOrderNumber(),
+            name: String(row.customer_name || '').trim(),
+            phone: String(row.phone || '').trim(),
+            email: String(row.email || '').trim(),
+            zipcode: String(row.zip_code || '').trim(),
+            address: String(row.address || '').trim(),
+            address_detail: String(row.detail_address || '').trim(),
+            receipt_info: String(row.cash_receipt || '').trim(),
+            items,
+            total,
+            created_at: row.order_date || new Date().toISOString(),
+            payment_confirmed: false,
+            payment_date: null,
+            arrival_status: null,
+            arrival_due: null
+          });
+        }
+
+        const { error } = await supabase.from('orders').insert(orders);
+        if (error) {
+          alert("업로드 실패: " + error.message);
+          console.error(error);
+        } else {
+          alert("주문이 성공적으로 업로드되었습니다.");
+          window.close();
+        }
+      });
+    });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      text-align: center;
+      background-color: #f9f9f9;
+    }
+    h1 { margin-bottom: 20px; }
+    #upload-button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #upload-button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+  <h1>엑셀 주문 업로드 (단가 직접입력)</h1>
+  <input type="file" id="excel-upload" accept=".xlsx,.xls,.csv" style="display:none" />
+  <button id="upload-button" onclick="document.getElementById('excel-upload').click()">엑셀 파일 선택</button>
+</body>
+</html>
