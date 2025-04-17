@@ -252,4 +252,31 @@ window.confirmOrder = async function () {
   }
 };
 
+window.searchOrderById = async function () {
+  const input = document.getElementById("orderSearchInput").value.trim();
+  if (!input) {
+    alert("주문번호를 입력해주세요.");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("order_id", input)
+    .single();
+
+  const resultDiv = document.getElementById("orderResult");
+  if (error || !data) {
+    resultDiv.innerHTML = "<p style='color:red;'>주문 정보를 찾을 수 없습니다.</p>";
+  } else {
+    resultDiv.innerHTML = `
+      <p><strong>이름:</strong> ${data.name}</p>
+      <p><strong>전화번호:</strong> ${data.phone}</p>
+      <p><strong>이메일:</strong> ${data.email}</p>
+      <p><strong>주소:</strong> ${data.zipcode} ${data.address} ${data.address_detail}</p>
+      <p><strong>총 금액:</strong> ₩${data.total.toLocaleString()}</p>
+    `;
+  }
+};
+
 console.log("index.js loaded successfully.");
