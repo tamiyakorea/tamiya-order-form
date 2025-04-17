@@ -69,29 +69,6 @@ tbody td {
   padding: 4px;
 }
 
-/* 합배송 강조 테두리 */
-.merged-order td {
-  border: 1px solid #ff4d4d !important;
-}
-
-.merged-top td {
-  border-top: 3px solid red !important;
-}
-
-.merged-bottom td {
-  border-bottom: 3px solid red !important;
-}
-
-.merged-top td:first-child,
-.merged-bottom td:first-child {
-  border-left: 3px solid red !important;
-}
-
-.merged-top td:last-child,
-.merged-bottom td:last-child {
-  border-right: 3px solid red !important;
-}
-
 /* 환불예상 강조 */
 td > div[style*="color:red"] {
   font-weight: bold;
