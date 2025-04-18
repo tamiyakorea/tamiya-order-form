@@ -150,7 +150,11 @@ async function downloadExcel() {
   const rows = [];
 
   data.forEach(order => {
-    const items = JSON.parse(order.items || '[]');
+    // ✅ 안전하게 items 파싱 (문자열 또는 객체 모두 처리)
+    const items = typeof order.items === 'string'
+      ? JSON.parse(order.items)
+      : Array.isArray(order.items) ? order.items : [];
+
     const name = order.name;
     const phone = order.phone;
     const zip = order.zipcode;
@@ -182,7 +186,7 @@ async function downloadExcel() {
       });
     });
 
-    // 📦 배송비 항목 추가 (이미 배송비가 포함된 경우 생략)
+    // 📦 배송비 항목 추가 (이미 포함된 경우 생략)
     const alreadyHasShipping = items.some(i => i.name === '배송비' || i.code === '15774577');
     if (!alreadyHasShipping) {
       const isMerged = order.is_merged;
@@ -224,6 +228,7 @@ async function downloadExcel() {
   XLSX.utils.book_append_sheet(wb, ws, '배송목록');
   XLSX.writeFile(wb, 'shipping_export.xls');
 }
+
 
 
 async function loadShippingOrders() {
