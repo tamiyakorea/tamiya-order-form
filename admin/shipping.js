@@ -182,39 +182,42 @@ async function downloadExcel() {
       });
     });
 
-    // 📦 배송비 항목 추가
-    const isMerged = order.is_merged;
-    let shippingItemPrice = 0;
-    const itemSubtotal = items.reduce((sum, i) => sum + i.qty * i.price, 0);
-    const totalShippingFee = finalTotal - itemSubtotal;
+    // 📦 배송비 항목 추가 (이미 배송비가 포함된 경우 생략)
+    const alreadyHasShipping = items.some(i => i.name === '배송비' || i.code === '15774577');
+    if (!alreadyHasShipping) {
+      const isMerged = order.is_merged;
+      let shippingItemPrice = 0;
+      const itemSubtotal = items.reduce((sum, i) => sum + i.qty * i.price, 0);
+      const totalShippingFee = finalTotal - itemSubtotal;
 
-    if (isMerged) {
-      const remainShippingFee = totalShippingFee - (order.refund_amount || 0);
-      if (remainShippingFee > 0) {
-        shippingItemPrice = remainShippingFee;
+      if (isMerged) {
+        const remainShippingFee = totalShippingFee - (order.refund_amount || 0);
+        if (remainShippingFee > 0) {
+          shippingItemPrice = remainShippingFee;
+        }
+      } else {
+        shippingItemPrice = totalShippingFee > 0 ? 3000 : 0;
       }
-    } else {
-      shippingItemPrice = totalShippingFee > 0 ? 3000 : 0;
-    }
 
-    if (shippingItemPrice > 0) {
-      rows.push({
-        고객명: name,
-        연락처: phone,
-        우편번호: zip,
-        주소: addr,
-        상세주소: detail,
-        시리얼번호: "15774577",
-        아이템명: "배송비",
-        수량: 1,
-        개별금액: shippingItemPrice,
-        총금액: finalTotal,
-        입금확인일: paidDate,
-        비고: remark,
-        아이템비고: "15774577"
-      });
+      if (shippingItemPrice > 0) {
+        rows.push({
+          고객명: name,
+          연락처: phone,
+          우편번호: zip,
+          주소: addr,
+          상세주소: detail,
+          시리얼번호: "15774577",
+          아이템명: "배송비",
+          수량: 1,
+          개별금액: shippingItemPrice,
+          총금액: finalTotal,
+          입금확인일: paidDate,
+          비고: remark,
+          아이템비고: "15774577"
+        });
+      }
     }
-  }); // ← data.forEach 닫는 괄호
+  });
 
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
