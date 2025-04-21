@@ -234,27 +234,6 @@ function enableInputResizePersistence() {
 
   inputs.forEach((input, index) => {
     const key = `input-width-${index}`;
-    // 기존 저장된 너비 적용
-    const savedWidth = localStorage.getItem(key);
-    if (savedWidth) input.style.width = savedWidth;
-
-    // resize 가능하도록 CSS 추가
-    input.style.resize = 'horizontal';
-    input.style.overflow = 'auto';
-
-    // blur 시 너비 저장
-    input.addEventListener('mouseup', () => {
-      // 마우스 드래그 끝난 후 너비 저장
-      localStorage.setItem(key, input.offsetWidth + 'px');
-    });
-  });
-}
-
-function enableInputResizePersistence() {
-  const inputs = document.querySelectorAll('.input-box');
-
-  inputs.forEach((input, index) => {
-    const key = `input-width-${index}`;
     const savedWidth = localStorage.getItem(key);
     if (savedWidth) input.style.width = savedWidth;
 
