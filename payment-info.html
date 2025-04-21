@@ -153,7 +153,6 @@
       addressEl.textContent = `${order.zipcode || ''} ${order.address || ''} ${order.address_detail || ''}`;
 
       let products = [];
-
       try {
         products = Array.isArray(order.items) ? order.items : JSON.parse(order.items);
       } catch (e) {
@@ -162,8 +161,7 @@
 
       if (products.length > 0) {
         let totalQty = 0;
-        let totalPrice = 0;
-        const shippingFee = Number(order.shipping_fee || 0);
+        let totalItemsPrice = 0;
 
         let html = `
           <table>
@@ -184,7 +182,7 @@
           const itemTotal = qty * price;
 
           totalQty += qty;
-          totalPrice += itemTotal;
+          totalItemsPrice += itemTotal;
 
           html += `
             <tr>
@@ -195,6 +193,9 @@
             </tr>`;
         });
 
+        const totalAmount = Number(order.total || 0);
+        const shippingFee = Math.max(totalAmount - totalItemsPrice, 0); // 음수 방지
+
         html += `
           <tr>
             <td colspan="3" style="text-align:right;"><strong>배송비</strong></td>
@@ -204,7 +205,7 @@
             <td>총계</td>
             <td>${totalQty}</td>
             <td></td>
-            <td>${(totalPrice + shippingFee).toLocaleString()}원</td>
+            <td>${totalAmount.toLocaleString()}원</td>
           </tr>
         </tbody>
         </table>`;
