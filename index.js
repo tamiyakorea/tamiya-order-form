@@ -217,7 +217,9 @@ window.confirmOrder = async function () {
     return;
   }
 
-  const { publicUrl } = supabase.storage.from("order-proof").getPublicUrl(filePath);
+  const { data } = supabase.storage.from("order-proof").getPublicUrl(filePath);
+  const publicUrl = data.publicUrl;
+
 
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + 
     (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
