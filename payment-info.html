@@ -196,15 +196,18 @@ if (products.length > 0) {
       </tr>`;
   });
 
-  html += `
-    <tr class="total">
-      <td>총계</td>
-      <td>${totalQty}</td>
-      <td></td>
-      <td>${totalPrice.toLocaleString()}원</td>
-    </tr>
-    </tbody>
-    </table>`;
+    html += `
+      <tr>
+        <td colspan="3" style="text-align:right"><strong>배송비</strong></td>
+        <td>${(order.shipping_fee || 0).toLocaleString()}원</td>
+      </tr>
+      <tr class="total">
+        <td>총계</td>
+        <td>${totalQty}</td>
+        <td></td>
+        <td>${(totalPrice + (order.shipping_fee || 0)).toLocaleString()}원</td>
+      </tr>
+  `;
 
   tableContainer.innerHTML = html;
     } else {
