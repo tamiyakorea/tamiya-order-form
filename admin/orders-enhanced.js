@@ -110,9 +110,11 @@ function renderOrders(data) {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
     const paymentDateInput = order.payment_date ? formatDateInput(order.payment_date) : getTodayDateString();
 
-    const proofButtons = (order.proof_images || []).map((url, index) => {
-      return `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`;
-    }).join(" ");
+    const proofButtons = (order.proof_images || [])
+  .filter(url => typeof url === 'string' && url.startsWith('http'))
+  .map((url, index) => {
+    return `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`;
+  }).join(" ");
 
     items.forEach((i, idx) => {
       const isFirstRow = idx === 0;
