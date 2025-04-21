@@ -250,6 +250,44 @@ function enableInputResizePersistence() {
   });
 }
 
+function enableInputResizePersistence() {
+  const inputs = document.querySelectorAll('.input-box');
+
+  inputs.forEach((input, index) => {
+    const key = `input-width-${index}`;
+    const savedWidth = localStorage.getItem(key);
+    if (savedWidth) input.style.width = savedWidth;
+
+    input.style.resize = 'horizontal';
+    input.style.overflow = 'auto';
+
+    let isResizing = false;
+    let startX, startWidth;
+
+    input.addEventListener('mousedown', e => {
+      if (e.offsetX > input.offsetWidth - 10) {
+        isResizing = true;
+        startX = e.pageX;
+        startWidth = input.offsetWidth;
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!isResizing) return;
+      const newWidth = startWidth + (e.pageX - startX);
+      input.style.width = newWidth + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        localStorage.setItem(key, input.offsetWidth + 'px');
+      }
+    });
+  });
+}
+
 async function checkAuth() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
@@ -264,8 +302,9 @@ window.addEventListener("load", () => {
   injectColgroup();
   makeColumnsResizable(document.querySelector("table"));
   checkAuth();
-  enableInputResizePersistence(); // ✅ 여기에 추가
+  enableInputResizePersistence(); // ✅ 추가된 부분
 });
+
 
 Object.assign(window, {
   logout,
