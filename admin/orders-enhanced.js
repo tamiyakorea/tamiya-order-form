@@ -109,18 +109,19 @@ function renderOrders(data) {
 
   data.forEach(order => {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
-    const paymentDateInput = order.payment_date ? formatDateOnly(order.payment_date) : '';
+    const paymentDateInput = order.payment_date ? formatDateInput(order.payment_date) : getTodayDateString();
 
     const proofButtons = (order.proof_images || [])
       .filter(url => typeof url === 'string' && url.startsWith('http'))
-      .map((url, index) => `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`) 
+      .map((url, index) => `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`)
       .join(" ");
 
     items.forEach((item, idx) => {
       const isFirstRow = idx === 0;
+      const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
 
       const rowHtml = `
-        <tr class="${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}">
+        <tr class="${rowClass}">
           ${isFirstRow ? `
             <td rowspan="${items.length}">
               <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
@@ -145,15 +146,29 @@ function renderOrders(data) {
           ${isFirstRow ? `
             <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
             <td rowspan="${items.length}" class="pay-status">
-              ${order.payment_confirmed ? '입금 확인됨' : '입금 미확인'}<br>${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+              <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
+              <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
+                ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
+              </button><br>
+              ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
             </td>
-            <td rowspan="${items.length}">${order.po_info || ''}</td>
-            <td rowspan="${items.length}">${order.remarks || ''}</td>
+            <td rowspan="${items.length}">
+              <input class="input-box" value="${order.po_info || ''}" onchange="updateField('${order.order_id}', 'po_info', this.value)" />
+            </td>
+            <td rowspan="${items.length}">
+              <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
+            </td>
           ` : ''}
-          <td>${item.arrival_status || ''}</td>
-          <td>${item.arrival_due || ''}</td>
+          <td>
+            <input class="input-box" value="${item.arrival_status || ''}" onchange="updateFieldByItem('${order.order_id}', '${item.code}', 'arrival_status', this.value)" />
+          </td>
+          <td>
+            <input class="input-box" value="${item.arrival_due || ''}" onchange="updateFieldByItem('${order.order_id}', '${item.code}', 'arrival_due', this.value)" />
+          </td>
           ${isFirstRow ? `
-            <td rowspan="${items.length}"><button class="ship-btn" onclick="markAsReadyToShip('${order.order_id}', this)">준비</button></td>
+            <td rowspan="${items.length}">
+              <button class="ship-btn" onclick="markAsReadyToShip('${order.order_id}', this)" ${order.is_ready_to_ship ? 'disabled' : ''}>준비</button>
+            </td>
           ` : ''}
         </tr>
       `;
@@ -161,6 +176,7 @@ function renderOrders(data) {
     });
   });
 }
+
 
 async function updateFieldByItem(orderId, itemCode, field, value) {
   const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
