@@ -254,18 +254,17 @@ async function downloadSelectedOrders() {
 
   const { data: itemList, error: itemError } = await supabase
     .from("tamiya_items")
-    .select("item_code,j_retail,price");
+    .select("item_code,j_retail,price"); // ✅ price 포함
 
   if (itemError) {
     alert("상품 데이터 불러오기 실패: " + itemError.message);
     return;
   }
 
+  // ✅ item_code는 int8 (숫자) → Number() 변환해서 매칭
   const itemInfoMap = new Map(
-  itemList.map(item => {
-    return [String(item.item_code), { j_retail: item.j_retail, price: item.price }];
-  })
-);
+    itemList.map(item => [Number(item.item_code), { j_retail: item.j_retail, price: item.price }])
+  );
 
   const rows = [];
   orders.forEach(order => {
@@ -273,9 +272,15 @@ async function downloadSelectedOrders() {
     const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
 
     items.forEach(item => {
-      const itemInfo = itemInfoMap.get(String(item.code)) || {};
+      const itemInfo = itemInfoMap.get(Number(item.code)) || {};
       const jRetail = itemInfo.j_retail || '';
       const itemPrice = itemInfo.price || '';
+
+      // ✅ 디버깅용 (필요 시 주석 해제)
+      // if (!itemInfoMap.has(Number(item.code))) {
+      //   console.warn(`item_code '${item.code}' not found in tamiya_items!`);
+      // }
+
       rows.push({
         "시리얼 넘버": item.code || '',
         "제품명": item.name || '',
@@ -296,6 +301,7 @@ async function downloadSelectedOrders() {
   XLSX.utils.book_append_sheet(workbook, worksheet, "주문서");
   XLSX.writeFile(workbook, "선택_주문서.xls");
 }
+
 
 async function checkAuth() {
   const { data: { session } } = await supabase.auth.getSession();
