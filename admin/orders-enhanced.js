@@ -1,4 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import * as XLSX from 'https://cdn.jsdelivr.net/npm/xlsx/+esm';
 
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
@@ -108,23 +109,23 @@ function renderOrders(data) {
 
   data.forEach(order => {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
-    const paymentDateInput = order.payment_date ? formatDateInput(order.payment_date) : getTodayDateString();
+    const paymentDateInput = order.payment_date ? formatDateOnly(order.payment_date) : '';
 
     const proofButtons = (order.proof_images || [])
-  .filter(url => typeof url === 'string' && url.startsWith('http'))
-  .map((url, index) => {
-    return `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`;
-  }).join(" ");
+      .filter(url => typeof url === 'string' && url.startsWith('http'))
+      .map((url, index) => `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`) 
+      .join(" ");
 
-    items.forEach((i, idx) => {
+    items.forEach((item, idx) => {
       const isFirstRow = idx === 0;
-      const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
 
       const rowHtml = `
-        <tr class="${rowClass}">
+        <tr class="${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}">
           ${isFirstRow ? `
             <td rowspan="${items.length}">
               <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
+              <br>
+              <input type="checkbox" class="download-checkbox" data-order-id="${order.order_id}">
             </td>
             <td rowspan="${items.length}">${proofButtons}</td>
             <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
@@ -137,40 +138,25 @@ function renderOrders(data) {
             <td rowspan="${items.length}">${order.address_detail}</td>
             <td rowspan="${items.length}">${order.receipt_info || ''}</td>
           ` : ''}
-          <td>${i.code || '-'}</td>
-          <td class="ellipsis" title="${i.name}">${i.name}</td>
-          <td>${i.qty}</td>
-          <td>₩${i.price ? i.price.toLocaleString() : '-'}</td>
+          <td>${item.code || '-'}</td>
+          <td class="ellipsis" title="${item.name}">${item.name}</td>
+          <td>${item.qty}</td>
+          <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
           ${isFirstRow ? `
             <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
             <td rowspan="${items.length}" class="pay-status">
-              <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
-              <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
-                ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
-              </button><br>
-              ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+              ${order.payment_confirmed ? '입금 확인됨' : '입금 미확인'}<br>${order.payment_date ? formatDateOnly(order.payment_date) : ''}
             </td>
-            <td rowspan="${items.length}">
-              <input class="input-box" value="${order.po_info || ''}" onchange="updateField('${order.order_id}', 'po_info', this.value)" />
-            </td>
-            <td rowspan="${items.length}">
-              <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
-            </td>
+            <td rowspan="${items.length}">${order.po_info || ''}</td>
+            <td rowspan="${items.length}">${order.remarks || ''}</td>
           ` : ''}
-          <td>
-            <input class="input-box" value="${i.arrival_status || ''}" onchange="updateFieldByItem('${order.order_id}', '${i.code}', 'arrival_status', this.value)" />
-          </td>
-          <td>
-            <input class="input-box" value="${i.arrival_due || ''}" onchange="updateFieldByItem('${order.order_id}', '${i.code}', 'arrival_due', this.value)" />
-          </td>
+          <td>${item.arrival_status || ''}</td>
+          <td>${item.arrival_due || ''}</td>
           ${isFirstRow ? `
-            <td rowspan="${items.length}">
-              <button class="ship-btn" onclick="markAsReadyToShip('${order.order_id}', this)" ${order.is_ready_to_ship ? 'disabled' : ''}>준비</button>
-            </td>
+            <td rowspan="${items.length}"><button class="ship-btn" onclick="markAsReadyToShip('${order.order_id}', this)">준비</button></td>
           ` : ''}
         </tr>
       `;
-
       tbody.insertAdjacentHTML('beforeend', rowHtml);
     });
   });
@@ -231,6 +217,63 @@ function makeColumnsResizable(table) {
   });
 }
 
+async function downloadSelectedOrders() {
+  const checkboxes = document.querySelectorAll('.download-checkbox:checked');
+  if (checkboxes.length === 0) {
+    alert('다운로드할 주문을 선택하세요.');
+    return;
+  }
+
+  const selectedOrderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
+  const { data: orders, error: orderError } = await supabase
+    .from("orders")
+    .select("*")
+    .in("order_id", selectedOrderIds);
+
+  if (orderError) {
+    alert("주문 데이터 불러오기 실패: " + orderError.message);
+    return;
+  }
+
+  const { data: itemList, error: itemError } = await supabase
+    .from("tamiya_items")
+    .select("code, j_retail");
+
+  if (itemError) {
+    alert("상품 데이터 불러오기 실패: " + itemError.message);
+    return;
+  }
+
+  const jRetailMap = new Map(itemList.map(item => [String(item.code), item.j_retail]));
+
+  const rows = [];
+  orders.forEach(order => {
+    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+    const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
+
+    items.forEach(item => {
+      const jRetail = jRetailMap.get(String(item.code)) || '';
+      rows.push({
+        "시리얼 넘버": item.code || '',
+        "제품명": item.name || '',
+        "J-retail": jRetail || '',
+        "price": item.price || '',
+        "개수": item.qty || '',
+        "비고": `${order.name} ${paymentDate} ${item.code || ''}`
+      });
+    });
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(rows, {
+    header: ["시리얼 넘버", "제품명", , , "J-retail", "price", , "개수", , , , , , , , , , , "비고"],
+    skipHeader: true
+  });
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "주문서");
+  XLSX.writeFile(workbook, "선택_주문서.xls");
+}
+
 async function checkAuth() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
@@ -252,8 +295,13 @@ Object.assign(window, {
   searchOrders,
   loadOrders,
   deleteOrder,
+  downloadSelectedOrders,
   updateField,
   updateFieldByItem,
   togglePayment,
   markAsReadyToShip
+});
+
+window.addEventListener("load", () => {
+  loadOrders();
 });
