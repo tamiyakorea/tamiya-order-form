@@ -261,13 +261,11 @@ async function downloadSelectedOrders() {
     return;
   }
 
-  // 🟢 Map 키를 문자열로 만들어서 정확하게 매칭!
   const itemInfoMap = new Map(
-    itemList.map(item => [
-      String(item.item_code), 
-      { j_retail: item.j_retail, price: item.price }
-    ])
+    itemList.map(item => [String(item.item_code), { j_retail: item.j_retail, price: item.price }])
   );
+
+  console.log("🔎 itemInfoMap keys (item_code list):", Array.from(itemInfoMap.keys()));
 
   const rows = [];
   orders.forEach(order => {
@@ -275,15 +273,24 @@ async function downloadSelectedOrders() {
     const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
 
     items.forEach(item => {
-      const itemInfo = itemInfoMap.get(String(item.code)) || {};
-      const jRetail = itemInfo.j_retail || '';
-      const itemPrice = itemInfo.price || '';
+      const itemCodeStr = String(item.code);
+      const itemInfo = itemInfoMap.get(itemCodeStr);
+
+      // 🟥 디버깅 포인트
+      if (!itemInfo) {
+        console.warn(`⚠️ 매칭 실패: order_id=${order.order_id}, item.code='${item.code}' (형변환 후='${itemCodeStr}')`);
+      } else {
+        console.log(`✅ 매칭 성공: code='${item.code}', j_retail=${itemInfo.j_retail}, price=${itemInfo.price}`);
+      }
+
+      const jRetail = itemInfo ? itemInfo.j_retail : '';
+      const itemPrice = itemInfo ? itemInfo.price : '';
 
       rows.push({
         "시리얼 넘버": item.code || '',
         "제품명": item.name || '',
-        "J-retail": jRetail,          // ✅ 여기 정확하게 들어감!
-        "price": itemPrice,           // ✅ 여기 정확하게 들어감!
+        "J-retail": jRetail,
+        "price": itemPrice,
         "개수": item.qty || '',
         "비고": `${order.name} ${paymentDate} ${item.code || ''}`
       });
