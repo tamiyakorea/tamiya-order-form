@@ -244,7 +244,7 @@ async function downloadSelectedOrders() {
     return;
   }
 
-  const jRetailMap = new Map(itemList.map(item => [String(item.code), item.j_retail]));
+  const jRetailMap = new Map(itemList.map(item => [String(item.item_code), item.j_retail]));
 
   const rows = [];
   orders.forEach(order => {
