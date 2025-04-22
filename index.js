@@ -271,7 +271,7 @@ window.searchOrderById = async function () {
   if (error || !data) {
     resultDiv.innerHTML = "<p style='color:red;'>주문 정보를 찾을 수 없습니다.</p>";
   } else {
-    const items = JSON.parse(data.items);
+    const items = Array.isArray(data.items) ? data.items : JSON.parse(data.items);
     const itemsHTML = items.map(item => `
       <tr>
         <td>${item.code}</td>
