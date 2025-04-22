@@ -241,6 +241,7 @@ async function downloadSelectedOrders() {
   }
 
   const selectedOrderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
+
   const { data: orders, error: orderError } = await supabase
     .from("orders")
     .select("*")
@@ -260,7 +261,10 @@ async function downloadSelectedOrders() {
     return;
   }
 
-  const itemInfoMap = new Map(itemList.map(item => [String(item.item_code), { j_retail: item.j_retail, price: item.price }]));
+  const itemInfoMap = new Map(itemList.map(item => [
+    String(item.item_code), 
+    { j_retail: item.j_retail, price: item.price }
+  ]));
 
   const rows = [];
   orders.forEach(order => {
@@ -268,28 +272,19 @@ async function downloadSelectedOrders() {
     const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
 
     items.forEach(item => {
-  const itemInfo = itemInfoMap.get(String(item.code)) || {};
-  const jRetail = itemInfo.j_retail || '';
-  const itemPrice = itemInfo.price || '';
-  rows.push({
-    "시리얼 넘버": item.code || '',
-    "제품명": item.name || '',
-    "J-retail": jRetail,
-    "price": itemPrice,
-    "개수": item.qty || '',
-    "비고": `${order.name} ${paymentDate} ${item.code || ''}`
+      const itemInfo = itemInfoMap.get(String(item.code)) || {};
+      const jRetail = itemInfo.j_retail || '';
+      const itemPrice = itemInfo.price || '';
+      rows.push({
+        "시리얼 넘버": item.code || '',
+        "제품명": item.name || '',
+        "J-retail": jRetail,
+        "price": itemPrice,
+        "개수": item.qty || '',
+        "비고": `${order.name} ${paymentDate} ${item.code || ''}`
+      });
+    });
   });
-}); 
-
-  const worksheet = XLSX.utils.json_to_sheet(rows, {
-    header: ["시리얼 넘버", "제품명", , , "J-retail", "price", , "개수", , , , , , , , , , , "비고"],
-    skipHeader: true
-  });
-
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "주문서");
-  XLSX.writeFile(workbook, "선택_주문서.xls");
-}
 
   const worksheet = XLSX.utils.json_to_sheet(rows, {
     header: ["시리얼 넘버", "제품명", , , "J-retail", "price", , "개수", , , , , , , , , , , "비고"],
