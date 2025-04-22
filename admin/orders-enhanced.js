@@ -241,71 +241,30 @@ async function downloadSelectedOrders() {
   }
 
   const selectedOrderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
+  console.log("✅ 선택된 order_id 목록:", selectedOrderIds);
 
   const { data: orders, error: orderError } = await supabase
     .from("orders")
     .select("*")
     .in("order_id", selectedOrderIds);
 
-  if (orderError) {
-    alert("주문 데이터 불러오기 실패: " + orderError.message);
+  if (orderError || !orders) {
+    alert("❌ 주문 데이터 불러오기 실패: " + (orderError?.message || '데이터 없음'));
     return;
   }
+  console.log("🟢 orders 불러옴:", orders);
 
   const { data: itemList, error: itemError } = await supabase
     .from("tamiya_items")
     .select("item_code,j_retail,price");
 
-  if (itemError) {
-    alert("상품 데이터 불러오기 실패: " + itemError.message);
+  if (itemError || !itemList) {
+    alert("❌ tamiya_items 데이터 불러오기 실패: " + (itemError?.message || '데이터 없음'));
     return;
   }
-
-  const itemInfoMap = new Map(
-    itemList.map(item => [String(item.item_code), { j_retail: item.j_retail, price: item.price }])
-  );
-
-  console.log("🔎 itemInfoMap keys (item_code list):", Array.from(itemInfoMap.keys()));
-
-  const rows = [];
-  orders.forEach(order => {
-    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
-    const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
-
-    items.forEach(item => {
-      const itemCodeStr = String(item.code);
-      const itemInfo = itemInfoMap.get(itemCodeStr);
-
-      // 🟥 디버깅 포인트
-      if (!itemInfo) {
-        console.warn(`⚠️ 매칭 실패: order_id=${order.order_id}, item.code='${item.code}' (형변환 후='${itemCodeStr}')`);
-      } else {
-        console.log(`✅ 매칭 성공: code='${item.code}', j_retail=${itemInfo.j_retail}, price=${itemInfo.price}`);
-      }
-
-      const jRetail = itemInfo ? itemInfo.j_retail : '';
-      const itemPrice = itemInfo ? itemInfo.price : '';
-
-      rows.push({
-        "시리얼 넘버": item.code || '',
-        "제품명": item.name || '',
-        "J-retail": jRetail,
-        "price": itemPrice,
-        "개수": item.qty || '',
-        "비고": `${order.name} ${paymentDate} ${item.code || ''}`
-      });
-    });
-  });
-
-  const worksheet = XLSX.utils.json_to_sheet(rows, {
-    header: ["시리얼 넘버", "제품명", , , "J-retail", "price", , "개수", , , , , , , , , , , "비고"],
-    skipHeader: true
-  });
-
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "주문서");
-  XLSX.writeFile(workbook, "선택_주문서.xls");
+  console.log("🔵 tamiya_items 불러옴:", itemList);
 }
+
 
 
 async function checkAuth() {
