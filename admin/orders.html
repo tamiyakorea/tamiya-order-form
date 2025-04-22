@@ -152,6 +152,11 @@
     <input id="searchInput" type="text" placeholder="주문번호 또는 고객명을 입력하세요" style="padding: 6px; width: 300px;" />
     <button onclick="searchOrders()" style="padding: 6px 12px;">검색</button>
     <button onclick="loadOrders()" style="padding: 6px 12px;">전체보기</button>
+    
+    <!-- ✅ 추가된 다운로드 버튼 -->
+    <button onclick="downloadSelectedOrders()" style="padding: 6px 12px; background-color: green; color: white; margin-left: 20px;">
+      선택 주문서 다운로드
+    </button>
   </div>
 
   <div class="table-wrapper">
