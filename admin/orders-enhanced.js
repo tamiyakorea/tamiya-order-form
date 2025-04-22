@@ -257,9 +257,6 @@ async function downloadSelectedOrders() {
   const { data: itemList, error: itemError } = await supabase
     .from("tamiya_items")
     .select("item_code,j_retail,price");
-    .limit(100000);  // ← 강제 늘려봄!
-
-  console.log("🟢 itemList 개수:", itemList.length);
 
   if (itemError || !itemList) {
     alert("❌ tamiya_items 데이터 불러오기 실패: " + (itemError?.message || '데이터 없음'));
