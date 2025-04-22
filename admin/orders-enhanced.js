@@ -261,9 +261,12 @@ async function downloadSelectedOrders() {
     return;
   }
 
-  // 🟢 item_code: int8 → 숫자형
+  // 🟢 Map 키를 문자열로 만들어서 정확하게 매칭!
   const itemInfoMap = new Map(
-    itemList.map(item => [Number(item.item_code), { j_retail: item.j_retail, price: item.price }])
+    itemList.map(item => [
+      String(item.item_code), 
+      { j_retail: item.j_retail, price: item.price }
+    ])
   );
 
   const rows = [];
@@ -272,16 +275,15 @@ async function downloadSelectedOrders() {
     const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
 
     items.forEach(item => {
-      const itemCodeNumber = Number(item.code);  // 문자열 → 숫자 변환
-      const itemInfo = itemInfoMap.get(itemCodeNumber) || {};
+      const itemInfo = itemInfoMap.get(String(item.code)) || {};
       const jRetail = itemInfo.j_retail || '';
       const itemPrice = itemInfo.price || '';
 
       rows.push({
         "시리얼 넘버": item.code || '',
         "제품명": item.name || '',
-        "J-retail": jRetail,          // ✅ 여기!!
-        "price": itemPrice,           // ✅ 여기!!
+        "J-retail": jRetail,          // ✅ 여기 정확하게 들어감!
+        "price": itemPrice,           // ✅ 여기 정확하게 들어감!
         "개수": item.qty || '',
         "비고": `${order.name} ${paymentDate} ${item.code || ''}`
       });
