@@ -301,7 +301,3 @@ Object.assign(window, {
   togglePayment,
   markAsReadyToShip
 });
-
-window.addEventListener("load", () => {
-  loadOrders();
-});
