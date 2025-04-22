@@ -268,19 +268,18 @@ async function downloadSelectedOrders() {
     const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
 
     items.forEach(item => {
-      const itemInfo = itemInfoMap.get(String(item.code)) || {};
-      const jRetail = itemInfo.j_retail || '';
-      const itemPrice = itemInfo.price || '';
-      rows.push({
-        "시리얼 넘버": item.code || '',
-        "제품명": item.name || '',
-        "J-retail": jRetail,
-        "price": itemPrice,
-        "개수": item.qty || '',
-        "비고": `${order.name} ${paymentDate} ${item.code || ''}`
-      });
-    });
+  const itemInfo = itemInfoMap.get(String(item.code)) || {};
+  const jRetail = itemInfo.j_retail || '';
+  const itemPrice = itemInfo.price || '';
+  rows.push({
+    "시리얼 넘버": item.code || '',
+    "제품명": item.name || '',
+    "J-retail": jRetail,
+    "price": itemPrice,
+    "개수": item.qty || '',
+    "비고": `${order.name} ${paymentDate} ${item.code || ''}`
   });
+}); 
 
   const worksheet = XLSX.utils.json_to_sheet(rows, {
     header: ["시리얼 넘버", "제품명", , , "J-retail", "price", , "개수", , , , , , , , , , , "비고"],
