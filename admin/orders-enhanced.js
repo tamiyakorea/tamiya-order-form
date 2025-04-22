@@ -264,8 +264,12 @@ async function downloadSelectedOrders() {
   }
   console.log("🔵 tamiya_items 불러옴:", itemList);
 
+  // 🟢 숫자형 item_code로 Map 생성
   const itemInfoMap = new Map(
-    itemList.map(item => [String(item.item_code), { j_retail: item.j_retail, price: item.price }])
+    itemList.map(item => [
+      Number(item.item_code),  // 숫자로 저장
+      { j_retail: item.j_retail, price: item.price }
+    ])
   );
   console.log("🔎 itemInfoMap keys (item_code list):", Array.from(itemInfoMap.keys()));
 
@@ -275,8 +279,8 @@ async function downloadSelectedOrders() {
     const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
 
     items.forEach(item => {
-      const itemCodeStr = String(item.code);
-      const itemInfo = itemInfoMap.get(itemCodeStr);
+      const itemCodeNumber = Number(item.code);  // 🟢 여기도 숫자 변환!
+      const itemInfo = itemInfoMap.get(itemCodeNumber);
 
       // 🟥 매칭 여부 로그
       if (!itemInfo) {
@@ -285,8 +289,8 @@ async function downloadSelectedOrders() {
         console.log(`✅ 매칭 성공: code='${item.code}', j_retail=${itemInfo.j_retail}, price=${itemInfo.price}`);
       }
 
-      const jRetail = itemInfo ? itemInfo.j_retail : '';               // 매칭 실패 시 jRetail은 빈칸
-      const itemPrice = itemInfo ? itemInfo.price : item.price || '';  // 매칭 실패 시 주문에 입력된 item.price 사용
+      const jRetail = itemInfo ? itemInfo.j_retail : '';
+      const itemPrice = itemInfo ? itemInfo.price : item.price || '';
 
       rows.push({
         "시리얼 넘버": item.code || '',
@@ -308,9 +312,6 @@ async function downloadSelectedOrders() {
   XLSX.utils.book_append_sheet(workbook, worksheet, "주문서");
   XLSX.writeFile(workbook, "선택_주문서.xls");
 }
-
-
-
 
 async function checkAuth() {
   const { data: { session } } = await supabase.auth.getSession();
