@@ -263,7 +263,52 @@ async function downloadSelectedOrders() {
     return;
   }
   console.log("🔵 tamiya_items 불러옴:", itemList);
+
+  const itemInfoMap = new Map(
+    itemList.map(item => [String(item.item_code), { j_retail: item.j_retail, price: item.price }])
+  );
+  console.log("🔎 itemInfoMap keys (item_code list):", Array.from(itemInfoMap.keys()));
+
+  const rows = [];
+  orders.forEach(order => {
+    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+    const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
+
+    items.forEach(item => {
+      const itemCodeStr = String(item.code);
+      const itemInfo = itemInfoMap.get(itemCodeStr);
+
+      // 🟥 매칭 여부 로그
+      if (!itemInfo) {
+        console.warn(`⚠️ 매칭 실패: order_id=${order.order_id}, item.code='${item.code}' (DB에 없음, item.price 사용)`);
+      } else {
+        console.log(`✅ 매칭 성공: code='${item.code}', j_retail=${itemInfo.j_retail}, price=${itemInfo.price}`);
+      }
+
+      const jRetail = itemInfo ? itemInfo.j_retail : '';               // 매칭 실패 시 jRetail은 빈칸
+      const itemPrice = itemInfo ? itemInfo.price : item.price || '';  // 매칭 실패 시 주문에 입력된 item.price 사용
+
+      rows.push({
+        "시리얼 넘버": item.code || '',
+        "제품명": item.name || '',
+        "J-retail": jRetail,
+        "price": itemPrice,
+        "개수": item.qty || '',
+        "비고": `${order.name} ${paymentDate} ${item.code || ''}`
+      });
+    });
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(rows, {
+    header: ["시리얼 넘버", "제품명", , , "J-retail", "price", , "개수", , , , , , , , , , , "비고"],
+    skipHeader: true
+  });
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "주문서");
+  XLSX.writeFile(workbook, "선택_주문서.xls");
 }
+
 
 
 
