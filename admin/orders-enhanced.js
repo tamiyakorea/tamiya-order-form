@@ -261,10 +261,11 @@ async function downloadSelectedOrders() {
     return;
   }
 
-  const itemInfoMap = new Map(itemList.map(item => [
-    String(item.item_code), 
-    { j_retail: item.j_retail, price: item.price }
-  ]));
+  const itemInfoMap = new Map(
+  itemList.map(item => {
+    return [String(item.item_code), { j_retail: item.j_retail, price: item.price }];
+  })
+);
 
   const rows = [];
   orders.forEach(order => {
