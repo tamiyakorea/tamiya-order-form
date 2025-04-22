@@ -237,7 +237,7 @@ async function downloadSelectedOrders() {
 
   const { data: itemList, error: itemError } = await supabase
     .from("tamiya_items")
-    .select("code, j_retail");
+    .select("item_code, j_retail");
 
   if (itemError) {
     alert("상품 데이터 불러오기 실패: " + itemError.message);
