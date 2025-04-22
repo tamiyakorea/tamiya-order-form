@@ -254,9 +254,20 @@ async function downloadSelectedOrders() {
   }
   console.log("🟢 orders 불러옴:", orders);
 
+  // 🟢 주문에 포함된 모든 item.code 수집
+  const allOrderCodes = Array.from(new Set(
+    orders.flatMap(order => {
+      const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+      return items.map(item => Number(item.code));  // 반드시 숫자로 변환
+    })
+  ));
+  console.log("🟢 필요한 item_code 목록 (중복 제거):", allOrderCodes);
+
+  // 🟢 필요한 코드만 in()으로 조회
   const { data: itemList, error: itemError } = await supabase
     .from("tamiya_items")
-    .select("item_code,j_retail,price");
+    .select("item_code,j_retail,price")
+    .in("item_code", allOrderCodes);
 
   if (itemError || !itemList) {
     alert("❌ tamiya_items 데이터 불러오기 실패: " + (itemError?.message || '데이터 없음'));
@@ -264,14 +275,12 @@ async function downloadSelectedOrders() {
   }
   console.log("🔵 tamiya_items 불러옴:", itemList);
 
-  // 🟢 숫자형 item_code로 Map 생성
   const itemInfoMap = new Map(
     itemList.map(item => [
       Number(item.item_code),  // 숫자로 저장
       { j_retail: item.j_retail, price: item.price }
     ])
   );
-  console.log("🔎 itemInfoMap keys (item_code list):", Array.from(itemInfoMap.keys()));
 
   const rows = [];
   orders.forEach(order => {
@@ -279,10 +288,9 @@ async function downloadSelectedOrders() {
     const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
 
     items.forEach(item => {
-      const itemCodeNumber = Number(item.code);  // 🟢 여기도 숫자 변환!
+      const itemCodeNumber = Number(item.code);
       const itemInfo = itemInfoMap.get(itemCodeNumber);
 
-      // 🟥 매칭 여부 로그
       if (!itemInfo) {
         console.warn(`⚠️ 매칭 실패: order_id=${order.order_id}, item.code='${item.code}' (DB에 없음, item.price 사용)`);
       } else {
