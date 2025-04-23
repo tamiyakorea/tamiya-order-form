@@ -5,13 +5,15 @@ function createSupabaseClientWithOrderId(orderId) {
     "https://edgvrwekvnavkhcqwtxa.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E",
   {
-    global: {
-      headers: {
-        'order_id': String(orderIdNumber || '0'),       // ✅ 여기 수정 포인트!
-        'Accept': 'application/json'
+      global: {
+        headers: {
+          'order_id': String(Number(orderId || '0')),       // ✅ orderIdNumber 필요 없이 이렇게!
+          'Accept': 'application/json'
+        }
       }
     }
-  }
+  );
+}
 
 
 const cart = [];
