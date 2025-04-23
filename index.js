@@ -1,7 +1,5 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const orderId = new URLSearchParams(window.location.search).get("orderId");
-
 function createSupabaseClientWithOrderId(orderId) {
   return createClient(
     "https://edgvrwekvnavkhcqwtxa.supabase.co",
@@ -65,9 +63,6 @@ function generateOrderNumber() {
   return Number(MMDD + mmss + rand);
 }
 
-function setSupabaseOrderId(orderId) {
-  supabase.rest.global.headers['order-id'] = String(orderId);
-}
 
 function compressImage(file, maxWidth = 2000, quality = 0.8) {
   return new Promise((resolve, reject) => {
