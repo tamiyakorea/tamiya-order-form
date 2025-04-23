@@ -10,7 +10,7 @@ function createSupabaseClientWithOrderId(orderId) {
   {
       global: {
         headers: {
-          'order_id': String(orderIdNumber),                // ✅ 여기 제대로!
+          'order-id': String(orderIdNumber),                // ✅ 여기 제대로!
           'Accept': 'application/json'
         }
       }
