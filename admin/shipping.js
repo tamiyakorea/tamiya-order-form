@@ -160,6 +160,15 @@ async function downloadExcel() {
     const remark = `${paidDate.replace(/\./g, '').slice(2)} ${name} 개별주문`;
 
     items.forEach(i => {
+      // 시리얼번호가 8자리 숫자이고 배송비(15774577)가 아닌 경우 처리
+      let spec = i.code;
+      let itemName = i.name;
+      const is8Digit = /^[0-9]{8}$/.test(i.code);
+      if (is8Digit && i.code !== '15774577') {
+        spec = '5727777';
+        itemName = 'AFTER PARTS SERVICE';
+      }
+
       rows.push({
         영업부서: '10000',
         출고부서: '30000',
@@ -170,8 +179,8 @@ async function downloadExcel() {
         우편번호: zip,
         주소: addr,
         영업담당: '2022004',
-        SPEC: i.code,
-        ITEM: i.name,
+        SPEC: spec,
+        ITEM: itemName,
         수량: i.qty,
         단가: i.price,
         답기요청일: today,
@@ -187,7 +196,6 @@ async function downloadExcel() {
   XLSX.utils.book_append_sheet(wb, ws, '배송목록');
   XLSX.writeFile(wb, 'shipping_export.xls');
 }
-
 
 async function loadShippingOrders() {
   const { data, error } = await supabase
