@@ -7,7 +7,7 @@ function createSupabaseClientWithOrderId(orderId) {
     {
       auth: { persistSession: false },
       global: {
-        headers: { 'order-id': String(orderId || '0') }
+        headers: { 'order_id': String(orderId || '0') }
       }
     }
   );
