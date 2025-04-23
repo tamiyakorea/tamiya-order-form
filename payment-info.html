@@ -115,7 +115,8 @@
 
   <script>
     const orderId = new URLSearchParams(window.location.search).get("orderId");
-
+    const orderIdNumber = Number(orderId);  // ✅ 숫자로 변환
+    
     const { createClient } = supabase;
     const supabaseClient = createClient(
       'https://edgvrwekvnavkhcqwtxa.supabase.co',
@@ -123,8 +124,8 @@
   {
     global: {
       headers: {
-        'order_id': orderId || '0',                   // ✅ 언더스코어 OK
-        'Accept': 'application/json'                  // ✅ 이거 추가하면 406 해결됨!
+        'order_id': String(orderIdNumber || '0'),      // ✅ 여기 수정! 숫자로 변환 후 문자열화
+        'Accept': 'application/json'
       }
     }
   }
