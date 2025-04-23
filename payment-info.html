@@ -129,7 +129,7 @@ const supabaseClient = createClient(
   {
       global: {
         headers: {
-        'order_id': String(orderIdNumber),          // ✅ 숫자 변환 후 다시 문자열화해서 넘기기!
+        'order-id': String(orderIdNumber),          // ✅ 숫자 변환 후 다시 문자열화해서 넘기기!
         'Accept': 'application/json'
         }
       }
