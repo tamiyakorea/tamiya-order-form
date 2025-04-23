@@ -7,11 +7,13 @@ function createSupabaseClientWithOrderId(orderId) {
     {
       auth: { persistSession: false },
       global: {
-        headers: { 'order_id': String(orderId || '0') }
+        headers: {
+          'order_id': String(orderId || '0'),           // ✅ 언더스코어 유지
+          'Accept': 'application/json'                  // ✅ 이거 추가!!!
+        }
       }
     }
   );
-}
 
 
 const cart = [];
