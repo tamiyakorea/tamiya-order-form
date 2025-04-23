@@ -263,20 +263,19 @@ window.confirmOrder = async function () {
 
 window.searchOrderById = async function () {
   const input = document.getElementById("orderSearchInput").value.trim();
-if (!input || isNaN(input)) {  // ✅ 숫자인지 확인 추가!
-  alert("정확한 주문번호(숫자)를 입력해주세요.");
-  return;
-}
+  if (!input || isNaN(input)) {
+    alert("정확한 주문번호(숫자)를 입력해주세요.");
+    return;
+  }
 
-const orderIdNumber = Number(input);  // ✅ 여기서 숫자형으로 변환
+  const orderIdNumber = Number(input);  // ✅ 여기가 맞아요!
+  const supabaseClient = createSupabaseClientWithOrderId(orderIdNumber);  // ✅ 여기 넘김!
 
-const supabaseClient = createSupabaseClientWithOrderId(input);  // 헤더에 들어가는 건 문자열 OK
-
-const { data, error } = await supabaseClient
-  .from("orders")
-  .select("*")
-  .eq("order_id", orderIdNumber)  // ✅ 이 부분만 숫자로 바꿔주면 해결!
-  .single();
+  const { data, error } = await supabaseClient
+    .from("orders")
+    .select("*")
+    .eq("order_id", orderIdNumber)  // ✅ 숫자형으로 넘김
+    .single();
 
 
   const resultDiv = document.getElementById("orderResult");
