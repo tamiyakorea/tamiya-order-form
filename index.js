@@ -67,6 +67,10 @@ function generateOrderNumber() {
   return Number(MMDD + mmss + rand);
 }
 
+function setSupabaseOrderId(orderId) {
+  supabase.rest.global.headers['order-id'] = String(orderId);
+}
+
 function compressImage(file, maxWidth = 2000, quality = 0.8) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -264,6 +268,7 @@ window.confirmOrder = async function () {
 
 window.searchOrderById = async function () {
   const input = document.getElementById("orderSearchInput").value.trim();
+    setSupabaseOrderId(input);  // 🔥 이거 추가
   if (!input) {
     alert("주문번호를 입력해주세요.");
     return;
