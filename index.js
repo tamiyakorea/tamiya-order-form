@@ -268,11 +268,12 @@ window.confirmOrder = async function () {
 
 window.searchOrderById = async function () {
   const input = document.getElementById("orderSearchInput").value.trim();
-    setSupabaseOrderId(input);  // 🔥 이거 추가
   if (!input) {
     alert("주문번호를 입력해주세요.");
     return;
   }
+
+  setSupabaseOrderId(input);  // ✅ 이걸 input 확인 후에 바로!
 
   const { data, error } = await supabase
     .from("orders")
