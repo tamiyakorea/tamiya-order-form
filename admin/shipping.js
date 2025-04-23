@@ -148,79 +148,38 @@ async function downloadExcel() {
   if (error || !data) return alert("엑셀 생성 실패");
 
   const rows = [];
+  const today = formatDateOnly(new Date().toISOString());
 
   data.forEach(order => {
-    // ✅ 안전하게 items 파싱 (문자열 또는 객체 모두 처리)
-    const items = typeof order.items === 'string'
-      ? JSON.parse(order.items)
-      : Array.isArray(order.items) ? order.items : [];
-
+    const items = typeof order.items === 'string' ? JSON.parse(order.items) : Array.isArray(order.items) ? order.items : [];
     const name = order.name;
     const phone = order.phone;
     const zip = order.zipcode;
-    const addr = order.address;
-    const detail = order.address_detail;
+    const addr = `${order.address} ${order.address_detail}`; // 주소 + 상세주소 통합
     const paidDate = order.payment_date ? formatDateOnly(order.payment_date) : '';
     const remark = `${paidDate.replace(/\./g, '').slice(2)} ${name} 개별주문`;
 
-    let subtotal = 0;
-    items.forEach(i => subtotal += i.qty * i.price);
-    const finalTotal = subtotal < 30000 ? subtotal + 3000 : subtotal;
-
-    // 주문 아이템별 행 추가
     items.forEach(i => {
       rows.push({
+        영업부서: '10000',
+        출고부서: '30000',
+        작성일자: today,
+        거래처코드: '1040000',
         고객명: name,
         연락처: phone,
         우편번호: zip,
         주소: addr,
-        상세주소: detail,
-        시리얼번호: i.code,
-        아이템명: i.name,
+        영업담당: '2022004',
+        SPEC: i.code,
+        ITEM: i.name,
         수량: i.qty,
-        개별금액: i.price,
-        총금액: finalTotal,
+        단가: i.price,
+        답기요청일: today,
         입금확인일: paidDate,
-        비고: remark,
+        내부비고: remark,
         아이템비고: i.code
       });
     });
-
-    // 📦 배송비 항목 추가 (이미 포함된 경우 생략)
-    const alreadyHasShipping = items.some(i => i.name === '배송비' || i.code === '15774577');
-    if (!alreadyHasShipping) {
-      const isMerged = order.is_merged;
-      let shippingItemPrice = 0;
-      const itemSubtotal = items.reduce((sum, i) => sum + i.qty * i.price, 0);
-      const totalShippingFee = finalTotal - itemSubtotal;
-
-      if (isMerged) {
-        const remainShippingFee = totalShippingFee - (order.refund_amount || 0);
-        if (remainShippingFee > 0) {
-          shippingItemPrice = remainShippingFee;
-        }
-      } else {
-        shippingItemPrice = totalShippingFee > 0 ? 3000 : 0;
-      }
-
-      if (shippingItemPrice > 0) {
-        rows.push({
-          고객명: name,
-          연락처: phone,
-          우편번호: zip,
-          주소: addr,
-          상세주소: detail,
-          시리얼번호: "15774577",
-          아이템명: "배송비",
-          수량: 1,
-          개별금액: shippingItemPrice,
-          총금액: finalTotal,
-          입금확인일: paidDate,
-          비고: remark,
-          아이템비고: "15774577"
-        });
-      }
-    }
   });
 
   const ws = XLSX.utils.json_to_sheet(rows);
@@ -228,7 +187,6 @@ async function downloadExcel() {
   XLSX.utils.book_append_sheet(wb, ws, '배송목록');
   XLSX.writeFile(wb, 'shipping_export.xls');
 }
-
 
 
 async function loadShippingOrders() {
