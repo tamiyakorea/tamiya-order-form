@@ -123,7 +123,8 @@
   {
     global: {
       headers: {
-        'order_id': orderId || '0'  // ✅ 없으면 0으로 해서 전체 조회 방지
+        'order_id': orderId || '0',                   // ✅ 언더스코어 OK
+        'Accept': 'application/json'                  // ✅ 이거 추가하면 406 해결됨!
       }
     }
   }
