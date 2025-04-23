@@ -140,18 +140,20 @@
     orderIdEl.textContent = orderId || "알 수 없음";
 
     async function fetchOrder() {
-      if (!orderId) return;
+  if (!orderId) return;
 
-      const { data, error } = await supabaseClient
-        .from("orders")
-        .select("*")
-        .eq("order_id", Number(orderId))
-        .single();
+  const orderIdNumber = Number(orderId);  // ✅ 여기 추가
 
-      if (error || !data) {
-        alert("주문 정보를 불러올 수 없습니다.");
-        return;
-      }
+  const { data, error } = await supabaseClient
+    .from("orders")
+    .select("*")
+    .eq("order_id", orderIdNumber)  // ✅ 여기 수정
+    .single();
+
+  if (error || !data) {
+    alert("주문 정보를 불러올 수 없습니다.");
+    return;
+  }
 
       const order = data;
 
