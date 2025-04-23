@@ -24,7 +24,7 @@ function getTodayDateString() {
 
 async function logout() {
   await supabase.auth.signOut();
-  window.location.href = "/tamiya-order-form/admin/login.html";
+  window.location.href = "/admin/login.html";
 }
 
 async function updateField(orderId, field, value) {
