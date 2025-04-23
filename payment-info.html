@@ -114,18 +114,23 @@
   </div>
 
   <script>
-    const orderId = new URLSearchParams(window.location.search).get("orderId");
-    const orderIdNumber = Number(orderId);  // ✅ 숫자로 변환
-    
-    const { createClient } = supabase;
-    const supabaseClient = createClient(
-      'https://edgvrwekvnavkhcqwtxa.supabase.co',
+const orderId = new URLSearchParams(window.location.search).get("orderId");
+const orderIdNumber = Number(orderId);  // ✅ 숫자로 변환
+
+if (!orderId || isNaN(orderIdNumber)) {
+  alert("유효한 주문번호가 아닙니다.");
+  throw new Error("Invalid orderId");
+}
+
+const { createClient } = supabase;
+const supabaseClient = createClient(
+  'https://edgvrwekvnavkhcqwtxa.supabase.co',
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E',
   {
       global: {
         headers: {
-          'order_id': String(Number(orderId || '0')),       // ✅ orderIdNumber 필요 없이 이렇게!
-          'Accept': 'application/json'
+        'order_id': String(orderIdNumber),          // ✅ 숫자 변환 후 다시 문자열화해서 넘기기!
+        'Accept': 'application/json'
         }
       }
     }
