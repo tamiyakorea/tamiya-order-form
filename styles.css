@@ -7,7 +7,7 @@ h2 { border-bottom: 2px solid #333; padding-bottom: 5px; }
 .section { margin-bottom: 30px; }
 label { display: block; margin: 8px 0 4px; }
 input[type="text"], input[type="email"], input[type="file"] {
-  width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box;
+  width: 40%; padding: 8px; margin-bottom: 10px; box-sizing: border-box;
 }
 table { width: 100%; border-collapse: collapse; margin-top: 10px; }
 th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
