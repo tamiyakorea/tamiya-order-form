@@ -94,7 +94,7 @@ window.searchProduct = async function () {
     });
     const result = await response.json();
     if (!response.ok || !result.data) {
-      alert("해당 시리얼 넘버의 상품을 찾을 수 없습니다.");
+      alert("해당 시리얼 넘버의 상품을 찾을 수 없습니다.(잘못된 번호 혹은 단종 상품)");
       return;
     }
     const data = result.data;
