@@ -271,67 +271,71 @@ window.searchOrderById = async function () {
     return;
   }
 
-  const orderIdNumber = Number(input);  // ✅ 여기가 맞아요!
-  const supabaseClient = createSupabaseClientWithOrderId(orderIdNumber);  // ✅ 여기 넘김!
+  const orderIdNumber = Number(input);  // ✅ 주문번호 숫자 변환
 
-  const { data, error } = await supabaseClient
-    .from("orders")
-    .select("*")
-    .eq("order_id", orderIdNumber)  // ✅ 숫자형으로 넘김
-    .single();
+  try {
+    const response = await fetch('https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/get-order-by-id', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order_id: orderIdNumber })
+    });
 
+    const result = await response.json();
+    const resultDiv = document.getElementById("orderResult");
 
-  const resultDiv = document.getElementById("orderResult");
-  if (error || !data) {
-    resultDiv.innerHTML = "<p style='color:red;'>주문 정보를 찾을 수 없습니다.</p>";
-  } else {
-    const items = Array.isArray(data.items) ? data.items : JSON.parse(data.items);
-    const itemsHTML = items.map(item => `
-      <tr>
-        <td>${item.code}</td>
-        <td>${item.name}</td>
-        <td>${item.qty}</td>
-        <td>₩${item.price.toLocaleString()}</td>
-      </tr>
-    `).join("");
+    if (response.ok && result.data) {
+      const data = result.data;
+      const items = Array.isArray(data.items) ? data.items : JSON.parse(data.items);
+      const itemsHTML = items.map(item => `
+        <tr>
+          <td>${item.code}</td>
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>₩${item.price.toLocaleString()}</td>
+        </tr>
+      `).join("");
 
-    const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
-    const shipping = subtotal < 30000 ? 3000 : 0;
-    const orderDate = new Date(data.created_at).toISOString().split("T")[0];
-    const receiptInfo = data.receipt_info ? `<p><strong>현금영수증:</strong> ${data.receipt_info}</p>` : "";
+      const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
+      const shipping = subtotal < 30000 ? 3000 : 0;
+      const orderDate = new Date(data.created_at).toISOString().split("T")[0];
+      const receiptInfo = data.receipt_info ? `<p><strong>현금영수증:</strong> ${data.receipt_info}</p>` : "";
 
-    const paymentStatus = data.payment_confirmed
-      ? `<p style="color:green;"><strong>입금 확인됨</strong> (입금일: ${new Date(data.payment_date).toISOString().split("T")[0]})</p>`
-      : `<p style="color:red;"><strong>아직 입금 확인되지 않았습니다.</strong></p>`;
+      const paymentStatus = data.payment_confirmed
+        ? `<p style="color:green;"><strong>입금 확인됨</strong> (입금일: ${new Date(data.payment_date).toISOString().split("T")[0]})</p>`
+        : `<p style="color:red;"><strong>아직 입금 확인되지 않았습니다.</strong></p>`;
 
-    resultDiv.innerHTML = `
-      <p><strong>주문번호:</strong> ${data.order_id}</p>
-      <p><strong>주문일시:</strong> ${orderDate}</p>
-      <p><strong>이름:</strong> ${data.name}</p>
-      <p><strong>전화번호:</strong> ${data.phone}</p>
-      <p><strong>이메일:</strong> ${data.email}</p>
-      <p><strong>주소:</strong> ${data.zipcode} ${data.address} ${data.address_detail}</p>
-      ${receiptInfo}
-      ${paymentStatus}
-      <p><strong>총 금액:</strong> ₩${data.total.toLocaleString()} (배송비: ₩${shipping.toLocaleString()})</p>
-      <table style="width:100%; margin-top: 10px; border-collapse: collapse;" border="1">
-        <thead style="background:#f0f0f0;">
-          <tr>
-            <th>시리얼</th>
-            <th>제품명</th>
-            <th>수량</th>
-            <th>단가</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${itemsHTML}
-        </tbody>
-      </table>
-    `;
+      resultDiv.innerHTML = `
+        <p><strong>주문번호:</strong> ${data.order_id}</p>
+        <p><strong>주문일시:</strong> ${orderDate}</p>
+        <p><strong>이름:</strong> ${data.name}</p>
+        <p><strong>전화번호:</strong> ${data.phone}</p>
+        <p><strong>이메일:</strong> ${data.email}</p>
+        <p><strong>주소:</strong> ${data.zipcode} ${data.address} ${data.address_detail}</p>
+        ${receiptInfo}
+        ${paymentStatus}
+        <p><strong>총 금액:</strong> ₩${data.total.toLocaleString()} (배송비: ₩${shipping.toLocaleString()})</p>
+        <table style="width:100%; margin-top: 10px; border-collapse: collapse;" border="1">
+          <thead style="background:#f0f0f0;">
+            <tr>
+              <th>시리얼</th>
+              <th>제품명</th>
+              <th>수량</th>
+              <th>단가</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsHTML}
+          </tbody>
+        </table>
+      `;
+    } else {
+      resultDiv.innerHTML = "<p style='color:red;'>주문 정보를 찾을 수 없습니다.</p>";
+    }
+  } catch (error) {
+    console.error("조회 오류:", error);
+    alert("조회 중 오류가 발생했습니다.");
   }
 };
-
-
 
 
 console.log("index.js loaded successfully.");
