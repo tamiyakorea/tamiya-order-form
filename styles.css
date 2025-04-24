@@ -93,7 +93,7 @@ th {
 
 /* ✅ 버튼 스타일 */
 button {
-  padding: 6px 6px;
+  padding: 5px 12px;
   margin-top: 20px;
   cursor: pointer;
   font-size: 16px;
@@ -109,7 +109,7 @@ button.confirm {
 /* ✅ 검색 버튼 (button-search 클래스) */
 .button-search {
   width: fit-content;
-  padding: 6px 6px;
+  padding: 4px 12px;
   background: #f5f5f5;
   border: 1px solid #ccc;
   margin-top: 5px;
