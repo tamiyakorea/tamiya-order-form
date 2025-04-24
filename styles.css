@@ -141,6 +141,18 @@ input.qty-input {
   gap: 6px;            /* 입력칸과 버튼 사이 간격 */
 }
 
+.input-with-button input[type="text"],
+.input-with-button button {
+  height: 38px;
+  padding: 8px 12px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.input-with-button button {
+  line-height: normal;
+}
+
 /* ✅ serialSearch 입력칸 + 버튼 */
 #serialSearch {
   padding: 8px;
