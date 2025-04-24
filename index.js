@@ -117,7 +117,7 @@ window.searchProduct = async function () {
     renderCart();
   } catch (error) {
     console.error("상품 검색 오류:", error);
-    alert("상품 검색 중 오류가 발생했습니다.");
+    alert("상품 검색 중 오류가 발생했습니다.(잘못된 번호 혹은 단종 상품);
   }
 }
 
