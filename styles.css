@@ -188,5 +188,5 @@ input.qty-input {
 
 #zipcode + .button-search {
   position: relative;
-  top: +5px; /* ← 숫자로 조정해봐. -3px, -5px 등 시도 가능 */
+  top: -5px; /* ← 숫자로 조정해봐. -3px, -5px 등 시도 가능 */
 }
