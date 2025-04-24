@@ -45,8 +45,10 @@
   <label for="email">이메일 주소</label>
   <input id="email" placeholder="example@example.com" type="email" />
   <label for="zipcode">우편번호</label>
+  <div class="input-with-button">
   <input id="zipcode" placeholder="우편번호" readonly type="text" />
   <button onclick="execDaumPostcode()" type="button" class="button-search">검색</button>
+    </div>
   <label for="address">주소</label>
   <input id="address" placeholder="도로명 주소" readonly type="text" />
   <label for="addressDetail">상세주소</label>
@@ -69,9 +71,12 @@
   <h2>제품 검색 및 신청</h2>
   <p style="font-size: 0.8em;">검색시 제품 설명서를 확인해주세요. (7자리 숫자의 경우, 가장 앞자리에 1을 붙여 입력)</p>
   <label for="serialSearch">제품 시리얼 넘버 입력</label>
-  <input id="serialSearch" placeholder="예: 12345 혹은 12345678" type="text" />
-  <button onclick="searchProduct()">검색</button>
+  <div class="input-with-button">
+    <input id="serialSearch" placeholder="예: 12345 혹은 12345678" type="text" />
+    <button onclick="searchProduct()">검색</button>
+  </div>
 </div>
+
 
 <div class="section">
   <h2>장바구니</h2>
@@ -118,8 +123,10 @@
 <div id="orderCheck" class="section">
   <h2>주문 확인</h2>
   <p>주문번호를 입력하시면 주문 정보를 확인하실 수 있습니다.</p>
+  <div class="input-with-button">
   <input id="orderSearchInput" type="text" placeholder="주문번호 8자리 입력" style="padding:8px; width: 200px;" />
   <button onclick="searchOrderById()">검색</button>
+    </div>
   <div id="orderResult"></div>
 </div>
 
