@@ -1,19 +1,29 @@
+/* ✅ 기본 설정 */
 html {
   scroll-behavior: smooth;
 }
 
 body {
   font-family: Arial, sans-serif;
-  padding: 20px;
-  max-width: 800px;
-  margin: auto;
+  padding: 0;
+  margin: 0;
+  background-color: white;
 }
 
-/* ✅ 네비게이션 스타일 */
+/* ✅ 메인 컨테이너 */
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+}
+
+/* ✅ 네비게이션 */
 nav {
   position: sticky;
   top: 0;
-  background: #fff;
+  background: #000; /* 검정색 */
+  color: #fff;
   padding: 10px 0;
   margin-bottom: 20px;
   border-bottom: 1px solid #ccc;
@@ -31,11 +41,11 @@ nav ul {
 
 nav a {
   text-decoration: none;
-  color: #007bff;
+  color: #fff;
   font-weight: bold;
 }
 
-/* ✅ 섹션, 제목 스타일 */
+/* ✅ 섹션 및 제목 */
 h2 {
   border-bottom: 2px solid #333;
   padding-bottom: 5px;
@@ -50,7 +60,7 @@ label {
   margin: 8px 0 4px;
 }
 
-/* ✅ 입력란 공통 스타일 */
+/* ✅ 입력란 스타일 */
 input[type="text"],
 input[type="email"],
 input[type="file"] {
@@ -59,18 +69,18 @@ input[type="file"] {
   box-sizing: border-box;
 }
 
-/* ✅ 개별 입력란 크기 설정 */
-#customerName { width: 125px; }               /* 성명 */
-#phoneNumber { width: 125px; }                /* 전화번호 */
-#email { width: 180px; }                      /* 이메일 주소 */
-#zipcode { width: 80px; }                    /* 우편번호 */
-#address { width: 300px; }                    /* 주소 */
-#addressDetail { width: 300px; }              /* 상세주소 */
-#receiptInfo { width: 300px; }                /* 현금영수증 정보 */
-#serialSearch { width: 180px; }               /* 제품 시리얼 넘버 입력 */
-#orderSearchInput { width: 100px; }           /* 주문번호 8자리 입력 */
+/* ✅ 개별 입력란 크기 */
+#customerName { width: 125px; }
+#phoneNumber { width: 125px; }
+#email { width: 180px; }
+#zipcode { width: 80px; }
+#address { width: 300px; }
+#addressDetail { width: 300px; }
+#receiptInfo { width: 300px; }
+#serialSearch { width: 180px; }
+#orderSearchInput { width: 200px; }
 
-/* ✅ 테이블 스타일 */
+/* ✅ 테이블 */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -106,7 +116,7 @@ button.confirm {
   border-radius: 5px;
 }
 
-/* ✅ 검색 버튼 (button-search 클래스) */
+/* ✅ 검색 버튼 */
 .button-search {
   width: fit-content;
   padding: 4px 12px;
@@ -120,7 +130,7 @@ button.confirm {
   background: #eaeaea;
 }
 
-/* ✅ 수량 입력칸 */
+/* ✅ 수량 입력 */
 input.qty-input {
   width: 40px;
   text-align: center;
@@ -134,59 +144,59 @@ input.qty-input {
   border: 1px solid #ccc;
 }
 
-/* ✅ 입력칸 + 버튼 상하 정렬 (공통) */
+/* ✅ 입력칸 + 버튼 (공통 정렬) */
 .input-with-button {
-  display: inline-flex;          /* ✅ inline-flex 사용으로 자연스러운 흐름 + 세로 중앙정렬 */
-  align-items: center;           /* ✅ flex 아이템 세로 가운데 정렬 */
-  gap: 6px;                      /* ✅ 간격 조정 */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .input-with-button input[type="text"] {
   padding: 8px 12px;
   font-size: 13px;
-  height: 40px;                  /* ✅ 높이 고정 */
+  height: 40px;
   box-sizing: border-box;
-  display: inline-block;
-  vertical-align: middle;        /* ✅ inline-block 정렬 보조 (flex라 필요는 없지만 안정성 위해 추가) */
 }
 
 .input-with-button button {
   padding: 8px 16px;
   font-size: 13px;
-  height: 40px;                  /* ✅ 버튼 높이도 input과 동일하게 고정 */
+  height: 40px;
   box-sizing: border-box;
-  line-height: 1;                /* ✅ 버튼 글자 높이 문제 해결 */
-  vertical-align: middle;        /* ✅ inline-block 정렬 맞춤 (flex라 필요 없지만 안전장치) */
+  line-height: 1;
   border: 1px solid #ccc;
   background: #f5f5f5;
   cursor: pointer;
   position: relative;
-  top: -15px; /* ← 버튼을 위로 2px 올림, 여기 숫자로 조정해봐 */
+  top: -15px; /* 필요에 따라 조정 */
 }
 
 .input-with-button button:hover {
   background: #eaeaea;
 }
 
-/* ✅ serialSearch 입력칸 + 버튼 */
-#serialSearch {
-  padding: 8px;
-  box-sizing: border-box;
-}
-
-/* ✅ orderSearchInput 입력칸 + 버튼 */
-#orderSearchInput {
-  padding: 8px;
-  box-sizing: border-box;
-}
-
-/* ✅ zipcode 입력칸 + 버튼 */
-#zipcode {
-  padding: 8px;
-  box-sizing: border-box;
-}
-
+/* ✅ 우편번호 검색 버튼 위치 조정 */
 #zipcode + .button-search {
   position: relative;
-  top: -6.5px; /* ← 숫자로 조정해봐. -3px, -5px 등 시도 가능 */
+  top: -6.5px; /* 필요시 조정 */
+}
+
+/* ✅ 푸터 */
+footer {
+  width: 100%;
+  background-color: #2b2b2f;
+  color: #aaa;
+  padding: 20px 0;
+  font-size: 0.85em;
+  line-height: 1.6;
+}
+
+footer a {
+  color: #aaa;
+  text-decoration: underline;
+}
+
+footer img {
+  object-fit: contain;
+  height: 80px;
 }
