@@ -160,6 +160,8 @@ input.qty-input {
   border: 1px solid #ccc;
   background: #f5f5f5;
   cursor: pointer;
+  position: relative;
+  top: -5px; /* ← 버튼을 위로 2px 올림, 여기 숫자로 조정해봐 */
 }
 
 .input-with-button button:hover {
