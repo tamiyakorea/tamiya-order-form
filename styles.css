@@ -67,7 +67,7 @@ input[type="file"] {
 #address { width: 300px; }                    /* 주소 */
 #addressDetail { width: 300px; }              /* 상세주소 */
 #receiptInfo { width: 300px; }                /* 현금영수증 정보 */
-#serialSearch { width: 100px; }               /* 제품 시리얼 넘버 입력 */
+#serialSearch { width: 180px; }               /* 제품 시리얼 넘버 입력 */
 #orderSearchInput { width: 100px; }           /* 주문번호 8자리 입력 */
 
 /* ✅ 테이블 스타일 */
@@ -132,4 +132,29 @@ input.qty-input {
   background: #f4f4f4;
   padding: 15px;
   border: 1px solid #ccc;
+}
+
+/* ✅ 입력칸 + 버튼 상하 정렬 (공통) */
+.input-with-button {
+  display: flex;
+  align-items: center; /* 세로 가운데 정렬 */
+  gap: 6px;            /* 입력칸과 버튼 사이 간격 */
+}
+
+/* ✅ serialSearch 입력칸 + 버튼 */
+#serialSearch {
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+/* ✅ orderSearchInput 입력칸 + 버튼 */
+#orderSearchInput {
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+/* ✅ zipcode 입력칸 + 버튼 */
+#zipcode {
+  padding: 8px;
+  box-sizing: border-box;
 }
