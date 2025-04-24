@@ -224,16 +224,16 @@
     }
 
     function downloadPDF() {
-      const element = document.getElementById('receipt');
-      const opt = {
-        margin: 0.5,
-        filename: `tamiya_order_${orderId || 'receipt'}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
-    }
+  const element = document.getElementById('receipt');
+  const opt = {
+    margin: 0.5,
+    filename: `tamiya_order_${orderId || 'receipt'}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },  // ✅ CORS 문제 방지
+    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+}
   </script>
 </body>
 </html>
