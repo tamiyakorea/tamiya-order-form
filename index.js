@@ -1,24 +1,3 @@
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-function createSupabaseClientWithOrderId(orderId) {
-  const orderIdNumber = Number(orderId || '0');  // ✅ 숫자로 변환
-  console.log('넘어가는 order_id (for header):', orderIdNumber);  // ✅ 확인용
-
-  return createClient(
-    "https://edgvrwekvnavkhcqwtxa.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E",
-  {
-      global: {
-        headers: {
-          'x-order-id': String(orderIdNumber),                // ✅ 여기 제대로!
-          'Accept': 'application/json'
-        }
-      }
-    }
-  );
-}
-
-
 const cart = [];
 
 window.execDaumPostcode = function () {
