@@ -1,11 +1,10 @@
-// 위쪽에 supabase client 생성 추가 (업로드 전용)
+// Supabase 클라이언트 생성 (익명 사용자를 위한 anon 키)
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
 );
-
 
 const cart = [];
 
@@ -79,6 +78,17 @@ async function compressImage(file, maxWidth = 2000, quality = 0.8) {
   });
 }
 
+async function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const base64String = reader.result.split(',')[1];
+      resolve(base64String);
+    };
+    reader.onerror = error => reject(error);
+  });
+}
 window.searchProduct = async function () {
   const serial = document.getElementById("serialSearch").value.trim();
   const serialNum = parseInt(serial, 10);
@@ -119,7 +129,7 @@ window.searchProduct = async function () {
     console.error("상품 검색 오류:", error);
     alert("상품 검색 중 오류가 발생했습니다.(잘못된 번호 혹은 단종 상품)");
   }
-}
+};
 
 window.confirmOrder = async function () {
   const get = id => document.getElementById(id);
@@ -165,22 +175,23 @@ window.confirmOrder = async function () {
   }
 
   const orderId = generateOrderNumber();
-  const ext = 'jpg';
-  const safeName = `${orderId}_${Date.now()}.${ext}`;
-  const filePath = `proof/${safeName}`;
+  const safeName = `${orderId}_${Date.now()}.jpg`;
+  const base64Data = await toBase64(compressedFile);
 
-  const { error: uploadError } = await supabase.storage
-    .from("order-proof")
-    .upload(filePath, compressedFile, { upsert: false });
+  const uploadResponse = await fetch('https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/upload-proof', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fileName: safeName, fileData: base64Data })
+  });
 
-  if (uploadError) {
+  const uploadResult = await uploadResponse.json();
+  if (!uploadResponse.ok) {
     alert("이미지 업로드 중 오류가 발생했습니다.");
-    console.error(uploadError);
+    console.error(uploadResult);
     return;
   }
 
-  const { data } = supabase.storage.from("order-proof").getPublicUrl(filePath);
-  const publicUrl = data.publicUrl;
+  const proofUrl = uploadResult.publicUrl;
 
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + 
     (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
@@ -194,7 +205,7 @@ window.confirmOrder = async function () {
     address,
     address_detail: addressDetail,
     receipt_info: receiptInfo,
-    proof_images: [publicUrl],
+    proof_images: [proofUrl],
     items: cart.map(item => ({
       code: item.item_code,
       name: item.description,
@@ -226,7 +237,6 @@ window.confirmOrder = async function () {
     alert("저장 중 오류가 발생했습니다.");
   }
 };
-
 function renderCart() {
   const tbody = document.getElementById("cartBody");
   const table = document.getElementById("cartTable");
