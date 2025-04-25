@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>이용약관 및 개인정보 수집 동의</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #fff; }
+    .terms-box { border: 1px solid #ccc; padding: 10px; height: 150px; overflow-y: scroll; margin-bottom: 10px; }
+    .agree-check { margin-bottom: 10px; }
+    .agree-check input { margin-right: 5px; }
+    .button-area { margin-top: 20px; text-align: center; }
+    .button-area button { padding: 10px 30px; font-size: 1em; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">한국타미야 개별주문 신청을 위한 약관 동의</h2>
+
+  <!-- 이용약관 -->
+  <h3>이용약관</h3>
+  <div class="terms-box">
+    <p>여기에 이용약관 내용을 입력하세요. 스크롤이 가능한 영역입니다.</p>
+    <p>...</p>
+  </div>
+  <div class="agree-check">
+    <label><input type="checkbox" id="agreeTerms"> 이용약관에 동의합니다.</label>
+  </div>
+
+  <!-- 개인정보 수집 및 이용 -->
+  <h3>개인정보 수집 및 이용 안내</h3>
+  <div class="terms-box">
+    <p>여기에 개인정보 수집 및 이용에 대한 내용을 입력하세요.</p>
+    <p>...</p>
+  </div>
+  <div class="agree-check">
+    <label><input type="checkbox" id="agreePrivacy"> 개인정보 수집 및 이용에 동의합니다.</label>
+  </div>
+
+  <!-- 전체 동의 -->
+  <div class="agree-check">
+    <label><input type="checkbox" id="agreeAll"> 전체 동의합니다.</label>
+  </div>
+
+  <!-- 다음 단계 -->
+  <div class="button-area">
+    <button id="nextBtn" disabled>다음 단계로 →</button>
+  </div>
+
+  <script>
+    const agreeTerms = document.getElementById('agreeTerms');
+    const agreePrivacy = document.getElementById('agreePrivacy');
+    const agreeAll = document.getElementById('agreeAll');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function updateButtonState() {
+      const allChecked = agreeTerms.checked && agreePrivacy.checked;
+      agreeAll.checked = allChecked;
+      nextBtn.disabled = !allChecked;
+    }
+
+    agreeTerms.addEventListener('change', updateButtonState);
+    agreePrivacy.addEventListener('change', updateButtonState);
+
+    agreeAll.addEventListener('change', () => {
+      agreeTerms.checked = agreeAll.checked;
+      agreePrivacy.checked = agreeAll.checked;
+      updateButtonState();
+    });
+
+    nextBtn.addEventListener('click', () => {
+      // ✅ 첨부된 index.html로 이동
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
