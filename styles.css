@@ -22,7 +22,7 @@ main {
 nav {
   position: sticky;
   top: 0;
-  background: #000; /* 검정색 */
+  background: #000;
   color: #fff;
   padding: 10px 0;
   margin-bottom: 20px;
@@ -168,7 +168,7 @@ input.qty-input {
   background: #f5f5f5;
   cursor: pointer;
   position: relative;
-  top: -15px; /* 필요에 따라 조정 */
+  top: -15px;
 }
 
 .input-with-button button:hover {
@@ -178,7 +178,7 @@ input.qty-input {
 /* ✅ 우편번호 검색 버튼 위치 조정 */
 #zipcode + .button-search {
   position: relative;
-  top: -6.5px; /* 필요시 조정 */
+  top: -6.5px;
 }
 
 /* ✅ 푸터 */
@@ -211,6 +211,8 @@ button.confirm {
   font-size: 16px;
 }
 
+/* ✅ FAQ 스타일 */
+.faq-item {
   border-bottom: 1px solid #ccc;
   padding: 10px 0;
 }
@@ -218,8 +220,14 @@ button.confirm {
 .faq-question {
   cursor: pointer;
   font-weight: bold;
+  font-size: 1.3em; /* 폰트 크기 증가 */
   position: relative;
   padding-right: 20px;
+  transition: color 0.3s ease;
+}
+
+.faq-question:hover {
+  color: #007bff; /* 호버 시 컬러 변경 */
 }
 
 .faq-question::after {
@@ -238,6 +246,7 @@ button.confirm {
   overflow: hidden;
   transition: max-height 0.5s ease, padding 0.3s ease;
   padding: 0;
+  font-size: 1em; /* 답변 크기 (필요 시 조정) */
 }
 
 .faq-answer.open {
