@@ -1,0 +1,133 @@
+/* ✅ 기본 설정 (index와 통일) */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  padding: 0;
+  margin: 0;
+  background-color: white;
+}
+
+/* ✅ 메인 컨테이너 */
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+}
+
+/* ✅ 네비게이션 (index와 동일) */
+nav {
+  position: sticky;
+  top: 0;
+  background: #000; 
+  color: #fff;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+  z-index: 1000;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 0;
+  margin: 0;
+}
+
+nav a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* ✅ 제목 및 섹션 스타일 */
+h2 {
+  border-bottom: 2px solid #333;
+  padding-bottom: 5px;
+  text-align: center;
+  margin-top: 30px;
+}
+
+h3 {
+  border-left: 4px solid #000;
+  padding-left: 10px;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+/* ✅ 약관 박스 */
+.terms-box {
+  border: 1px solid #ccc;
+  padding: 15px;
+  height: 180px;
+  overflow-y: scroll;
+  background-color: #f9f9f9;
+  margin: 10px auto 20px;
+  max-width: 800px;
+}
+
+/* ✅ 체크박스 영역 */
+.agree-check {
+  text-align: center;
+  margin: 10px 0;
+}
+
+.agree-check input {
+  margin-right: 5px;
+}
+
+/* ✅ 버튼 영역 */
+.button-area {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.button-area button {
+  padding: 12px 40px;
+  background-color: #007bff; /* index와 동일한 confirm 색상 */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button-area button:disabled {
+  background-color: #777;
+  cursor: not-allowed;
+}
+
+.button-area button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+/* ✅ 푸터 (index와 동일) */
+footer {
+  width: 100%;
+  background-color: #2b2b2f;
+  color: #aaa;
+  padding: 20px 0;
+  font-size: 0.85em;
+  line-height: 1.6;
+  text-align: center;
+}
+
+footer a {
+  color: #aaa;
+  text-decoration: underline;
+}
+
+footer img {
+  object-fit: contain;
+  height: 80px;
+}
