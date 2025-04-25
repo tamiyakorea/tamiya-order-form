@@ -7,15 +7,15 @@ body {
   font-family: Arial, sans-serif;
   padding: 0;
   margin: 0;
-  background-color: white;
+  background-color: #2b2b2f; /* 푸터와 동일하게 변경 */
 }
 
-/* ✅ 메인 컨테이너 */
+/* ✅ 메인 컨테이너 영역만 흰색 유지 */
 main {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  background-color: white;
+  background-color: white; /* 본문 영역만 흰색 */
 }
 
 /* ✅ 네비게이션 (index와 동일) */
