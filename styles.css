@@ -176,7 +176,7 @@ input.qty-input {
   background: #f5f5f5;
   cursor: pointer;
   position: relative;
-  top: -20px;
+  top: -10px;
 }
 
 .input-with-button button:hover {
