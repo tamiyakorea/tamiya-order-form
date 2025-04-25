@@ -210,3 +210,37 @@ button.confirm {
   cursor: pointer;
   font-size: 16px;
 }
+
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
+}
+
+.faq-question {
+  cursor: pointer;
+  font-weight: bold;
+  position: relative;
+  padding-right: 20px;
+}
+
+.faq-question::after {
+  content: "＋";
+  position: absolute;
+  right: 0;
+  transition: transform 0.3s ease;
+}
+
+.faq-question.active::after {
+  content: "－";
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease, padding 0.3s ease;
+  padding: 0;
+}
+
+.faq-answer.open {
+  max-height: 1000px;
+  padding: 10px 0;
+}
