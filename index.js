@@ -341,4 +341,14 @@ window.searchOrderById = async function () {
   }
 };
 
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+      question.classList.toggle('active');
+      const answer = question.nextElementSibling;
+      answer.classList.toggle('open');
+    });
+  });
+});
+
 console.log("index.js loaded successfully.");
