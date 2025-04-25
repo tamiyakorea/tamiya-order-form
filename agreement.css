@@ -1,22 +1,21 @@
-/* ✅ 기본 설정 (index와 통일 + 푸터 고정) */
-html, body {
-  height: 100%;                  /* 전체 높이 설정 */
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #2b2b2f;      /* 바깥 영역은 푸터 색상 */
-  display: flex;
-  flex-direction: column;        /* 세로 방향으로 정렬 */
+/* ✅ 기본 설정 (index와 통일) */
+html {
+  scroll-behavior: smooth;
 }
 
+body {
+  font-family: Arial, sans-serif;
+  padding: 0;
+  margin: 0;
+  background-color: white;
+}
+
+/* ✅ 메인 컨테이너 */
 main {
-  flex: 1;                       /* 본문이 남는 공간 차지 */
   max-width: 800px;
-  margin: 40px auto;
+  margin: 0 auto;
   padding: 20px;
-  background-color: white;       /* 본문 영역만 흰색 */
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  border-radius: 5px;
+  background-color: white;
 }
 
 /* ✅ 네비게이션 (index와 동일) */
@@ -94,7 +93,7 @@ h3 {
 
 .button-area button {
   padding: 12px 40px;
-  background-color: #007bff; 
+  background-color: #007bff; /* index와 동일한 confirm 색상 */
   color: white;
   border: none;
   border-radius: 5px;
@@ -112,7 +111,7 @@ h3 {
   background-color: #0056b3;
 }
 
-/* ✅ 푸터 (바닥 고정 및 확장) */
+/* ✅ 푸터 (index와 동일) */
 footer {
   width: 100%;
   background-color: #2b2b2f;
@@ -121,7 +120,6 @@ footer {
   font-size: 0.85em;
   line-height: 1.6;
   text-align: center;
-  margin-top: auto;               /* 핵심: 푸터를 항상 아래로 밀어줌 */
 }
 
 footer a {
