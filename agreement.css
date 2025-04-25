@@ -85,30 +85,33 @@ h3 {
   margin-right: 5px;
 }
 
-/* ✅ 버튼 영역 */
+/* ✅ 버튼 영역 (하늘색, 각진 스타일) */
 .button-area {
   text-align: center;
   margin-top: 30px;
 }
 
 .button-area button {
-  padding: 12px 40px;
-  background-color: #007bff; /* index와 동일한 confirm 색상 */
-  color: white;
-  border: none;
-  border-radius: 5px;
+  padding: 12px 30px;
   font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  border: 1px solid #65d3f8;               /* 하늘색 테두리 */
+  border-radius: 0;                         /* 각진 직사각형 */
+  background-color: #65d3f8;                /* 하늘색 배경 */
+  color: white;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .button-area button:disabled {
   background-color: #777;
+  border-color: #777;
   cursor: not-allowed;
 }
 
 .button-area button:hover:not(:disabled) {
-  background-color: #0056b3;
+  background-color: #49c8f3;                /* 진한 하늘색 호버 */
+  border-color: #49c8f3;
 }
 
 /* ✅ 푸터 (index와 동일) */
