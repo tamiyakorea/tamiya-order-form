@@ -131,6 +131,13 @@ window.searchProduct = async function () {
   }
 };
 
+window.removeItem = function (index) {
+  if (index >= 0 && index < cart.length) {
+    cart.splice(index, 1);
+    renderCart();
+  }
+};
+
 window.confirmOrder = async function () {
   const get = id => document.getElementById(id);
   const name = get("customerName").value.trim();
