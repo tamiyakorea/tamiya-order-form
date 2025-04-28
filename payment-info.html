@@ -145,11 +145,6 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
-      // ✅ 폰트 등록
-      doc.addFont("NanumMyeongjo.ttf", "NanumMyeongjo", "normal");
-      doc.addFont("NanumMyeongjoBold.ttf", "NanumMyeongjo", "bold");
-      doc.addFont("NanumMyeongjoExtraBold.ttf", "NanumMyeongjo", "extra-bold");
-
       // ✅ 제목은 ExtraBold
       doc.setFont("NanumMyeongjo", "extra-bold");
       doc.setFontSize(16);
