@@ -4,39 +4,9 @@
   <meta charset="UTF-8">
   <title>입금 안내 및 주문 절차</title>
   <link rel="stylesheet" href="styles.css">
-  <!-- ✅ jsPDF 먼저 로드 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <!-- ✅ VFS 폰트 파일 로드 (Base64 포함) -->
-  <script src="fonts/NanumMyeongjo.js"></script>
-  <script src="fonts/NanumMyeongjoBold.js"></script>
-  <script src="fonts/NanumMyeongjoExtraBold.js"></script>
-
-  <!-- ✅ jsPDF 로드 후 폰트 등록 순서 보장 -->
-  <script>
-    window.addEventListener('load', function() {
-      const { jsPDF } = window.jspdf;
-      if (typeof jsPDF !== "undefined") {
-  jsPDF.API.events.push(["addFonts", function() {
-    this.addFileToVFS("NanumMyeongjo.ttf", NanumMyeongjo);
-    this.addFont("NanumMyeongjo.ttf", "NanumMyeongjo", "normal"); // normal 스타일 등록
-    this.addFont("NanumMyeongjo.ttf", "NanumMyeongjo", "Regular"); // Regular도 같이 등록
-    this.addFont("NanumMyeongjo.ttf", "NanumMyeongjo", "");        // 빈 문자열도 등록
-  }]);
-  jsPDF.API.events.push(["addFonts", function() {
-    this.addFileToVFS("NanumMyeongjoBold.ttf", NanumMyeongjoBold);
-    this.addFont("NanumMyeongjoBold.ttf", "NanumMyeongjo", "bold"); // bold
-    this.addFont("NanumMyeongjoBold.ttf", "NanumMyeongjo", "Bold"); // Bold
-  }]);
-  jsPDF.API.events.push(["addFonts", function() {
-    this.addFileToVFS("NanumMyeongjoExtraBold.ttf", NanumMyeongjoExtraBold);
-    this.addFont("NanumMyeongjoExtraBold.ttf", "NanumMyeongjo", "extra-bold"); // extra-bold
-    this.addFont("NanumMyeongjoExtraBold.ttf", "NanumMyeongjo", "ExtraBold");  // ExtraBold
-    this.addFont("NanumMyeongjoExtraBold.ttf", "NanumMyeongjo", "Black");      // Black도 시도
-  }]);
-}
-    });
-  </script>
+  <!-- ✅ pdfmake -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 </head>
 <body>
   <nav>
@@ -109,6 +79,8 @@
 
     orderIdEl.textContent = orderId || "알 수 없음";
 
+    let fetchedOrder = null;
+
     async function fetchOrder() {
       if (!orderId) return;
       const orderIdNumber = Number(orderId);
@@ -124,6 +96,8 @@
           alert("주문 정보를 불러올 수 없습니다.");
           return;
         }
+        fetchedOrder = order; // 👉 pdf 다운로드용으로 저장
+
         nameEl.textContent = order.name || "-";
         phoneEl.textContent = order.phone || "-";
         emailEl.textContent = order.email || "-";
@@ -170,58 +144,56 @@
     }
 
     function downloadPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      if (!fetchedOrder) {
+        alert("주문 정보를 불러오지 못했습니다.");
+        return;
+      }
 
-  console.log(doc.getFontList());
-
-      // ✅ 제목은 ExtraBold
-      doc.setFont("NanumMyeongjo", "extra-bold");
-      doc.setFontSize(16);
-      const orderTitle = '타미야 개별 주문서';
-      doc.text(orderTitle, 105, 20, { align: 'center' });
-
-      // ✅ 계좌 정보는 Bold
-      doc.setFont("NanumMyeongjo", "bold");
-      doc.setFontSize(10);
-      const bankInfo = `[입금 계좌 정보]\n은행명: 신한은행\n계좌번호: 140-014-156630\n예금주: (주)한국타미야\n입금기한: 신청일로부터 3일 이내`;
-      doc.text(bankInfo, 15, 35);
-
-      // ✅ 고객 정보는 Normal
-      doc.setFont("NanumMyeongjo", "normal");
-      const customerInfo = `[고객 정보]\n고객명: ${nameEl.textContent}\n연락처: ${phoneEl.textContent}\n이메일: ${emailEl.textContent}\n주소: ${addressEl.textContent}`;
-      doc.text(customerInfo, 15, 70);
-
-      const rows = [];
-      const products = Array.from(document.querySelectorAll('#orderTableContainer tbody tr'));
-      products.forEach(row => {
-        const cols = row.querySelectorAll('td');
-        if (cols.length === 4) {
-          rows.push([
-            cols[0].innerText.trim(),
-            cols[1].innerText.trim(),
-            cols[2].innerText.trim(),
-            cols[3].innerText.trim()
-          ]);
-        }
+      const products = Array.isArray(fetchedOrder.items) ? fetchedOrder.items : JSON.parse(fetchedOrder.items);
+      const itemsTable = products.map(item => {
+        return [
+          item.name || "-",
+          String(item.qty || 0),
+          (item.price || 0).toLocaleString() + "원",
+          ((item.qty || 0) * (item.price || 0)).toLocaleString() + "원"
+        ];
       });
 
-      // ✅ 표 본문은 Normal
-      doc.autoTable({
-        startY: 100,
-        head: [['상품명', '수량', '단가', '합계']],
-        body: rows,
-        theme: 'grid',
-        styles: { fontSize: 9, font: 'NanumMyeongjo' },
-        headStyles: { fillColor: [41, 128, 185] },
-        margin: { left: 15, right: 15 },
-        didDrawPage: (data) => {
-          doc.setFontSize(8);
-          doc.text(`페이지 ${doc.internal.getNumberOfPages()}`, 200, 290, { align: 'right' });
-        }
-      });
+      const totalAmount = Number(fetchedOrder.total || 0);
+      const totalQty = products.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+      const totalItemsPrice = products.reduce((sum, item) => sum + (item.qty || 0) * (item.price || 0), 0);
+      const shippingFee = Math.max(totalAmount - totalItemsPrice, 0);
 
-      doc.save(`tamiya_order_${orderId || 'receipt'}.pdf`);
+      const docDefinition = {
+        content: [
+          { text: '타미야 개별 주문서', style: 'header', alignment: 'center' },
+          { text: '\n[입금 계좌 정보]\n은행명: 신한은행\n계좌번호: 140-014-156630\n예금주: (주)한국타미야\n입금기한: 신청일로부터 3일 이내', style: 'subheader' },
+          { text: '\n[고객 정보]', style: 'subheader' },
+          { text: `고객명: ${fetchedOrder.name}\n연락처: ${fetchedOrder.phone}\n이메일: ${fetchedOrder.email}\n주소: ${fetchedOrder.zipcode} ${fetchedOrder.address} ${fetchedOrder.address_detail}`, margin: [0, 5, 0, 15] },
+          {
+            table: {
+              headerRows: 1,
+              widths: ['*', 'auto', 'auto', 'auto'],
+              body: [
+                ['상품명', '수량', '단가', '합계'],
+                ...itemsTable,
+                [{ text: '배송비', colSpan: 3, alignment: 'right' }, {}, {}, `${shippingFee.toLocaleString()}원`],
+                [{ text: '총계', colSpan: 2 }, {}, `${totalQty}`, `${totalAmount.toLocaleString()}원`]
+              ]
+            },
+            layout: 'lightHorizontalLines'
+          }
+        ],
+        styles: {
+          header: { fontSize: 16, bold: true },
+          subheader: { fontSize: 12, bold: true },
+        },
+        defaultStyle: {
+          font: 'Helvetica'
+        }
+      };
+
+      pdfMake.createPdf(docDefinition).download(`tamiya_order_${orderId || 'receipt'}.pdf`);
     }
   </script>
 </body>
