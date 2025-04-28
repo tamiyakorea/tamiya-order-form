@@ -358,4 +358,20 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+window.updateQty = function (index, value) {
+  const qty = parseInt(value, 10);
+  if (isNaN(qty) || qty < 1) {
+    alert("수량은 1 이상의 숫자여야 합니다.");
+    renderCart();
+    return;
+  }
+  if (cart[index].min_qty > 0 && qty < cart[index].min_qty) {
+    alert(`해당 상품의 최소 주문 수량은 ${cart[index].min_qty}개입니다.`);
+    renderCart();
+    return;
+  }
+  cart[index].qty = qty;
+  renderCart();
+};
+
 console.log("index.js loaded successfully.");
