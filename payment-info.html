@@ -3,76 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <title>입금 안내 및 주문 절차</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 40px;
-      max-width: 800px;
-      margin: auto;
-      background-color: #fafafa;
-    }
-    h1, h2, h3 { color: #2c3e50; }
-    .box {
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .section { margin-bottom: 30px; }
-    ul { line-height: 1.8; }
-    .highlight { font-weight: bold; color: #c0392b; }
-    .btn {
-      margin-top: 30px;
-      padding: 10px 20px;
-      background-color: #2980b9;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .btn:hover { background-color: #1f6392; }
-    .btn-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background-color: #f5f5f5;
-    }
-    .total {
-      font-weight: bold;
-    }
-    .info-box {
-      margin-top: 10px;
-      border: 1px solid #eee;
-      padding: 10px;
-      background-color: #fdfdfd;
-      border-radius: 6px;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
+  <nav>
+    <ul>
+      <li><a href="index.html">개별 주문 신청</a></li>
+      <li><a href="payment-info.html">입금 안내</a></li>
+    </ul>
+  </nav>
 
-  <h1>입금 안내</h1>
-
-  <div class="box" id="receipt">
+  <main>
+    <h1>입금 안내</h1>
 
     <div class="section">
       <p>주문이 정상적으로 접수되었습니다. 아래 입금 정보를 확인하신 후,</p>
-      <P><span class="highlight">정확한 금액을 입금해주시기 바랍니다.</span></p>
+      <p><span class="highlight">정확한 금액을 입금해주시기 바랍니다.</span></p>
 
       <h3>💳 입금 계좌 정보</h3>
       <ul>
@@ -97,7 +45,7 @@
       <h2>🧾 주문서</h2>
       <p>주문번호: <span class="highlight" id="orderId"></span></p>
 
-      <div class="info-box">
+      <div id="orderResult">
         <p><strong>고객명:</strong> <span id="name"></span></p>
         <p><strong>연락처:</strong> <span id="phone"></span></p>
         <p><strong>이메일:</strong> <span id="email"></span></p>
@@ -106,16 +54,21 @@
 
       <div id="orderTableContainer"></div>
     </div>
-  </div>
 
-  <div class="btn-group">
-    <button class="btn" onclick="goHome()">홈으로 돌아가기</button>
-    <button class="btn" onclick="downloadPDF()">PDF로 저장</button>
-  </div>
+    <div class="btn-group">
+      <button class="confirm" onclick="goHome()">홈으로 돌아가기</button>
+      <button class="confirm" onclick="downloadPDF()">PDF로 저장</button>
+    </div>
+  </main>
+
+  <footer>
+    <div style="text-align:center;">
+      <p>© 2025 한국타미야 | 본 페이지의 모든 내용은 한국타미야에 저작권이 있습니다.</p>
+    </div>
+  </footer>
 
   <script>
     const orderId = new URLSearchParams(window.location.search).get("orderId");
-
     const orderIdEl = document.getElementById("orderId");
     const nameEl = document.getElementById("name");
     const phoneEl = document.getElementById("phone");
@@ -127,24 +80,19 @@
 
     async function fetchOrder() {
       if (!orderId) return;
-
       const orderIdNumber = Number(orderId);
-
       try {
         const response = await fetch('https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/get-order-by-id', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ order_id: orderIdNumber })
         });
-
         const result = await response.json();
         const order = result.data;
-
         if (!response.ok || !order) {
           alert("주문 정보를 불러올 수 없습니다.");
           return;
         }
-
         nameEl.textContent = order.name || "-";
         phoneEl.textContent = order.phone || "-";
         emailEl.textContent = order.email || "-";
@@ -160,54 +108,20 @@
         if (products.length > 0) {
           let totalQty = 0;
           let totalItemsPrice = 0;
-
-          let html = `
-            <table>
-              <thead>
-                <tr>
-                  <th>상품명</th>
-                  <th>수량</th>
-                  <th>단가</th>
-                  <th>합계</th>
-                </tr>
-              </thead>
-              <tbody>`;
-
+          let html = `<table><thead><tr><th>상품명</th><th>수량</th><th>단가</th><th>합계</th></tr></thead><tbody>`;
           products.forEach(item => {
             const name = item.name || '-';
             const qty = Number(item.qty || 0);
             const price = Number(item.price || 0);
             const itemTotal = qty * price;
-
             totalQty += qty;
             totalItemsPrice += itemTotal;
-
-            html += `
-              <tr>
-                <td>${name}</td>
-                <td>${qty}</td>
-                <td>${price.toLocaleString()}원</td>
-                <td>${itemTotal.toLocaleString()}원</td>
-              </tr>`;
+            html += `<tr><td>${name}</td><td>${qty}</td><td>${price.toLocaleString()}원</td><td>${itemTotal.toLocaleString()}원</td></tr>`;
           });
-
           const totalAmount = Number(order.total || 0);
           const shippingFee = Math.max(totalAmount - totalItemsPrice, 0);
-
-          html += `
-            <tr>
-              <td colspan="3" style="text-align:right;"><strong>배송비</strong></td>
-              <td>${shippingFee.toLocaleString()}원</td>
-            </tr>
-            <tr class="total">
-              <td>총계</td>
-              <td>${totalQty}</td>
-              <td></td>
-              <td>${totalAmount.toLocaleString()}원</td>
-            </tr>
-          </tbody>
-          </table>`;
-
+          html += `<tr><td colspan="3" style="text-align:right;"><strong>배송비</strong></td><td>${shippingFee.toLocaleString()}원</td></tr>`;
+          html += `<tr class="total"><td>총계</td><td>${totalQty}</td><td></td><td>${totalAmount.toLocaleString()}원</td></tr></tbody></table>`;
           tableContainer.innerHTML = html;
         } else {
           tableContainer.innerHTML = "<p>주문 상품 내역이 없습니다.</p>";
@@ -225,16 +139,59 @@
     }
 
     function downloadPDF() {
-  const element = document.getElementById('receipt');
-  const opt = {
-    margin: 0.5,
-    filename: `tamiya_order_${orderId || 'receipt'}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },  // ✅ CORS 문제 방지
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save();
-}
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      const orderTitle = '타미야 개별 주문서';
+      const bankInfo = `
+[입금 계좌 정보]
+은행명: 신한은행
+계좌번호: 140-014-156630
+예금주: (주)한국타미야
+입금기한: 신청일로부터 3일 이내`;
+      const customerInfo = `
+[고객 정보]
+고객명: ${nameEl.textContent}
+연락처: ${phoneEl.textContent}
+이메일: ${emailEl.textContent}
+주소: ${addressEl.textContent}`;
+
+      const rows = [];
+      const products = Array.from(document.querySelectorAll('#orderTableContainer tbody tr'));
+      products.forEach(row => {
+        const cols = row.querySelectorAll('td');
+        if (cols.length === 4) {
+          rows.push([
+            cols[0].innerText.trim(),
+            cols[1].innerText.trim(),
+            cols[2].innerText.trim(),
+            cols[3].innerText.trim()
+          ]);
+        }
+      });
+
+      doc.setFontSize(16);
+      doc.text(orderTitle, 105, 20, { align: 'center' });
+
+      doc.setFontSize(10);
+      doc.text(bankInfo, 15, 35);
+      doc.text(customerInfo, 15, 70);
+
+      doc.autoTable({
+        startY: 100,
+        head: [['상품명', '수량', '단가', '합계']],
+        body: rows,
+        theme: 'grid',
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [41, 128, 185] },
+        margin: { left: 15, right: 15 },
+        didDrawPage: (data) => {
+          doc.setFontSize(8);
+          doc.text(`페이지 ${doc.internal.getNumberOfPages()}`, 200, 290, { align: 'right' });
+        }
+      });
+
+      doc.save(`tamiya_order_${orderId || 'receipt'}.pdf`);
+    }
   </script>
 </body>
 </html>
