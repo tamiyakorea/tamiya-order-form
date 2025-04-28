@@ -338,6 +338,9 @@ window.searchOrderById = async function () {
             ${itemsHTML}
           </tbody>
         </table>
+        <div style="text-align: center; margin-top: 20px;">
+          <button class="confirm" onclick="window.open('payment-info.html?orderId=${data.order_id}', '_blank')">새창에서 보기</button>
+        </div>
       `;
     } else {
       resultDiv.innerHTML = "<p style='color:red;'>주문 정보를 찾을 수 없습니다.</p>";
@@ -347,6 +350,7 @@ window.searchOrderById = async function () {
     alert("조회 중 오류가 발생했습니다.");
   }
 };
+
 
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll('.faq-question').forEach(question => {
