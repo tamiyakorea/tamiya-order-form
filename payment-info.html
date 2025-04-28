@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <!-- ✅ NotoSansKR 폰트 추가 -->
+  <script src="https://unpkg.com/jspdf-font-notosanskr"></script>
 </head>
 <body>
   <nav>
@@ -141,15 +143,19 @@
     function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+      doc.addFileToVFS("NotoSansKR-Regular-normal.ttf", notoSansKRNormal);
+      doc.addFont("NotoSansKR-Regular-normal.ttf", "NotoSansKR", "normal");
+      doc.setFont("NotoSansKR");
+
       const orderTitle = '타미야 개별 주문서';
-      const bankInfo = `
-[입금 계좌 정보]
+      const bankInfo = `[입금 계좌 정보]
 은행명: 신한은행
 계좌번호: 140-014-156630
 예금주: (주)한국타미야
 입금기한: 신청일로부터 3일 이내`;
-      const customerInfo = `
-[고객 정보]
+
+      const customerInfo = `[고객 정보]
 고객명: ${nameEl.textContent}
 연락처: ${phoneEl.textContent}
 이메일: ${emailEl.textContent}
@@ -181,7 +187,7 @@
         head: [['상품명', '수량', '단가', '합계']],
         body: rows,
         theme: 'grid',
-        styles: { fontSize: 9 },
+        styles: { fontSize: 9, font: 'NotoSansKR' },
         headStyles: { fillColor: [41, 128, 185] },
         margin: { left: 15, right: 15 },
         didDrawPage: (data) => {
