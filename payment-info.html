@@ -4,11 +4,34 @@
   <meta charset="UTF-8">
   <title>입금 안내 및 주문 절차</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- ✅ jsPDF 먼저 로드 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <!-- ✅ VFS 폰트 파일 로드 (Base64 포함) -->
   <script src="fonts/NanumMyeongjo.js"></script>
   <script src="fonts/NanumMyeongjoBold.js"></script>
   <script src="fonts/NanumMyeongjoExtraBold.js"></script>
+
+  <!-- ✅ jsPDF 로드 후 폰트 등록 순서 보장 -->
+  <script>
+    window.addEventListener('load', function() {
+      const { jsPDF } = window.jspdf;
+      if (typeof jsPDF !== "undefined") {
+        jsPDF.API.events.push(["addFonts", function() {
+          this.addFileToVFS("NanumMyeongjo.ttf", NanumMyeongjo);
+          this.addFont("NanumMyeongjo.ttf", "NanumMyeongjo", "normal");
+        }]);
+        jsPDF.API.events.push(["addFonts", function() {
+          this.addFileToVFS("NanumMyeongjoBold.ttf", NanumMyeongjoBold);
+          this.addFont("NanumMyeongjoBold.ttf", "NanumMyeongjo", "bold");
+        }]);
+        jsPDF.API.events.push(["addFonts", function() {
+          this.addFileToVFS("NanumMyeongjoExtraBold.ttf", NanumMyeongjoExtraBold);
+          this.addFont("NanumMyeongjoExtraBold.ttf", "NanumMyeongjo", "extra-bold");
+        }]);
+      }
+    });
+  </script>
 </head>
 <body>
   <nav>
@@ -142,8 +165,10 @@
     }
 
     function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+  console.log(doc.getFontList());
 
       // ✅ 제목은 ExtraBold
       doc.setFont("NanumMyeongjo", "extra-bold");
