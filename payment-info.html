@@ -4,10 +4,8 @@
   <meta charset="UTF-8">
   <title>입금 안내 및 주문 절차</title>
   <link rel="stylesheet" href="styles.css">
-  <!-- ✅ pdfmake -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-  <!-- ✅ NanumGothic 폰트 등록 -->
   <script src="fonts/NanumGothic.js"></script>
   <script>
     pdfMake.vfs = { ...pdfMake.vfs, ...NanumGothicVFS };
@@ -48,7 +46,7 @@
     <div class="section">
       <h3>⚠️ 주문 진행 안내</h3>
       <ul>
-        <li><span class="highlight">입금이 완료되어야 부품 주문이 진행</span>됩니다.</li>
+        <li><span class="highlight">입금이 완료되어야 부품 주문이 진행됩니다.</span></li>
         <li>입금 확인까지 최대 1~2 영업일이 소요될 수 있습니다.</li>
         <li>입금자명과 신청자 정보가 일치해야 주문 진행이 가능합니다.</li>
         <li>주문 후 변경 또는 취소는 불가능하오니, 신중히 확인해주세요.</li>
@@ -157,55 +155,56 @@
     }
 
     function downloadPDF() {
-    if (!fetchedOrder) {
-      alert("주문 정보를 불러오지 못했습니다.");
-      return;
-    }
-
-    const products = Array.isArray(fetchedOrder.items) ? fetchedOrder.items : JSON.parse(fetchedOrder.items);
-    const itemsTable = products.map(item => [
-      item.name || "-",
-      String(item.qty || 0),
-      (item.price || 0).toLocaleString() + "원",
-      ((item.qty || 0) * (item.price || 0)).toLocaleString() + "원"
-    ]);
-
-    const totalAmount = Number(fetchedOrder.total || 0);
-    const totalQty = products.reduce((sum, item) => sum + Number(item.qty || 0), 0);
-    const totalItemsPrice = products.reduce((sum, item) => sum + (item.qty || 0) * (item.price || 0), 0);
-    const shippingFee = Math.max(totalAmount - totalItemsPrice, 0);
-
-    const docDefinition = {
-      content: [
-        { text: '타미야 개별 주문서', style: 'header', alignment: 'center' },
-        { text: '\n[입금 계좌 정보]\n은행명: 신한은행\n계좌번호: 140-014-156630\n예금주: (주)한국타미야\n입금기한: 신청일로부터 3일 이내', style: 'subheader' },
-        { text: '\n[고객 정보]', style: 'subheader' },
-        { text: `고객명: ${fetchedOrder.name}\n연락처: ${fetchedOrder.phone}\n이메일: ${fetchedOrder.email}\n주소: ${fetchedOrder.zipcode} ${fetchedOrder.address} ${fetchedOrder.address_detail}`, margin: [0, 5, 0, 15] },
-        {
-          table: {
-            headerRows: 1,
-            widths: ['*', 'auto', 'auto', 'auto'],
-            body: [
-              ['상품명', '수량', '단가', '합계'],
-              ...itemsTable,
-              [{ text: '배송비', colSpan: 3, alignment: 'right' }, {}, {}, `${shippingFee.toLocaleString()}원`],
-              [{ text: '총계', colSpan: 2 }, {}, `${totalQty}`, `${totalAmount.toLocaleString()}원`]
-            ]
-          },
-          layout: 'lightHorizontalLines'
-        }
-      ],
-      styles: {
-        header: { fontSize: 16, bold: true },
-        subheader: { fontSize: 12, bold: true },
-      },
-      defaultStyle: {
-        font: 'NanumGothic'   // ✅ Roboto → NanumGothic으로 변경
+      if (!fetchedOrder) {
+        alert("주문 정보를 불러오지 못했습니다.");
+        return;
       }
-    };
 
-    pdfMake.createPdf(docDefinition).download(`tamiya_order_${orderId || 'receipt'}.pdf`);
-  }
+      const products = Array.isArray(fetchedOrder.items) ? fetchedOrder.items : JSON.parse(fetchedOrder.items);
+      const itemsTable = products.map(item => [
+        item.name || "-",
+        String(item.qty || 0),
+        (item.price || 0).toLocaleString() + "원",
+        ((item.qty || 0) * (item.price || 0)).toLocaleString() + "원"
+      ]);
+
+      const totalAmount = Number(fetchedOrder.total || 0);
+      const totalQty = products.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+      const totalItemsPrice = products.reduce((sum, item) => sum + (item.qty || 0) * (item.price || 0), 0);
+      const shippingFee = Math.max(totalAmount - totalItemsPrice, 0);
+
+      const docDefinition = {
+        content: [
+          { text: '타미야 개별 주문서', style: 'header', alignment: 'center' },
+          { text: '\n입금 계좌 정보', style: 'subheader' },
+          '은행명: 신한은행\n계좌번호: 140-014-156630\n예금주: (주)한국타미야\n입금기한: 신청일로부터 3일 이내',
+          { text: '\n고객 정보', style: 'subheader' },
+          `고객명: ${fetchedOrder.name}\n연락처: ${fetchedOrder.phone}\n이메일: ${fetchedOrder.email}\n주소: ${fetchedOrder.zipcode} ${fetchedOrder.address} ${fetchedOrder.address_detail}`,
+          {
+            style: 'tableExample',
+            table: {
+              headerRows: 1,
+              widths: ['*', 'auto', 'auto', 'auto'],
+              body: [
+                ['상품명', '수량', '단가', '합계'],
+                ...itemsTable,
+                [{ text: '배송비', colSpan: 3, alignment: 'right' }, {}, {}, `${shippingFee.toLocaleString()}원`],
+                [{ text: '총계', colSpan: 2, alignment: 'right' }, {}, `${totalQty}`, `${totalAmount.toLocaleString()}원`]
+              ]
+            },
+            layout: 'lightHorizontalLines'
+          }
+        ],
+        styles: {
+          header: { fontSize: 18, bold: true, margin: [0, 10, 0, 10] },
+          subheader: { fontSize: 14, bold: true, margin: [0, 10, 0, 5] },
+          tableExample: { margin: [0, 5, 0, 15] },
+        },
+        defaultStyle: { font: 'NanumGothic' }
+      };
+
+      pdfMake.createPdf(docDefinition).download(`tamiya_order_${orderId || 'receipt'}.pdf`);
+    }
 
   </script>
 </body>
