@@ -141,63 +141,62 @@
     }
 
     function downloadPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
-      doc.addFileToVFS("NotoSansKR-Regular-normal.ttf", notoSansKRNormal);
-      doc.addFont("NotoSansKR-Regular-normal.ttf", "NotoSansKR", "normal");
-      doc.setFont("NotoSansKR");
+  // ❌ 불필요한 addFileToVFS와 addFont 삭제
+  doc.setFont("NotoSansKR");  // ✅ NotoSansKR 폰트만 세팅하면 됨
 
-      const orderTitle = '타미야 개별 주문서';
-      const bankInfo = `[입금 계좌 정보]
+  const orderTitle = '타미야 개별 주문서';
+  const bankInfo = `[입금 계좌 정보]
 은행명: 신한은행
 계좌번호: 140-014-156630
 예금주: (주)한국타미야
 입금기한: 신청일로부터 3일 이내`;
 
-      const customerInfo = `[고객 정보]
+  const customerInfo = `[고객 정보]
 고객명: ${nameEl.textContent}
 연락처: ${phoneEl.textContent}
 이메일: ${emailEl.textContent}
 주소: ${addressEl.textContent}`;
 
-      const rows = [];
-      const products = Array.from(document.querySelectorAll('#orderTableContainer tbody tr'));
-      products.forEach(row => {
-        const cols = row.querySelectorAll('td');
-        if (cols.length === 4) {
-          rows.push([
-            cols[0].innerText.trim(),
-            cols[1].innerText.trim(),
-            cols[2].innerText.trim(),
-            cols[3].innerText.trim()
-          ]);
-        }
-      });
-
-      doc.setFontSize(16);
-      doc.text(orderTitle, 105, 20, { align: 'center' });
-
-      doc.setFontSize(10);
-      doc.text(bankInfo, 15, 35);
-      doc.text(customerInfo, 15, 70);
-
-      doc.autoTable({
-        startY: 100,
-        head: [['상품명', '수량', '단가', '합계']],
-        body: rows,
-        theme: 'grid',
-        styles: { fontSize: 9, font: 'NotoSansKR' },
-        headStyles: { fillColor: [41, 128, 185] },
-        margin: { left: 15, right: 15 },
-        didDrawPage: (data) => {
-          doc.setFontSize(8);
-          doc.text(`페이지 ${doc.internal.getNumberOfPages()}`, 200, 290, { align: 'right' });
-        }
-      });
-
-      doc.save(`tamiya_order_${orderId || 'receipt'}.pdf`);
+  const rows = [];
+  const products = Array.from(document.querySelectorAll('#orderTableContainer tbody tr'));
+  products.forEach(row => {
+    const cols = row.querySelectorAll('td');
+    if (cols.length === 4) {
+      rows.push([
+        cols[0].innerText.trim(),
+        cols[1].innerText.trim(),
+        cols[2].innerText.trim(),
+        cols[3].innerText.trim()
+      ]);
     }
+  });
+
+  doc.setFontSize(16);
+  doc.text(orderTitle, 105, 20, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.text(bankInfo, 15, 35);
+  doc.text(customerInfo, 15, 70);
+
+  doc.autoTable({
+    startY: 100,
+    head: [['상품명', '수량', '단가', '합계']],
+    body: rows,
+    theme: 'grid',
+    styles: { fontSize: 9, font: 'NotoSansKR' },
+    headStyles: { fillColor: [41, 128, 185] },
+    margin: { left: 15, right: 15 },
+    didDrawPage: (data) => {
+      doc.setFontSize(8);
+      doc.text(`페이지 ${doc.internal.getNumberOfPages()}`, 200, 290, { align: 'right' });
+    }
+  });
+
+  doc.save(`tamiya_order_${orderId || 'receipt'}.pdf`);
+}
   </script>
 </body>
 </html>
