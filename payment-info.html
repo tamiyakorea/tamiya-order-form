@@ -7,6 +7,19 @@
   <!-- ✅ pdfmake -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <!-- ✅ NanumGothic 폰트 등록 -->
+  <script src="fonts/NanumGothic.js"></script>
+  <script>
+    pdfMake.vfs = { ...pdfMake.vfs, ...NanumGothicVFS };
+    pdfMake.fonts = {
+      NanumGothic: {
+        normal: 'NanumGothic.ttf',
+        bold: 'NanumGothic.ttf',
+        italics: 'NanumGothic.ttf',
+        bolditalics: 'NanumGothic.ttf'
+      }
+    };
+  </script>
 </head>
 <body>
   <nav>
@@ -144,57 +157,55 @@
     }
 
     function downloadPDF() {
-  if (!fetchedOrder) {
-    alert("주문 정보를 불러오지 못했습니다.");
-    return;
-  }
+    if (!fetchedOrder) {
+      alert("주문 정보를 불러오지 못했습니다.");
+      return;
+    }
 
-  const products = Array.isArray(fetchedOrder.items) ? fetchedOrder.items : JSON.parse(fetchedOrder.items);
-  const itemsTable = products.map(item => {
-    return [
+    const products = Array.isArray(fetchedOrder.items) ? fetchedOrder.items : JSON.parse(fetchedOrder.items);
+    const itemsTable = products.map(item => [
       item.name || "-",
       String(item.qty || 0),
       (item.price || 0).toLocaleString() + "원",
       ((item.qty || 0) * (item.price || 0)).toLocaleString() + "원"
-    ];
-  });
+    ]);
 
-  const totalAmount = Number(fetchedOrder.total || 0);
-  const totalQty = products.reduce((sum, item) => sum + Number(item.qty || 0), 0);
-  const totalItemsPrice = products.reduce((sum, item) => sum + (item.qty || 0) * (item.price || 0), 0);
-  const shippingFee = Math.max(totalAmount - totalItemsPrice, 0);
+    const totalAmount = Number(fetchedOrder.total || 0);
+    const totalQty = products.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+    const totalItemsPrice = products.reduce((sum, item) => sum + (item.qty || 0) * (item.price || 0), 0);
+    const shippingFee = Math.max(totalAmount - totalItemsPrice, 0);
 
-  const docDefinition = {
-    content: [
-      { text: '타미야 개별 주문서', style: 'header', alignment: 'center' },
-      { text: '\n[입금 계좌 정보]\n은행명: 신한은행\n계좌번호: 140-014-156630\n예금주: (주)한국타미야\n입금기한: 신청일로부터 3일 이내', style: 'subheader' },
-      { text: '\n[고객 정보]', style: 'subheader' },
-      { text: `고객명: ${fetchedOrder.name}\n연락처: ${fetchedOrder.phone}\n이메일: ${fetchedOrder.email}\n주소: ${fetchedOrder.zipcode} ${fetchedOrder.address} ${fetchedOrder.address_detail}`, margin: [0, 5, 0, 15] },
-      {
-        table: {
-          headerRows: 1,
-          widths: ['*', 'auto', 'auto', 'auto'],
-          body: [
-            ['상품명', '수량', '단가', '합계'],
-            ...itemsTable,
-            [{ text: '배송비', colSpan: 3, alignment: 'right' }, {}, {}, `${shippingFee.toLocaleString()}원`],
-            [{ text: '총계', colSpan: 2 }, {}, `${totalQty}`, `${totalAmount.toLocaleString()}원`]
-          ]
-        },
-        layout: 'lightHorizontalLines'
+    const docDefinition = {
+      content: [
+        { text: '타미야 개별 주문서', style: 'header', alignment: 'center' },
+        { text: '\n[입금 계좌 정보]\n은행명: 신한은행\n계좌번호: 140-014-156630\n예금주: (주)한국타미야\n입금기한: 신청일로부터 3일 이내', style: 'subheader' },
+        { text: '\n[고객 정보]', style: 'subheader' },
+        { text: `고객명: ${fetchedOrder.name}\n연락처: ${fetchedOrder.phone}\n이메일: ${fetchedOrder.email}\n주소: ${fetchedOrder.zipcode} ${fetchedOrder.address} ${fetchedOrder.address_detail}`, margin: [0, 5, 0, 15] },
+        {
+          table: {
+            headerRows: 1,
+            widths: ['*', 'auto', 'auto', 'auto'],
+            body: [
+              ['상품명', '수량', '단가', '합계'],
+              ...itemsTable,
+              [{ text: '배송비', colSpan: 3, alignment: 'right' }, {}, {}, `${shippingFee.toLocaleString()}원`],
+              [{ text: '총계', colSpan: 2 }, {}, `${totalQty}`, `${totalAmount.toLocaleString()}원`]
+            ]
+          },
+          layout: 'lightHorizontalLines'
+        }
+      ],
+      styles: {
+        header: { fontSize: 16, bold: true },
+        subheader: { fontSize: 12, bold: true },
+      },
+      defaultStyle: {
+        font: 'NanumGothic'   // ✅ Roboto → NanumGothic으로 변경
       }
-    ],
-    styles: {
-      header: { fontSize: 16, bold: true },
-      subheader: { fontSize: 12, bold: true },
-    },
-    defaultStyle: {
-      font: 'Roboto'  // ✅ 여기 수정
-    }
-  };
+    };
 
-  pdfMake.createPdf(docDefinition).download(`tamiya_order_${orderId || 'receipt'}.pdf`);
-}
+    pdfMake.createPdf(docDefinition).download(`tamiya_order_${orderId || 'receipt'}.pdf`);
+  }
 
   </script>
 </body>
