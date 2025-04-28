@@ -17,19 +17,24 @@
     window.addEventListener('load', function() {
       const { jsPDF } = window.jspdf;
       if (typeof jsPDF !== "undefined") {
-        jsPDF.API.events.push(["addFonts", function() {
-          this.addFileToVFS("NanumMyeongjo.ttf", NanumMyeongjo);
-          this.addFont("NanumMyeongjo.ttf", "NanumMyeongjo", "normal");
-        }]);
-        jsPDF.API.events.push(["addFonts", function() {
-          this.addFileToVFS("NanumMyeongjoBold.ttf", NanumMyeongjoBold);
-          this.addFont("NanumMyeongjoBold.ttf", "NanumMyeongjo", "bold");
-        }]);
-        jsPDF.API.events.push(["addFonts", function() {
-          this.addFileToVFS("NanumMyeongjoExtraBold.ttf", NanumMyeongjoExtraBold);
-          this.addFont("NanumMyeongjoExtraBold.ttf", "NanumMyeongjo", "extra-bold");
-        }]);
-      }
+  jsPDF.API.events.push(["addFonts", function() {
+    this.addFileToVFS("NanumMyeongjo.ttf", NanumMyeongjo);
+    this.addFont("NanumMyeongjo.ttf", "NanumMyeongjo", "normal"); // normal 스타일 등록
+    this.addFont("NanumMyeongjo.ttf", "NanumMyeongjo", "Regular"); // Regular도 같이 등록
+    this.addFont("NanumMyeongjo.ttf", "NanumMyeongjo", "");        // 빈 문자열도 등록
+  }]);
+  jsPDF.API.events.push(["addFonts", function() {
+    this.addFileToVFS("NanumMyeongjoBold.ttf", NanumMyeongjoBold);
+    this.addFont("NanumMyeongjoBold.ttf", "NanumMyeongjo", "bold"); // bold
+    this.addFont("NanumMyeongjoBold.ttf", "NanumMyeongjo", "Bold"); // Bold
+  }]);
+  jsPDF.API.events.push(["addFonts", function() {
+    this.addFileToVFS("NanumMyeongjoExtraBold.ttf", NanumMyeongjoExtraBold);
+    this.addFont("NanumMyeongjoExtraBold.ttf", "NanumMyeongjo", "extra-bold"); // extra-bold
+    this.addFont("NanumMyeongjoExtraBold.ttf", "NanumMyeongjo", "ExtraBold");  // ExtraBold
+    this.addFont("NanumMyeongjoExtraBold.ttf", "NanumMyeongjo", "Black");      // Black도 시도
+  }]);
+}
     });
   </script>
 </head>
