@@ -142,7 +142,7 @@ async function searchOrdered() {
   const result = data.filter(order => {
     const keywordLower = keyword.toLowerCase();
     const items = typeof order.items === 'string' ? JSON.parse(order.items || '[]') : (order.items || []);
-    const hasMatchingItem = items.some(i => i.code?.includes(keyword));
+    const hasMatchingItem = items.some(i => String(i.code || '').includes(keyword));
     return (
       order.order_id.toString().includes(keyword) ||
       order.name?.toLowerCase().includes(keywordLower) ||
