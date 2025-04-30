@@ -7,6 +7,18 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="orders.css" />
+
+  <!-- ✅ REST 호출 오류 차단 스크립트 -->
+  <script>
+    if (location.href.includes("/rest/v1/orders?") && location.href.includes("eq.false")) {
+      console.warn("차단된 잘못된 REST API 호출을 탐지했습니다.");
+      location.href = "/";
+    }
+  </script>
+
+  <!-- ✅ favicon.ico 404 방지 -->
+  <link rel="icon" href="data:,">
+
   <script>
     function logout() {
       if (typeof window.logout === 'function') window.logout();
