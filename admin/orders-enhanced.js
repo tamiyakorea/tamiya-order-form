@@ -6,8 +6,6 @@ const supabase = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
 );
 
-const HIDDEN_COL_KEY = "orders_hidden_columns";
-
 function formatDateOnly(iso) {
   if (!iso) return '';
   const d = new Date(iso);
@@ -22,39 +20,6 @@ function formatDateInput(iso) {
 function getTodayDateString() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-}
-
-function applyHiddenColumns() {
-  const hiddenCols = JSON.parse(localStorage.getItem(HIDDEN_COL_KEY) || "[]");
-  const colgroup = document.querySelector("#colgroup");
-  if (!colgroup) return;
-
-  hiddenCols.forEach(index => {
-    const ths = document.querySelectorAll(`[data-col-index='${index}']`);
-    ths.forEach(th => th.style.display = 'none');
-
-    const col = colgroup.querySelector(`col:nth-child(${index + 1})`);
-    if (col) col.style.display = 'none';
-
-    const rows = document.querySelectorAll("#orderTable tbody tr");
-    rows.forEach(tr => {
-      const td = tr.children[index];
-      if (td) td.style.display = 'none';
-    });
-  });
-}
-
-function toggleColumn(index) {
-  const hiddenCols = new Set(JSON.parse(localStorage.getItem(HIDDEN_COL_KEY) || "[]"));
-  if (hiddenCols.has(index)) hiddenCols.delete(index);
-  else hiddenCols.add(index);
-  localStorage.setItem(HIDDEN_COL_KEY, JSON.stringify([...hiddenCols]));
-  location.reload();
-}
-
-function resetHiddenColumns() {
-  localStorage.removeItem(HIDDEN_COL_KEY);
-  location.reload();
 }
 
 async function logout() {
@@ -110,160 +75,276 @@ async function searchOrders() {
   const keyword = document.getElementById("searchInput").value.trim();
   if (!keyword) return loadOrders();
 
-  const { data: orders, error } = await supabase
-    .from("orders")
-    .select("*")
-    .or(`order_id.ilike.%${keyword}%,name.ilike.%${keyword}%`)
-    .order("created_at", { ascending: false });
+  let query = supabase.from("orders").select("*").eq("is_ready_to_ship", false);
 
-  if (error) {
-    alert("주문 검색 중 오류 발생: " + error.message);
-    return;
+  if (/^\d+$/.test(keyword)) {
+    query = query.eq("order_id", keyword);
+  } else {
+    query = query.ilike("name", `%${keyword}%`);
   }
 
-  renderOrders(orders);
+  const { data, error } = await query;
+  if (!error) renderOrders(data);
+  else alert("검색 실패: " + error.message);
 }
 
 async function loadOrders() {
-  const { data: orders, error } = await supabase
+  const { data, error } = await supabase
     .from("orders")
     .select("*")
+    .eq("is_ready_to_ship", false)
     .order("created_at", { ascending: false });
 
-  if (error) {
-    alert("주문 불러오기 실패: " + error.message);
-    return;
-  }
-
-  renderOrders(orders);
+  if (!error) renderOrders(data);
+  else alert("주문 목록 불러오기 실패: " + error.message);
 }
 
-function renderOrders(orders) {
+function renderOrders(data) {
   const tbody = document.getElementById("orderBody");
   tbody.innerHTML = "";
-  const hiddenCols = new Set(JSON.parse(localStorage.getItem(HIDDEN_COL_KEY) || "[]"));
-
-  if (!orders.length) {
-    tbody.innerHTML = '<tr><td colspan="22">주문이 없습니다.</td></tr>';
+  if (!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="22">주문 내역이 없습니다.</td></tr>';
     return;
   }
 
-  orders.forEach(order => {
-    const items = JSON.parse(order.items || '[]');
+  data.forEach(order => {
+    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+    const paymentDateInput = order.payment_date ? formatDateInput(order.payment_date) : getTodayDateString();
+
+    const proofButtons = (order.proof_images || [])
+      .filter(url => typeof url === 'string' && url.startsWith('http'))
+      .map((url, index) => `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`)
+      .join(" ");
 
     items.forEach((item, idx) => {
-      const isFirst = idx === 0;
-      const row = document.createElement("tr");
-      row.className = order.payment_confirmed ? "confirmed-row" : "";
+      const isFirstRow = idx === 0;
+      const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
 
-      row.innerHTML = `
-        ${isFirst ? `<td rowspan="${items.length}"><button class="delete-btn" onclick="deleteOrder(${order.order_id}, ${order.payment_confirmed})">삭제</button></td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}"><button class="proof-btn" onclick="window.open('/proof/${order.order_id}', '_blank')">파일</button></td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${order.email}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${order.zipcode}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${order.address}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${order.address_detail}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${order.receipt_info ? '신청' : '-'}</td>` : ''}
-        <td>${item.code}</td>
-        <td class="ellipsis">${item.name}</td>
-        <td>${item.qty}</td>
-        <td>${item.price.toLocaleString()}</td>
-        ${isFirst ? `<td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">
-          <div class="pay-status">
-            <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed}, this)">${order.payment_confirmed ? '✅ 입금확인됨' : '❌ 미입금'}</button><br/>
-            <input type="date" class="payment-date" value="${order.payment_date ? formatDateInput(order.payment_date) : getTodayDateString()}" />
-          </div>
-        </td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}"><input class="input-box" value="${order.po_number || ''}" onchange="updateField(${order.order_id}, 'po_number', this.value)" /></td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}"><input class="input-box" value="${order.remarks || ''}" onchange="updateField(${order.order_id}, 'remarks', this.value)" /></td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}"><input class="input-box" value="${item.arrival_info || ''}" onchange="updateFieldByItem(${order.order_id}, ${idx}, 'arrival_info', this.value)" /></td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${item.arrival_due || '미정'}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}"><button class="ship-btn" onclick="markAsReadyToShip(${order.order_id}, this)">출고 준비</button></td>` : ''}
+      const rowHtml = `
+        <tr class="${rowClass}">
+          ${isFirstRow ? `
+            <td rowspan="${items.length}">
+              <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
+              <br>
+              <input type="checkbox" class="download-checkbox" data-order-id="${order.order_id}">
+            </td>
+            <td rowspan="${items.length}">${proofButtons}</td>
+            <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
+            <td rowspan="${items.length}">${order.order_id}</td>
+            <td rowspan="${items.length}">${order.name}</td>
+            <td rowspan="${items.length}">${order.phone}</td>
+            <td rowspan="${items.length}" title="${order.email}">${order.email}</td>
+            <td rowspan="${items.length}">${order.zipcode}</td>
+            <td rowspan="${items.length}">${order.address}</td>
+            <td rowspan="${items.length}">${order.address_detail}</td>
+            <td rowspan="${items.length}">${order.receipt_info || ''}</td>
+          ` : ''}
+          <td>${item.code || '-'}</td>
+          <td class="ellipsis" title="${item.name}">${item.name}</td>
+          <td>${item.qty}</td>
+          <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
+          ${isFirstRow ? `
+            <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
+            <td rowspan="${items.length}" class="pay-status">
+              <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
+              <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
+                ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
+              </button><br>
+              ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+            </td>
+            <td rowspan="${items.length}">
+              <input class="input-box" value="${order.po_info || ''}" onchange="updateField('${order.order_id}', 'po_info', this.value)" />
+            </td>
+            <td rowspan="${items.length}">
+              <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
+            </td>
+          ` : ''}
+          <td>
+            <input class="input-box" value="${item.arrival_status || ''}" onchange="updateFieldByItem('${order.order_id}', '${item.code}', 'arrival_status', this.value)" />
+          </td>
+          <td>
+            <input class="input-box" value="${item.arrival_due || ''}" onchange="updateFieldByItem('${order.order_id}', '${item.code}', 'arrival_due', this.value)" />
+          </td>
+          ${isFirstRow ? `
+            <td rowspan="${items.length}">
+              <button class="ship-btn" onclick="markAsReadyToShip('${order.order_id}', this)" ${order.is_ready_to_ship ? 'disabled' : ''}>준비</button>
+            </td>
+          ` : ''}
+        </tr>
       `;
-
-      // 숨김 처리
-      [...hiddenCols].forEach(index => {
-        const td = row.children[index];
-        if (td) td.style.display = 'none';
-      });
-
-      tbody.appendChild(row);
+      tbody.insertAdjacentHTML('beforeend', rowHtml);
     });
   });
 }
 
+
+async function updateFieldByItem(orderId, itemCode, field, value) {
+  const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
+  if (!orderData || !orderData.items) return;
+  const items = Array.isArray(orderData.items) ? orderData.items : JSON.parse(orderData.items);
+  const updatedItems = items.map(i => {
+    if (String(i.code) === String(itemCode)) {
+      const updated = Object.assign({}, i);
+      updated[field] = value || null;
+      return updated;
+    }
+    return i;
+  });
+  const { error } = await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
+  if (error) alert("항목 업데이트 실패: " + error.message);
+}
+
 function injectColgroup() {
-  const colCount = document.querySelectorAll("thead tr:nth-child(2) th").length || 22;
   const colgroup = document.getElementById("colgroup");
-  colgroup.innerHTML = "";
-  for (let i = 0; i < colCount; i++) {
+  if (!colgroup) {
+    console.warn("⚠️ <colgroup> 요소를 찾을 수 없습니다. DOM이 준비되었는지 확인하세요.");
+    return;
+  }
+  colgroup.innerHTML = '';
+  for (let i = 1; i <= 22; i++) {
     const col = document.createElement("col");
     colgroup.appendChild(col);
   }
 }
 
 function makeColumnsResizable(table) {
-  const cols = table.querySelectorAll("thead tr:nth-child(2) th");
-  cols.forEach((th, index) => {
+  const ths = table.querySelectorAll("thead tr:nth-child(1) th, thead tr:nth-child(2) th");
+  ths.forEach((th, index) => {
     const resizer = document.createElement("div");
-    resizer.classList.add("resizer");
+    resizer.className = "resizer";
     th.appendChild(resizer);
-    let x = 0, w = 0;
-
-    resizer.addEventListener("mousedown", e => {
-      x = e.clientX;
-      const styles = window.getComputedStyle(th);
-      w = parseInt(styles.width, 10);
+    resizer.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      const startX = e.pageX;
+      const startWidth = th.offsetWidth;
+      const onMouseMove = e => {
+        const newWidth = startWidth + (e.pageX - startX);
+        th.style.width = newWidth + "px";
+        const col = document.querySelector(`#colgroup col:nth-child(${index + 1})`);
+        if (col) col.style.width = newWidth + "px";
+      };
+      const onMouseUp = () => {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+      };
       document.addEventListener("mousemove", onMouseMove);
       document.addEventListener("mouseup", onMouseUp);
     });
-
-    function onMouseMove(e) {
-      const dx = e.clientX - x;
-      th.style.width = `${w + dx}px`;
-      table.querySelector(`colgroup col:nth-child(${index + 1})`).style.width = `${w + dx}px`;
-    }
-
-    function onMouseUp() {
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    }
   });
 }
 
-function updateFieldByItem(orderId, itemIndex, field, value) {
-  supabase.from("orders").select("items").eq("order_id", orderId).single()
-    .then(({ data, error }) => {
-      if (error || !data) return alert("아이템 정보 조회 실패");
-      const items = typeof data.items === 'string' ? JSON.parse(data.items) : data.items;
-      if (!items[itemIndex]) return;
-      items[itemIndex][field] = value;
-      return supabase.from("orders").update({ items }).eq("order_id", orderId);
+async function downloadSelectedOrders() {
+  const checkboxes = document.querySelectorAll('.download-checkbox:checked');
+  if (checkboxes.length === 0) {
+    alert('다운로드할 주문을 선택하세요.');
+    return;
+  }
+
+  const selectedOrderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
+  console.log("✅ 선택된 order_id 목록:", selectedOrderIds);
+
+  const { data: orders, error: orderError } = await supabase
+    .from("orders")
+    .select("*")
+    .in("order_id", selectedOrderIds);
+
+  if (orderError || !orders) {
+    alert("❌ 주문 데이터 불러오기 실패: " + (orderError?.message || '데이터 없음'));
+    return;
+  }
+  console.log("🟢 orders 불러옴:", orders);
+
+  // 🟢 주문에 포함된 모든 item.code 수집
+  const allOrderCodes = Array.from(new Set(
+    orders.flatMap(order => {
+      const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+      return items.map(item => Number(item.code));  // 반드시 숫자로 변환
     })
-    .then(({ error }) => {
-      if (error) alert("업데이트 실패: " + error.message);
+  ));
+  console.log("🟢 필요한 item_code 목록 (중복 제거):", allOrderCodes);
+
+  // 🟢 필요한 코드만 in()으로 조회
+  const { data: itemList, error: itemError } = await supabase
+    .from("tamiya_items")
+    .select("item_code,j_retail,price")
+    .in("item_code", allOrderCodes);
+
+  if (itemError || !itemList) {
+    alert("❌ tamiya_items 데이터 불러오기 실패: " + (itemError?.message || '데이터 없음'));
+    return;
+  }
+  console.log("🔵 tamiya_items 불러옴:", itemList);
+
+  const itemInfoMap = new Map(
+    itemList.map(item => [
+      Number(item.item_code),  // 숫자로 저장
+      { j_retail: item.j_retail, price: item.price }
+    ])
+  );
+
+  const rows = [];
+  orders.forEach(order => {
+    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+    const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
+
+    items.forEach(item => {
+      const itemCodeNumber = Number(item.code);
+      const itemInfo = itemInfoMap.get(itemCodeNumber);
+
+      if (!itemInfo) {
+        console.warn(`⚠️ 매칭 실패: order_id=${order.order_id}, item.code='${item.code}' (DB에 없음, item.price 사용)`);
+      } else {
+        console.log(`✅ 매칭 성공: code='${item.code}', j_retail=${itemInfo.j_retail}, price=${itemInfo.price}`);
+      }
+
+      const jRetail = itemInfo ? itemInfo.j_retail : '';
+      const itemPrice = itemInfo ? itemInfo.price : item.price || '';
+
+      rows.push({
+        "시리얼 넘버": item.code || '',
+        "제품명": item.name || '',
+        "J-retail": jRetail,
+        "price": itemPrice,
+        "개수": item.qty || '',
+        "비고": `${order.name} ${paymentDate} ${item.code || ''}`
+      });
     });
-}
-
-function downloadSelectedOrders() {
-  const checkedRows = [...document.querySelectorAll("#orderBody input[type='checkbox']:checked")].map(el => el.closest("tr"));
-  if (!checkedRows.length) return alert("선택된 항목이 없습니다.");
-
-  const headers = [...document.querySelectorAll("thead tr:nth-child(2) th")].map(th => th.textContent.trim());
-  const rows = checkedRows.map(tr => {
-    return [...tr.children].reduce((obj, td, idx) => {
-      obj[headers[idx]] = td.innerText;
-      return obj;
-    }, {});
   });
 
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "선택 주문");
-  XLSX.writeFile(wb, `selected_orders_${getTodayDateString()}.xlsx`);
+  const worksheet = XLSX.utils.json_to_sheet(rows, {
+    header: ["시리얼 넘버", "제품명", , , "J-retail", "price", , "개수", , , , , , , , , , , "비고"],
+    skipHeader: true
+  });
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "주문서");
+  XLSX.writeFile(workbook, "선택_주문서.xls");
 }
+
+async function checkAuth() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
+    window.location.href = "/tamiya-order-form/admin/login.html";
+  } else {
+    loadOrders();
+  }
+}
+
+window.addEventListener("load", () => {
+  injectColgroup();
+  makeColumnsResizable(document.querySelector("table"));
+  checkAuth();
+});
+
+Object.assign(window, {
+  logout,
+  searchOrders,
+  loadOrders,
+  deleteOrder,
+  downloadSelectedOrders,
+  updateField,
+  updateFieldByItem,
+  togglePayment,
+  markAsReadyToShip
+});
