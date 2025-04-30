@@ -143,12 +143,11 @@ function renderOrders(orders) {
   tbody.innerHTML = "";
 
   if (!orders.length) {
-    tbody.innerHTML = '<tr><td colspan="22">주문이 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="23">주문이 없습니다.</td></tr>';
     return;
   }
 
   orders.forEach(order => {
-    // ⚠️ items가 string이면 파싱, 아니면 그대로 사용
     const items = typeof order.items === 'string'
       ? JSON.parse(order.items)
       : order.items || [];
@@ -159,6 +158,7 @@ function renderOrders(orders) {
       row.className = order.payment_confirmed ? "confirmed-row" : "";
 
       row.innerHTML = `
+        ${isFirst ? `<td rowspan="${items.length}"><input type="checkbox" /></td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}"><button class="delete-btn" onclick="deleteOrder(${order.order_id}, ${order.payment_confirmed})">삭제</button></td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}"><button class="proof-btn" onclick="window.open('/proof/${order.order_id}', '_blank')">파일</button></td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>` : ''}
@@ -169,7 +169,7 @@ function renderOrders(orders) {
         ${isFirst ? `<td rowspan="${items.length}">${order.zipcode}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.address}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.address_detail}</td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${order.receipt_info ? '신청' : '-'}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}">${order.receipt_info ?? '-'}</td>` : ''}
         <td>${item.code}</td>
         <td class="ellipsis">${item.name}</td>
         <td>${item.qty}</td>
@@ -183,10 +183,10 @@ function renderOrders(orders) {
             <input type="date" class="payment-date" value="${order.payment_date ? formatDateInput(order.payment_date) : getTodayDateString()}" />
           </div>
         </td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}"><input class="input-box" value="${order.po_number || ''}" onchange="updateField(${order.order_id}, 'po_number', this.value)" /></td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}"><input class="input-box" value="${order.remarks || ''}" onchange="updateField(${order.order_id}, 'remarks', this.value)" /></td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}"><input class="input-box" value="${item.arrival_info || ''}" onchange="updateFieldByItem(${order.order_id}, ${idx}, 'arrival_info', this.value)" /></td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${item.arrival_due || '미정'}</td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}"><input class="input-box" value="${order.po_number ?? ''}" onchange="updateField(${order.order_id}, 'po_number', this.value)" /></td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}"><input class="input-box" value="${order.remarks ?? ''}" onchange="updateField(${order.order_id}, 'remarks', this.value)" /></td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}"><input class="input-box" value="${item.arrival_info ?? ''}" onchange="updateFieldByItem(${order.order_id}, ${idx}, 'arrival_info', this.value)" /></td>` : ''}
+        ${isFirst ? `<td rowspan="${items.length}"><input class="input-box" value="${item.arrival_due ?? ''}" onchange="updateFieldByItem(${order.order_id}, ${idx}, 'arrival_due', this.value)" /></td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}"><button class="ship-btn" onclick="markAsReadyToShip(${order.order_id}, this)">출고 준비</button></td>` : ''}
       `;
 
