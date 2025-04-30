@@ -32,6 +32,21 @@ async function updateField(orderId, field, value) {
   if (error) alert("업데이트 실패: " + error.message);
 }
 
+async function updateFieldByItem(orderId, itemCode, field, value) {
+  const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
+  if (!orderData || !orderData.items) return;
+  const items = Array.isArray(orderData.items) ? orderData.items : JSON.parse(orderData.items);
+  const updatedItems = items.map(i => {
+    if (String(i.code) === String(itemCode)) {
+      const updated = { ...i, [field]: value || null };
+      return updated;
+    }
+    return i;
+  });
+  const { error } = await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
+  if (error) alert("항목 업데이트 실패: " + error.message);
+}
+
 async function togglePayment(orderId, current, button) {
   const row = button.closest('tr');
   const dateInput = row.querySelector('.payment-date');
@@ -40,7 +55,7 @@ async function togglePayment(orderId, current, button) {
   const updates = {
     payment_confirmed: !current,
     payment_date: !current ? selectedDate : null,
-    is_ordered: !current // ✅ 입금 시 발주 완료로 이동되도록
+    is_ordered: !current
   };
 
   const { error } = await supabase.from("orders").update(updates).eq("order_id", orderId);
@@ -51,23 +66,6 @@ async function togglePayment(orderId, current, button) {
 
   loadOrders();
 }
-
-async function updateFieldByItem(orderId, itemCode, field, value) {
-  const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
-  if (!orderData || !orderData.items) return;
-  const items = Array.isArray(orderData.items) ? orderData.items : JSON.parse(orderData.items);
-  const updatedItems = items.map(i => {
-    if (String(i.code) === String(itemCode)) {
-      const updated = Object.assign({}, i);
-      updated[field] = value || null;
-      return updated;
-    }
-    return i;
-  });
-  const { error } = await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
-  if (error) alert("항목 업데이트 실패: " + error.message);
-}
-
 
 async function deleteOrder(orderId, isPaid) {
   if (isPaid) {
@@ -85,7 +83,10 @@ async function searchOrders() {
   const keyword = document.getElementById("searchInput").value.trim();
   if (!keyword) return loadOrders();
 
-  let query = supabase.from("orders").select("*").eq("is_ready_to_ship", false).eq("is_ordered", false);
+  let query = supabase.from("orders")
+    .select("*")
+    .eq("is_ready_to_ship", false)
+    .eq("is_ordered", false);
 
   if (/^\d+$/.test(keyword)) {
     query = query.eq("order_id", keyword);
@@ -145,7 +146,6 @@ function makeColumnsResizable(table) {
     });
   });
 }
-
 
 function renderOrders(data) {
   const tbody = document.getElementById("orderBody");
@@ -225,16 +225,6 @@ function renderOrders(data) {
   });
 }
 
-async function checkAuth() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
-    alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
-    window.location.href = "/tamiya-order-form/admin/login.html";
-  } else {
-    loadOrders();
-  }
-}
-
 async function markAsReadyToShip(orderId, btn) {
   const { error } = await supabase.from('orders').update({ is_ready_to_ship: true }).eq('order_id', orderId);
   if (error) {
@@ -278,6 +268,16 @@ async function downloadSelectedOrders() {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "선택주문");
   XLSX.writeFile(workbook, "selected_orders.xlsx");
+}
+
+async function checkAuth() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
+    window.location.href = "/tamiya-order-form/admin/login.html";
+  } else {
+    loadOrders();
+  }
 }
 
 window.addEventListener("load", () => {
