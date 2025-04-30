@@ -59,7 +59,12 @@ async function updateField(orderId, field, value) {
     .from("orders")
     .update({ [field]: value || null })
     .eq("order_id", orderId);
-  if (error) alert("업데이트 실패: " + error.message);
+
+  if (error) {
+    alert("업데이트 실패: " + error.message);
+  } else {
+    loadOrders(); // ✅ 즉시 화면 갱신
+  }
 }
 
 async function updateFieldByItem(orderId, itemCode, field, value) {
