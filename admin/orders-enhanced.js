@@ -169,7 +169,7 @@ function renderOrders(data) {
 
     const proofButtons = (order.proof_images || [])
       .filter(url => typeof url === 'string' && url.startsWith('http'))
-      .map((url, index) => `<a href="${url}" target="_blank" download><button class="proof-btn">사진${index + 1}</button></a>`)
+      .map((url, index) => `<a href="${url}" target="_blank" download><button class="proof-btn">🔍︎</button></a>`)
       .join(" ");
 
     items.forEach((item, idx) => {
