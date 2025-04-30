@@ -137,3 +137,7 @@ th { position: relative; }
   border-radius: 4px;
   cursor: pointer;
 }
+
+.confirmation-warning {
+  background-color: #ffecec !important;
+}
