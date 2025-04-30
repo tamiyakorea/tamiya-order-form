@@ -235,6 +235,37 @@ async function checkAuth() {
   }
 }
 
+async function downloadSelectedOrders() {
+  const checkboxes = document.querySelectorAll('.download-checkbox:checked');
+  if (checkboxes.length === 0) {
+    alert('다운로드할 주문을 선택하세요.');
+    return;
+  }
+
+  const selectedOrderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
+  const { data: orders, error } = await supabase
+    .from("orders")
+    .select("*")
+    .in("order_id", selectedOrderIds);
+
+  if (error || !orders) {
+    alert("❌ 주문 데이터 불러오기 실패");
+    return;
+  }
+
+  const rows = orders.map(order => ({
+    주문번호: order.order_id,
+    고객명: order.name,
+    총금액: order.total,
+    입금일자: order.payment_date || ''
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "주문목록");
+  XLSX.writeFile(workbook, "선택_주문서.xlsx");
+}
+
 window.addEventListener("load", () => {
   injectColgroup();
   makeColumnsResizable(document.querySelector("table"));
