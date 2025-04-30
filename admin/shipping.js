@@ -400,8 +400,11 @@ function calculateRefundAmount(group) {
 
 // 개별 주문 관리 함수 (move, unmerge, update input 등)
 async function moveToOrderManagement(orderId) {
-  if (confirm("이 주문을 배송관리에서 제외하고 주문관리로 이동하시겠습니까?")) {
-    await supabase.from('orders').update({ is_ready_to_ship: false }).eq('order_id', orderId);
+  if (confirm("이 주문을 배송관리에서 제외하고 발주 완료로 이동하시겠습니까?")) {
+    await supabase.from('orders').update({
+      is_ready_to_ship: false,
+      is_ordered: true  // ✅ 주문 상태를 유지
+    }).eq('order_id', orderId);
     loadShippingOrders();
   }
 }
