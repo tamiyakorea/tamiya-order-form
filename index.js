@@ -315,6 +315,11 @@ window.searchOrderById = async function () {
         ? `<p style="color:green;"><strong>입금 확인됨</strong> (입금일: ${new Date(data.payment_date).toISOString().split("T")[0]})</p>`
         : `<p style="color:red;"><strong>아직 입금 확인되지 않았습니다.</strong></p>`;
 
+      const confirmationNoteHTML = data.confirmation_note
+        ? `<p style="background:#ffecec; color:#c00; font-weight:bold; padding:10px; border:1px solid #faa; margin-top:10px;">
+            ⚠ 확인 요청: ${data.confirmation_note}
+          </p>` : "";
+
       resultDiv.innerHTML = `
         <p><strong>주문번호:</strong> ${data.order_id}</p>
         <p><strong>주문일시:</strong> ${orderDate}</p>
@@ -324,6 +329,7 @@ window.searchOrderById = async function () {
         <p><strong>주소:</strong> ${data.zipcode} ${data.address} ${data.address_detail}</p>
         ${receiptInfo}
         ${paymentStatus}
+        ${confirmationNoteHTML}
         <p><strong>총 금액:</strong> ₩${data.total.toLocaleString()} (배송비: ₩${shipping.toLocaleString()})</p>
         <table style="width:100%; margin-top: 10px; border-collapse: collapse;" border="1">
           <thead style="background:#f0f0f0;">
@@ -350,7 +356,6 @@ window.searchOrderById = async function () {
     alert("조회 중 오류가 발생했습니다.");
   }
 };
-
 
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll('.faq-question').forEach(question => {
