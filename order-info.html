@@ -19,7 +19,8 @@
       <p><strong>입금상태:</strong> <span id="paymentStatus">-</span></p>
       <p><strong>입고예정:</strong> <span id="incomingDate">-</span></p>
     </div>
-
+    <div id="confirmationNoteContainer"></div>
+        
     <div class="section">
       <h2>고객 정보</h2>
       <p><strong>성명:</strong> <span id="name">-</span></p>
@@ -46,42 +47,49 @@
     const orderId = new URLSearchParams(window.location.search).get("orderId");
     const el = id => document.getElementById(id);
 
-    async function fetchOrderInfo() {
-      if (!orderId) return;
+async function fetchOrderInfo() {
+  if (!orderId) return;
 
-      try {
-        const res = await fetch('https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/get-order-by-id', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ order_id: Number(orderId) })
-        });
+  try {
+    const res = await fetch('https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/get-order-by-id', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order_id: Number(orderId) })
+    });
 
-        const result = await res.json();
-        if (!res.ok || !result.data) throw new Error("불러오기 실패");
+    const result = await res.json();
+    if (!res.ok || !result.data) throw new Error("불러오기 실패");
 
-        const order = result.data;
-        const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items);
+    const order = result.data;
+    const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items);
+    const isPaid = order.payment_confirmed;
 
-        el("orderId").textContent = order.order_id;
-        el("createdAt").textContent = order.created_at?.split("T")[0] || "-";
-        el("paymentStatus").textContent = order.payment_confirmed
-          ? `확인됨 (${order.payment_date?.split("T")[0] || '-'})`
-          : "미확인";
-        el("incomingDate").textContent = order.payment_confirmed
-          ? getArrivalDueText(items)
-          : "";
-        el("name").textContent = order.name || "-";
-        el("phone").textContent = order.phone || "-";
-        el("email").textContent = order.email || "-";
-        el("address").textContent = `${order.zipcode || ''} ${order.address || ''} ${order.address_detail || ''}`;
-        el("receiptInfo").textContent = order.receipt_info || "-";
+    el("orderId").textContent = order.order_id;
+    el("createdAt").textContent = order.created_at?.split("T")[0] || "-";
+    el("paymentStatus").textContent = isPaid
+      ? `확인됨 (${order.payment_date?.split("T")[0] || '-'})`
+      : "미확인";
+    el("incomingDate").textContent = isPaid ? getArrivalDueText(items) : "";
+    el("name").textContent = order.name || "-";
+    el("phone").textContent = order.phone || "-";
+    el("email").textContent = order.email || "-";
+    el("address").textContent = `${order.zipcode || ''} ${order.address || ''} ${order.address_detail || ''}`;
+    el("receiptInfo").textContent = order.receipt_info || "-";
 
-        renderOrderTable(items, order.total || 0, order.payment_confirmed);
-      } catch (e) {
-        alert("주문 정보를 불러오지 못했습니다.");
-        console.error(e);
-      }
-    }
+    // ✅ confirmation_note 출력 영역
+    const noteContainer = document.getElementById("confirmationNoteContainer");
+    noteContainer.innerHTML = order.confirmation_note
+      ? `<div style="background:#ffecec; color:#c00; font-weight:bold; padding:10px; border:1px solid #faa; margin:20px 0;">
+          ⚠ 재주문 필요: ${order.confirmation_note}
+        </div>`
+      : "";
+
+    renderOrderTable(items, order.total || 0, isPaid);
+  } catch (e) {
+    alert("주문 정보를 불러오지 못했습니다.");
+    console.error(e);
+  }
+}
 
     function getArrivalDueText(items) {
       const arrivalDates = items.map(i => i.arrival_due?.trim()).filter(Boolean);
