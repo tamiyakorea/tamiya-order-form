@@ -2,66 +2,84 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>발주 완료</title>
+  <title>주문 관리</title>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="orders.css" />
+  <link rel="icon" href="data:,">
   <script>
     function logout() {
       if (typeof window.logout === 'function') window.logout();
+    }
+    function openUploadWindow() {
+      window.open('upload-orders.html', '_blank', 'width=800,height=700');
+    }
+    function openDirectUploadWindow() {
+      window.open('upload-custom-price.html', '_blank', 'width=800,height=700');
     }
   </script>
 </head>
 <body>
   <nav>
-    <a href="orders.html">주문 관리</a>
-    <a href="ordered.html" class="active">발주 완료</a>
+    <a href="orders.html" class="active">주문 관리</a>
+    <a href="ordered.html">발주 완료</a>
     <a href="shipping.html">배송 관리</a>
     <a href="shipped.html">배송 완료</a>
     <a href="accounting.html">회계 관리</a>
+    <button class="upload-btn" onclick="openUploadWindow()">엑셀 주문 등록</button>
+    <button class="upload-btn" onclick="openDirectUploadWindow()">직접 단가 업로드</button>
     <button class="logout-btn" onclick="logout()">로그아웃</button>
   </nav>
 
-  <h1>발주 완료 주문 관리</h1>
+  <h1>고객 주문 관리 페이지</h1>
 
   <div style="margin: 20px 0; text-align: center;">
     <input id="searchInput" type="text" placeholder="주문번호 또는 고객명을 입력하세요" style="padding: 6px; width: 300px;" />
-    <button onclick="searchOrdered()" style="padding: 6px 12px;">검색</button>
-    <button onclick="loadOrdered()" style="padding: 6px 12px;">전체보기</button>
+    <button onclick="searchOrders()" style="padding: 6px 12px;">검색</button>
+    <button onclick="loadOrders()" style="padding: 6px 12px;">전체보기</button>
+    <button onclick="downloadSelectedOrders()" style="padding: 6px 12px; background-color: green; color: white; margin-left: 20px;">
+      선택 주문서 다운로드
+    </button>
+    <button onclick="resetHiddenColumns()" style="padding: 6px 12px; background-color: gray; color: white; margin-left: 10px;">
+      숨긴 열 복원
+    </button>
   </div>
 
   <div class="table-wrapper">
-    <table id="orderedTable">
+    <table id="orderTable">
       <colgroup id="colgroup"></colgroup>
       <thead>
         <tr>
-          <th rowspan="2">삭제</th>
-          <th rowspan="2">주문일시</th>
-          <th rowspan="2">주문번호</th>
-          <th rowspan="2">입금확인일</th>
-          <th rowspan="2">고객명</th>
-          <th colspan="4">상품정보</th>
-          <th rowspan="2">총금액</th>
-          <th rowspan="2">PO 정보</th>
-          <th rowspan="2">비고</th>
-          <th rowspan="2">입고 정보</th>
-          <th rowspan="2">입고 예정</th>
-          <th rowspan="2">배송 관리로 이동</th>
+          <th rowspan="2" data-col-index="0">삭제</th>
+          <th rowspan="2" data-col-index="1">첨부파일</th>
+          <th rowspan="2" data-col-index="2">주문일시</th>
+          <th rowspan="2" data-col-index="3">주문번호</th>
+          <th rowspan="2" data-col-index="4">고객명</th>
+          <th rowspan="2" data-col-index="5">전화번호</th>
+          <th rowspan="2" data-col-index="6">이메일</th>
+          <th colspan="3">주소</th>
+          <th rowspan="2" data-col-index="10">현금영수증</th>
+          <th colspan="4">주문 상품</th>
+          <th rowspan="2" data-col-index="15">총 금액</th>
+          <th rowspan="2" data-col-index="16">입금 상태</th>
         </tr>
         <tr>
-          <th>시리얼</th>
-          <th>상품명</th>
-          <th>수량</th>
-          <th>단가</th>
+          <th data-col-index="7">우편번호</th>
+          <th data-col-index="8">주소</th>
+          <th data-col-index="9">상세주소</th>
+          <th data-col-index="11">시리얼</th>
+          <th data-col-index="12">상품명</th>
+          <th data-col-index="13">수량</th>
+          <th data-col-index="14">단가</th>
         </tr>
       </thead>
-      <tbody id="orderedBody">
-        <tr><td colspan="15">불러오는 중...</td></tr>
+      <tbody id="orderBody">
+        <tr><td colspan="17">불러오는 중...</td></tr>
       </tbody>
     </table>
   </div>
 
-  <script type="module" src="ordered.js"></script>
+  <script type="module" src="orders-enhanced.js"></script>
 </body>
 </html>
