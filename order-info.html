@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>주문 진행 현황</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div style="text-align: center; padding: 10px 0; background-color: white;">
+    <img src="images/logo.png" alt="한국타미야 로고" style="height: 90px;" />
+  </div>
+
+  <main>
+    <h1>주문 진행 현황</h1>
+
+    <div class="section">
+      <p><strong>주문번호:</strong> <span id="orderId">-</span></p>
+      <p><strong>주문일시:</strong> <span id="createdAt">-</span></p>
+      <p><strong>입금상태:</strong> <span id="paymentStatus">-</span></p>
+      <p><strong>입고예정:</strong> <span id="incomingDate">-</span></p>
+    </div>
+
+    <div class="section">
+      <h2>고객 정보</h2>
+      <p><strong>성명:</strong> <span id="name">-</span></p>
+      <p><strong>전화번호:</strong> <span id="phone">-</span></p>
+      <p><strong>이메일:</strong> <span id="email">-</span></p>
+      <p><strong>주소:</strong> <span id="address">-</span></p>
+      <p><strong>현금영수증 정보:</strong> <span id="receiptInfo">-</span></p>
+    </div>
+
+    <div class="section">
+      <h2>주문 내역</h2>
+      <div id="orderTableContainer"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+      <img src="images/TamiyaPlamodelFactory.png" alt="한국타미야 로고" style="height: 80px;" />
+      <p>ⓒ kidult-hobby.co.kr</p>
+    </div>
+  </footer>
+
+  <script>
+    const orderId = new URLSearchParams(window.location.search).get("orderId");
+    const el = id => document.getElementById(id);
+
+    async function fetchOrderInfo() {
+      if (!orderId) return;
+
+      try {
+        const res = await fetch('https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/get-order-by-id', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: Number(orderId) })
+        });
+
+        const result = await res.json();
+        if (!res.ok || !result.data) throw new Error("불러오기 실패");
+
+        const order = result.data;
+        const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items);
+
+        el("orderId").textContent = order.order_id;
+        el("createdAt").textContent = order.created_at?.split("T")[0] || "-";
+        el("paymentStatus").textContent = order.payment_confirmed
+          ? `확인됨 (${order.payment_date?.split("T")[0] || '-'})`
+          : "미확인";
+        el("incomingDate").textContent = getArrivalDueText(items);
+        el("name").textContent = order.name || "-";
+        el("phone").textContent = order.phone || "-";
+        el("email").textContent = order.email || "-";
+        el("address").textContent = `${order.zipcode || ''} ${order.address || ''} ${order.address_detail || ''}`;
+        el("receiptInfo").textContent = order.receipt_info || "-";
+
+        renderOrderTable(items, order.total || 0);
+      } catch (e) {
+        alert("주문 정보를 불러오지 못했습니다.");
+        console.error(e);
+      }
+    }
+
+    function getArrivalDueText(items) {
+      const arrivalDates = items.map(i => i.arrival_due?.trim()).filter(Boolean);
+      return arrivalDates.length ? [...new Set(arrivalDates)].join(" / ") : "진행중";
+    }
+
+    function renderOrderTable(items, total) {
+      const container = document.getElementById("orderTableContainer");
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>상품명</th>
+              <th>수량</th>
+              <th>단가</th>
+              <th>합계</th>
+              <th>입고예정</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      let sum = 0;
+      let qtyTotal = 0;
+      items.forEach(item => {
+        const qty = Number(item.qty || 0);
+        const price = Number(item.price || 0);
+        const subtotal = qty * price;
+        qtyTotal += qty;
+        sum += subtotal;
+
+        html += `
+          <tr>
+            <td>${item.name}</td>
+            <td>${qty}</td>
+            <td>${price.toLocaleString()}원</td>
+            <td>${subtotal.toLocaleString()}원</td>
+            <td>${item.arrival_due?.trim() || "진행중"}</td>
+          </tr>
+        `;
+      });
+
+      const shipping = Math.max(total - sum, 0);
+
+      html += `
+        <tr>
+          <td>배송비</td>
+          <td></td>
+          <td>${shipping.toLocaleString()}원</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr class="total">
+          <td>총계</td>
+          <td>${qtyTotal}</td>
+          <td></td>
+          <td>${total.toLocaleString()}원</td>
+          <td></td>
+        </tr>
+      </tbody></table>`;
+
+      container.innerHTML = html;
+    }
+
+    fetchOrderInfo();
+  </script>
+</body>
+</html>
