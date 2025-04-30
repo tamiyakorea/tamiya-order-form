@@ -151,39 +151,42 @@ function renderOrders(data) {
       const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
 
       const rowHtml = `
-        <tr class="${rowClass}">
-          ${isFirstRow ? `
-            <td rowspan="${items.length}">
-              <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
-              <br>
-              <input type="checkbox" class="download-checkbox" data-order-id="${order.order_id}">
-            </td>
-            <td rowspan="${items.length}">${proofButtons}</td>
-            <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
-            <td rowspan="${items.length}">${order.order_id}</td>
-            <td rowspan="${items.length}">${order.name}</td>
-            <td rowspan="${items.length}">${order.phone}</td>
-            <td rowspan="${items.length}" title="${order.email}">${order.email}</td>
-            <td rowspan="${items.length}">${order.zipcode}</td>
-            <td rowspan="${items.length}">${order.address}</td>
-            <td rowspan="${items.length}">${order.address_detail}</td>
-            <td rowspan="${items.length}">${order.receipt_info || ''}</td>
-          ` : ''}
-          <td>${item.code || '-'}</td>
-          <td class="ellipsis" title="${item.name}">${item.name}</td>
-          <td>${item.qty}</td>
-          <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
-          ${isFirstRow ? `
-            <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
-            <td rowspan="${items.length}" class="pay-status">
-              <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
-              <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
-                ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
-              </button><br>
-              ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
-            </td>
-          ` : ''}
-        </tr>
+  <tr class="${rowClass}">
+    ${isFirstRow ? `
+      <td rowspan="${items.length}">
+        <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
+        <br>
+        <input type="checkbox" class="download-checkbox" data-order-id="${order.order_id}">
+      </td>
+      <td rowspan="${items.length}">${proofButtons}</td>
+      <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
+      <td rowspan="${items.length}">${order.order_id}</td>
+      <td rowspan="${items.length}">${order.name}</td>
+      <td rowspan="${items.length}">${order.phone}</td>
+      <td rowspan="${items.length}" title="${order.email}">${order.email}</td>
+      <td rowspan="${items.length}">${order.zipcode}</td>
+      <td rowspan="${items.length}">${order.address}</td>
+      <td rowspan="${items.length}">${order.address_detail}</td>
+      <td rowspan="${items.length}">${order.receipt_info || ''}</td>
+    ` : ''}
+    <td>${item.code || '-'}</td>
+    <td class="ellipsis" title="${item.name}">${item.name}</td>
+    <td>${item.qty}</td>
+    <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
+    ${isFirstRow ? `
+      <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
+      <td rowspan="${items.length}" class="pay-status">
+        <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
+        <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
+          ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
+        </button><br>
+        ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+      </td>
+      <td rowspan="${items.length}">
+        <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
+      </td>
+    ` : ''}
+  </tr>
       `;
       tbody.insertAdjacentHTML('beforeend', rowHtml);
     });
