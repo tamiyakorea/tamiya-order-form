@@ -6,6 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="shipped.css" />
   <script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
@@ -78,65 +79,18 @@
     }
 
     window.returnToShipping = returnToShipping;
-
     document.addEventListener('DOMContentLoaded', loadDeliveredOrders);
   </script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    nav {
-      background-color: #343a40;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-right: 20px;
-      font-weight: bold;
-    }
-    nav a.active {
-      text-decoration: underline;
-    }
-    h1 {
-      text-align: center;
-      margin-top: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 20px auto;
-      max-width: 1800px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: center;
-      vertical-align: middle;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    tr.order-group td {
-      border-top: 2px solid #333;
-    }
-  </style>
 </head>
 <body>
   <nav>
-  <div>
-    <a href="orders.html">주문 관리</a>
-    <a href="shipping.html">배송 관리</a>
-    <a href="shipped.html" class="active">배송 완료</a>
-    <a href="accounting.html">회계 관리</a>
-  </div>
-</nav>
+    <div>
+      <a href="orders.html">주문 관리</a>
+      <a href="shipping.html">배송 관리</a>
+      <a href="shipped.html" class="active">배송 완료</a>
+      <a href="accounting.html">회계 관리</a>
+    </div>
+  </nav>
 
   <h1>배송 완료</h1>
 
