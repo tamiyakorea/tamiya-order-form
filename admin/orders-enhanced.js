@@ -203,8 +203,6 @@ function renderOrders(data) {
   ` : ''}
   ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
 </td>
-  ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
-</td>
       <td rowspan="${items.length}">
         <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
       </td>
