@@ -8,6 +8,24 @@
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="orders.css" />
   <link rel="icon" href="data:,">
+  <style>
+    .button-group {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin: -10px 30px 20px 0;
+    }
+    .button-group button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+    }
+    .btn-excel { background-color: green; }
+    .btn-upload { background-color: #007bff; }
+    .btn-logout { background-color: #dc3545; }
+  </style>
   <script>
     function logout() {
       if (typeof window.logout === 'function') window.logout();
@@ -27,9 +45,6 @@
     <a href="shipping.html">배송 관리</a>
     <a href="shipped.html">배송 완료</a>
     <a href="accounting.html">회계 관리</a>
-    <button class="upload-btn" onclick="openUploadWindow()">엑셀 주문 등록</button>
-    <button class="upload-btn" onclick="openDirectUploadWindow()">직접 단가 업로드</button>
-    <button class="logout-btn" onclick="logout()">로그아웃</button>
   </nav>
 
   <h1>고객 주문 관리</h1>
@@ -38,12 +53,17 @@
     <input id="searchInput" type="text" placeholder="주문번호 또는 고객명을 입력하세요" style="padding: 6px; width: 300px;" />
     <button onclick="searchOrders()" style="padding: 6px 12px;">검색</button>
     <button onclick="loadOrders()" style="padding: 6px 12px;">전체보기</button>
-    <button onclick="downloadSelectedOrders()" style="padding: 6px 12px; background-color: green; color: white; margin-left: 20px;">
-      선택 주문서 다운로드
-    </button>
     <button onclick="resetHiddenColumns()" style="padding: 6px 12px; background-color: gray; color: white; margin-left: 10px;">
       숨긴 열 복원
     </button>
+  </div>
+
+  <!-- ✅ 버튼 우측 정렬 영역 -->
+  <div class="button-group">
+    <button class="btn-upload" onclick="openUploadWindow()">엑셀 주문 등록</button>
+    <button class="btn-upload" onclick="openDirectUploadWindow()">직접 단가 업로드</button>
+    <button class="btn-excel" onclick="downloadSelectedOrders()">선택 주문서 다운로드</button>
+    <button class="btn-logout" onclick="logout()">로그아웃</button>
   </div>
 
   <div class="table-wrapper">
