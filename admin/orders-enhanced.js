@@ -32,21 +32,6 @@ async function updateField(orderId, field, value) {
   if (error) alert("업데이트 실패: " + error.message);
 }
 
-async function updateFieldByItem(orderId, itemCode, field, value) {
-  const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
-  if (!orderData || !orderData.items) return;
-  const items = Array.isArray(orderData.items) ? orderData.items : JSON.parse(orderData.items);
-  const updatedItems = items.map(i => {
-    if (String(i.code) === String(itemCode)) {
-      const updated = { ...i, [field]: value || null };
-      return updated;
-    }
-    return i;
-  });
-  const { error } = await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
-  if (error) alert("항목 업데이트 실패: " + error.message);
-}
-
 async function togglePayment(orderId, current, button) {
   const row = button.closest('tr');
   const dateInput = row.querySelector('.payment-date');
@@ -83,10 +68,7 @@ async function searchOrders() {
   const keyword = document.getElementById("searchInput").value.trim();
   if (!keyword) return loadOrders();
 
-  let query = supabase.from("orders")
-    .select("*")
-    .eq("is_ready_to_ship", false)
-    .eq("is_ordered", false);
+  let query = supabase.from("orders").select("*").eq("is_ready_to_ship", false).eq("is_ordered", false);
 
   if (/^\d+$/.test(keyword)) {
     query = query.eq("order_id", keyword);
@@ -115,7 +97,7 @@ function injectColgroup() {
   const colgroup = document.getElementById("colgroup");
   if (!colgroup) return;
   colgroup.innerHTML = '';
-  for (let i = 1; i <= 22; i++) {
+  for (let i = 1; i <= 17; i++) {
     const col = document.createElement("col");
     colgroup.appendChild(col);
   }
@@ -151,7 +133,7 @@ function renderOrders(data) {
   const tbody = document.getElementById("orderBody");
   tbody.innerHTML = "";
   if (!data || data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="22">주문 내역이 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="17">주문 내역이 없습니다.</td></tr>';
     return;
   }
 
@@ -200,38 +182,12 @@ function renderOrders(data) {
               </button><br>
               ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
             </td>
-            <td rowspan="${items.length}">
-              <input class="input-box" value="${order.po_info || ''}" onchange="updateField('${order.order_id}', 'po_info', this.value)" />
-            </td>
-            <td rowspan="${items.length}">
-              <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
-            </td>
-          ` : ''}
-          <td>
-            <input class="input-box" value="${item.arrival_status || ''}" onchange="updateFieldByItem('${order.order_id}', '${item.code}', 'arrival_status', this.value)" />
-          </td>
-          <td>
-            <input class="input-box" value="${item.arrival_due || ''}" onchange="updateFieldByItem('${order.order_id}', '${item.code}', 'arrival_due', this.value)" />
-          </td>
-          ${isFirstRow ? `
-            <td rowspan="${items.length}">
-              <button class="ship-btn" onclick="markAsReadyToShip('${order.order_id}', this)" ${order.is_ready_to_ship ? 'disabled' : ''}>준비</button>
-            </td>
           ` : ''}
         </tr>
       `;
       tbody.insertAdjacentHTML('beforeend', rowHtml);
     });
   });
-}
-
-async function markAsReadyToShip(orderId, btn) {
-  const { error } = await supabase.from('orders').update({ is_ready_to_ship: true }).eq('order_id', orderId);
-  if (error) {
-    alert('배송 준비 상태 업데이트 실패: ' + error.message);
-    return;
-  }
-  btn.disabled = true;
 }
 
 async function downloadSelectedOrders() {
@@ -295,5 +251,4 @@ Object.assign(window, {
   updateField,
   updateFieldByItem,
   togglePayment,
-  markAsReadyToShip
 });
