@@ -199,7 +199,7 @@ function renderOrders(data) {
     ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
   </button><br>
   ${order.payment_confirmed ? `
-    <button onclick="markAsOrdered('${order.order_id}')">✔ 발주 완료</button>
+    <button onclick="markAsOrdered('${order.order_id}')">✔</button>
   ` : ''}
   ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
 </td>
