@@ -144,3 +144,7 @@ th { position: relative; }
 .fully-confirmed {
   background-color: #e6ffe6; /* 연한 초록 */
 }
+
+.order-separator td {
+  border-top: 3px solid #333 !important;
+}
