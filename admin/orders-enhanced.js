@@ -235,6 +235,15 @@ async function checkAuth() {
   }
 }
 
+async function markAsReadyToShip(orderId, btn) {
+  const { error } = await supabase.from('orders').update({ is_ready_to_ship: true }).eq('order_id', orderId);
+  if (error) {
+    alert('배송 준비 상태 업데이트 실패: ' + error.message);
+    return;
+  }
+  btn.disabled = true;
+}
+
 async function downloadSelectedOrders() {
   const checkboxes = document.querySelectorAll('.download-checkbox:checked');
   if (checkboxes.length === 0) {
