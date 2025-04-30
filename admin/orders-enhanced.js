@@ -288,5 +288,5 @@ Object.assign(window, {
   updateField,
   updateFieldByItem,
   togglePayment,
-  markAsOrdered
+  markAsOrdered // ✅ 추가
 });
