@@ -196,8 +196,13 @@ function renderOrders(data) {
       <td rowspan="${items.length}" class="pay-status">
   <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
   <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
-    ${order.payment_confirmed ? '입금 확인됨 ✔' : '입금 확인'}
+    ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
   </button><br>
+  ${order.payment_confirmed ? `
+    <button onclick="markAsOrdered('${order.order_id}')">✔ 발주 완료</button>
+  ` : ''}
+  ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+</td>
   ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
 </td>
       <td rowspan="${items.length}">
@@ -209,6 +214,19 @@ function renderOrders(data) {
       tbody.insertAdjacentHTML('beforeend', rowHtml);
     });
   });
+}
+
+async function markAsOrdered(orderId) {
+  const confirmProceed = confirm("발주 완료 처리하시겠습니까?");
+  if (!confirmProceed) return;
+
+  const { error } = await supabase.from("orders").update({ is_ordered: true }).eq("order_id", orderId);
+  if (error) {
+    alert("발주 완료 처리 실패: " + error.message);
+  } else {
+    alert("발주 완료 처리되었습니다.");
+    loadOrders();
+  }
 }
 
 async function downloadSelectedOrders() {
@@ -272,4 +290,5 @@ Object.assign(window, {
   updateField,
   updateFieldByItem,
   togglePayment,
+  markAsOrdered
 });
