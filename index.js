@@ -317,7 +317,7 @@ window.searchOrderById = async function () {
 
       const confirmationNoteHTML = data.confirmation_note
         ? `<p style="background:#ffecec; color:#c00; font-weight:bold; padding:10px; border:1px solid #faa; margin-top:10px;">
-            ⚠ 확인 요청: ${data.confirmation_note}
+            ⚠ 재주문 필요: ${data.confirmation_note}
           </p>` : "";
 
       resultDiv.innerHTML = `
