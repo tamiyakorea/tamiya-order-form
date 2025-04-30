@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="orders.css" />
   <script>
     function logout() {
-      // 실제 로그아웃 로직은 JS에서 전역 등록된 logout 함수로 실행됨
+      if (typeof window.logout === 'function') window.logout();
     }
     function openUploadWindow() {
       window.open('upload-orders.html', '_blank', 'width=800,height=700');
@@ -22,6 +22,7 @@
 <body>
   <nav>
     <a href="orders.html" class="active">주문 관리</a>
+    <a href="ordered.html">발주 완료</a>
     <a href="shipping.html">배송 관리</a>
     <a href="shipped.html">배송 완료</a>
     <a href="accounting.html">회계 관리</a>
