@@ -55,9 +55,21 @@ function renderOrdered(data) {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
     const paymentDate = order.payment_date ? formatDateOnly(order.payment_date) : '';
 
+    // ✅ 모든 아이템의 입고상태/입고예정이 입력되었는지 검사
+    const isFullyConfirmed = items.every(item =>
+      (item.arrival_status && item.arrival_status.trim() !== "") &&
+      (item.arrival_due && item.arrival_due.trim() !== "")
+    );
+
     items.forEach((item, idx) => {
       const isFirst = idx === 0;
       const row = document.createElement("tr");
+
+      // ✅ 첫 행에만 배경색 표시
+      if (isFirst && isFullyConfirmed) {
+        row.classList.add("fully-confirmed");
+      }
+
       row.innerHTML = `
         ${isFirst ? `<td rowspan="${items.length}"><button class="delete-btn" onclick="deleteOrdered('${order.order_id}')">삭제</button></td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>` : ''}
