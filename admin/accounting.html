@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>회계 관리</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="shipping.css" />
+</head>
+<body>
+  <nav>
+    <div>
+      <a href="orders.html">주문 관리</a>
+      <a href="shipping.html">배송 관리</a>
+      <a href="shipped.html">배송 완료</a>
+      <a href="accounting.html" class="active">회계 관리</a>
+    </div>
+  </nav>
+
+  <h1 style="text-align:center">회계 관리</h1>
+
+  <div style="text-align:center; margin: 20px 0;">
+    <label>조회 기간: </label>
+    <input type="date" id="start-date" /> ~
+    <input type="date" id="end-date" />
+    <button onclick="loadAccountingData()">검색</button>
+  </div>
+
+  <div id="summary" style="text-align:center; margin-bottom:20px;">
+    <strong>공급가액:</strong> ₩<span id="supply-price">0</span>
+    <strong style="margin-left:30px;">부가세:</strong> ₩<span id="vat">0</span>
+    <strong style="margin-left:30px;">총금액:</strong> ₩<span id="total">0</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>주문번호</th>
+        <th>주문자명</th>
+        <th>주문일자</th>
+        <th>입금일자</th>
+        <th>총금액</th>
+        <th>송장번호</th>
+      </tr>
+    </thead>
+    <tbody id="accounting-table-body">
+      <tr><td colspan="6">검색 결과 없음</td></tr>
+    </tbody>
+  </table>
+
+  <script type="module" src="accounting.js"></script>
+</body>
+</html>
