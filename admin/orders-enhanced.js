@@ -52,6 +52,22 @@ async function togglePayment(orderId, current, button) {
   loadOrders();
 }
 
+async function updateFieldByItem(orderId, itemCode, field, value) {
+  const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
+  if (!orderData || !orderData.items) return;
+  const items = Array.isArray(orderData.items) ? orderData.items : JSON.parse(orderData.items);
+  const updatedItems = items.map(i => {
+    if (String(i.code) === String(itemCode)) {
+      const updated = Object.assign({}, i);
+      updated[field] = value || null;
+      return updated;
+    }
+    return i;
+  });
+  const { error } = await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
+  if (error) alert("항목 업데이트 실패: " + error.message);
+}
+
 async function deleteOrder(orderId, isPaid) {
   if (isPaid) {
     alert("입금 확인된 주문은 삭제할 수 없습니다.");
