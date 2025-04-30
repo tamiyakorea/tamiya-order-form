@@ -10,6 +10,8 @@ nav {
   padding: 10px 20px;
   color: white;
   font-weight: bold;
+  min-width: 100%;
+  box-sizing: border-box;
 }
 
 nav a {
@@ -62,19 +64,16 @@ tbody td {
   vertical-align: middle;
 }
 
-/* 입력박스 */
 .input-box {
   width: 100%;
   box-sizing: border-box;
   padding: 4px;
 }
 
-/* 환불예상 강조 */
 td > div[style*="color:red"] {
   font-weight: bold;
 }
 
-/* 버튼 스타일 */
 button {
   padding: 4px 10px;
   cursor: pointer;
@@ -94,12 +93,10 @@ button[disabled] {
   border: 1px solid #aaa;
 }
 
-/* 체크박스 정렬 보정 */
 input[type="checkbox"] {
   transform: scale(1.2);
 }
 
-/* 숨겨진 셀 처리용 - JS의 <td style="display:none"> 와 호환 */
 td[style*="display:none"] {
   padding: 0 !important;
   border: none !important;
