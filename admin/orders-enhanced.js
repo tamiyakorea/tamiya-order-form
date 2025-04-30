@@ -174,7 +174,11 @@ function renderOrders(data) {
 
     items.forEach((item, idx) => {
       const isFirstRow = idx === 0;
-      const rowClass = `${isFirstRow ? 'order-separator' : ''} ${order.payment_confirmed ? 'confirmed-row' : ''}`;
+      const rowClass = [
+        isFirstRow ? 'order-separator' : '',
+        order.payment_confirmed ? 'confirmed-row' : '',
+        order.confirmation_note ? 'confirmation-warning' : ''
+      ].join(' ');
 
       const rowHtml = `
   <tr class="${rowClass}">
