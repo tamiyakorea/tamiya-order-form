@@ -67,7 +67,9 @@
         el("paymentStatus").textContent = order.payment_confirmed
           ? `확인됨 (${order.payment_date?.split("T")[0] || '-'})`
           : "미확인";
-        el("incomingDate").textContent = getArrivalDueText(items);
+        el("incomingDate").textContent = order.payment_confirmed
+          ? getArrivalDueText(items)
+          : "";
         el("name").textContent = order.name || "-";
         el("phone").textContent = order.phone || "-";
         el("email").textContent = order.email || "-";
