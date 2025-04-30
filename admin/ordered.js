@@ -54,8 +54,6 @@ function renderOrdered(data) {
   data.forEach(order => {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
     const paymentDate = order.payment_date ? formatDateOnly(order.payment_date) : '';
-
-    // ✅ 조건: 주문 내 모든 아이템이 입고상태/예정이 입력되어야 함
     const isFullyConfirmed = items.every(item =>
       (item.arrival_status && item.arrival_status.trim() !== "") &&
       (item.arrival_due && item.arrival_due.trim() !== "")
@@ -65,10 +63,8 @@ function renderOrdered(data) {
       const isFirst = idx === 0;
       const row = document.createElement("tr");
 
-      // ✅ 모든 행에 fully-confirmed 클래스 적용
-      if (isFullyConfirmed) {
-        row.classList.add("fully-confirmed");
-      }
+      if (isFullyConfirmed) row.classList.add("fully-confirmed");
+      if (isFirst) row.classList.add("order-separator"); // ✅ 굵은 경계선
 
       row.innerHTML = `
         ${isFirst ? `<td rowspan="${items.length}"><button class="delete-btn" onclick="deleteOrdered('${order.order_id}')">삭제</button></td>` : ''}
@@ -135,17 +131,26 @@ async function searchOrdered() {
   const keyword = document.getElementById("searchInput").value.trim();
   if (!keyword) return loadOrdered();
 
-  let query = supabase.from("orders").select("*").eq("is_ordered", true).eq("is_ready_to_ship", false);
+  const { data, error } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("is_ordered", true)
+    .eq("is_ready_to_ship", false);
 
-  if (/^\d+$/.test(keyword)) {
-    query = query.eq("order_id", keyword);
-  } else {
-    query = query.ilike("name", `%${keyword}%`);
-  }
+  if (error) return alert("검색 실패: " + error.message);
 
-  const { data, error } = await query;
-  if (!error) renderOrdered(data);
-  else alert("검색 실패: " + error.message);
+  const result = data.filter(order => {
+    const keywordLower = keyword.toLowerCase();
+    const items = typeof order.items === 'string' ? JSON.parse(order.items || '[]') : (order.items || []);
+    const hasMatchingItem = items.some(i => i.code?.includes(keyword));
+    return (
+      order.order_id.toString().includes(keyword) ||
+      order.name?.toLowerCase().includes(keywordLower) ||
+      hasMatchingItem
+    );
+  });
+
+  renderOrdered(result);
 }
 
 window.addEventListener("load", checkAuth);
