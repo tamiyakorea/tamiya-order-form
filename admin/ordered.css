@@ -140,3 +140,7 @@ th { position: relative; }
 .ship-btn:hover {
   background-color: #138496;
 }
+
+.fully-confirmed {
+  background-color: #e6ffe6; /* 연한 초록 */
+}
