@@ -249,21 +249,26 @@ async function downloadSelectedOrders() {
     .in("order_id", selectedOrderIds);
 
   if (error || !orders) {
-    alert("❌ 주문 데이터 불러오기 실패");
+    alert("❌ 주문 데이터 불러오기 실패: " + (error?.message || ''));
     return;
   }
 
-  const rows = orders.map(order => ({
-    주문번호: order.order_id,
-    고객명: order.name,
-    총금액: order.total,
-    입금일자: order.payment_date || ''
-  }));
+  const rows = orders.flatMap(order => {
+    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+    return items.map(item => ({
+      주문번호: order.order_id,
+      고객명: order.name,
+      상품명: item.name,
+      수량: item.qty,
+      단가: item.price,
+      총금액: order.total
+    }));
+  });
 
   const worksheet = XLSX.utils.json_to_sheet(rows);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "주문목록");
-  XLSX.writeFile(workbook, "선택_주문서.xlsx");
+  XLSX.utils.book_append_sheet(workbook, worksheet, "선택주문");
+  XLSX.writeFile(workbook, "selected_orders.xlsx");
 }
 
 window.addEventListener("load", () => {
