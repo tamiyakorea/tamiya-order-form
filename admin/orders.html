@@ -6,125 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <style>
-    html, body {
-      font-family: Arial, sans-serif;
-      padding: 0;
-      margin: 0;
-      overflow-x: auto;
-      overflow-y: auto;
-      height: 100%;
-    }
-    h1 { text-align: center; margin-top: 20px; }
-
-    .logout-btn, .upload-btn {
-      float: right;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 10px 5px 10px 0;
-    }
-
-    .logout-btn { background: #dc3545; }
-    .upload-btn { background-color: #007bff; }
-    .upload-btn:hover { background-color: #0056b3; }
-
-    nav {
-      background-color: #343a40;
-      color: white;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-    }
-    nav a {
-      color: white;
-      text-decoration: none;
-      margin-right: 20px;
-      font-weight: bold;
-    }
-    nav a.active { text-decoration: underline; }
-
-    .input-box { width: 100px; padding: 4px; }
-    .pay-status { line-height: 1.4; }
-    .ellipsis {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .order-separator td {
-      border-top: 2px solid #333 !important;
-    }
-    .confirmed-row {
-      background-color: #e6ffe6;
-    }
-    .table-wrapper {
-      width: fit-content;
-      min-width: 1700px;
-      margin: 0 auto;
-    }
-    table {
-      border-collapse: collapse;
-      background: white;
-      table-layout: fixed;
-      width: max-content;
-      min-width: 1700px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-      vertical-align: middle;
-      word-break: break-word;
-      white-space: normal;
-    }
-    thead tr:nth-child(1) th,
-    thead tr:nth-child(2) th {
-      position: sticky;
-      background: #007bff;
-      color: white;
-      z-index: 3;
-    }
-    thead tr:nth-child(1) th { top: 0; }
-    thead tr:nth-child(2) th { top: 42px; }
-    th { position: relative; }
-    .resizer {
-      width: 5px;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      right: 0;
-      cursor: col-resize;
-      user-select: none;
-      z-index: 5;
-    }
-    .delete-btn {
-      background: #ff4d4f;
-      color: white;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .ship-btn {
-      background: #17a2b8;
-      color: white;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .proof-btn {
-      margin: 2px;
-      padding: 4px 8px;
-      font-size: 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background-color: #f8f8f8;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="orders.css" />
   <script>
     function logout() {
       // 실제 로그아웃 로직은 JS에서 전역 등록된 logout 함수로 실행됨
@@ -139,14 +21,14 @@
 </head>
 <body>
   <nav>
-  <a href="orders.html" class="active">주문 관리</a>
-  <a href="shipping.html">배송 관리</a>
-  <a href="shipped.html">배송 완료</a>
-  <a href="accounting.html">회계 관리</a>
-  <button class="upload-btn" onclick="openUploadWindow()">엑셀 주문 등록</button>
-  <button class="upload-btn" onclick="openDirectUploadWindow()">직접 단가 업로드</button>
-  <button class="logout-btn" onclick="logout()">로그아웃</button>
-</nav>
+    <a href="orders.html" class="active">주문 관리</a>
+    <a href="shipping.html">배송 관리</a>
+    <a href="shipped.html">배송 완료</a>
+    <a href="accounting.html">회계 관리</a>
+    <button class="upload-btn" onclick="openUploadWindow()">엑셀 주문 등록</button>
+    <button class="upload-btn" onclick="openDirectUploadWindow()">직접 단가 업로드</button>
+    <button class="logout-btn" onclick="logout()">로그아웃</button>
+  </nav>
 
   <h1>고객 주문 관리 페이지</h1>
 
@@ -154,8 +36,6 @@
     <input id="searchInput" type="text" placeholder="주문번호 또는 고객명을 입력하세요" style="padding: 6px; width: 300px;" />
     <button onclick="searchOrders()" style="padding: 6px 12px;">검색</button>
     <button onclick="loadOrders()" style="padding: 6px 12px;">전체보기</button>
-    
-    <!-- ✅ 추가된 다운로드 버튼 -->
     <button onclick="downloadSelectedOrders()" style="padding: 6px 12px; background-color: green; color: white; margin-left: 20px;">
       선택 주문서 다운로드
     </button>
@@ -200,7 +80,6 @@
     </table>
   </div>
 
-  <!-- ✅ JS 로딩 위치를 body 맨 아래로 이동 -->
   <script type="module" src="orders-enhanced.js"></script>
 </body>
 </html>
