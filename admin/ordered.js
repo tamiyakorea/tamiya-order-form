@@ -55,7 +55,7 @@ function renderOrdered(data) {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
     const paymentDate = order.payment_date ? formatDateOnly(order.payment_date) : '';
 
-    // ✅ 모든 아이템의 입고상태/입고예정이 입력되었는지 검사
+    // ✅ 조건: 주문 내 모든 아이템이 입고상태/예정이 입력되어야 함
     const isFullyConfirmed = items.every(item =>
       (item.arrival_status && item.arrival_status.trim() !== "") &&
       (item.arrival_due && item.arrival_due.trim() !== "")
@@ -65,8 +65,8 @@ function renderOrdered(data) {
       const isFirst = idx === 0;
       const row = document.createElement("tr");
 
-      // ✅ 첫 행에만 배경색 표시
-      if (isFirst && isFullyConfirmed) {
+      // ✅ 모든 행에 fully-confirmed 클래스 적용
+      if (isFullyConfirmed) {
         row.classList.add("fully-confirmed");
       }
 
