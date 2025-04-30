@@ -24,6 +24,7 @@ window.loadAccountingData = async function () {
     .from('orders')
     .select('order_id, name, created_at, payment_date, total, tracking_date, tracking_number')
     .eq('is_shipped', true)
+    .neq('tracking_date', null)
     .gte('tracking_date', start)
     .lte('tracking_date', end);
 
