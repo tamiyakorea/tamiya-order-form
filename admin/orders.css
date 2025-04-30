@@ -43,3 +43,97 @@ h1 {
   text-align: center;
   margin-top: 20px;
 }
+
+/* ✅ 테이블 스타일 */
+.table-wrapper {
+  width: fit-content;
+  min-width: 1700px;
+  margin: 0 auto;
+}
+table {
+  border-collapse: collapse;
+  background: white;
+  table-layout: fixed;
+  width: max-content;
+  min-width: 1700px;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+  vertical-align: middle;
+  word-break: break-word;
+  white-space: normal;
+}
+thead tr:nth-child(1) th,
+thead tr:nth-child(2) th {
+  position: sticky;
+  background: #007bff;
+  color: white;
+  z-index: 3;
+}
+thead tr:nth-child(1) th { top: 0; }
+thead tr:nth-child(2) th { top: 42px; }
+
+th { position: relative; }
+.resizer {
+  width: 5px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  cursor: col-resize;
+  user-select: none;
+  z-index: 5;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.order-separator td {
+  border-top: 2px solid #333 !important;
+}
+
+.confirmed-row {
+  background-color: #e6ffe6;
+}
+
+.input-box {
+  width: 100px;
+  padding: 4px;
+}
+
+.pay-status {
+  line-height: 1.4;
+}
+
+.proof-btn {
+  margin: 2px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ship-btn {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
