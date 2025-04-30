@@ -141,7 +141,6 @@ async function loadOrders() {
 function renderOrders(orders) {
   const tbody = document.getElementById("orderBody");
   tbody.innerHTML = "";
-  const hiddenCols = new Set(JSON.parse(localStorage.getItem(HIDDEN_COL_KEY) || "[]"));
 
   if (!orders.length) {
     tbody.innerHTML = '<tr><td colspan="22">주문이 없습니다.</td></tr>';
@@ -175,7 +174,9 @@ function renderOrders(orders) {
         ${isFirst ? `<td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">
           <div class="pay-status">
-            <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed}, this)">${order.payment_confirmed ? '✅ 입금확인됨' : '❌ 미입금'}</button><br/>
+            <button onclick="togglePayment(${order.order_id}, ${order.payment_confirmed}, this)">
+              ${order.payment_confirmed ? '✅ 입금확인됨' : '❌ 미입금'}
+            </button><br/>
             <input type="date" class="payment-date" value="${order.payment_date ? formatDateInput(order.payment_date) : getTodayDateString()}" />
           </div>
         </td>` : ''}
@@ -185,12 +186,6 @@ function renderOrders(orders) {
         ${isFirst ? `<td rowspan="${items.length}">${item.arrival_due || '미정'}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}"><button class="ship-btn" onclick="markAsReadyToShip(${order.order_id}, this)">출고 준비</button></td>` : ''}
       `;
-
-      // 숨김 처리
-      [...hiddenCols].forEach(index => {
-        const td = row.children[index];
-        if (td) td.style.display = 'none';
-      });
 
       tbody.appendChild(row);
     });
