@@ -123,7 +123,7 @@ function injectColgroup() {
   const colgroup = document.getElementById("colgroup");
   if (!colgroup) return;
   colgroup.innerHTML = '';
-  for (let i = 1; i <= 17; i++) {
+  for (let i = 1; i <= 18; i++) {
     const col = document.createElement("col");
     colgroup.appendChild(col);
   }
@@ -213,6 +213,14 @@ function renderOrders(data) {
   </div>
   ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
 </td>
+     <td rowspan="${items.length}">
+  <select class="input-box" onchange="updateField('${order.order_id}', 'confirmation_note', this.value)">
+    <option value="">-</option>
+    <option ${order.confirmation_note === '올바른 구매증빙 파일을 업로드 해주세요.' ? 'selected' : ''}>올바른 구매증빙 파일을 업로드 해주세요.</option>
+    <option ${order.confirmation_note === '주소가 올바르지 않습니다.' ? 'selected' : ''}>주소가 올바르지 않습니다.</option>
+    <option ${order.confirmation_note === '기타 사유(고객센터로 문의)' ? 'selected' : ''}>기타 사유(고객센터로 문의)</option>
+  </select>
+</td> 
       <td rowspan="${items.length}">
         <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
       </td>
