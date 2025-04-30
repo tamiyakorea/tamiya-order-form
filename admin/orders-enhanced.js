@@ -54,6 +54,14 @@ async function togglePayment(orderId, current, button) {
   }
 }
 
+async function updateField(orderId, field, value) {
+  const { error } = await supabase
+    .from("orders")
+    .update({ [field]: value || null })
+    .eq("order_id", orderId);
+  if (error) alert("업데이트 실패: " + error.message);
+}
+
 async function updateFieldByItem(orderId, itemCode, field, value) {
   const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
   if (!orderData || !orderData.items) return;
