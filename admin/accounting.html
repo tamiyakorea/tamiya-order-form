@@ -25,12 +25,20 @@
     <input type="date" id="start-date" /> ~
     <input type="date" id="end-date" />
     <button onclick="loadAccountingData()">검색</button>
+    <button onclick="setDateRange('month')">이번 달</button>
+    <button onclick="setDateRange('quarter')">이번 분기</button>
+    <button onclick="setDateRange('year')">올해</button>
+    <br/><br/>
+    <input type="text" id="search-name" placeholder="주문자명 또는 이메일 검색" style="padding:5px; width:250px;">
+    <label><input type="checkbox" id="receipt-only" /> 현금영수증 발행 주문만</label>
+    <button onclick="downloadAccountingExcel()">엑셀 다운로드</button>
   </div>
 
   <div id="summary" style="text-align:center; margin-bottom:20px;">
     <strong>공급가액:</strong> ₩<span id="supply-price">0</span>
     <strong style="margin-left:30px;">부가세:</strong> ₩<span id="vat">0</span>
     <strong style="margin-left:30px;">총금액:</strong> ₩<span id="total">0</span>
+    <strong style="margin-left:30px;">출고건수:</strong> <span id="order-count">0</span>
   </div>
 
   <table>
@@ -41,13 +49,21 @@
         <th>주문일자</th>
         <th>입금일자</th>
         <th>총금액</th>
+        <th>현금영수증</th>
         <th>송장번호</th>
       </tr>
     </thead>
     <tbody id="accounting-table-body">
-      <tr><td colspan="6">검색 결과 없음</td></tr>
+      <tr><td colspan="7">검색 결과 없음</td></tr>
     </tbody>
   </table>
+
+  <!-- 주문 상세 모달 -->
+  <div id="order-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; box-shadow:2px 2px 10px rgba(0,0,0,0.3); z-index:1000; max-width:600px; width:90%;">
+    <h3>주문 상세</h3>
+    <pre id="modal-content" style="white-space:pre-wrap; font-size:14px;"></pre>
+    <div style="text-align:right;"><button onclick="document.getElementById('order-modal').style.display='none'">닫기</button></div>
+  </div>
 
   <script type="module" src="accounting.js"></script>
 </body>
