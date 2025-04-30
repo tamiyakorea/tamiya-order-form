@@ -279,6 +279,15 @@ window.addEventListener("load", () => {
   checkAuth();
 });
 
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("searchInput")?.addEventListener("keypress", e => {
+    if (e.key === "Enter") searchOrders();
+  });
+  document.querySelector("button[onclick*='searchOrders']")?.addEventListener("click", searchOrders);
+  document.querySelector("button[onclick*='loadOrders']")?.addEventListener("click", loadOrders);
+  document.querySelector("button[onclick*='downloadSelectedOrders']")?.addEventListener("click", downloadSelectedOrders);
+});
+
 Object.assign(window, {
   logout,
   searchOrders,
