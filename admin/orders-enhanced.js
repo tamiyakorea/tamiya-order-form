@@ -218,6 +218,7 @@ function renderOrders(data) {
     <option value="">-</option>
     <option ${order.confirmation_note === '올바른 구매증빙 파일을 업로드 해주세요.' ? 'selected' : ''}>올바른 구매증빙 파일을 업로드 해주세요.</option>
     <option ${order.confirmation_note === '주소가 올바르지 않습니다.' ? 'selected' : ''}>주소가 올바르지 않습니다.</option>
+    <option ${order.confirmation_note === '입금정보 불일치(고객센터로 문의)' ? 'selected' : ''}>입금정보 불일치(고객센터로 문의)</option>
     <option ${order.confirmation_note === '기타 사유(고객센터로 문의)' ? 'selected' : ''}>기타 사유(고객센터로 문의)</option>
   </select>
 </td> 
