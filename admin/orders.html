@@ -7,18 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="orders.css" />
-
-  <!-- ✅ REST 호출 오류 차단 스크립트 -->
-  <script>
-    if (location.href.includes("/rest/v1/orders?") && location.href.includes("eq.false")) {
-      console.warn("차단된 잘못된 REST API 호출을 탐지했습니다.");
-      location.href = "/";
-    }
-  </script>
-
-  <!-- ✅ favicon.ico 404 방지 -->
   <link rel="icon" href="data:,">
-
   <script>
     function logout() {
       if (typeof window.logout === 'function') window.logout();
@@ -74,7 +63,7 @@
           <th colspan="4">주문 상품</th>
           <th rowspan="2" data-col-index="15">총 금액</th>
           <th rowspan="2" data-col-index="16">입금 상태</th>
-          <th rowspan="2" data-col-index="18">비고</th>
+          <th rowspan="2" data-col-index="17">비고</th>
         </tr>
         <tr>
           <th data-col-index="7">우편번호</th>
@@ -87,7 +76,7 @@
         </tr>
       </thead>
       <tbody id="orderBody">
-        <tr><td colspan="22">불러오는 중...</td></tr>
+        <tr><td colspan="18">불러오는 중...</td></tr>
       </tbody>
     </table>
   </div>
