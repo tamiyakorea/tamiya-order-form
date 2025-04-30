@@ -28,15 +28,15 @@ async function togglePayment(orderId, current, button) {
   const selectedDate = dateInput?.value || getTodayDateString();
 
   if (current) {
-    // ✅ 이미 입금 확인 상태인 경우 → 발주 완료 처리
-    const confirmProceed = confirm("입금 확인된 주문입니다. 발주 완료 처리하시겠습니까?");
-    if (!confirmProceed) return;
+    // ✅ 입금 확인 상태 → 다시 미확인 상태로 변경
+    const { error } = await supabase.from("orders").update({
+      payment_confirmed: false,
+      payment_date: null
+    }).eq("order_id", orderId);
 
-    const { error } = await supabase.from("orders").update({ is_ordered: true }).eq("order_id", orderId);
     if (error) {
-      alert("발주 완료 처리 실패: " + error.message);
+      alert("입금 상태 해제 실패: " + error.message);
     } else {
-      alert("발주 완료 처리되었습니다.");
       loadOrders();
     }
   } else {
