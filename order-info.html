@@ -69,7 +69,10 @@ async function fetchOrderInfo() {
     el("paymentStatus").textContent = isPaid
       ? `확인됨 (${order.payment_date?.split("T")[0] || '-'})`
       : "미확인";
-    el("incomingDate").textContent = isPaid ? getArrivalDueText(items) : "";
+    const showArrivalDue = order.payment_confirmed && !order.confirmation_note;
+    el("incomingDate").textContent = showArrivalDue
+      ? getArrivalDueText(items)
+      : "";
     el("name").textContent = order.name || "-";
     el("phone").textContent = order.phone || "-";
     el("email").textContent = order.email || "-";
@@ -84,7 +87,7 @@ async function fetchOrderInfo() {
         </div>`
       : "";
 
-    renderOrderTable(items, order.total || 0, isPaid);
+    renderOrderTable(items, order.total || 0, showArrivalDue);
   } catch (e) {
     alert("주문 정보를 불러오지 못했습니다.");
     console.error(e);
@@ -96,7 +99,7 @@ async function fetchOrderInfo() {
       return arrivalDates.length ? [...new Set(arrivalDates)].join(" / ") : "진행중";
     }
 
-    function renderOrderTable(items, total, isPaid) {
+    function renderOrderTable(items, total, showArrivalDue) {
   const container = document.getElementById("orderTableContainer");
   let html = `
     <table>
@@ -114,6 +117,7 @@ async function fetchOrderInfo() {
 
   let sum = 0;
   let qtyTotal = 0;
+
   items.forEach(item => {
     const qty = Number(item.qty || 0);
     const price = Number(item.price || 0);
@@ -121,7 +125,7 @@ async function fetchOrderInfo() {
     qtyTotal += qty;
     sum += subtotal;
 
-    const arrivalDueText = isPaid
+    const arrivalDueText = showArrivalDue
       ? (item.arrival_due?.trim() || "진행중")
       : "";
 
