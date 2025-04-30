@@ -203,12 +203,14 @@ function renderOrders(data) {
       <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
       <td rowspan="${items.length}" class="pay-status">
   <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
-  <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
-    ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
-  </button><br>
-  ${order.payment_confirmed ? `
-    <button onclick="markAsOrdered('${order.order_id}')">✔</button>
-  ` : ''}
+  <div style="display: flex; gap: 6px; align-items: center;">
+    <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
+      ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
+    </button>
+    ${order.payment_confirmed ? `
+      <button onclick="markAsOrdered('${order.order_id}')">✔</button>
+    ` : ''}
+  </div>
   ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
 </td>
       <td rowspan="${items.length}">
