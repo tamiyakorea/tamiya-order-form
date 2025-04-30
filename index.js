@@ -345,7 +345,7 @@ window.searchOrderById = async function () {
           </tbody>
         </table>
         <div style="text-align: center; margin-top: 20px;">
-          <button class="confirm" onclick="window.open('payment-info.html?orderId=${data.order_id}', '_blank')">자세히 보기</button>
+          <button class="confirm" onclick="window.open('order-info.html?orderId=${data.order_id}', '_blank')">자세히 보기</button>
         </div>
       `;
     } else {
