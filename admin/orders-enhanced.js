@@ -22,34 +22,36 @@ function getTodayDateString() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
-async function logout() {
-  await supabase.auth.signOut();
-  window.location.href = "/admin/login.html";
-}
-
-async function updateField(orderId, field, value) {
-  const { error } = await supabase.from("orders").update({ [field]: value || null }).eq("order_id", orderId);
-  if (error) alert("업데이트 실패: " + error.message);
-}
-
 async function togglePayment(orderId, current, button) {
   const row = button.closest('tr');
   const dateInput = row.querySelector('.payment-date');
   const selectedDate = dateInput?.value || getTodayDateString();
 
-  const updates = {
-    payment_confirmed: !current,
-    payment_date: !current ? selectedDate : null,
-    is_ordered: !current
-  };
+  if (current) {
+    // ✅ 이미 입금 확인 상태인 경우 → 발주 완료 처리
+    const confirmProceed = confirm("입금 확인된 주문입니다. 발주 완료 처리하시겠습니까?");
+    if (!confirmProceed) return;
 
-  const { error } = await supabase.from("orders").update(updates).eq("order_id", orderId);
-  if (error) {
-    alert("입금 상태 업데이트 실패: " + error.message);
-    return;
+    const { error } = await supabase.from("orders").update({ is_ordered: true }).eq("order_id", orderId);
+    if (error) {
+      alert("발주 완료 처리 실패: " + error.message);
+    } else {
+      alert("발주 완료 처리되었습니다.");
+      loadOrders();
+    }
+  } else {
+    // ✅ 입금 확인 처리
+    const updates = {
+      payment_confirmed: true,
+      payment_date: selectedDate
+    };
+    const { error } = await supabase.from("orders").update(updates).eq("order_id", orderId);
+    if (error) {
+      alert("입금 상태 업데이트 실패: " + error.message);
+      return;
+    }
+    loadOrders();
   }
-
-  loadOrders();
 }
 
 async function updateFieldByItem(orderId, itemCode, field, value) {
@@ -192,12 +194,12 @@ function renderOrders(data) {
     ${isFirstRow ? `
       <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
       <td rowspan="${items.length}" class="pay-status">
-        <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
-        <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
-          ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
-        </button><br>
-        ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
-      </td>
+  <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
+  <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
+    ${order.payment_confirmed ? '입금 확인됨 ✔' : '입금 확인'}
+  </button><br>
+  ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+</td>
       <td rowspan="${items.length}">
         <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
       </td>
