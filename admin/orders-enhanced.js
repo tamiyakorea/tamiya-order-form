@@ -148,7 +148,10 @@ function renderOrders(orders) {
   }
 
   orders.forEach(order => {
-    const items = JSON.parse(order.items || '[]');
+    // ⚠️ items가 string이면 파싱, 아니면 그대로 사용
+    const items = typeof order.items === 'string'
+      ? JSON.parse(order.items)
+      : order.items || [];
 
     items.forEach((item, idx) => {
       const isFirst = idx === 0;
