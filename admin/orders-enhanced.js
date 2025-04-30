@@ -262,3 +262,34 @@ function downloadSelectedOrders() {
   XLSX.utils.book_append_sheet(wb, ws, "선택 주문");
   XLSX.writeFile(wb, `selected_orders_${getTodayDateString()}.xlsx`);
 }
+
+async function checkAuth() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
+    window.location.href = "/tamiya-order-form/admin/login.html";
+  } else {
+    loadOrders();
+    applyHiddenColumns();
+  }
+}
+
+window.addEventListener("load", () => {
+  injectColgroup();
+  makeColumnsResizable(document.querySelector("table"));
+  checkAuth();
+});
+
+Object.assign(window, {
+  logout,
+  searchOrders,
+  loadOrders,
+  deleteOrder,
+  downloadSelectedOrders,
+  updateField,
+  updateFieldByItem,
+  togglePayment,
+  markAsReadyToShip,
+  toggleColumn,
+  resetHiddenColumns
+});
