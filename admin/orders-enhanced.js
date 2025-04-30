@@ -39,7 +39,8 @@ async function togglePayment(orderId, current, button) {
 
   const updates = {
     payment_confirmed: !current,
-    payment_date: !current ? selectedDate : null
+    payment_date: !current ? selectedDate : null,
+    is_ordered: !current // ✅ 입금 시 발주 완료로 이동되도록
   };
 
   const { error } = await supabase.from("orders").update(updates).eq("order_id", orderId);
@@ -51,13 +52,22 @@ async function togglePayment(orderId, current, button) {
   loadOrders();
 }
 
-async function markAsReadyToShip(orderId, btn) {
-  const confirmed = confirm("이 주문을 배송 준비 상태로 이동하시겠습니까?");
-  if (!confirmed) return;
-  const { error } = await supabase.from("orders").update({ is_ready_to_ship: true }).eq("order_id", orderId);
-  if (error) alert("업데이트 실패: " + error.message);
-  else loadOrders();
+async function updateFieldByItem(orderId, itemCode, field, value) {
+  const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
+  if (!orderData || !orderData.items) return;
+  const items = Array.isArray(orderData.items) ? orderData.items : JSON.parse(orderData.items);
+  const updatedItems = items.map(i => {
+    if (String(i.code) === String(itemCode)) {
+      const updated = Object.assign({}, i);
+      updated[field] = value || null;
+      return updated;
+    }
+    return i;
+  });
+  const { error } = await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
+  if (error) alert("항목 업데이트 실패: " + error.message);
 }
+
 
 async function deleteOrder(orderId, isPaid) {
   if (isPaid) {
@@ -75,7 +85,7 @@ async function searchOrders() {
   const keyword = document.getElementById("searchInput").value.trim();
   if (!keyword) return loadOrders();
 
-  let query = supabase.from("orders").select("*").eq("is_ready_to_ship", false);
+  let query = supabase.from("orders").select("*").eq("is_ready_to_ship", false).eq("is_ordered", false);
 
   if (/^\d+$/.test(keyword)) {
     query = query.eq("order_id", keyword);
@@ -93,11 +103,49 @@ async function loadOrders() {
     .from("orders")
     .select("*")
     .eq("is_ready_to_ship", false)
+    .eq("is_ordered", false)
     .order("created_at", { ascending: false });
 
   if (!error) renderOrders(data);
   else alert("주문 목록 불러오기 실패: " + error.message);
 }
+
+function injectColgroup() {
+  const colgroup = document.getElementById("colgroup");
+  if (!colgroup) return;
+  colgroup.innerHTML = '';
+  for (let i = 1; i <= 22; i++) {
+    const col = document.createElement("col");
+    colgroup.appendChild(col);
+  }
+}
+
+function makeColumnsResizable(table) {
+  const ths = table.querySelectorAll("thead tr:nth-child(1) th, thead tr:nth-child(2) th");
+  ths.forEach((th, index) => {
+    const resizer = document.createElement("div");
+    resizer.className = "resizer";
+    th.appendChild(resizer);
+    resizer.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      const startX = e.pageX;
+      const startWidth = th.offsetWidth;
+      const onMouseMove = e => {
+        const newWidth = startWidth + (e.pageX - startX);
+        th.style.width = newWidth + "px";
+        const col = document.querySelector(`#colgroup col:nth-child(${index + 1})`);
+        if (col) col.style.width = newWidth + "px";
+      };
+      const onMouseUp = () => {
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+      };
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    });
+  });
+}
+
 
 function renderOrders(data) {
   const tbody = document.getElementById("orderBody");
@@ -175,150 +223,6 @@ function renderOrders(data) {
       tbody.insertAdjacentHTML('beforeend', rowHtml);
     });
   });
-}
-
-
-async function updateFieldByItem(orderId, itemCode, field, value) {
-  const { data: orderData } = await supabase.from("orders").select("*").eq("order_id", orderId).single();
-  if (!orderData || !orderData.items) return;
-  const items = Array.isArray(orderData.items) ? orderData.items : JSON.parse(orderData.items);
-  const updatedItems = items.map(i => {
-    if (String(i.code) === String(itemCode)) {
-      const updated = Object.assign({}, i);
-      updated[field] = value || null;
-      return updated;
-    }
-    return i;
-  });
-  const { error } = await supabase.from("orders").update({ items: JSON.stringify(updatedItems) }).eq("order_id", orderId);
-  if (error) alert("항목 업데이트 실패: " + error.message);
-}
-
-function injectColgroup() {
-  const colgroup = document.getElementById("colgroup");
-  if (!colgroup) {
-    console.warn("⚠️ <colgroup> 요소를 찾을 수 없습니다. DOM이 준비되었는지 확인하세요.");
-    return;
-  }
-  colgroup.innerHTML = '';
-  for (let i = 1; i <= 22; i++) {
-    const col = document.createElement("col");
-    colgroup.appendChild(col);
-  }
-}
-
-function makeColumnsResizable(table) {
-  const ths = table.querySelectorAll("thead tr:nth-child(1) th, thead tr:nth-child(2) th");
-  ths.forEach((th, index) => {
-    const resizer = document.createElement("div");
-    resizer.className = "resizer";
-    th.appendChild(resizer);
-    resizer.addEventListener("mousedown", function (e) {
-      e.preventDefault();
-      const startX = e.pageX;
-      const startWidth = th.offsetWidth;
-      const onMouseMove = e => {
-        const newWidth = startWidth + (e.pageX - startX);
-        th.style.width = newWidth + "px";
-        const col = document.querySelector(`#colgroup col:nth-child(${index + 1})`);
-        if (col) col.style.width = newWidth + "px";
-      };
-      const onMouseUp = () => {
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
-      };
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
-    });
-  });
-}
-
-async function downloadSelectedOrders() {
-  const checkboxes = document.querySelectorAll('.download-checkbox:checked');
-  if (checkboxes.length === 0) {
-    alert('다운로드할 주문을 선택하세요.');
-    return;
-  }
-
-  const selectedOrderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
-  console.log("✅ 선택된 order_id 목록:", selectedOrderIds);
-
-  const { data: orders, error: orderError } = await supabase
-    .from("orders")
-    .select("*")
-    .in("order_id", selectedOrderIds);
-
-  if (orderError || !orders) {
-    alert("❌ 주문 데이터 불러오기 실패: " + (orderError?.message || '데이터 없음'));
-    return;
-  }
-  console.log("🟢 orders 불러옴:", orders);
-
-  // 🟢 주문에 포함된 모든 item.code 수집
-  const allOrderCodes = Array.from(new Set(
-    orders.flatMap(order => {
-      const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
-      return items.map(item => Number(item.code));  // 반드시 숫자로 변환
-    })
-  ));
-  console.log("🟢 필요한 item_code 목록 (중복 제거):", allOrderCodes);
-
-  // 🟢 필요한 코드만 in()으로 조회
-  const { data: itemList, error: itemError } = await supabase
-    .from("tamiya_items")
-    .select("item_code,j_retail,price")
-    .in("item_code", allOrderCodes);
-
-  if (itemError || !itemList) {
-    alert("❌ tamiya_items 데이터 불러오기 실패: " + (itemError?.message || '데이터 없음'));
-    return;
-  }
-  console.log("🔵 tamiya_items 불러옴:", itemList);
-
-  const itemInfoMap = new Map(
-    itemList.map(item => [
-      Number(item.item_code),  // 숫자로 저장
-      { j_retail: item.j_retail, price: item.price }
-    ])
-  );
-
-  const rows = [];
-  orders.forEach(order => {
-    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
-    const paymentDate = order.payment_date ? formatDateOnly(order.payment_date).replace(/\./g, '.') : '';
-
-    items.forEach(item => {
-      const itemCodeNumber = Number(item.code);
-      const itemInfo = itemInfoMap.get(itemCodeNumber);
-
-      if (!itemInfo) {
-        console.warn(`⚠️ 매칭 실패: order_id=${order.order_id}, item.code='${item.code}' (DB에 없음, item.price 사용)`);
-      } else {
-        console.log(`✅ 매칭 성공: code='${item.code}', j_retail=${itemInfo.j_retail}, price=${itemInfo.price}`);
-      }
-
-      const jRetail = itemInfo ? itemInfo.j_retail : '';
-      const itemPrice = itemInfo ? itemInfo.price : item.price || '';
-
-      rows.push({
-        "시리얼 넘버": item.code || '',
-        "제품명": item.name || '',
-        "J-retail": jRetail,
-        "price": itemPrice,
-        "개수": item.qty || '',
-        "비고": `${order.name} ${paymentDate} ${item.code || ''}`
-      });
-    });
-  });
-
-  const worksheet = XLSX.utils.json_to_sheet(rows, {
-    header: ["시리얼 넘버", "제품명", , , "J-retail", "price", , "개수", , , , , , , , , , , "비고"],
-    skipHeader: true
-  });
-
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "주문서");
-  XLSX.writeFile(workbook, "선택_주문서.xls");
 }
 
 async function checkAuth() {
