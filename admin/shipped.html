@@ -49,7 +49,14 @@
       }
 
       data.forEach(order => {
-        const items = JSON.parse(order.items || '[]');
+        let items;
+        try {
+          items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+        } catch (e) {
+          console.error(`items 파싱 실패 (order_id: ${order.order_id})`, e);
+          items = [];
+        }
+
         const arrivalDue = items[0]?.arrival_due || '미정';
 
         items.forEach((item, index) => {
@@ -67,8 +74,8 @@
             <td>${item.code}</td>
             <td>${item.name}</td>
             <td>${item.qty}</td>
-            <td>₩${item.price.toLocaleString()}</td>
-            ${isFirst ? `<td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>` : ''}
+            <td>₩${item.price?.toLocaleString?.() || '-'}</td>
+            ${isFirst ? `<td rowspan="${items.length}">₩${order.total?.toLocaleString?.() || '-'}</td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${order.tracking_number || '-'}</td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${order.remarks || '-'}</td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${order.shipping_note || '-'}</td>` : ''}
@@ -84,22 +91,22 @@
 </head>
 <body>
   <nav>
-  <div>
-    <a href="orders.html">주문 관리</a>
-    <a href="ordered.html">발주 완료</a> <!-- ✅ 추가 -->
-    <a href="shipping.html">배송 관리</a>
-    <a href="shipped.html" class="active">배송 완료</a>
-    <a href="accounting.html">회계 관리</a>
-  </div>
-</nav>
+    <div>
+      <a href="orders.html">주문 관리</a>
+      <a href="ordered.html">발주 완료</a>
+      <a href="shipping.html">배송 관리</a>
+      <a href="shipped.html" class="active">배송 완료</a>
+      <a href="accounting.html">회계 관리</a>
+    </div>
+  </nav>
 
   <h1>배송 완료</h1>
-<div style="text-align:right; margin-right:30px;">
-  <button onclick="window.open('upload-shipped.html', '_blank', 'width=600,height=600')">
-    📤 배송 완료 엑셀 업로드
-  </button>
-</div>
-  
+
+  <div style="text-align:right; margin-right:30px;">
+    <button onclick="window.open('upload-shipped.html', '_blank', 'width=600,height=600')">
+      📤 배송 완료 엑셀 업로드
+    </button>
+  </div>
 
   <table>
     <thead>
