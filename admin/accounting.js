@@ -50,7 +50,7 @@ window.loadAccountingData = async function () {
     .select('order_id, name, email, created_at, payment_date, total, tracking_date, tracking_number, receipt_info, items')
     .eq('is_shipped', true)
     .eq('is_delivered', true)
-    .not('tracking_date', 'is', null)  // ✅ 수정된 부분
+    .not('tracking_date', 'is', null)
     .gte('tracking_date', start)
     .lte('tracking_date', end);
 
@@ -76,13 +76,19 @@ window.loadAccountingData = async function () {
   let totalAmount = 0;
 
   filtered.forEach(order => {
+    const supply = Math.floor(order.total / 1.1);
+    const vat = order.total - supply;
+
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${order.order_id}</td>
       <td><a href="#" onclick="showOrderDetails(${order.order_id})">${order.name}</a></td>
       <td>${formatDateOnly(order.created_at)}</td>
       <td>${order.payment_date ? formatDateOnly(order.payment_date) : '-'}</td>
+      <td>₩${supply.toLocaleString()}</td>
+      <td>₩${vat.toLocaleString()}</td>
       <td>₩${order.total.toLocaleString()}</td>
+      <td>${order.tracking_date ? formatDateOnly(order.tracking_date) : '-'}</td>
       <td>${order.receipt_info?.trim() ? '발행' : '-'}</td>
       <td>${order.tracking_number || '-'}</td>
     `;
@@ -91,7 +97,7 @@ window.loadAccountingData = async function () {
   });
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7">검색 결과 없음</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10">검색 결과 없음</td></tr>';
   }
 
   const supplyPrice = Math.floor(totalAmount / 1.1);
@@ -122,17 +128,22 @@ window.downloadAccountingExcel = function () {
   const data = window.currentAccountingData || [];
   if (data.length === 0) return alert('엑셀로 내보낼 데이터가 없습니다.');
 
-  const rows = data.map(order => ({
-    주문번호: order.order_id,
-    주문자명: order.name,
-    주문일자: formatDateOnly(order.created_at),
-    입금일자: order.payment_date ? formatDateOnly(order.payment_date) : '-',
-    총금액: order.total,
-    공급가액: Math.floor(order.total / 1.1),
-    부가세: order.total - Math.floor(order.total / 1.1),
-    현금영수증: order.receipt_info?.trim() ? '발행' : '-',
-    송장번호: order.tracking_number || ''
-  }));
+  const rows = data.map(order => {
+    const supply = Math.floor(order.total / 1.1);
+    const vat = order.total - supply;
+    return {
+      주문번호: order.order_id,
+      주문자명: order.name,
+      주문일자: formatDateOnly(order.created_at),
+      입금일자: order.payment_date ? formatDateOnly(order.payment_date) : '-',
+      공급가액: supply,
+      부가세: vat,
+      총금액: order.total,
+      출고일자: order.tracking_date ? formatDateOnly(order.tracking_date) : '-',
+      현금영수증: order.receipt_info?.trim() ? '발행' : '-',
+      송장번호: order.tracking_number || ''
+    };
+  });
 
   const sheet = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
