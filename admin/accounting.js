@@ -150,3 +150,11 @@ window.downloadAccountingExcel = function () {
   XLSX.utils.book_append_sheet(wb, sheet, '회계자료');
   XLSX.writeFile(wb, '회계자료.xlsx');
 };
+
+window.onload = () => {
+  // 기본 날짜 범위를 넉넉하게 지정 (예: 2020년 1월 1일 ~ 오늘)
+  document.getElementById('start-date').value = '2020-01-01';
+  document.getElementById('end-date').value = new Date().toISOString().slice(0, 10);
+  window.loadAccountingData();
+};
+
