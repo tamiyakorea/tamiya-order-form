@@ -14,6 +14,20 @@ function generateOrderNumber() {
   return Number(MMDD + mmss + rand);
 }
 
+async function generateUniqueOrderId() {
+  let attempt = 0;
+  while (attempt < 5) {
+    const candidate = generateOrderNumber();
+    const { data, error } = await supabase
+      .from('orders')
+      .select('order_id')
+      .eq('order_id', candidate);
+    if (!data || data.length === 0) return candidate;
+    attempt++;
+  }
+  throw new Error("order_id 생성 실패: 중복 회피 불가");
+}
+
 function parseItemsFromRow(row) {
   const items = [];
   for (let i = 1; i <= 10; i++) {
@@ -47,12 +61,18 @@ document.getElementById('excel-upload').addEventListener('change', async (e) => 
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(sheet);
 
-  const orders = rows.map(row => {
+  const orders = [];
+
+  for (const row of rows) {
     const items = parseItemsFromRow(row);
     const total = items.reduce((sum, item) => sum + item.qty * item.price, 0);
 
-    return {
-      order_id: row.order_id ? Number(row.order_id) : generateOrderNumber(),
+    const order_id = row.order_id
+      ? Number(row.order_id)
+      : await generateUniqueOrderId();
+
+    orders.push({
+      order_id,
       name: row.customer_name,
       phone: row.phone,
       email: row.email || null,
@@ -69,8 +89,8 @@ document.getElementById('excel-upload').addEventListener('change', async (e) => 
       is_delivered: true,
       created_at: excelDateToISOString(row.order_date) || new Date().toISOString(),
       payment_date: excelDateToISOString(row.payment_date)
-    };
-  });
+    });
+  }
 
   const { error } = await supabase.from('orders').insert(orders);
   if (error) {
