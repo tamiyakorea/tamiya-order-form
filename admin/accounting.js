@@ -50,7 +50,7 @@ window.loadAccountingData = async function () {
     .select('order_id, name, email, created_at, payment_date, total, tracking_date, tracking_number, receipt_info, items')
     .eq('is_shipped', true)
     .eq('is_delivered', true)
-    .neq('tracking_date', null)
+    .not('tracking_date', 'is', null)  // ✅ 수정된 부분
     .gte('tracking_date', start)
     .lte('tracking_date', end);
 
