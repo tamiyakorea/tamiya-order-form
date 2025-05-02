@@ -1,71 +1,95 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>회계 관리</title>
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <link rel="stylesheet" href="shipping.css" />
+  <meta charset="UTF-8">
+  <title>배송 완료 주문 업로드</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const supabase = createClient(
+      'https://edgvrwekvnavkhcqwtxa.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+    );
+
+    function generateOrderNumber() {
+      const now = new Date();
+      const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
+      const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
+      const rand = Math.floor(10 + Math.random() * 90);
+      return Number(MMDD + mmss + rand);
+    }
+
+    function parseItemsFromRow(row) {
+      const items = [];
+      for (let i = 1; i <= 10; i++) {
+        const code = row[`serial_${i}`];
+        const name = row[`product_name_${i}`];
+        const qty = row[`qty_${i}`];
+        const price = row[`price_${i}`];
+        if (code && name && qty && price) {
+          items.push({ code, name, qty: Number(qty), price: Number(price) });
+        }
+      }
+      return items;
+    }
+
+    async function uploadExcel(event) {
+      const file = event.target.files[0];
+      if (!file) return alert("파일을 선택해주세요.");
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const workbook = XLSX.read(e.target.result, { type: 'binary' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+
+        const dataToUpload = rows.map(row => {
+          const items = parseItemsFromRow(row);
+          const total = items.reduce((sum, item) => sum + item.qty * item.price, 0);
+          const order_id = row.order_id ? Number(row.order_id) : generateOrderNumber();
+
+          return {
+            order_id,
+            name: row.customer_name,
+            phone: row.phone,
+            email: row.email || null,
+            zipcode: row.zipcode ? String(row.zipcode) : '',
+            address: row.address,
+            address_detail: row.address_detail,
+            receipt_info: row.receipt_info || null,
+            tracking_number: row.tracking_number || null,
+            shipping_note: row.shipping_note || null,
+            remarks: row.remarks || null,
+            items: JSON.stringify(items),
+            total,
+            is_ordered: true,
+            is_shipped: true,
+            is_delivered: true,
+            created_at: new Date().toISOString()
+          };
+        });
+
+        const { error } = await supabase.from('orders').insert(dataToUpload);
+        if (error) {
+          console.error(error);
+          alert("업로드 실패: " + error.message);
+        } else {
+          alert("배송 완료 주문 업로드 완료!");
+        }
+      };
+      reader.readAsBinaryString(file);
+    }
+
+    window.uploadExcel = uploadExcel;
+  </script>
 </head>
 <body>
-  <nav>
-  <div>
-    <a href="orders.html">주문 관리</a>
-    <a href="ordered.html">발주 완료</a> <!-- ✅ 추가 -->
-    <a href="shipping.html" class="active">배송 관리</a>
-    <a href="shipped.html">배송 완료</a>
-    <a href="accounting.html">회계 관리</a>
-  </div>
-</nav>
-
-  <h1 style="text-align:center">회계 관리</h1>
-
-  <div style="text-align:center; margin: 20px 0;">
-    <label>조회 기간: </label>
-    <input type="date" id="start-date" /> ~
-    <input type="date" id="end-date" />
-    <button onclick="loadAccountingData()">검색</button>
-    <button onclick="setDateRange('month')">이번 달</button>
-    <button onclick="setDateRange('quarter')">이번 분기</button>
-    <button onclick="setDateRange('year')">올해</button>
-    <br/><br/>
-    <input type="text" id="search-name" placeholder="주문자명 또는 이메일 검색" style="padding:5px; width:250px;">
-    <label><input type="checkbox" id="receipt-only" /> 현금영수증 발행 주문만</label>
-    <button onclick="downloadAccountingExcel()">엑셀 다운로드</button>
-  </div>
-
-  <div id="summary" style="text-align:center; margin-bottom:20px;">
-    <strong>공급가액:</strong> ₩<span id="supply-price">0</span>
-    <strong style="margin-left:30px;">부가세:</strong> ₩<span id="vat">0</span>
-    <strong style="margin-left:30px;">총금액:</strong> ₩<span id="total">0</span>
-    <strong style="margin-left:30px;">출고건수:</strong> <span id="order-count">0</span>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>주문번호</th>
-        <th>주문자명</th>
-        <th>주문일자</th>
-        <th>입금일자</th>
-        <th>총금액</th>
-        <th>현금영수증</th>
-        <th>송장번호</th>
-      </tr>
-    </thead>
-    <tbody id="accounting-table-body">
-      <tr><td colspan="7">검색 결과 없음</td></tr>
-    </tbody>
-  </table>
-
-  <!-- 주문 상세 모달 -->
-  <div id="order-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; box-shadow:2px 2px 10px rgba(0,0,0,0.3); z-index:1000; max-width:600px; width:90%;">
-    <h3>주문 상세</h3>
-    <pre id="modal-content" style="white-space:pre-wrap; font-size:14px;"></pre>
-    <div style="text-align:right;"><button onclick="document.getElementById('order-modal').style.display='none'">닫기</button></div>
-  </div>
-
-  <script type="module" src="accounting.js"></script>
+  <main style="max-width: 800px; margin: 30px auto; padding: 20px; font-family: sans-serif;">
+    <h2>배송 완료 주문 엑셀 업로드</h2>
+    <p>템플릿을 다운로드하고 작성한 뒤 업로드하세요.</p>
+    <a href="/타미야_완료주문_업로드_템플릿.xlsx" download style="display:inline-block;margin-bottom:10px;">📄 템플릿 다운로드</a><br>
+    <input type="file" accept=".xlsx,.xls" onchange="uploadExcel(event)" />
+  </main>
 </body>
 </html>
