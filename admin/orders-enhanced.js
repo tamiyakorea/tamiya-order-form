@@ -291,6 +291,7 @@ async function checkAuth() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  console.log("🌐 DOMContentLoaded 이벤트 발생!"); // ✅ 확인 로그
   document.getElementById("searchInput")?.addEventListener("keypress", e => {
     if (e.key === "Enter") searchOrders();
   });
