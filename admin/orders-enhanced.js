@@ -301,11 +301,13 @@ window.addEventListener("DOMContentLoaded", () => {
   console.log("🌐 DOMContentLoaded 이벤트 발생!"); // ✅ 정상 출력됨
   console.log("🛡️ checkAuth() 호출 시작");       // ✅ 호출 시작 체크
   checkAuth();
-});
+
+  // ✅ 버튼 이벤트 리스너 등록
   document.querySelector("button[onclick*='searchOrders']")?.addEventListener("click", searchOrders);
   document.querySelector("button[onclick*='loadOrders']")?.addEventListener("click", loadOrders);
   document.querySelector("button[onclick*='downloadSelectedOrders']")?.addEventListener("click", downloadSelectedOrders);
 });
+
 
 Object.assign(window, {
   logout,
