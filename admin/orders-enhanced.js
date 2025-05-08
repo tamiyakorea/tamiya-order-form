@@ -275,20 +275,27 @@ async function downloadSelectedOrders() {
 
 async function checkAuth() {
   console.log("🔍 인증 체크 시작");
-  const { data: { session }, error } = await supabase.auth.getSession();
-  console.log("🔎 인증 세션:", session);
-  if (error) {
-    console.error("❌ 인증 세션 오류:", error.message);
-  }
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    console.log("🔎 인증 세션:", session);
+    
+    if (error) {
+      console.error("❌ 인증 세션 오류:", error.message);
+    }
 
-  if (!session) {
-    alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
-    window.location.href = "/tamiya-order-form/admin/login.html";
-  } else {
-    console.log("✅ 인증 성공, 데이터 로딩 시작");
-    loadOrders();
+    if (!session) {
+      console.log("❌ 인증 실패: 세션이 없습니다.");
+      alert("접근 권한이 없습니다. 로그인 페이지로 이동합니다.");
+      window.location.href = "/tamiya-order-form/admin/login.html";
+    } else {
+      console.log("✅ 인증 성공, 데이터 로딩 시작");
+      loadOrders();
+    }
+  } catch (err) {
+    console.error("❌ 인증 체크 중 오류 발생:", err);
   }
 }
+
 
 window.addEventListener("DOMContentLoaded", () => {
   console.log("🌐 DOMContentLoaded 이벤트 발생!"); // ✅ 확인 로그
