@@ -128,37 +128,12 @@ function injectColgroup() {
   const colgroup = document.getElementById("colgroup");
   if (!colgroup) return;
   colgroup.innerHTML = '';
+  
+  // 컬럼을 18개 생성합니다. 폭은 CSS에 의해 자동 조절됩니다.
   for (let i = 1; i <= 18; i++) {
     const col = document.createElement("col");
     colgroup.appendChild(col);
   }
-}
-
-function makeColumnsResizable(table) {
-  const ths = table.querySelectorAll("thead tr:nth-child(1) th, thead tr:nth-child(2) th");
-  ths.forEach((th, index) => {
-    const resizer = document.createElement("div");
-    resizer.className = "resizer";
-    th.appendChild(resizer);
-    resizer.addEventListener("mousedown", function (e) {
-      e.preventDefault();
-      const startX = e.pageX;
-      const startWidth = th.offsetWidth;
-      const onMouseMove = e => {
-        const newWidth = startWidth + (e.pageX - startX);
-        th.style.width = newWidth + "px";
-        const col = document.querySelector(`#colgroup col:nth-child(${index + 1})`);
-        if (col) col.style.width = newWidth + "px";
-      };
-      const onMouseUp = () => {
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
-      };
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
-    });
-  });
-}
 
 function renderOrders(data) {
   const tbody = document.getElementById("orderBody");
