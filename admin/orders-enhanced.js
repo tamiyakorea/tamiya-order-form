@@ -113,6 +113,7 @@ async function searchOrders() {
 }
 
 async function loadOrders() {
+  console.log("🔍 데이터 로딩 중...");
   const { data, error } = await supabase
     .from("orders")
     .select("*")
@@ -120,8 +121,14 @@ async function loadOrders() {
     .eq("is_ordered", false)
     .order("created_at", { ascending: false });
 
-  if (!error) renderOrders(data);
-  else alert("주문 목록 불러오기 실패: " + error.message);
+  if (error) {
+    console.error("❌ 데이터 로딩 실패:", error.message);
+    alert("주문 목록 불러오기 실패: " + error.message);
+    return;
+  }
+
+  console.log("✅ 불러온 데이터:", data);
+  renderOrders(data);
 }
 
 function injectColgroup() {
