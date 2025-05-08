@@ -276,12 +276,6 @@ async function checkAuth() {
   }
 }
 
-window.addEventListener("load", () => {
-  injectColgroup();
-  makeColumnsResizable(document.querySelector("table"));
-  checkAuth();
-});
-
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("searchInput")?.addEventListener("keypress", e => {
     if (e.key === "Enter") searchOrders();
