@@ -1,3 +1,4 @@
+/* ✅ 기본 설정 */
 html, body {
   font-family: Arial, sans-serif;
   padding: 0;
@@ -16,12 +17,14 @@ nav {
   min-width: 100%;
   box-sizing: border-box;
 }
+
 nav a {
   color: white;
   text-decoration: none;
   margin-right: 20px;
   font-weight: bold;
 }
+
 nav a.active {
   text-decoration: underline;
 }
@@ -35,6 +38,7 @@ nav a.active {
   cursor: pointer;
   margin-right: 10px;
 }
+
 .logout-btn { background: #dc3545; }
 .upload-btn { background-color: #007bff; }
 .upload-btn:hover { background-color: #0056b3; }
@@ -46,25 +50,27 @@ h1 {
 
 /* ✅ 테이블 스타일 */
 .table-wrapper {
-  width: fit-content;
-  min-width: 1700px;
+  width: 100%;
   margin: 0 auto;
+  overflow-x: auto;
 }
+
 table {
   border-collapse: collapse;
   background: white;
-  table-layout: fixed;
-  width: max-content;
-  min-width: 1700px;
+  width: 100%;
+  table-layout: auto; /* ✅ 자동 조정 */
 }
+
 th, td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 10px;
   text-align: center;
   vertical-align: middle;
   word-break: break-word;
-  white-space: normal;
+  white-space: nowrap;
 }
+
 thead tr:nth-child(1) th,
 thead tr:nth-child(2) th {
   position: sticky;
@@ -72,27 +78,16 @@ thead tr:nth-child(2) th {
   color: white;
   z-index: 3;
 }
+
 thead tr:nth-child(1) th { top: 0; }
 thead tr:nth-child(2) th { top: 42px; }
 
-th { position: relative; }
-.resizer {
-  width: 5px;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  right: 0;
-  cursor: col-resize;
-  user-select: none;
-  z-index: 5;
+/* ✅ 컬럼 리사이즈 제거 */
+th .resizer {
+  display: none !important;
 }
 
-.ellipsis {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
+/* ✅ 선택된 주문 색상 */
 .order-separator td {
   border-top: 2px solid #333 !important;
 }
@@ -141,3 +136,4 @@ th { position: relative; }
 .confirmation-warning {
   background-color: #ffecec !important;
 }
+
