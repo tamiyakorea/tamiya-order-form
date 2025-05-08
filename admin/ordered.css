@@ -1,3 +1,4 @@
+/* Global Styles */
 html, body {
   font-family: Arial, sans-serif;
   padding: 0;
@@ -7,6 +8,7 @@ html, body {
   height: 100%;
 }
 
+/* Navigation Bar */
 nav {
   background-color: #343a40;
   color: white;
@@ -44,18 +46,21 @@ h1 {
   margin-top: 20px;
 }
 
+/* Table Wrapper */
 .table-wrapper {
-  width: fit-content;
-  min-width: 1700px;
+  width: 100%;
   margin: 0 auto;
 }
+
+/* Main Table */
 table {
   border-collapse: collapse;
   background: white;
-  table-layout: fixed;
-  width: max-content;
-  min-width: 1700px;
+  table-layout: auto; /* <-- fixed에서 auto로 변경 */
+  width: 100%;
+  min-width: 1200px; /* 적절한 기본값 설정 */
 }
+
 th, td {
   border: 1px solid #ddd;
   padding: 8px;
@@ -64,6 +69,8 @@ th, td {
   word-break: break-word;
   white-space: normal;
 }
+
+/* Sticky Header */
 thead tr:nth-child(1) th,
 thead tr:nth-child(2) th {
   position: sticky;
@@ -86,29 +93,36 @@ th { position: relative; }
   z-index: 5;
 }
 
+/* Ellipsis Overflow */
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* Order Separator */
 .order-separator td {
-  border-top: 2px solid #333 !important;
+  border-top: 1.5px solid #333 !important;
 }
 
+/* Confirmed Row Highlight */
 .confirmed-row {
   background-color: #e6ffe6;
 }
 
+/* Fully Confirmed Row Highlight */
+.fully-confirmed {
+  background-color: #e6ffe6;
+}
+
+/* Input Box Style */
 .input-box {
-  width: 100px;
+  width: 95%; /* <-- 100px 고정 크기에서 비율로 변경 */
   padding: 4px;
+  box-sizing: border-box;
 }
 
-.pay-status {
-  line-height: 1.4;
-}
-
+/* Button Styles */
 .proof-btn {
   margin: 2px;
   padding: 4px 8px;
@@ -141,10 +155,8 @@ th { position: relative; }
   background-color: #138496;
 }
 
-.fully-confirmed {
-  background-color: #e6ffe6; /* 연한 초록 */
-}
-
-.order-separator td {
-  border-top: 1.5px solid #333 !important;
+/* Overflow Protection */
+td {
+  max-width: 200px;
+  overflow: hidden;
 }
