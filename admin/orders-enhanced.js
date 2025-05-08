@@ -129,11 +129,11 @@ function injectColgroup() {
   if (!colgroup) return;
   colgroup.innerHTML = '';
   
-  // 컬럼을 18개 생성합니다. 폭은 CSS에 의해 자동 조절됩니다.
   for (let i = 1; i <= 18; i++) {
     const col = document.createElement("col");
     colgroup.appendChild(col);
   }
+} 
 
 function renderOrders(data) {
   const tbody = document.getElementById("orderBody");
