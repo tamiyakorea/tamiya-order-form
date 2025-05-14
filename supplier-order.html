@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>업체용 개별 주문 신청</title>
   <link rel="stylesheet" href="supplier-order.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"></script>
-  <script defer src="supplier-order.js"></script>
+  <script type="module" src="supplier-order.js"></script>
 </head>
 <body>
 
@@ -32,7 +31,7 @@
         <label>Price Multiplier</label>
         <input type="text" id="priceMultiplier" readonly>
         <div>
-          <input type="checkbox" id="unlockEdit" onclick="toggleEdit(this)">
+          <input type="checkbox" id="unlockEdit">
           <label for="unlockEdit">정보 수정 가능</label>
         </div>
       </div>
