@@ -30,25 +30,30 @@ window.searchSupplier = async function () {
     return;
   }
 
-  const { data, error } = await supabase
-    .from('suppliers')
-    .select('*')
-    .eq('business_registration_number', businessNumber)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('suppliers')
+      .select('*')
+      .eq('business_registration_number', businessNumber)
+      .single();
 
-  if (error || !data) {
-    alert("해당 사업자 정보를 찾을 수 없습니다.");
-    return;
+    if (error) {
+      console.error("Error fetching supplier:", error.message);
+      alert("해당 사업자 정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    // ✅ 화면에 정보 표시
+    document.getElementById("supplierName").value = data.name;
+    document.getElementById("supplierContact").value = formatPhoneNumber(data.contact);
+    document.getElementById("supplierAddress").value = data.address;
+    document.getElementById("priceMultiplier").value = data.price_multiplier;
+    priceMultiplier = data.price_multiplier;
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    alert("사업자 정보 조회 중 문제가 발생했습니다.");
   }
-
-  // ✅ 화면에 정보 표시
-  document.getElementById("supplierName").value = data.name;
-  document.getElementById("supplierContact").value = formatPhoneNumber(data.contact);
-  document.getElementById("supplierAddress").value = data.address;
-  document.getElementById("priceMultiplier").value = data.price_multiplier;
-  priceMultiplier = data.price_multiplier;
 };
-
 /////////////////////////////////////////////////////
 // ✅ 전화번호 포맷팅 함수
 /////////////////////////////////////////////////////
