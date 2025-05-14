@@ -24,10 +24,9 @@ function generateOrderNumber() {
 // ✅ 사업자 정보 검색
 /////////////////////////////////////////////////////
 window.searchSupplier = async function () {
-  const businessNumber = document.getElementById("businessNumber").value.trim();
-  const companyName = document.getElementById("companyName").value.trim();
+  const keyword = document.getElementById("searchKeyword").value.trim();
 
-  if (!businessNumber && !companyName) {
+  if (!keyword) {
     alert("사업자번호 또는 업체명을 입력해주세요.");
     return;
   }
@@ -35,10 +34,13 @@ window.searchSupplier = async function () {
   try {
     let query = supabase.from('suppliers').select('*');
 
-    if (businessNumber) {
-      query = query.eq('business_registration_number', businessNumber);
-    } else if (companyName) {
-      query = query.eq('company_name', companyName);
+    // ✅ 사업자번호인지 업체명인지 판별
+    if (/^[0-9]{3}-[0-9]{2}-[0-9]{5}$/.test(keyword)) {
+      // 형식이 사업자번호 형태일 경우
+      query = query.eq('business_registration_number', keyword);
+    } else {
+      // 아닐 경우 업체명으로 검색
+      query = query.eq('company_name', keyword);
     }
 
     const { data, error } = await query.single();
