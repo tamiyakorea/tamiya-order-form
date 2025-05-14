@@ -96,3 +96,72 @@ window.removeItem = function (index) {
   cart.splice(index, 1);
   renderCart();
 };
+
+window.confirmOrder = async function () {
+  if (!cart.length) {
+    alert("장바구니에 상품이 없습니다.");
+    return;
+  }
+
+  // ✅ 필드 값 가져오기
+  const businessNumber = document.getElementById("businessNumber").value.trim();
+  const supplierName = document.getElementById("supplierName").value.trim();
+  const supplierContact = document.getElementById("supplierContact").value.trim();
+  const supplierAddress = document.getElementById("supplierAddress").value.trim();
+  const priceMultiplier = parseFloat(document.getElementById("priceMultiplier").value.trim());
+
+  if (!businessNumber || !supplierName || !supplierContact || !supplierAddress) {
+    alert("사업자 정보를 모두 입력해주세요.");
+    return;
+  }
+
+  // ✅ 주문 번호 생성
+  const orderId = `S-${new Date().getTime().toString(36).toUpperCase()}`;
+
+  // ✅ 장바구니 데이터 포맷팅
+  const items = cart.map(item => ({
+    code: item.code,
+    name: item.name,
+    qty: item.qty,
+    price: item.price
+  }));
+
+  // ✅ 총액 계산
+  const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+  // ✅ Supabase로 주문 정보 전송
+  const payload = {
+    order_id: orderId,
+    name: supplierName,
+    phone: supplierContact,
+    email: null,                       // 업체 주문 시 이메일은 생략
+    zipcode: null,                     // 업체 주문 시 우편번호는 생략
+    address: supplierAddress,
+    address_detail: null,              // 상세주소는 생략
+    receipt_info: null,                // 현금영수증 정보 생략
+    proof_images: [],                  // 증빙 이미지 생략
+    items: JSON.stringify(items),
+    total: total,
+    created_at: new Date().toISOString(),
+    business_registration_number: businessNumber,  // 추가된 컬럼
+    supplier: true                                // 추가된 컬럼
+  };
+
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .insert([payload]);
+
+    if (error) {
+      console.error("주문 저장 오류:", error.message);
+      alert("주문 저장에 실패하였습니다.");
+      return;
+    }
+
+    alert(`주문이 성공적으로 접수되었습니다.\n주문번호: ${orderId}`);
+    location.reload();
+  } catch (error) {
+    console.error("주문 처리 중 오류:", error.message);
+    alert("서버와의 통신에 문제가 발생하였습니다.");
+  }
+};
