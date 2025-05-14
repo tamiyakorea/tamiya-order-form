@@ -7,6 +7,20 @@ const supabase = createClient(
 const cart = [];
 let priceMultiplier = 1;
 
+/////////////////////////////////////////////////////
+// ✅ 주문 번호 생성기 (기존 index.js 방식과 동일하게 생성)
+/////////////////////////////////////////////////////
+function generateOrderNumber() {
+  const now = new Date();
+  const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
+  const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
+  const rand = Math.floor(10 + Math.random() * 90);
+  return Number(MMDD + mmss + rand);
+}
+
+/////////////////////////////////////////////////////
+// ✅ 사업자 정보 검색
+/////////////////////////////////////////////////////
 window.searchSupplier = async function () {
   const businessNumber = document.getElementById("businessNumber").value.trim();
   if (!businessNumber) {
@@ -27,12 +41,28 @@ window.searchSupplier = async function () {
 
   // ✅ 화면에 정보 표시
   document.getElementById("supplierName").value = data.name;
-  document.getElementById("supplierContact").value = data.contact;
+  document.getElementById("supplierContact").value = formatPhoneNumber(data.contact);
   document.getElementById("supplierAddress").value = data.address;
   document.getElementById("priceMultiplier").value = data.price_multiplier;
   priceMultiplier = data.price_multiplier;
 };
 
+/////////////////////////////////////////////////////
+// ✅ 전화번호 포맷팅 함수
+/////////////////////////////////////////////////////
+function formatPhoneNumber(number) {
+  const onlyNums = number.replace(/[^0-9]/g, '');
+  if (onlyNums.length === 11) {
+    return `${onlyNums.slice(0, 3)}-${onlyNums.slice(3, 7)}-${onlyNums.slice(7)}`;
+  } else if (onlyNums.length === 10) {
+    return `${onlyNums.slice(0, 2)}-${onlyNums.slice(2, 6)}-${onlyNums.slice(6)}`;
+  }
+  return number;
+}
+
+/////////////////////////////////////////////////////
+// ✅ 정보 수정 가능 처리
+/////////////////////////////////////////////////////
 window.toggleEdit = function (checkbox) {
   const fields = ["supplierName", "supplierContact", "supplierAddress", "priceMultiplier"];
   fields.forEach(id => {
@@ -40,6 +70,9 @@ window.toggleEdit = function (checkbox) {
   });
 };
 
+/////////////////////////////////////////////////////
+// ✅ 상품 검색
+/////////////////////////////////////////////////////
 window.searchProduct = async function () {
   const productCode = document.getElementById("productCode").value.trim();
   if (!productCode) {
@@ -63,6 +96,9 @@ window.searchProduct = async function () {
   renderCart();
 };
 
+/////////////////////////////////////////////////////
+// ✅ 장바구니 렌더링
+/////////////////////////////////////////////////////
 function renderCart() {
   const tbody = document.getElementById("cartBody");
   tbody.innerHTML = "";
@@ -87,16 +123,31 @@ function renderCart() {
   document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
 }
 
+/////////////////////////////////////////////////////
+// ✅ 수량 변경 처리
+/////////////////////////////////////////////////////
 window.updateQty = function (index, value) {
-  cart[index].qty = parseInt(value, 10);
+  const qty = parseInt(value, 10);
+  if (isNaN(qty) || qty < 1) {
+    alert("수량은 1개 이상이어야 합니다.");
+    renderCart();
+    return;
+  }
+  cart[index].qty = qty;
   renderCart();
 };
 
+/////////////////////////////////////////////////////
+// ✅ 장바구니 항목 삭제 처리
+/////////////////////////////////////////////////////
 window.removeItem = function (index) {
   cart.splice(index, 1);
   renderCart();
 };
 
+/////////////////////////////////////////////////////
+// ✅ 주문 확정 처리
+/////////////////////////////////////////////////////
 window.confirmOrder = async function () {
   if (!cart.length) {
     alert("장바구니에 상품이 없습니다.");
@@ -108,15 +159,14 @@ window.confirmOrder = async function () {
   const supplierName = document.getElementById("supplierName").value.trim();
   const supplierContact = document.getElementById("supplierContact").value.trim();
   const supplierAddress = document.getElementById("supplierAddress").value.trim();
-  const priceMultiplier = parseFloat(document.getElementById("priceMultiplier").value.trim());
 
   if (!businessNumber || !supplierName || !supplierContact || !supplierAddress) {
     alert("사업자 정보를 모두 입력해주세요.");
     return;
   }
 
-  // ✅ 주문 번호 생성
-  const orderId = `S-${new Date().getTime().toString(36).toUpperCase()}`;
+  // ✅ 주문 번호 생성 (기존 index.js 방식으로 생성)
+  const orderId = generateOrderNumber();
 
   // ✅ 장바구니 데이터 포맷팅
   const items = cart.map(item => ({
@@ -134,17 +184,17 @@ window.confirmOrder = async function () {
     order_id: orderId,
     name: supplierName,
     phone: supplierContact,
-    email: null,                       // 업체 주문 시 이메일은 생략
-    zipcode: null,                     // 업체 주문 시 우편번호는 생략
+    email: null,
+    zipcode: null,
     address: supplierAddress,
-    address_detail: null,              // 상세주소는 생략
-    receipt_info: null,                // 현금영수증 정보 생략
-    proof_images: [],                  // 증빙 이미지 생략
-    items: JSON.stringify(items),
+    address_detail: null,
+    receipt_info: null,
+    proof_images: [],
+    items: items,
     total: total,
     created_at: new Date().toISOString(),
-    business_registration_number: businessNumber,  // 추가된 컬럼
-    supplier: true                                // 추가된 컬럼
+    business_registration_number: businessNumber,
+    supplier: true
   };
 
   try {
