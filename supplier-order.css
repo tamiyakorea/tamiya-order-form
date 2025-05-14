@@ -1,3 +1,4 @@
+/* ✅ 기본 설정 */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -11,13 +12,15 @@ header {
 }
 
 main {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   background: #fff;
   padding: 20px;
   border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* ✅ 입력 그룹 */
 .input-group {
   display: flex;
   gap: 10px;
@@ -25,37 +28,106 @@ main {
 }
 
 input {
-  padding: 8px;
+  padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input[readonly] {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
 }
 
 button {
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 10px 16px;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 button:hover {
   background-color: #0056b3;
 }
 
+button:disabled {
+  background-color: #c0c0c0;
+  cursor: not-allowed;
+}
+
+/* ✅ 정보 수정 토글 */
+#unlockEdit {
+  margin-right: 5px;
+}
+
+label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* ✅ 테이블 스타일 */
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 15px;
+  background-color: #fff;
 }
 
 th, td {
-  padding: 10px;
+  padding: 12px;
   border: 1px solid #ccc;
   text-align: center;
 }
 
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
 tfoot td {
   font-weight: bold;
+  background-color: #f9f9f9;
+}
+
+/* ✅ 주문 확정 버튼 */
+#confirmOrderBtn {
+  margin-top: 20px;
+  width: 100%;
+  font-size: 18px;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+#confirmOrderBtn:hover {
+  background-color: #218838;
+}
+
+/* ✅ 사업자 정보 출력 섹션 */
+#supplierDetails {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+#supplierDetails input {
+  width: 100%;
+}
+
+/* ✅ 사업자 정보 섹션 구분 */
+#supplier-info,
+#order-section {
+  margin-bottom: 30px;
+}
+
+/* ✅ 장바구니 합계 */
+#cartTotal {
+  font-size: 1.2em;
+  color: #333;
 }
 
 /* ✅ 비활성화된 텍스트 박스 스타일 */
@@ -73,21 +145,41 @@ tfoot td {
 }
 
 /* ✅ 자동완성 목록 스타일 */
+.autocomplete {
+  position: relative;
+}
+
 #autocomplete-list {
   position: absolute;
+  top: 38px; /* 📌 input box height + margin */
+  left: 0;
   border: 1px solid #ccc;
   background-color: white;
   z-index: 1000;
   max-height: 150px;
   overflow-y: auto;
-  width: 100%;
+  width: 100%; /* 📌 input 크기와 동일 */
+  border-radius: 4px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 #autocomplete-list div {
   padding: 10px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 #autocomplete-list div:hover {
   background-color: #f0f0f0;
+}
+
+/* ✅ 반응형 처리 */
+@media (max-width: 768px) {
+  #supplierDetails {
+    grid-template-columns: 1fr;
+  }
+
+  button {
+    width: 100%;
+  }
 }
