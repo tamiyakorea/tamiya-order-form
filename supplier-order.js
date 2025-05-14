@@ -193,7 +193,7 @@ window.toggleEdit = function (checkbox) {
 /////////////////////////////////////////////////////
 // ✅ 상품 검색
 /////////////////////////////////////////////////////
-window.searchProduct = async function () {
+export async function searchProduct() {
   const productCode = document.getElementById("productCode").value.trim();
   if (!productCode) {
     alert("제품 코드를 입력해주세요.");
@@ -225,7 +225,7 @@ window.searchProduct = async function () {
   });
 
   renderCart();
-};
+}
 
 /////////////////////////////////////////////////////
 // ✅ 장바구니 렌더링
