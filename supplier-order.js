@@ -25,48 +25,48 @@ function generateOrderNumber() {
 /////////////////////////////////////////////////////
 window.searchSupplier = async function () {
   const businessNumber = document.getElementById("businessNumber").value.trim();
-  if (!businessNumber) {
-    alert("사업자번호를 입력해주세요.");
+  const companyName = document.getElementById("companyName").value.trim();
+
+  if (!businessNumber && !companyName) {
+    alert("사업자번호 또는 업체명을 입력해주세요.");
     return;
   }
 
   try {
-    // ✅ Supabase 요청에 Accept 헤더 명시 (JSON 형식으로 강제 설정)
-    const { data, error, status } = await supabase
-      .from('suppliers')
-      .select('*')
-      .eq('business_registration_number', businessNumber)
-      .single(); // ✅ 하나만 있을 때 가져옵니다.
+    let query = supabase.from('suppliers').select('*');
 
-    // ✅ 상태 코드 406 처리
-    if (status === 406) {
-      console.error("406 Not Acceptable: 요청 형식이 잘못되었습니다.");
-      alert("형식 오류가 발생하였습니다. JSON 형식을 확인하세요.");
-      return;
+    if (businessNumber) {
+      query = query.eq('business_registration_number', businessNumber);
+    } else if (companyName) {
+      query = query.eq('company_name', companyName);
     }
 
-    // ✅ Supabase 에러 핸들링
+    const { data, error } = await query.single();
+
     if (error) {
       console.error("Error fetching supplier:", error.message);
-      alert("해당 사업자 정보를 찾을 수 없습니다.");
+      alert("해당 정보를 찾을 수 없습니다.");
       return;
     }
 
     if (!data) {
-      alert("검색된 사업자 정보가 없습니다.");
+      alert("검색된 정보가 없습니다.");
       return;
     }
 
     // ✅ 화면에 정보 표시
     document.getElementById("supplierName").value = data.company_name;
+    document.getElementById("businessNumber").value = data.business_registration_number;
     document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
     document.getElementById("supplierAddress").value = data.address;
-    document.getElementById("priceMultiplier").value = data.price_multiplier;
-    priceMultiplier = data.price_multiplier;
+    document.getElementById("supplierEmail").value = data.email;
+
+    // ✅ priceMultiplier 전역 변수에 반영
+    priceMultiplier = parseFloat(data.price_multiplier);
 
   } catch (error) {
     console.error("Fetch Error:", error.message);
-    alert("사업자 정보 조회 중 문제가 발생했습니다.");
+    alert("정보 조회 중 문제가 발생했습니다.");
   }
 };
 
