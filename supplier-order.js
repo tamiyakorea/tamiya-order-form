@@ -56,7 +56,7 @@ window.searchSupplier = async function () {
 
     // ✅ 화면에 정보 표시
     document.getElementById("supplierName").value = data.company_name;
-    document.getElementById("businessNumber").value = data.business_registration_number;
+    document.getElementById("businessNumberDisplay").value = data.business_registration_number;
     document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
     document.getElementById("supplierAddress").value = data.address;
     document.getElementById("supplierEmail").value = data.email;
