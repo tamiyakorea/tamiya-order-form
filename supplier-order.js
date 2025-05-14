@@ -30,18 +30,22 @@ window.searchSupplier = async function () {
     return;
   }
 
-  // ✅ Supabase 요청에 Accept 헤더 명시 (JSON 형식으로 강제)
   try {
-    const { data, error } = await supabase
+    // ✅ Supabase 요청에 Accept 헤더 명시 (JSON 형식으로 강제 설정)
+    const { data, error, status } = await supabase
       .from('suppliers')
-      .select('*', {
-        headers: {
-          Accept: 'application/json'
-        }
-      })
+      .select('*')
       .eq('business_registration_number', businessNumber)
-      .single();
+      .single(); // ✅ 하나만 있을 때 가져옵니다.
 
+    // ✅ 상태 코드 406 처리
+    if (status === 406) {
+      console.error("406 Not Acceptable: 요청 형식이 잘못되었습니다.");
+      alert("형식 오류가 발생하였습니다. JSON 형식을 확인하세요.");
+      return;
+    }
+
+    // ✅ Supabase 에러 핸들링
     if (error) {
       console.error("Error fetching supplier:", error.message);
       alert("해당 사업자 정보를 찾을 수 없습니다.");
@@ -59,6 +63,7 @@ window.searchSupplier = async function () {
     document.getElementById("supplierAddress").value = data.address;
     document.getElementById("priceMultiplier").value = data.price_multiplier;
     priceMultiplier = data.price_multiplier;
+
   } catch (error) {
     console.error("Fetch Error:", error.message);
     alert("사업자 정보 조회 중 문제가 발생했습니다.");
