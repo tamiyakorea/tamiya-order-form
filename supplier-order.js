@@ -93,6 +93,13 @@ companyInput.addEventListener("input", async function () {
     return;
   }
 
+  if (data.length === 0) {
+    autoCompleteList.style.display = 'none';
+    return;
+  }
+
+  autoCompleteList.style.display = 'block';
+
   data.forEach((item) => {
     const div = document.createElement("div");
     div.textContent = item.company_name;
@@ -102,6 +109,13 @@ companyInput.addEventListener("input", async function () {
     };
     autoCompleteList.appendChild(div);
   });
+});
+
+// ✅ 텍스트박스 클릭 외 다른 곳 클릭 시 자동완성 숨김
+document.addEventListener('click', function (event) {
+  if (!event.target.closest('.autocomplete')) {
+    autoCompleteList.innerHTML = '';
+  }
 });
 
 /////////////////////////////////////////////////////
