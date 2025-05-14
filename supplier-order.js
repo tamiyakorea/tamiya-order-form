@@ -30,10 +30,15 @@ window.searchSupplier = async function () {
     return;
   }
 
+  // ✅ Supabase 요청에 Accept 헤더 명시 (JSON 형식으로 강제)
   try {
     const { data, error } = await supabase
       .from('suppliers')
-      .select('*')
+      .select('*', {
+        headers: {
+          Accept: 'application/json'
+        }
+      })
       .eq('business_registration_number', businessNumber)
       .single();
 
@@ -43,9 +48,14 @@ window.searchSupplier = async function () {
       return;
     }
 
+    if (!data) {
+      alert("검색된 사업자 정보가 없습니다.");
+      return;
+    }
+
     // ✅ 화면에 정보 표시
-    document.getElementById("supplierName").value = data.name;
-    document.getElementById("supplierContact").value = formatPhoneNumber(data.contact);
+    document.getElementById("supplierName").value = data.company_name;
+    document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
     document.getElementById("supplierAddress").value = data.address;
     document.getElementById("priceMultiplier").value = data.price_multiplier;
     priceMultiplier = data.price_multiplier;
