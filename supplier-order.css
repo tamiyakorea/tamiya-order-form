@@ -151,7 +151,7 @@ tfoot td {
 
 #autocomplete-list {
   position: absolute;
-  top: 38px; /* 📌 input box height + margin */
+  top: calc(100% + 2px); /* 📌 input box height를 동적으로 계산 */
   left: 0;
   border: 1px solid #ccc;
   background-color: white;
