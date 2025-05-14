@@ -15,27 +15,32 @@
 
   <main>
     <section id="supplier-info">
-      <h2>사업자 정보 입력</h2>
-      <label for="businessNumber">사업자번호</label>
-      <div class="input-group">
-        <input type="text" id="businessNumber" placeholder="사업자번호 입력">
-        <button onclick="searchSupplier()">검색</button>
-      </div>
-      <div id="supplierDetails" class="details">
-        <label>업체명</label>
-        <input type="text" id="supplierName" readonly>
-        <label>연락처</label>
-        <input type="text" id="supplierContact" readonly>
-        <label>주소</label>
-        <input type="text" id="supplierAddress" readonly>
-        <label>Price Multiplier</label>
-        <input type="text" id="priceMultiplier" readonly>
-        <div>
-          <input type="checkbox" id="unlockEdit">
-          <label for="unlockEdit">정보 수정 가능</label>
-        </div>
-      </div>
-    </section>
+  <h2>사업자 정보 입력</h2>
+
+  <div class="input-group">
+    <input type="text" id="businessNumber" placeholder="사업자번호 입력">
+    <button onclick="searchSupplier()">사업자번호 검색</button>
+  </div>
+
+  <div class="input-group">
+    <input type="text" id="companyName" placeholder="업체명 입력">
+    <div id="autocomplete-list" class="autocomplete-items"></div>
+    <button onclick="searchSupplierByName()">업체명 검색</button>
+  </div>
+
+  <div id="supplierDetails" class="details">
+    <label>업체명</label>
+    <input type="text" id="supplierName" readonly class="disabled-input">
+    <label>연락처</label>
+    <input type="text" id="supplierContact" readonly class="disabled-input">
+    <label>주소</label>
+    <input type="text" id="supplierAddress" readonly class="disabled-input">
+    <div>
+      <input type="checkbox" id="unlockEdit" onclick="toggleEdit(this)">
+      <label for="unlockEdit">정보 수정 가능</label>
+    </div>
+  </div>
+</section>
 
     <section id="order-section">
       <h2>주문 상품 입력</h2>
