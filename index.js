@@ -138,33 +138,6 @@ window.removeItem = function (index) {
   }
 };
 
-async function sendPaymentEmail(orderData) {
-  try {
-    const response = await fetch('https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/send-payment-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        email: orderData.email,
-        name: orderData.name,
-        orderId: orderData.order_id,
-        total: orderData.total,
-        paymentDeadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
-      })
-    });
-
-    if (!response.ok) {
-      console.error("이메일 발송에 실패하였습니다.");
-      console.error(await response.text());
-    } else {
-      console.log("입금 안내 이메일이 발송되었습니다.");
-    }
-  } catch (error) {
-    console.error("이메일 발송 중 오류:", error);
-  }
-}
-
 window.confirmOrder = async function () {
   const get = id => document.getElementById(id);
   const name = get("customerName").value.trim();
@@ -261,12 +234,6 @@ window.confirmOrder = async function () {
 
     if (response.ok) {
       alert("주문이 완료되었습니다! 주문번호: " + orderId);
-
-      // ✅ 이메일 발송 요청
-      console.log("✅ 이메일 발송 요청 시작");
-      await sendPaymentEmail(payload);
-      console.log("✅ 이메일 발송 요청 완료");
-
       window.location.href = "payment-info.html?orderId=" + orderId;
     } else {
       console.error("주문 저장 오류:", result.error);
@@ -277,7 +244,6 @@ window.confirmOrder = async function () {
     alert("저장 중 오류가 발생했습니다.");
   }
 };
-
 function renderCart() {
   const tbody = document.getElementById("cartBody");
   const table = document.getElementById("cartTable");
