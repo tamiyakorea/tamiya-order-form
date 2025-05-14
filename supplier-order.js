@@ -209,8 +209,19 @@ window.searchProduct = async function () {
     return;
   }
 
-  const price = data.j_retail * priceMultiplier;
-  cart.push({ code: data.item_code, name: data.description, price, qty: 1 });
+  // ✅ 단가 계산
+  const isEightDigit = productCode.length === 8;
+  const multiplier = isEightDigit ? 15 : 13;
+  const price = data.j_retail * multiplier * priceMultiplier;
+
+  // ✅ 장바구니에 추가
+  cart.push({
+    code: data.item_code,
+    name: data.description,
+    price: Math.round(price), // 소수점 반올림
+    qty: 1
+  });
+
   renderCart();
 };
 
