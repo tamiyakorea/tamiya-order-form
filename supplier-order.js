@@ -218,7 +218,7 @@ window.searchProduct = async function () {
   cart.push({
     code: data.item_code,
     name: data.description,
-    price: Math.round(price), // 소수점 반올림
+    price: Math.round(price),
     qty: 1
   });
 
