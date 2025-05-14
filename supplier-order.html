@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>업체용 개별 주문 신청</title>
+  <link rel="stylesheet" href="supplier-order.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm"></script>
+  <script defer src="supplier-order.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>업체용 개별 주문 신청 페이지</h1>
+  </header>
+
+  <main>
+    <section id="supplier-info">
+      <h2>사업자 정보 입력</h2>
+      <label for="businessNumber">사업자번호</label>
+      <div class="input-group">
+        <input type="text" id="businessNumber" placeholder="사업자번호 입력">
+        <button onclick="searchSupplier()">검색</button>
+      </div>
+      <div id="supplierDetails" class="details">
+        <label>업체명</label>
+        <input type="text" id="supplierName" readonly>
+        <label>연락처</label>
+        <input type="text" id="supplierContact" readonly>
+        <label>주소</label>
+        <input type="text" id="supplierAddress" readonly>
+        <label>Price Multiplier</label>
+        <input type="text" id="priceMultiplier" readonly>
+        <div>
+          <input type="checkbox" id="unlockEdit" onclick="toggleEdit(this)">
+          <label for="unlockEdit">정보 수정 가능</label>
+        </div>
+      </div>
+    </section>
+
+    <section id="order-section">
+      <h2>주문 상품 입력</h2>
+      <div class="input-group">
+        <input type="text" id="productCode" placeholder="제품 코드 입력">
+        <button onclick="searchProduct()">상품 검색</button>
+      </div>
+      <table id="cartTable">
+        <thead>
+          <tr>
+            <th>제품 코드</th>
+            <th>제품명</th>
+            <th>단가</th>
+            <th>수량</th>
+            <th>합계</th>
+            <th>삭제</th>
+          </tr>
+        </thead>
+        <tbody id="cartBody"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4">총 주문 금액</td>
+            <td colspan="2" id="cartTotal">₩0</td>
+          </tr>
+        </tfoot>
+      </table>
+      <button onclick="confirmOrder()">주문 확정</button>
+    </section>
+  </main>
+
+</body>
+</html>
