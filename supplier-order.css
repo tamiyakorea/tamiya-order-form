@@ -57,3 +57,37 @@ th, td {
 tfoot td {
   font-weight: bold;
 }
+
+/* ✅ 비활성화된 텍스트 박스 스타일 */
+.disabled-input {
+  background-color: #f0f0f0;
+  color: #777;
+  cursor: not-allowed;
+}
+
+/* ✅ 활성화 시 */
+.disabled-input.active {
+  background-color: #ffffff;
+  color: #000;
+  cursor: text;
+}
+
+/* ✅ 자동완성 목록 스타일 */
+#autocomplete-list {
+  position: absolute;
+  border: 1px solid #ccc;
+  background-color: white;
+  z-index: 1000;
+  max-height: 150px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+#autocomplete-list div {
+  padding: 10px;
+  cursor: pointer;
+}
+
+#autocomplete-list div:hover {
+  background-color: #f0f0f0;
+}
