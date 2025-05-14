@@ -190,42 +190,44 @@ window.toggleEdit = function (checkbox) {
   });
 };
 
-/////////////////////////////////////////////////////
-// ✅ 상품 검색
-/////////////////////////////////////////////////////
-export async function searchProduct() {
-  const productCode = document.getElementById("productCode").value.trim();
-  if (!productCode) {
-    alert("제품 코드를 입력해주세요.");
-    return;
-  }
+document.addEventListener('DOMContentLoaded', () => {
+  /////////////////////////////////////////////////////
+  // ✅ 상품 검색 및 단가 계산
+  /////////////////////////////////////////////////////
+  window.searchProduct = async function () {
+    const productCode = document.getElementById("productCode").value.trim();
+    if (!productCode) {
+      alert("제품 코드를 입력해주세요.");
+      return;
+    }
 
-  const { data, error } = await supabase
-    .from('tamiya_items')
-    .select('*')
-    .eq('item_code', productCode)
-    .single();
+    const { data, error } = await supabase
+      .from('tamiya_items')
+      .select('*')
+      .eq('item_code', productCode)
+      .single();
 
-  if (error || !data) {
-    alert("해당 제품을 찾을 수 없습니다.");
-    return;
-  }
+    if (error || !data) {
+      alert("해당 제품을 찾을 수 없습니다.");
+      return;
+    }
 
-  // ✅ 단가 계산
-  const isEightDigit = productCode.length === 8;
-  const multiplier = isEightDigit ? 15 : 13;
-  const price = data.j_retail * multiplier * priceMultiplier;
+    // ✅ 단가 계산
+    const isEightDigit = productCode.length === 8;
+    const multiplier = isEightDigit ? 15 : 13;
+    const price = data.j_retail * multiplier * priceMultiplier;
 
-  // ✅ 장바구니에 추가
-  cart.push({
-    code: data.item_code,
-    name: data.description,
-    price: Math.round(price),
-    qty: 1
-  });
+    // ✅ 장바구니에 추가
+    cart.push({
+      code: data.item_code,
+      name: data.description,
+      price: Math.round(price),
+      qty: 1
+    });
 
-  renderCart();
-}
+    renderCart();
+  };
+});
 
 /////////////////////////////////////////////////////
 // ✅ 장바구니 렌더링
