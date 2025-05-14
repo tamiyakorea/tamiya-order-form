@@ -69,6 +69,81 @@ window.searchSupplier = async function () {
     alert("사업자 정보 조회 중 문제가 발생했습니다.");
   }
 };
+
+/////////////////////////////////////////////////////
+// ✅ 업체명으로 검색 + 자동완성
+/////////////////////////////////////////////////////
+const companyInput = document.getElementById("companyName");
+const autoCompleteList = document.getElementById("autocomplete-list");
+
+companyInput.addEventListener("input", async function () {
+  const keyword = companyInput.value.trim();
+  autoCompleteList.innerHTML = '';
+
+  if (keyword.length < 2) return;
+
+  // ✅ Supabase에서 유사한 이름 검색
+  const { data, error } = await supabase
+    .from('suppliers')
+    .select('company_name')
+    .ilike('company_name', `%${keyword}%`);
+
+  if (error) {
+    console.error("Error fetching company names:", error.message);
+    return;
+  }
+
+  data.forEach((item) => {
+    const div = document.createElement("div");
+    div.textContent = item.company_name;
+    div.onclick = () => {
+      companyInput.value = item.company_name;
+      autoCompleteList.innerHTML = '';
+    };
+    autoCompleteList.appendChild(div);
+  });
+});
+
+/////////////////////////////////////////////////////
+// ✅ 업체명으로 정보 검색
+/////////////////////////////////////////////////////
+window.searchSupplierByName = async function () {
+  const companyName = document.getElementById("companyName").value.trim();
+  if (!companyName) {
+    alert("업체명을 입력해주세요.");
+    return;
+  }
+
+  try {
+    const { data, error, status } = await supabase
+      .from('suppliers')
+      .select('*')
+      .eq('company_name', companyName)
+      .single();
+
+    if (error) {
+      console.error("Error fetching supplier:", error.message);
+      alert("해당 업체 정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    if (!data) {
+      alert("검색된 업체 정보가 없습니다.");
+      return;
+    }
+
+    // ✅ 화면에 정보 표시
+    document.getElementById("supplierName").value = data.company_name;
+    document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
+    document.getElementById("supplierAddress").value = data.address;
+
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    alert("업체 정보 조회 중 문제가 발생했습니다.");
+  }
+};
+
+
 /////////////////////////////////////////////////////
 // ✅ 전화번호 포맷팅 함수
 /////////////////////////////////////////////////////
@@ -86,9 +161,16 @@ function formatPhoneNumber(number) {
 // ✅ 정보 수정 가능 처리
 /////////////////////////////////////////////////////
 window.toggleEdit = function (checkbox) {
-  const fields = ["supplierName", "supplierContact", "supplierAddress", "priceMultiplier"];
+  const fields = ["supplierName", "supplierContact", "supplierAddress"];
   fields.forEach(id => {
-    document.getElementById(id).readOnly = !checkbox.checked;
+    const element = document.getElementById(id);
+    if (checkbox.checked) {
+      element.readOnly = false;
+      element.classList.add('active');
+    } else {
+      element.readOnly = true;
+      element.classList.remove('active');
+    }
   });
 };
 
