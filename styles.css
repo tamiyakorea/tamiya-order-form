@@ -1,162 +1,253 @@
 /* ✅ 기본 설정 */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: Arial, sans-serif;
+  padding: 0;
   margin: 0;
-  padding: 20px;
-  background-color: #f9f9f9;
+  background-color: white;
 }
 
-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
+/* ✅ 메인 컨테이너 */
 main {
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
-  background: #fff;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
 }
 
-/* ✅ 입력 그룹 */
-.input-group {
+/* ✅ 네비게이션 */
+nav {
+  position: sticky;
+  top: 0;
+  background: #000;
+  color: #fff;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+  z-index: 1000;
+}
+
+nav ul {
+  list-style: none;
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
+  justify-content: center;
+  gap: 30px;
+  padding: 0;
+  margin: 0;
 }
 
-input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-input[readonly] {
-  background-color: #e9e9e9;
-  cursor: not-allowed;
-}
-
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-button:disabled {
-  background-color: #c0c0c0;
-  cursor: not-allowed;
-}
-
-/* ✅ 정보 수정 토글 */
-#unlockEdit {
-  margin-right: 5px;
-}
-
-label {
-  margin-bottom: 5px;
+nav a {
+  text-decoration: none;
+  color: #fff;
   font-weight: bold;
 }
 
-/* ✅ 테이블 스타일 */
+/* ✅ 섹션 및 제목 */
+h2 {
+  border-bottom: 2px solid #333;
+  padding-bottom: 5px;
+}
+
+.section {
+  margin-bottom: 30px;
+}
+
+label {
+  display: block;
+  margin: 8px 0 4px;
+}
+
+/* ✅ 입력란 스타일 */
+input[type="text"],
+input[type="email"],
+input[type="file"] {
+  padding: 8px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+/* ✅ 개별 입력란 크기 */
+#customerName { width: 125px; }
+#phoneNumber { width: 125px; }
+#email { width: 180px; }
+#zipcode { width: 80px; }
+#address { width: 300px; }
+#addressDetail { width: 300px; }
+#receiptInfo { width: 300px; }
+#serialSearch { width: 180px; }
+#orderSearchInput { width: 200px; }
+
+/* ✅ 테이블 */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
-  background-color: #fff;
+  margin-top: 10px;
 }
 
 th, td {
-  padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
+  padding: 8px;
   text-align: center;
 }
 
 th {
   background-color: #f2f2f2;
+}
+
+.total {
   font-weight: bold;
 }
 
-tfoot td {
+/* ✅ 버튼 공통 스타일 */
+button {
+  padding: 12px 30px;
+  font-size: 16px;
   font-weight: bold;
-  background-color: #f9f9f9;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 0; /* 각진 직사각형 */
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* ✅ 주문 확정 버튼 */
-#confirmOrderBtn {
-  margin-top: 20px;
-  width: 100%;
-  font-size: 18px;
-  background-color: #28a745;
-  border-color: #28a745;
+/* ✅ 주문 확정 버튼 (confirm) - 하늘색 계열 */
+button.confirm {
+  background-color: #65d3f8; /* 하늘색 */
+  color: white;
+  border: 1px solid #65d3f8;
 }
 
-#confirmOrderBtn:hover {
-  background-color: #218838;
+button.confirm:hover {
+  background-color: #49c8f3; /* 진한 하늘색 */
+  border-color: #49c8f3;
 }
 
-/* ✅ 사업자 정보 출력 섹션 */
-#supplierDetails {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+/* ✅ 검색 버튼 */
+.button-search {
+  width: fit-content;
+  padding: 4px 12px;
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+  transition: background 0.2s;
+}
+
+.button-search:hover {
+  background: #eaeaea;
+}
+
+/* ✅ 수량 입력 */
+input.qty-input {
+  width: 40px;
+  text-align: center;
+}
+
+/* ✅ 주문 결과 영역 */
+#orderResult {
   margin-top: 15px;
+  background: #f4f4f4;
+  padding: 15px;
+  border: 1px solid #ccc;
 }
 
-#supplierDetails input {
+/* ✅ 입력칸 + 버튼 (공통 정렬) */
+.input-with-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.input-with-button input[type="text"] {
+  padding: 8px 12px;
+  font-size: 13px;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.input-with-button button {
+  padding: 8px 16px;
+  font-size: 13px;
+  height: 40px;
+  box-sizing: border-box;
+  line-height: 1;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  cursor: pointer;
+  position: relative;
+  top: -5px;
+}
+
+.input-with-button button:hover {
+  background: #eaeaea;
+}
+
+/* ✅ 우편번호 검색 버튼 위치 조정 */
+#zipcode + .button-search {
+  position: relative;
+  top: -6.5px;
+}
+
+/* ✅ 푸터 */
+footer {
   width: 100%;
+  background-color: #2b2b2f;
+  color: #aaa;
+  padding: 20px 0;
+  font-size: 0.85em;
+  line-height: 1.6;
 }
 
-/* ✅ 사업자 정보 섹션 구분 */
-#supplier-info,
-#order-section {
-  margin-bottom: 30px;
+footer a {
+  color: #aaa;
+  text-decoration: underline;
 }
 
-/* ✅ 장바구니 합계 */
-#cartTotal {
-  font-size: 1.2em;
-  color: #333;
+footer img {
+  object-fit: contain;
+  height: 80px;
 }
 
-/* ✅ 알림 메시지 */
-.alert-success {
-  background-color: #d4edda;
-  color: #155724;
-  padding: 10px;
-  border: 1px solid #c3e6cb;
-  border-radius: 5px;
-  margin-bottom: 15px;
+/* ✅ FAQ 스타일 */
+.faq-item {
+  border-bottom: 1px solid #ccc;
+  padding: 10px 0;
 }
 
-.alert-error {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 10px;
-  border: 1px solid #f5c6cb;
-  border-radius: 5px;
-  margin-bottom: 15px;
+.faq-question {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.3em; /* 폰트 크기 증가 */
+  position: relative;
+  padding-right: 20px;
+  transition: color 0.3s ease;
 }
 
-/* ✅ 반응형 처리 */
-@media (max-width: 768px) {
-  #supplierDetails {
-    grid-template-columns: 1fr;
-  }
-
-  button {
-    width: 100%;
-  }
+.faq-question:hover {
+  color: #007bff; /* 호버 시 컬러 변경 */
 }
 
+.faq-question::after {
+  content: "＋";
+  position: absolute;
+  right: 0;
+  transition: transform 0.3s ease;
+}
+
+.faq-question.active::after {
+  content: "－";
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease, padding 0.3s ease;
+  padding: 0;
+  font-size: 1em; /* 답변 크기 (필요 시 조정) */
+}
+
+.faq-answer.open {
+  max-height: 1000px;
+  padding: 10px 0;
+}
