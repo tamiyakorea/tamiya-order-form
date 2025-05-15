@@ -174,7 +174,7 @@ export async function searchProduct() {
     const existingItem = cart.find(item => item.code === data.item_code);
 
     if (existingItem) {
-      existingItem.qty += 1;
+      existingItem.qty += 1; // 기존 상품이 있으면 수량만 증가
     } else {
       cart.push({
         code: data.item_code,
@@ -201,13 +201,16 @@ function calculateTotalWithShipping() {
 
   if (cart.length === 0) {
     document.getElementById("cartTotal").textContent = `₩0`;
-    document.getElementById("deliveryMethod").value = "";
     return;
   }
 
   const deliveryMethod = document.getElementById("deliveryMethod").value;
-  if (total < 30000 && !DELIVERY_FREE_METHODS.includes(deliveryMethod) && deliveryMethod !== "") {
-    total += DELIVERY_FEE;
+  
+  // 🚀 30,000원 미만일 경우 배송비 추가
+  if (total < 30000) {
+    if (!DELIVERY_FREE_METHODS.includes(deliveryMethod) && deliveryMethod !== "") {
+      total += DELIVERY_FEE;
+    }
   }
 
   document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
@@ -270,14 +273,19 @@ window.toggleEdit = function (checkbox) {
   const editableFields = [
     document.getElementById("supplierContact"),
     document.getElementById("supplierAddress"),
-    document.getElementById("supplierEmail")
+    document.getElementById("supplierEmail"),
+    document.getElementById("supplierZipcode")
   ];
 
   editableFields.forEach(field => {
-    if (checkbox.checked) {
-      field.removeAttribute('readonly');
-    } else {
-      field.setAttribute('readonly', true);
+    if (field) {
+      if (checkbox.checked) {
+        field.removeAttribute('readonly');
+        field.classList.remove('disabled-input');
+      } else {
+        field.setAttribute('readonly', true);
+        field.classList.add('disabled-input');
+      }
     }
   });
 };
