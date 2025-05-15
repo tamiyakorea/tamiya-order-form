@@ -271,19 +271,23 @@ function removeItem(index) {
 /////////////////////////////////////////////////////
 window.toggleEdit = function (checkbox) {
   const editableFields = [
-    document.getElementById("supplierContact"),
-    document.getElementById("supplierAddress"),
-    document.getElementById("supplierEmail"),
-    document.getElementById("supplierZipcode")
+    "supplierContact",
+    "supplierAddress",
+    "supplierEmail",
+    "supplierZipcode"
   ];
 
-  editableFields.forEach(field => {
+  editableFields.forEach(id => {
+    const field = document.getElementById(id);
+
     if (field) {
       if (checkbox.checked) {
         field.removeAttribute('readonly');
+        field.removeAttribute('disabled');
         field.classList.remove('disabled-input');
       } else {
         field.setAttribute('readonly', true);
+        field.setAttribute('disabled', true);
         field.classList.add('disabled-input');
       }
     }
