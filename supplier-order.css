@@ -5,25 +5,22 @@ html {
 
 body {
   font-family: 'Noto Sans KR', sans-serif;
-  background-color: #f9f9f9;
+  background-color: white;
   margin: 0;
-  padding: 0;
-  color: #333;
 }
 
 /* ✅ 메인 컨테이너 */
 main {
-  max-width: 800px; /* 고정 너비 설정 */
+  max-width: 800px;
   margin: 0 auto;
   padding: 20px;
   background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 
 /* ✅ 섹션 및 제목 */
 h2 {
-  border-bottom: 2px solid #4CAF50;
+  border-bottom: 2px solid #65d3f8;
   padding-bottom: 5px;
   margin-bottom: 15px;
   color: #333;
@@ -45,7 +42,7 @@ select {
 input[type="text"]:focus,
 textarea:focus,
 select:focus {
-  border-color: #4CAF50;
+  border-color: #65d3f8;
   outline: none;
 }
 
@@ -70,7 +67,7 @@ select:focus {
 
 /* ✅ 버튼 공통 스타일 */
 button {
-  background-color: #4CAF50;
+  background-color: #65d3f8;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -81,17 +78,17 @@ button {
 }
 
 button:hover {
-  background-color: #45a049;
+  background-color: #65d3f8;
 }
 
 button.confirm-button {
   width: 100%;
   margin-top: 20px;
-  background-color: #2196F3;
+  background-color: #65d3f8;
 }
 
 button.confirm-button:hover {
-  background-color: #1976D2;
+  background-color: #65d3f8;
 }
 
 /* ✅ 테이블 스타일 */
@@ -112,7 +109,7 @@ th {
 }
 
 td button {
-  background-color: #f44336;
+  background-color: #65d3f8;
   border: none;
   color: white;
   padding: 5px 10px;
@@ -121,7 +118,7 @@ td button {
 }
 
 td button:hover {
-  background-color: #d32f2f;
+  background-color: #65d3f8;
 }
 
 /* ✅ 체크박스 그룹 스타일 */
