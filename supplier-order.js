@@ -22,22 +22,35 @@ const DELIVERY_FREE_METHODS = [
 ];
 
 /////////////////////////////////////////////////////
+// ✅ 전역 등록
+/////////////////////////////////////////////////////
+window.updateQty = updateQty;
+window.removeItem = removeItem;
+
+/////////////////////////////////////////////////////
 // ✅ DOMContentLoaded 이벤트 처리
 /////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("searchButton").addEventListener("click", searchProduct);
   document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
   document.getElementById("directPickup").addEventListener("change", calculateTotalWithShipping);
-});
 
-/////////////////////////////////////////////////////
-// ✅ 전역 등록
-/////////////////////////////////////////////////////
-window.searchSupplier = searchSupplier;
-window.searchProduct = searchProduct;
-window.updateQty = updateQty;
-window.removeItem = removeItem;
-window.toggleEdit = toggleEdit;
+  window.toggleEdit = function (checkbox) {
+    const editableFields = [
+      document.getElementById("supplierContact"),
+      document.getElementById("supplierAddress"),
+      document.getElementById("supplierEmail")
+    ];
+
+    editableFields.forEach(field => {
+      if (checkbox.checked) {
+        field.removeAttribute('readonly');
+      } else {
+        field.setAttribute('readonly', true);
+      }
+    });
+  };
+});
 
 /////////////////////////////////////////////////////
 // ✅ 주문 번호 생성기
@@ -115,29 +128,38 @@ export async function searchProduct() {
     return;
   }
 
-  const { data, error } = await supabase
-    .from('tamiya_items')
-    .select('*')
-    .eq('item_code', productCode)
-    .single();
+  try {
+    // ✅ Supabase에서 상품 정보 조회
+    const { data, error } = await supabase
+      .from('tamiya_items')
+      .select('*')
+      .eq('item_code', productCode)
+      .single();
 
-  if (error || !data) {
-    alert("해당 제품을 찾을 수 없습니다.");
-    return;
+    if (error || !data) {
+      alert("해당 제품을 찾을 수 없습니다.");
+      return;
+    }
+
+    // ✅ 단가 계산
+    const isEightDigit = productCode.length === 8;
+    const multiplier = isEightDigit ? 15 : 13;
+    const price = data.j_retail * multiplier * priceMultiplier;
+
+    // ✅ 장바구니에 추가
+    cart.push({
+      code: data.item_code,
+      name: data.description,
+      price: Math.round(price),
+      qty: 1
+    });
+
+    // ✅ 렌더링 업데이트
+    renderCart();
+  } catch (err) {
+    console.error("상품 검색 중 오류 발생:", err.message);
+    alert("상품을 검색하는 동안 오류가 발생했습니다.");
   }
-
-  const isEightDigit = productCode.length === 8;
-  const multiplier = isEightDigit ? 15 : 13;
-  const price = data.j_retail * multiplier * priceMultiplier;
-
-  cart.push({
-    code: data.item_code,
-    name: data.description,
-    price: Math.round(price),
-    qty: 1
-  });
-
-  renderCart();
 }
 
 /////////////////////////////////////////////////////
