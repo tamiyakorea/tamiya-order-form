@@ -36,8 +36,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const selectedMethod = event.target.value;
       const remarksField = document.getElementById("remarks");
 
+      // 🚀 수정된 부분: selectedMethod가 비어 있으면 이후 코드 실행하지 않음
       if (selectedMethod === "") {
-        remarksField.value = ""; // 🚀 빈 값일 때는 초기화
+        remarksField.value = ""; // 빈 값으로 초기화
       } else {
         remarksField.value = selectedMethod;
       }
@@ -115,7 +116,7 @@ async function searchProduct() {
   }
 }
 
-// 배송비 포함한 총 금액 계산
+// ✅ 배송비 포함한 총 금액 계산
 function calculateTotalWithShipping() {
   let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
@@ -133,7 +134,7 @@ function calculateTotalWithShipping() {
   document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
 }
 
-// 장바구니 수량 업데이트
+// ✅ 장바구니 수량 업데이트
 function updateQty(index, value) {
   const newQty = parseInt(value, 10);
   if (isNaN(newQty) || newQty < 1) {
@@ -145,7 +146,7 @@ function updateQty(index, value) {
   renderCart();
 }
 
-// 장바구니 렌더링
+// ✅ 장바구니 렌더링
 function renderCart() {
   const tbody = document.getElementById("cartBody");
   tbody.innerHTML = "";
@@ -169,7 +170,7 @@ function renderCart() {
   calculateTotalWithShipping();
 }
 
-// 장바구니 항목 삭제
+// ✅ 장바구니 항목 삭제
 function removeItem(index) {
   cart.splice(index, 1);
   renderCart();
@@ -333,7 +334,7 @@ function confirmOrder() {
     });
 }
 
-// 모듈 내보내기
+// ✅ 모듈 내보내기
 export {
   searchProduct,
   toggleEdit,
