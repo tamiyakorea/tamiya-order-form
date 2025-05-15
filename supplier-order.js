@@ -410,8 +410,9 @@ function confirmOrder() {
         return;
       }
       alert(`주문이 성공적으로 접수되었습니다.\n주문번호: ${orderId}`);
-      // 🚀 페이지 새로고침 (장바구니 비움)
-      location.reload();
+      
+      // ✅ 🚀 페이지 이동 (payment-info.html로 주문번호와 함께 이동)
+      window.location.href = `payment-info.html?orderId=${orderId}`;
     });
 }
 
