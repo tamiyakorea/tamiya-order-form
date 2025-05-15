@@ -263,14 +263,12 @@ function generateOrderNumber() {
   return Number(MMDD + mmss + rand);
 }
 
-// 주문 확정 처리
+// ✅ 주문 확정 처리
 function confirmOrder() {
   if (!cart.length) {
     alert("장바구니에 상품이 없습니다.");
     return;
   }
-  alert("주문이 완료되었습니다!");
-}
 
   // ✅ 사업자 정보 가져오기
   const businessNumber = document.getElementById("businessNumberDisplay").value.trim();
@@ -289,6 +287,10 @@ function confirmOrder() {
     alert("사업자 정보를 모두 입력해주세요.");
     return;
   }
+
+  // ✅ 여기서 실제 주문 처리 로직
+  alert("주문이 완료되었습니다!");
+}
 
   // ✅ 주문 번호 생성
   const orderId = generateOrderNumber();
