@@ -288,11 +288,7 @@ function confirmOrder() {
     return;
   }
 
-  // ✅ 여기서 실제 주문 처리 로직
-  alert("주문이 완료되었습니다!");
-}
-
-  // ✅ 주문 번호 생성
+  // ✅ 주문 정보 생성
   const orderId = generateOrderNumber();
 
   // ✅ 장바구니 항목 정리
