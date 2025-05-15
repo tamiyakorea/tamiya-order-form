@@ -196,11 +196,19 @@ td button:hover {
 
 /* ✅ 검색창 하단의 불필요한 실선 제거 */
 .input-group {
-  border-bottom: none !important;   /* 혹시 남아있는 border 제거 */
-  box-shadow: none !important;      /* 혹시 남아있는 shadow 제거 */
+  border-bottom: none !important;      /* 혹시 남아있는 border 제거 */
+  box-shadow: none !important;         /* 혹시 남아있는 shadow 제거 */
+  outline: none !important;            /* 포커스 시 실선 제거 */
 }
 
 #searchKeyword {
-  border-bottom: none !important;   /* 인풋 자체의 밑줄 제거 */
-  outline: none !important;         /* 포커스 시 생기는 실선 제거 */
+  border-bottom: none !important;      /* 인풋 자체의 밑줄 제거 */
+  outline: none !important;            /* 포커스 시 생기는 실선 제거 */
+  box-shadow: none !important;         /* 그림자 제거 */
+}
+
+/* 🔹 자동완성 리스트가 나타나는 영역에 강제 초기화 */
+#suggestionList {
+  margin-top: 0 !important;
+  border-top: none !important;
 }
