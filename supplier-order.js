@@ -31,10 +31,15 @@ window.removeItem = removeItem;
 // ✅ DOMContentLoaded 이벤트 처리
 /////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", () => {
+  // ✅ 전역 등록
+  window.searchProduct = searchProduct;
+
+  // ✅ 이벤트 리스너 연결
   document.getElementById("searchButton").addEventListener("click", searchProduct);
   document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
   document.getElementById("directPickup").addEventListener("change", calculateTotalWithShipping);
 
+  // ✅ 토글 수정 기능
   window.toggleEdit = function (checkbox) {
     const editableFields = [
       document.getElementById("supplierContact"),
