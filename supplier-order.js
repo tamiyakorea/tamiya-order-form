@@ -267,6 +267,13 @@ const suggestionList = document.getElementById("suggestionList");
 
 searchInput.addEventListener("keyup", async (event) => {
   const keyword = event.target.value.trim();
+  
+  // 🔹 입력이 없으면 리스트 숨김
+  if (keyword === "") {
+    suggestionList.innerHTML = "";
+    return;
+  }
+
   suggestionList.innerHTML = ""; // 기존 리스트 초기화
 
   if (keyword.length < 2) return; // 최소 2글자 이상 입력 시 검색
