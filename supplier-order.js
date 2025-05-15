@@ -21,6 +21,9 @@ const DELIVERY_FREE_METHODS = [
 
 // ✅ DOMContentLoaded 이벤트 처리
 document.addEventListener("DOMContentLoaded", () => {
+  // 🔹 전역 등록
+  window.removeItem = removeItem;
+
   // 🔹 정보 수정 가능 체크박스 이벤트 등록
   const unlockEditCheckbox = document.getElementById("unlockEdit");
   if (unlockEditCheckbox) {
@@ -36,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const selectedMethod = event.target.value;
       const remarksField = document.getElementById("remarks");
 
-      // 🚀 수정된 부분: selectedMethod가 비어 있으면 이후 코드 실행하지 않음
       if (selectedMethod === "") {
         remarksField.value = ""; // 빈 값으로 초기화
       } else {
