@@ -366,4 +366,4 @@ export function confirmOrder() {
 /////////////////////////////////////////////////////
 // ✅ 모듈 내보내기
 /////////////////////////////////////////////////////
-export { searchProduct, searchSupplier, confirmOrder, toggleEdit };
+export { searchProduct, searchSupplier, toggleEdit };
