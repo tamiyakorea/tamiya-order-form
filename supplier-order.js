@@ -19,8 +19,9 @@ const DELIVERY_FREE_METHODS = [
   "하남점 수령"
 ];
 
-// DOMContentLoaded 이벤트 처리
+// ✅ DOMContentLoaded 이벤트 처리
 document.addEventListener("DOMContentLoaded", () => {
+  // 🔹 정보 수정 가능 체크박스 이벤트 등록
   const unlockEditCheckbox = document.getElementById("unlockEdit");
   if (unlockEditCheckbox) {
     unlockEditCheckbox.addEventListener("change", (e) => {
@@ -28,20 +29,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 🔹 배송 방법 변경 시 비고란 업데이트
   const deliverySelect = document.getElementById("deliveryMethod");
-  deliverySelect?.addEventListener("change", (event) => {
-    const selectedMethod = event.target.value;
-    const remarksField = document.getElementById("remarks");
-    // 🚀 수정된 부분: 조건이 맞지 않을 때 아무것도 하지 않음
-    if (!selectedMethod) {
-      remarksField.value = '';
-      return; // 이 return은 함수 내부에서만 사용 가능
-    }
-    remarksField.value = selectedMethod;
-  });
+  if (deliverySelect) {
+    deliverySelect.addEventListener("change", (event) => {
+      const selectedMethod = event.target.value;
+      const remarksField = document.getElementById("remarks");
+
+      if (selectedMethod === "") {
+        remarksField.value = ""; // 🚀 빈 값일 때는 초기화
+      } else {
+        remarksField.value = selectedMethod;
+      }
+    });
+  }
 });
 
-// 정보 수정 가능 토글 함수
+// ✅ 정보 수정 가능 토글 함수
 function toggleEdit(checkbox) {
   const editableFields = [
     document.getElementById("supplierContact"),
@@ -65,8 +69,7 @@ function toggleEdit(checkbox) {
   });
 }
 
-
-// 상품 검색 및 장바구니 추가
+// ✅ 상품 검색 및 장바구니 추가
 async function searchProduct() {
   const productCode = document.getElementById("productCode").value.trim();
   if (!productCode) {
