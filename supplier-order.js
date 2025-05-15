@@ -104,6 +104,18 @@ export async function searchSupplier() {
 
     if (error || !data) {
       alert("해당 정보를 찾을 수 없습니다.");
+
+      // ✅ 초기화 처리
+      document.getElementById("supplierName").value = "";
+      document.getElementById("businessNumberDisplay").value = "";
+      document.getElementById("supplierContact").value = "";
+      document.getElementById("supplierAddress").value = "";
+      document.getElementById("supplierEmail").value = "";
+      const zipcodeField = document.getElementById("supplierZipcode");
+      if (zipcodeField) {
+        zipcodeField.value = "";
+      }
+
       return;
     }
 
@@ -113,7 +125,14 @@ export async function searchSupplier() {
     document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
     document.getElementById("supplierAddress").value = data.address;
     document.getElementById("supplierEmail").value = data.email;
-    document.getElementById("supplierZipcode").value = data.zipcode;
+
+    // ✅ zipcode가 있는 경우만 설정
+    const zipcodeField = document.getElementById("supplierZipcode");
+    if (zipcodeField) {
+      zipcodeField.value = data.zipcode;
+    }
+    
+    // ✅ 가격 배수 설정
     priceMultiplier = parseFloat(data.price_multiplier);
 
   } catch (error) {
