@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.removeItem = removeItem;
   window.searchSupplier = searchSupplier;  // ✅ 이 부분이 누락되면 검색이 작동하지 않음
   window.toggleEdit = toggleEdit;
+  window.updateQty = updateQty;
   
   // 🔹 정보 수정 가능 체크박스 이벤트 등록
   const unlockEditCheckbox = document.getElementById("unlockEdit");
