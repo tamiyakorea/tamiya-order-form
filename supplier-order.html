@@ -6,11 +6,28 @@
   <title>업체용 개별 주문 신청</title>
   <link rel="stylesheet" href="styles.css">
   <script type="module">
-    import { searchProduct, searchSupplier, confirmOrder, toggleEdit } from './supplier-order.js';
-    window.searchProduct = searchProduct;
-    window.searchSupplier = searchSupplier;
-    window.confirmOrder = confirmOrder;
-    window.toggleEdit = toggleEdit;
+    import {
+      searchProduct,
+      searchSupplier,
+      confirmOrder,
+      toggleEdit,
+      calculateTotalWithShipping
+    } from './supplier-order.js';
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // 🚀 버튼 이벤트 등록
+      document.getElementById("searchButton").addEventListener("click", searchProduct);
+      document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
+      document.getElementById("confirmButton").addEventListener("click", confirmOrder);
+
+      // 🚀 정보 수정 가능 체크박스 이벤트
+      const unlockEditCheckbox = document.getElementById("unlockEdit");
+      if (unlockEditCheckbox) {
+        unlockEditCheckbox.addEventListener("change", (e) => {
+          toggleEdit(e.target);
+        });
+      }
+    });
   </script>
 </head>
 <body>
@@ -23,7 +40,7 @@
 
     <div class="input-group">
       <input type="text" id="searchKeyword" placeholder="사업자번호 또는 업체명 입력">
-      <button onclick="searchSupplier()">검색</button>
+      <button id="supplierSearchButton">검색</button>
     </div>
 
     <div id="supplierDetails" class="details">
@@ -96,7 +113,7 @@
       <option value="하남점 수령">하남점 수령</option>
     </select>
 
-    <button class="confirm-button" onclick="confirmOrder()">주문 확정</button>
+    <button id="confirmButton" class="confirm-button">💾 주문 확정</button>
 
   </section>
 </main>
