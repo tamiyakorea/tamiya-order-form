@@ -33,6 +33,9 @@
       <label>사업자번호</label>
       <input type="text" id="businessNumberDisplay" readonly class="disabled-input">
 
+      <input type="checkbox" id="unlockEdit" onclick="window.toggleEdit(this)">
+      <label for="unlockEdit">정보 수정 가능</label>
+      
       <label>연락처</label>
       <input type="text" id="supplierContact" readonly class="disabled-input">
 
@@ -48,9 +51,6 @@
       <label>비고란:</label>
       <textarea id="remarks" placeholder="주문 시 전달할 내용을 입력해주세요." rows="3"></textarea>
     </div>
-
-    <input type="checkbox" id="unlockEdit" onclick="window.toggleEdit(this)">
-    <label for="unlockEdit">정보 수정 가능</label>
   </section>
 
   <section id="order-section">
