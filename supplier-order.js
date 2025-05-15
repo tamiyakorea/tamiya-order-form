@@ -22,23 +22,21 @@ const DELIVERY_FREE_METHODS = [
 ];
 
 /////////////////////////////////////////////////////
-// ✅ 전역 등록
-/////////////////////////////////////////////////////
-window.updateQty = updateQty;
-window.removeItem = removeItem;
-window.confirmOrder = confirmOrder; 
-
-/////////////////////////////////////////////////////
 // ✅ DOMContentLoaded 이벤트 처리
 /////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", () => {
   // ✅ 전역 등록
   window.searchProduct = searchProduct;
+  window.confirmOrder = confirmOrder;   // 🔥 여기에 추가됨
+  window.updateQty = updateQty;
+  window.removeItem = removeItem;
+  window.toggleEdit = toggleEdit;
 
   // ✅ 이벤트 리스너 연결
   document.getElementById("searchButton").addEventListener("click", searchProduct);
   document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
   document.getElementById("directPickup").addEventListener("change", calculateTotalWithShipping);
+});
 
   // ✅ 토글 수정 기능
   window.toggleEdit = function (checkbox) {
@@ -298,9 +296,3 @@ function confirmOrder() {
     });
 }
 
-/////////////////////////////////////////////////////
-// ✅ 이벤트 리스너 추가
-/////////////////////////////////////////////////////
-document.getElementById("searchButton").addEventListener("click", searchProduct);
-document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
-document.getElementById("directPickup").addEventListener("change", calculateTotalWithShipping);
