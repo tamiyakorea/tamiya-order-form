@@ -173,7 +173,7 @@ td button:hover {
 /* ✅ 자동완성 리스트 스타일 */
 .autocomplete-list {
   border: 1px solid #ddd;
-  background-color: white;
+  background-color: transparent;
   list-style-type: none;
   padding-left: 0;
   margin-top: 0px;
