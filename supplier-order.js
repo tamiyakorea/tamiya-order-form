@@ -184,7 +184,7 @@ function renderCart() {
         <td>₩${item.price.toLocaleString()}</td>
         <td><input type="number" value="${item.qty}" min="1" onchange="updateQty(${index}, this.value)"></td>
         <td>₩${rowTotal.toLocaleString()}</td>
-        <td><button onclick="removeItem(${index})">🗑️</button></td>
+        <td><button onclick="removeItem(${index})">삭제</button></td>
       </tr>
     `;
   });
