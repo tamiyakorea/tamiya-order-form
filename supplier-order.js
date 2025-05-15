@@ -10,7 +10,7 @@ const cart = [];
 let priceMultiplier = 1;
 
 /////////////////////////////////////////////////////
-// ✅ 배송비 상수 및 목록 선언
+// ✅ 배송비 상수 및 목록 선언 (최상단으로 이동)
 /////////////////////////////////////////////////////
 const DELIVERY_FEE = 3000;
 const DELIVERY_FREE_METHODS = [
@@ -49,124 +49,37 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     console.error("❌ 정보 수정 가능 체크박스를 찾을 수 없습니다.");
   }
-
-  /////////////////////////////////////////////////////
-  // ✅ 정보 수정 가능 토글 함수
-  /////////////////////////////////////////////////////
-  window.toggleEdit = function (checkbox) {
-    const editableFields = [
-      document.getElementById("supplierContact"),
-      document.getElementById("supplierAddress"),
-      document.getElementById("supplierEmail"),
-      document.getElementById("supplierZipcode")  // ✅ 우편번호 추가됨
-    ];
-
-    editableFields.forEach(field => {
-      if (field) {
-        if (checkbox.checked) {
-          console.log(`🔓 ${field.id} 수정 가능`);
-          field.removeAttribute('readonly');
-          field.removeAttribute('disabled');
-          field.classList.remove('disabled-input');
-        } else {
-          console.log(`🔒 ${field.id} 수정 불가`);
-          field.setAttribute('readonly', true);
-          field.setAttribute('disabled', true);
-          field.classList.add('disabled-input');
-        }
-      } else {
-        console.warn(`⚠️ ${field.id}를 찾을 수 없습니다.`);
-      }
-    });
-  };
 });
 
 /////////////////////////////////////////////////////
-// ✅ 주문 번호 생성기
+// ✅ 정보 수정 가능 토글 함수
 /////////////////////////////////////////////////////
-function generateOrderNumber() {
-  const now = new Date();
-  const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
-  const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
-  const rand = Math.floor(10 + Math.random() * 90);
-  return Number(MMDD + mmss + rand);
-}
+window.toggleEdit = function (checkbox) {
+  const editableFields = [
+    document.getElementById("supplierContact"),
+    document.getElementById("supplierAddress"),
+    document.getElementById("supplierEmail"),
+    document.getElementById("supplierZipcode")
+  ];
 
-/////////////////////////////////////////////////////
-// ✅ 전화번호 포맷터
-/////////////////////////////////////////////////////
-function formatPhoneNumber(phone) {
-  if (!phone) return '';
-  const clean = phone.replace(/\D/g, '');
-  if (clean.length === 10) {
-    return clean.replace(/(\d{2,3})(\d{3,4})(\d{4})/, '$1-$2-$3');
-  } else if (clean.length === 11) {
-    return clean.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
-  } else {
-    return phone;
-  }
-}
-
-/////////////////////////////////////////////////////
-// ✅ 사업자 정보 검색 (사업자번호 또는 업체명)
-/////////////////////////////////////////////////////
-export async function searchSupplier() {
-  const keyword = document.getElementById("searchKeyword").value.trim();
-
-  if (!keyword) {
-    alert("사업자번호 또는 업체명을 입력해주세요.");
-    return;
-  }
-
-  try {
-    let query = supabase.from('suppliers').select('*');
-
-    if (/^[0-9]{3}-[0-9]{2}-[0-9]{5}$/.test(keyword)) {
-      query = query.eq('business_registration_number', keyword);
-    } else {
-      query = query.eq('company_name', keyword);
-    }
-
-    const { data, error } = await query.single();
-
-    if (error || !data) {
-      alert("해당 정보를 찾을 수 없습니다.");
-
-      // ✅ 초기화 처리
-      document.getElementById("supplierName").value = "";
-      document.getElementById("businessNumberDisplay").value = "";
-      document.getElementById("supplierContact").value = "";
-      document.getElementById("supplierAddress").value = "";
-      document.getElementById("supplierEmail").value = "";
-      const zipcodeField = document.getElementById("supplierZipcode");
-      if (zipcodeField) {
-        zipcodeField.value = "";
+  editableFields.forEach(field => {
+    if (field) {
+      if (checkbox.checked) {
+        console.log(`🔓 ${field.id} 수정 가능`);
+        field.removeAttribute('readonly');
+        field.removeAttribute('disabled');
+        field.classList.remove('disabled-input');
+      } else {
+        console.log(`🔒 ${field.id} 수정 불가`);
+        field.setAttribute('readonly', true);
+        field.setAttribute('disabled', true);
+        field.classList.add('disabled-input');
       }
-
-      return;
+    } else {
+      console.warn(`⚠️ ${field.id}를 찾을 수 없습니다.`);
     }
-
-    // ✅ 화면에 데이터 표시
-    document.getElementById("supplierName").value = data.company_name;
-    document.getElementById("businessNumberDisplay").value = data.business_registration_number;
-    document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
-    document.getElementById("supplierAddress").value = data.address;
-    document.getElementById("supplierEmail").value = data.email;
-
-    // ✅ zipcode가 있는 경우만 설정
-    const zipcodeField = document.getElementById("supplierZipcode");
-    if (zipcodeField) {
-      zipcodeField.value = data.zipcode;
-    }
-    
-    // ✅ 가격 배수 설정
-    priceMultiplier = parseFloat(data.price_multiplier);
-
-  } catch (error) {
-    console.error("Fetch Error:", error.message);
-    alert("정보 조회 중 문제가 발생했습니다.");
-  }
-}
+  });
+};
 
 /////////////////////////////////////////////////////
 // ✅ 상품 검색 및 단가 계산 (중복 방지, 수량 증가)
@@ -275,7 +188,7 @@ function renderCart() {
         <td>₩${item.price.toLocaleString()}</td>
         <td><input type="number" value="${item.qty}" min="1" onchange="updateQty(${index}, this.value)"></td>
         <td>₩${rowTotal.toLocaleString()}</td>
-        <td><button onclick="removeItem(${index})">삭제</button></td>
+        <td><button onclick="removeItem(${index})">🗑️</button></td>
       </tr>
     `;
   });
@@ -283,49 +196,101 @@ function renderCart() {
   calculateTotalWithShipping();
 }
 
-
 /////////////////////////////////////////////////////
 // ✅ 장바구니 항목 삭제 처리
 /////////////////////////////////////////////////////
 function removeItem(index) {
   cart.splice(index, 1);
   renderCart();
-  calculateTotalWithShipping(); // 🚀 삭제 후에도 금액 업데이트
+  calculateTotalWithShipping();
 }
 
 /////////////////////////////////////////////////////
-// ✅ 정보 수정 가능 토글 처리
+// ✅ 사업자 정보 검색 (사업자번호 또는 업체명)
 /////////////////////////////////////////////////////
-function toggleEdit(checkbox) {
-  console.log("🔄 정보 수정 가능 상태:", checkbox.checked);
+export async function searchSupplier() {
+  const keyword = document.getElementById("searchKeyword").value.trim();
 
-  const editableFields = [
-    "supplierContact",
-    "supplierAddress",
-    "supplierEmail",
-    "supplierZipcode"
-  ];
+  if (!keyword) {
+    alert("사업자번호 또는 업체명을 입력해주세요.");
+    return;
+  }
 
-  editableFields.forEach(id => {
-    const field = document.getElementById(id);
-    if (field) {
-      if (checkbox.checked) {
-        console.log(`🔓 ${id} 수정 가능`);
-        field.removeAttribute('readonly');
-        field.removeAttribute('disabled');
-        field.classList.remove('disabled-input');
-      } else {
-        console.log(`🔒 ${id} 수정 불가`);
-        field.setAttribute('readonly', true);
-        field.setAttribute('disabled', true);
-        field.classList.add('disabled-input');
-      }
+  try {
+    let query = supabase.from('suppliers').select('*');
+
+    if (/^[0-9]{3}-[0-9]{2}-[0-9]{5}$/.test(keyword)) {
+      query = query.eq('business_registration_number', keyword);
     } else {
-      console.warn(`⚠️ ${id}를 찾을 수 없습니다.`);
+      query = query.eq('company_name', keyword);
     }
-  });
+
+    const { data, error } = await query.single();
+
+    if (error || !data) {
+      alert("해당 정보를 찾을 수 없습니다.");
+
+      // ✅ 초기화 처리
+      document.getElementById("supplierName").value = "";
+      document.getElementById("businessNumberDisplay").value = "";
+      document.getElementById("supplierContact").value = "";
+      document.getElementById("supplierAddress").value = "";
+      document.getElementById("supplierEmail").value = "";
+      const zipcodeField = document.getElementById("supplierZipcode");
+      if (zipcodeField) {
+        zipcodeField.value = "";
+      }
+
+      return;
+    }
+
+    // ✅ 화면에 데이터 표시
+    document.getElementById("supplierName").value = data.company_name;
+    document.getElementById("businessNumberDisplay").value = data.business_registration_number;
+    document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
+    document.getElementById("supplierAddress").value = data.address;
+    document.getElementById("supplierEmail").value = data.email;
+
+    // ✅ zipcode가 있는 경우만 설정
+    const zipcodeField = document.getElementById("supplierZipcode");
+    if (zipcodeField) {
+      zipcodeField.value = data.zipcode;
+    }
+    
+    // ✅ 가격 배수 설정
+    priceMultiplier = parseFloat(data.price_multiplier);
+
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    alert("정보 조회 중 문제가 발생했습니다.");
+  }
 }
 
+/////////////////////////////////////////////////////
+// ✅ 전화번호 포맷터
+/////////////////////////////////////////////////////
+function formatPhoneNumber(phone) {
+  if (!phone) return '';
+  const clean = phone.replace(/\D/g, '');
+  if (clean.length === 10) {
+    return clean.replace(/(\d{2,3})(\d{3,4})(\d{4})/, '$1-$2-$3');
+  } else if (clean.length === 11) {
+    return clean.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  } else {
+    return phone;
+  }
+}
+
+/////////////////////////////////////////////////////
+// ✅ 주문 번호 생성기
+/////////////////////////////////////////////////////
+function generateOrderNumber() {
+  const now = new Date();
+  const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
+  const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
+  const rand = Math.floor(10 + Math.random() * 90);
+  return Number(MMDD + mmss + rand);
+}
 
 /////////////////////////////////////////////////////
 // ✅ 주문 확정 처리
@@ -336,16 +301,16 @@ function confirmOrder() {
     return;
   }
 
+  // ✅ 사업자 정보 가져오기
   const businessNumber = document.getElementById("businessNumberDisplay").value.trim();
   const supplierName = document.getElementById("supplierName").value.trim();
   const supplierContact = document.getElementById("supplierContact").value.trim();
   const supplierAddress = document.getElementById("supplierAddress").value.trim();
   const supplierEmail = document.getElementById("supplierEmail").value.trim();
-
-  // ✅ Null 참조 방지
   const supplierZipcodeElement = document.getElementById("supplierZipcode");
   const remarksElement = document.getElementById("remarks");
 
+  // ✅ Null 참조 방지
   const supplierZipcode = supplierZipcodeElement ? supplierZipcodeElement.value.trim() : "";
   const remarks = remarksElement ? remarksElement.value.trim() : "";
 
@@ -354,7 +319,10 @@ function confirmOrder() {
     return;
   }
 
+  // ✅ 주문 번호 생성
   const orderId = generateOrderNumber();
+
+  // ✅ 장바구니 항목 정리
   const items = cart.map(item => ({
     code: item.code,
     name: item.name,
@@ -362,8 +330,10 @@ function confirmOrder() {
     price: item.price
   }));
 
+  // ✅ 총 금액 계산
   const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
 
+  // ✅ Payload 생성
   const payload = {
     order_id: orderId,
     name: supplierName,
@@ -379,6 +349,7 @@ function confirmOrder() {
     supplier: true
   };
 
+  // ✅ Supabase에 주문 정보 저장
   supabase.from('orders').insert([payload])
     .then(({ data, error }) => {
       if (error) {
@@ -387,7 +358,7 @@ function confirmOrder() {
         return;
       }
       alert(`주문이 성공적으로 접수되었습니다.\n주문번호: ${orderId}`);
+      // 🚀 페이지 새로고침 (장바구니 비움)
       location.reload();
     });
 }
-
