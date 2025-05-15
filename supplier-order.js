@@ -208,7 +208,7 @@ function removeItem(index) {
 /////////////////////////////////////////////////////
 // ✅ 사업자 정보 검색 (사업자번호 또는 업체명)
 /////////////////////////////////////////////////////
-export async function searchSupplier() {
+async function searchSupplier() {
   const keyword = document.getElementById("searchKeyword").value.trim();
 
   if (!keyword) {
