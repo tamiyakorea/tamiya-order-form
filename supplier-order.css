@@ -7,17 +7,8 @@ body {
   color: #333;
 }
 
-header {
-  background-color: #4CAF50;
-  color: white;
-  text-align: center;
-  padding: 15px 0;
-  font-size: 24px;
-  font-weight: bold;
-}
-
 main {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 20px auto;
   padding: 20px;
   background-color: white;
