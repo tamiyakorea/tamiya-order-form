@@ -21,17 +21,24 @@ main {
 
 /* ✅ 섹션 및 제목 */
 h2 {
-  border-bottom: 2px solid #65d3f8;
+  border-bottom: 2px solid #333;
   padding-bottom: 5px;
-  margin-bottom: 15px;
-  color: #333;
+}
+
+.section {
+  margin-bottom: 30px;
+}
+
+label {
+  display: block;
+  margin: 8px 0 4px;
 }
 
 /* ✅ 입력란 스타일 */
 input[type="text"],
 textarea,
 select {
-  width: 250px; /* 100% 고정 */
+  width: 250px; 
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ddd;
