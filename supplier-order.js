@@ -83,11 +83,15 @@ function formatPhoneNumber(phone) {
 // ✅ 상품 검색 및 단가 계산
 /////////////////////////////////////////////////////
 export async function searchProduct() {
+  console.log("🛠️ searchProduct 함수 실행됨");
+  
   const productCode = document.getElementById("productCode").value.trim();
   if (!productCode) {
     alert("제품 코드를 입력해주세요.");
     return;
   }
+
+  console.log(`🔍 검색할 제품 코드: ${productCode}`);
 
   const { data, error } = await supabase
     .from('tamiya_items')
@@ -96,9 +100,12 @@ export async function searchProduct() {
     .single();
 
   if (error || !data) {
+    console.error("🔴 제품 검색 실패:", error);
     alert("해당 제품을 찾을 수 없습니다.");
     return;
   }
+
+  console.log("✅ 제품 검색 성공:", data);
 
   // ✅ 단가 계산
   const isEightDigit = productCode.length === 8;
@@ -112,6 +119,8 @@ export async function searchProduct() {
     price: Math.round(price),
     qty: 1
   });
+
+  console.log("✅ 장바구니에 추가됨", cart);
 
   renderCart();
 }
@@ -240,3 +249,10 @@ window.toggleEdit = function (checkbox) {
     }
   });
 };
+
+// ✅ 상품 검색 버튼 클릭 리스너
+document.getElementById("searchButton").addEventListener("click", async (e) => {
+  e.preventDefault();
+  console.log("🔍 상품 검색 버튼 클릭됨");
+  await searchProduct();
+});
