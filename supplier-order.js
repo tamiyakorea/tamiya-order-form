@@ -26,6 +26,7 @@ const DELIVERY_FREE_METHODS = [
 /////////////////////////////////////////////////////
 window.updateQty = updateQty;
 window.removeItem = removeItem;
+window.confirmOrder = confirmOrder; 
 
 /////////////////////////////////////////////////////
 // ✅ DOMContentLoaded 이벤트 처리
@@ -243,6 +244,59 @@ window.toggleEdit = function (checkbox) {
     }
   });
 };
+
+/////////////////////////////////////////////////////
+// ✅ 주문 확정 처리
+/////////////////////////////////////////////////////
+function confirmOrder() {
+  if (!cart.length) {
+    alert("장바구니에 상품이 없습니다.");
+    return;
+  }
+
+  const businessNumber = document.getElementById("businessNumberDisplay").value.trim();
+  const supplierName = document.getElementById("supplierName").value.trim();
+  const supplierContact = document.getElementById("supplierContact").value.trim();
+  const supplierAddress = document.getElementById("supplierAddress").value.trim();
+
+  if (!businessNumber || !supplierName || !supplierContact || !supplierAddress) {
+    alert("사업자 정보를 모두 입력해주세요.");
+    return;
+  }
+
+  const orderId = generateOrderNumber();
+  const items = cart.map(item => ({
+    code: item.code,
+    name: item.name,
+    qty: item.qty,
+    price: item.price
+  }));
+
+  const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+  const payload = {
+    order_id: orderId,
+    name: supplierName,
+    phone: supplierContact,
+    address: supplierAddress,
+    items: JSON.stringify(items),
+    total: total,
+    created_at: new Date().toISOString(),
+    business_registration_number: businessNumber,
+    supplier: true
+  };
+
+  supabase.from('orders').insert([payload])
+    .then(({ data, error }) => {
+      if (error) {
+        console.error("주문 저장 오류:", error.message);
+        alert("주문 저장에 실패하였습니다.");
+        return;
+      }
+      alert(`주문이 성공적으로 접수되었습니다.\n주문번호: ${orderId}`);
+      location.reload();
+    });
+}
 
 /////////////////////////////////////////////////////
 // ✅ 이벤트 리스너 추가
