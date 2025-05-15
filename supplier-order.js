@@ -25,34 +25,15 @@ const DELIVERY_FREE_METHODS = [
 // ✅ DOMContentLoaded 이벤트 처리
 /////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", () => {
-  // ✅ 전역 등록
   window.searchProduct = searchProduct;
   window.confirmOrder = confirmOrder;
   window.updateQty = updateQty;
   window.removeItem = removeItem;
   window.toggleEdit = toggleEdit;
+  window.searchSupplier = searchSupplier;
 
-  // ✅ 이벤트 리스너 연결
   document.getElementById("searchButton").addEventListener("click", searchProduct);
   document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
-  document.getElementById("directPickup").addEventListener("change", calculateTotalWithShipping);
-
-  // ✅ 토글 수정 기능
-  window.toggleEdit = function (checkbox) {
-    const editableFields = [
-      document.getElementById("supplierContact"),
-      document.getElementById("supplierAddress"),
-      document.getElementById("supplierEmail")
-    ];
-
-    editableFields.forEach(field => {
-      if (checkbox.checked) {
-        field.removeAttribute('readonly');
-      } else {
-        field.setAttribute('readonly', true);
-      }
-    });
-  };
 });
 
 /////////////////////////////////////////////////////
@@ -108,11 +89,13 @@ export async function searchSupplier() {
       return;
     }
 
+    // ✅ 화면에 데이터 표시
     document.getElementById("supplierName").value = data.company_name;
     document.getElementById("businessNumberDisplay").value = data.business_registration_number;
     document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
     document.getElementById("supplierAddress").value = data.address;
     document.getElementById("supplierEmail").value = data.email;
+    document.getElementById("supplierZipcode").value = data.zipcode;
     priceMultiplier = parseFloat(data.price_multiplier);
 
   } catch (error) {
@@ -148,19 +131,19 @@ export async function searchProduct() {
     const isEightDigit = productCode.length === 8;
     const multiplier = isEightDigit ? 15 : 13;
     const price = data.j_retail * multiplier * priceMultiplier;
+    const consumerPrice = data.j_retail * multiplier;
 
     // ✅ 장바구니 중복 확인
     const existingItem = cart.find(item => item.code === data.item_code);
 
     if (existingItem) {
-      // 🚀 이미 존재하면 수량 증가
       existingItem.qty += 1;
     } else {
-      // 🚀 존재하지 않으면 새로 추가
       cart.push({
         code: data.item_code,
         name: data.description,
         price: Math.round(price),
+        consumerPrice: Math.round(consumerPrice),
         qty: 1
       });
     }
@@ -179,20 +162,15 @@ export async function searchProduct() {
 function calculateTotalWithShipping() {
   let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  // 🚀 장바구니가 비어있으면 배송비 계산하지 않음
   if (cart.length === 0) {
     document.getElementById("cartTotal").textContent = `₩0`;
+    document.getElementById("deliveryMethod").value = "";
     return;
   }
 
   const deliveryMethod = document.getElementById("deliveryMethod").value;
-  const isDirectPickup = document.getElementById("directPickup").checked;
-
-  // 🚀 30,000원 미만일 때만 배송비 추가
-  if (total < 30000) {
-    if (!(isDirectPickup && DELIVERY_FREE_METHODS.includes(deliveryMethod))) {
-      total += DELIVERY_FEE;
-    }
+  if (total < 30000 && !DELIVERY_FREE_METHODS.includes(deliveryMethod) && deliveryMethod !== "") {
+    total += DELIVERY_FEE;
   }
 
   document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
@@ -202,7 +180,13 @@ function calculateTotalWithShipping() {
 // ✅ 장바구니 수량 변경 처리
 /////////////////////////////////////////////////////
 function updateQty(index, value) {
-  cart[index].qty = parseInt(value, 10);
+  const newQty = parseInt(value, 10);
+  if (isNaN(newQty) || newQty < 1) {
+    alert("수량은 1개 이상이어야 합니다.");
+    renderCart();
+    return;
+  }
+  cart[index].qty = newQty;
   renderCart();
 }
 
@@ -220,6 +204,7 @@ function renderCart() {
       <tr>
         <td>${item.code}</td>
         <td>${item.name}</td>
+        <td>₩${(item.consumerPrice || item.price).toLocaleString()}</td>
         <td>₩${item.price.toLocaleString()}</td>
         <td><input type="number" value="${item.qty}" min="1" onchange="updateQty(${index}, this.value)"></td>
         <td>₩${rowTotal.toLocaleString()}</td>
@@ -228,7 +213,6 @@ function renderCart() {
     `;
   });
 
-  // ✅ 총 금액 다시 계산
   calculateTotalWithShipping();
 }
 
@@ -239,6 +223,7 @@ function renderCart() {
 function removeItem(index) {
   cart.splice(index, 1);
   renderCart();
+  calculateTotalWithShipping(); // 🚀 삭제 후에도 금액 업데이트
 }
 
 /////////////////////////////////////////////////////
@@ -273,6 +258,9 @@ function confirmOrder() {
   const supplierName = document.getElementById("supplierName").value.trim();
   const supplierContact = document.getElementById("supplierContact").value.trim();
   const supplierAddress = document.getElementById("supplierAddress").value.trim();
+  const supplierEmail = document.getElementById("supplierEmail").value.trim();
+  const supplierZipcode = document.getElementById("supplierZipcode").value.trim();
+  const remarks = document.getElementById("remarks").value.trim();
 
   if (!businessNumber || !supplierName || !supplierContact || !supplierAddress) {
     alert("사업자 정보를 모두 입력해주세요.");
@@ -294,6 +282,9 @@ function confirmOrder() {
     name: supplierName,
     phone: supplierContact,
     address: supplierAddress,
+    email: supplierEmail,
+    zipcode: supplierZipcode,
+    remarks: remarks,
     items: JSON.stringify(items),
     total: total,
     created_at: new Date().toISOString(),
