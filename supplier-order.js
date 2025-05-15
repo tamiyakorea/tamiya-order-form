@@ -270,6 +270,7 @@ function removeItem(index) {
 // ✅ 정보 수정 가능 토글 처리
 /////////////////////////////////////////////////////
 window.toggleEdit = function (checkbox) {
+  // ✅ 수정 가능한 필드 정의
   const editableFields = [
     "supplierContact",
     "supplierAddress",
@@ -277,19 +278,23 @@ window.toggleEdit = function (checkbox) {
     "supplierZipcode"
   ];
 
+  // ✅ 반복문을 통해 각 필드에 접근
   editableFields.forEach(id => {
     const field = document.getElementById(id);
-
     if (field) {
       if (checkbox.checked) {
+        console.log(`🔓 ${id} 수정 가능`);
         field.removeAttribute('readonly');
         field.removeAttribute('disabled');
         field.classList.remove('disabled-input');
       } else {
+        console.log(`🔒 ${id} 수정 불가`);
         field.setAttribute('readonly', true);
         field.setAttribute('disabled', true);
         field.classList.add('disabled-input');
       }
+    } else {
+      console.warn(`⚠️ ${id}를 찾을 수 없습니다.`);
     }
   });
 };
