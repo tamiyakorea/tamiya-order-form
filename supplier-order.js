@@ -217,3 +217,26 @@ window.confirmOrder = async function () {
   alert(`주문이 성공적으로 접수되었습니다.\n주문번호: ${orderId}`);
   location.reload();
 };
+
+/////////////////////////////////////////////////////
+// ✅ 정보 수정 가능 토글 처리
+/////////////////////////////////////////////////////
+window.toggleEdit = function (checkbox) {
+  const fields = [
+    document.getElementById("supplierName"),
+    document.getElementById("businessNumberDisplay"),
+    document.getElementById("supplierContact"),
+    document.getElementById("supplierAddress"),
+    document.getElementById("supplierEmail")
+  ];
+
+  fields.forEach(field => {
+    if (checkbox.checked) {
+      field.removeAttribute('readonly');
+      field.classList.add('active');
+    } else {
+      field.setAttribute('readonly', true);
+      field.classList.remove('active');
+    }
+  });
+};
