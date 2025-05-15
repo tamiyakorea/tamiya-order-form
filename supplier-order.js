@@ -295,7 +295,7 @@ function generateOrderNumber() {
 /////////////////////////////////////////////////////
 // ✅ 주문 확정 처리
 /////////////////////////////////////////////////////
-export function confirmOrder() {
+function confirmOrder() {
   if (!cart.length) {
     alert("장바구니에 상품이 없습니다.");
     return;
@@ -364,6 +364,7 @@ export function confirmOrder() {
 }
 
 /////////////////////////////////////////////////////
-// ✅ 모듈 내보내기
+// ✅ 모듈 내보내기 (여기서 한 번에 처리)
 /////////////////////////////////////////////////////
-export { searchProduct, searchSupplier, toggleEdit };
+export { searchProduct, searchSupplier, toggleEdit, confirmOrder };
+
