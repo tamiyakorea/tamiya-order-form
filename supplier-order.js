@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /////////////////////////////////////////////////////
 // ✅ 정보 수정 가능 토글 함수
 /////////////////////////////////////////////////////
-window.toggleEdit = function (checkbox) {
+function toggleEdit(checkbox) {
   const editableFields = [
     document.getElementById("supplierContact"),
     document.getElementById("supplierAddress"),
@@ -79,7 +79,7 @@ window.toggleEdit = function (checkbox) {
       console.warn(`⚠️ ${field.id}를 찾을 수 없습니다.`);
     }
   });
-};
+}
 
 /////////////////////////////////////////////////////
 // ✅ 상품 검색 및 단가 계산 (중복 방지, 수량 증가)
