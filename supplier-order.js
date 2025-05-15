@@ -10,10 +10,21 @@ const cart = [];
 let priceMultiplier = 1;
 
 /////////////////////////////////////////////////////
+// ✅ 배송비 상수 및 목록 선언 (최상단으로 이동)
+/////////////////////////////////////////////////////
+const DELIVERY_FEE = 3000;
+const DELIVERY_FREE_METHODS = [
+  "이천창고 직접 수령",
+  "도매 주문과 합배송",
+  "양재점 수령",
+  "용산점 수령",
+  "하남점 수령"
+];
+
+/////////////////////////////////////////////////////
 // ✅ DOMContentLoaded 이벤트 처리
 /////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", () => {
-  // ✅ 요소 로딩 후 이벤트 리스너 추가
   document.getElementById("searchButton").addEventListener("click", searchProduct);
   document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
   document.getElementById("directPickup").addEventListener("change", calculateTotalWithShipping);
@@ -95,17 +106,8 @@ export async function searchSupplier() {
 }
 
 /////////////////////////////////////////////////////
-// ✅ 배송비 계산 로직
+// ✅ 배송비 포함한 총 금액 계산
 /////////////////////////////////////////////////////
-const DELIVERY_FEE = 3000;
-const DELIVERY_FREE_METHODS = [
-  "이천창고 직접 수령",
-  "도매 주문과 합배송",
-  "양재점 수령",
-  "용산점 수령",
-  "하남점 수령"
-];
-
 function calculateTotalWithShipping() {
   let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const deliveryMethod = document.getElementById("deliveryMethod").value;
@@ -121,37 +123,10 @@ function calculateTotalWithShipping() {
 }
 
 /////////////////////////////////////////////////////
-// ✅ 상품 검색 및 단가 계산
+// ✅ 장바구니 수량 변경 처리
 /////////////////////////////////////////////////////
-export async function searchProduct() {
-  const productCode = document.getElementById("productCode").value.trim();
-  if (!productCode) {
-    alert("제품 코드를 입력해주세요.");
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from('tamiya_items')
-    .select('*')
-    .eq('item_code', productCode)
-    .single();
-
-  if (error || !data) {
-    alert("해당 제품을 찾을 수 없습니다.");
-    return;
-  }
-
-  const isEightDigit = productCode.length === 8;
-  const multiplier = isEightDigit ? 15 : 13;
-  const price = data.j_retail * multiplier * priceMultiplier;
-
-  cart.push({
-    code: data.item_code,
-    name: data.description,
-    price: Math.round(price),
-    qty: 1
-  });
-
+function updateQty(index, value) {
+  cart[index].qty = parseInt(value, 10);
   renderCart();
 }
 
@@ -181,20 +156,12 @@ function renderCart() {
 }
 
 /////////////////////////////////////////////////////
-// ✅ 수량 변경 처리
-/////////////////////////////////////////////////////
-window.updateQty = function (index, value) {
-  cart[index].qty = parseInt(value, 10);
-  renderCart();
-};
-
-/////////////////////////////////////////////////////
 // ✅ 장바구니 항목 삭제 처리
 /////////////////////////////////////////////////////
-window.removeItem = function (index) {
+function removeItem(index) {
   cart.splice(index, 1);
   renderCart();
-};
+}
 
 /////////////////////////////////////////////////////
 // ✅ 정보 수정 가능 토글 처리
