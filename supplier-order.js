@@ -32,9 +32,12 @@ document.addEventListener("DOMContentLoaded", () => {
   deliverySelect?.addEventListener("change", (event) => {
     const selectedMethod = event.target.value;
     const remarksField = document.getElementById("remarks");
-    if (selectedMethod) {
-      remarksField.value = selectedMethod;
+    // 🚀 수정된 부분: 조건이 맞지 않을 때 아무것도 하지 않음
+    if (!selectedMethod) {
+      remarksField.value = '';
+      return; // 이 return은 함수 내부에서만 사용 가능
     }
+    remarksField.value = selectedMethod;
   });
 });
 
