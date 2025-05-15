@@ -291,14 +291,17 @@ searchInput.addEventListener("keyup", async (event) => {
     }
 
     if (data.length > 0) {
+      // 🔹 중복 제거: 회사명만 추출 후 Set으로 변환하여 중복 제거
+      const uniqueNames = [...new Set(data.map(item => item.company_name))];
+
       // 🔹 검색 결과 리스트 표시
-      data.forEach(item => {
+      uniqueNames.forEach(companyName => {
         const li = document.createElement("li");
-        li.textContent = item.company_name;
+        li.textContent = companyName;
         
         // 🔹 항목 클릭 시, 입력란에 반영하고 리스트 초기화
         li.addEventListener("click", () => {
-          searchInput.value = item.company_name;
+          searchInput.value = companyName;
           suggestionList.innerHTML = "";
         });
 
