@@ -49,6 +49,28 @@ document.addEventListener("DOMContentLoaded", () => {
   } else {
     console.error("❌ 정보 수정 가능 체크박스를 찾을 수 없습니다.");
   }
+
+  /////////////////////////////////////////////////////
+  // ✅ 배송 방법 변경 시 비고란 업데이트 (여기에 추가됨)
+  /////////////////////////////////////////////////////
+  const deliverySelect = document.getElementById("deliveryMethod");
+  if (deliverySelect) {
+    deliverySelect.addEventListener("change", (event) => {
+      const selectedMethod = event.target.value;
+      const remarksField = document.getElementById("remarks");
+
+      // 🚀 이미 존재하는지 확인 (중복 방지)
+      if (selectedMethod && !remarksField.value.includes(selectedMethod)) {
+        if (remarksField.value.trim() !== "") {
+          remarksField.value += ` / ${selectedMethod}`;
+        } else {
+          remarksField.value = selectedMethod;
+        }
+      }
+    });
+  } else {
+    console.error("❌ 배송 방법 선택 요소를 찾을 수 없습니다.");
+  }
 });
 
 /////////////////////////////////////////////////////
