@@ -73,29 +73,15 @@ select:focus {
 
 /* ✅ 버튼 공통 스타일 */
 button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s ease;
+  border: 1px solid #ccc;
+  border-radius: 0; /* 각진 직사각형 */
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-button:hover {
-  background-color: #45a049;
-}
-
-button.confirm-button {
-  width: 100%;
-  margin-top: 20px;
-  background-color: #2196F3;
-}
-
-button.confirm-button:hover {
-  background-color: #1976D2;
-}
 
 /* ✅ 테이블 스타일 */
 table {
