@@ -21,15 +21,6 @@ const DELIVERY_FREE_METHODS = [
 
 // DOMContentLoaded 이벤트 처리
 document.addEventListener("DOMContentLoaded", () => {
-  // 전역 함수 등록
-  window.searchProduct = searchProduct;
-  window.confirmOrder = confirmOrder;
-  window.updateQty = updateQty;
-  window.removeItem = removeItem;
-  window.toggleEdit = toggleEdit;
-  window.searchSupplier = searchSupplier;
-
-  // 정보 수정 가능 체크박스 이벤트 등록
   const unlockEditCheckbox = document.getElementById("unlockEdit");
   if (unlockEditCheckbox) {
     unlockEditCheckbox.addEventListener("change", (e) => {
@@ -37,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 배송 방법 변경 시 비고란 업데이트
   const deliverySelect = document.getElementById("deliveryMethod");
   deliverySelect?.addEventListener("change", (event) => {
     const selectedMethod = event.target.value;
@@ -71,6 +61,7 @@ function toggleEdit(checkbox) {
     }
   });
 }
+
 
 // 상품 검색 및 장바구니 추가
 async function searchProduct() {
@@ -265,14 +256,14 @@ function generateOrderNumber() {
   return Number(MMDD + mmss + rand);
 }
 
-/////////////////////////////////////////////////////
-// ✅ 주문 확정 처리
-/////////////////////////////////////////////////////
+// 주문 확정 처리
 function confirmOrder() {
   if (!cart.length) {
     alert("장바구니에 상품이 없습니다.");
     return;
   }
+  alert("주문이 완료되었습니다!");
+}
 
   // ✅ 사업자 정보 가져오기
   const businessNumber = document.getElementById("businessNumberDisplay").value.trim();
@@ -343,6 +334,8 @@ export {
   renderCart,
   removeItem,
   updateQty,
-  calculateTotalWithShipping
+  calculateTotalWithShipping,
+  confirmOrder,
+  searchSupplier
 };
 
