@@ -31,7 +31,7 @@ h2 {
 input[type="text"],
 textarea,
 select {
-  width: 100%; /* 100% 고정 */
+  width: 250px; /* 100% 고정 */
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ddd;
@@ -45,6 +45,43 @@ textarea:focus,
 select:focus {
   border-color: #65d3f8;
   outline: none;
+}
+
+/* ✅ 개별 입력란 크기 조정 */
+#supplierName {
+  width: 200px;
+  max-width: 400px;
+}
+
+#businessNumberDisplay {
+  width: 200px;
+  max-width: 300px;
+}
+
+#supplierContact {
+  width: 200px;
+  max-width: 250px;
+}
+
+#supplierZipcode {
+  width: 80px;
+  max-width: 150px;
+}
+
+#supplierAddress {
+  width: 300px;
+  max-width: 500px;
+}
+
+#supplierEmail {
+  width: 200px;
+  max-width: 300px;
+}
+
+/* ✅ 비고란 */
+#remarks {
+  height: 100px;
+  resize: vertical;
 }
 
 /* ✅ 사업자 정보 입력 그룹 정렬 (한 줄에 하나씩) */
