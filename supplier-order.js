@@ -63,6 +63,22 @@ export async function searchSupplier() {
   }
 }
 
+// ✅ 전화번호 포맷터
+function formatPhoneNumber(phone) {
+  if (!phone) return '';
+  // 숫자만 남기기
+  const clean = phone.replace(/\D/g, '');
+
+  // 형식에 맞춰 포맷팅
+  if (clean.length === 10) {
+    return clean.replace(/(\d{2,3})(\d{3,4})(\d{4})/, '$1-$2-$3');
+  } else if (clean.length === 11) {
+    return clean.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+  } else {
+    return phone; // 포맷팅 불가한 경우 원본 반환
+  }
+}
+
 /////////////////////////////////////////////////////
 // ✅ 상품 검색 및 단가 계산
 /////////////////////////////////////////////////////
