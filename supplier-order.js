@@ -205,10 +205,10 @@ function calculateTotalWithShipping() {
   }
 
   const deliveryMethod = document.getElementById("deliveryMethod").value;
-  
-  // 🚀 30,000원 미만일 경우 배송비 추가
+
+  // 🚀 30,000원 미만일 경우 기본적으로 배송비 3,000원 추가
   if (total < 30000) {
-    if (!DELIVERY_FREE_METHODS.includes(deliveryMethod) && deliveryMethod !== "") {
+    if (deliveryMethod === "" || !DELIVERY_FREE_METHODS.includes(deliveryMethod)) {
       total += DELIVERY_FEE;
     }
   }
