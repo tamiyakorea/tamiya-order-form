@@ -231,23 +231,42 @@ window.confirmOrder = async function () {
 // ✅ 정보 수정 가능 토글 처리
 /////////////////////////////////////////////////////
 window.toggleEdit = function (checkbox) {
-  const fields = [
-    document.getElementById("supplierName"),
-    document.getElementById("businessNumberDisplay"),
+  const editableFields = [
     document.getElementById("supplierContact"),
     document.getElementById("supplierAddress"),
     document.getElementById("supplierEmail")
   ];
 
-  fields.forEach(field => {
-    if (checkbox.checked) {
+  // ✅ 수정이 불가능한 필드 (업체명, 사업자번호)
+  const lockedFields = [
+    document.getElementById("supplierName"),
+    document.getElementById("businessNumberDisplay")
+  ];
+
+  // ✅ 수정 가능 여부에 따른 처리
+  if (checkbox.checked) {
+    // 수정 가능 필드만 활성화
+    editableFields.forEach(field => {
       field.removeAttribute('readonly');
       field.classList.add('active');
-    } else {
+    });
+
+    // 수정 불가능 필드는 항상 비활성화 상태 유지
+    lockedFields.forEach(field => {
       field.setAttribute('readonly', true);
       field.classList.remove('active');
-    }
-  });
+    });
+  } else {
+    // 모든 필드 다시 비활성화
+    editableFields.forEach(field => {
+      field.setAttribute('readonly', true);
+      field.classList.remove('active');
+    });
+    lockedFields.forEach(field => {
+      field.setAttribute('readonly', true);
+      field.classList.remove('active');
+    });
+  }
 };
 
 // ✅ 상품 검색 버튼 클릭 리스너
