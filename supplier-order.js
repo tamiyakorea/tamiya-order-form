@@ -1,4 +1,4 @@
-// ✅ Supabase 클라이언트 생성
+// Supabase 클라이언트 생성
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const supabase = createClient(
@@ -9,9 +9,7 @@ const supabase = createClient(
 const cart = [];
 let priceMultiplier = 1;
 
-/////////////////////////////////////////////////////
-// ✅ 배송비 상수 및 목록 선언 (최상단으로 이동)
-/////////////////////////////////////////////////////
+// 배송비 상수 및 목록 선언
 const DELIVERY_FEE = 3000;
 const DELIVERY_FREE_METHODS = [
   "이천창고 직접 수령",
@@ -21,13 +19,9 @@ const DELIVERY_FREE_METHODS = [
   "하남점 수령"
 ];
 
-/////////////////////////////////////////////////////
-// ✅ DOMContentLoaded 이벤트 처리
-/////////////////////////////////////////////////////
+// DOMContentLoaded 이벤트 처리
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("✅ DOMContentLoaded: 이벤트 리스너 등록 완료");
-
-  // ✅ 전역 함수 등록
+  // 전역 함수 등록
   window.searchProduct = searchProduct;
   window.confirmOrder = confirmOrder;
   window.updateQty = updateQty;
@@ -35,47 +29,26 @@ document.addEventListener("DOMContentLoaded", () => {
   window.toggleEdit = toggleEdit;
   window.searchSupplier = searchSupplier;
 
-  // ✅ 이벤트 리스너 연결
-  document.getElementById("searchButton").addEventListener("click", searchProduct);
-  document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
-
-  // ✅ 정보 수정 가능 체크박스
+  // 정보 수정 가능 체크박스 이벤트 등록
   const unlockEditCheckbox = document.getElementById("unlockEdit");
   if (unlockEditCheckbox) {
     unlockEditCheckbox.addEventListener("change", (e) => {
-      console.log("🔄 정보 수정 가능 상태:", e.target.checked);
       toggleEdit(e.target);
     });
-  } else {
-    console.error("❌ 정보 수정 가능 체크박스를 찾을 수 없습니다.");
   }
 
-  /////////////////////////////////////////////////////
-  // ✅ 배송 방법 변경 시 비고란 업데이트 (여기에 추가됨)
-  /////////////////////////////////////////////////////
+  // 배송 방법 변경 시 비고란 업데이트
   const deliverySelect = document.getElementById("deliveryMethod");
-  if (deliverySelect) {
-    deliverySelect.addEventListener("change", (event) => {
-      const selectedMethod = event.target.value;
-      const remarksField = document.getElementById("remarks");
-
-      // 🚀 이미 존재하는지 확인 (중복 방지)
-      if (selectedMethod && !remarksField.value.includes(selectedMethod)) {
-        if (remarksField.value.trim() !== "") {
-          remarksField.value += ` / ${selectedMethod}`;
-        } else {
-          remarksField.value = selectedMethod;
-        }
-      }
-    });
-  } else {
-    console.error("❌ 배송 방법 선택 요소를 찾을 수 없습니다.");
-  }
+  deliverySelect?.addEventListener("change", (event) => {
+    const selectedMethod = event.target.value;
+    const remarksField = document.getElementById("remarks");
+    if (selectedMethod) {
+      remarksField.value = selectedMethod;
+    }
+  });
 });
 
-/////////////////////////////////////////////////////
-// ✅ 정보 수정 가능 토글 함수
-/////////////////////////////////////////////////////
+// 정보 수정 가능 토글 함수
 function toggleEdit(checkbox) {
   const editableFields = [
     document.getElementById("supplierContact"),
@@ -87,25 +60,19 @@ function toggleEdit(checkbox) {
   editableFields.forEach(field => {
     if (field) {
       if (checkbox.checked) {
-        console.log(`🔓 ${field.id} 수정 가능`);
         field.removeAttribute('readonly');
         field.removeAttribute('disabled');
         field.classList.remove('disabled-input');
       } else {
-        console.log(`🔒 ${field.id} 수정 불가`);
         field.setAttribute('readonly', true);
         field.setAttribute('disabled', true);
         field.classList.add('disabled-input');
       }
-    } else {
-      console.warn(`⚠️ ${field.id}를 찾을 수 없습니다.`);
     }
   });
 }
 
-/////////////////////////////////////////////////////
-// ✅ 상품 검색 및 단가 계산 (중복 방지, 수량 증가)
-/////////////////////////////////////////////////////
+// 상품 검색 및 장바구니 추가
 async function searchProduct() {
   const productCode = document.getElementById("productCode").value.trim();
   if (!productCode) {
@@ -114,7 +81,6 @@ async function searchProduct() {
   }
 
   try {
-    // ✅ Supabase에서 상품 정보 조회
     const { data, error } = await supabase
       .from('tamiya_items')
       .select('*')
@@ -126,17 +92,15 @@ async function searchProduct() {
       return;
     }
 
-    // ✅ 단가 계산
     const isEightDigit = productCode.length === 8;
     const multiplier = isEightDigit ? 15 : 13;
     const price = data.j_retail * multiplier * priceMultiplier;
     const consumerPrice = data.j_retail * multiplier;
 
-    // ✅ 장바구니 중복 확인
     const existingItem = cart.find(item => item.code === data.item_code);
 
     if (existingItem) {
-      existingItem.qty += 1; // 기존 상품이 있으면 수량만 증가
+      existingItem.qty += 1;
     } else {
       cart.push({
         code: data.item_code,
@@ -147,7 +111,6 @@ async function searchProduct() {
       });
     }
 
-    // ✅ 렌더링 업데이트
     renderCart();
   } catch (err) {
     console.error("상품 검색 중 오류 발생:", err.message);
@@ -155,10 +118,7 @@ async function searchProduct() {
   }
 }
 
-
-/////////////////////////////////////////////////////
-// ✅ 배송비 포함한 총 금액 계산
-/////////////////////////////////////////////////////
+// 배송비 포함한 총 금액 계산
 function calculateTotalWithShipping() {
   let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
@@ -169,19 +129,14 @@ function calculateTotalWithShipping() {
 
   const deliveryMethod = document.getElementById("deliveryMethod").value;
 
-  // 🚀 30,000원 미만일 경우 기본적으로 배송비 3,000원 추가
-  if (total < 30000) {
-    if (deliveryMethod === "" || !DELIVERY_FREE_METHODS.includes(deliveryMethod)) {
-      total += DELIVERY_FEE;
-    }
+  if (total < 30000 && !DELIVERY_FREE_METHODS.includes(deliveryMethod)) {
+    total += DELIVERY_FEE;
   }
 
   document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
 }
 
-/////////////////////////////////////////////////////
-// ✅ 장바구니 수량 변경 처리
-/////////////////////////////////////////////////////
+// 장바구니 수량 업데이트
 function updateQty(index, value) {
   const newQty = parseInt(value, 10);
   if (isNaN(newQty) || newQty < 1) {
@@ -193,9 +148,7 @@ function updateQty(index, value) {
   renderCart();
 }
 
-/////////////////////////////////////////////////////
-// ✅ 장바구니 렌더링
-/////////////////////////////////////////////////////
+// 장바구니 렌더링
 function renderCart() {
   const tbody = document.getElementById("cartBody");
   tbody.innerHTML = "";
@@ -207,7 +160,7 @@ function renderCart() {
       <tr>
         <td>${item.code}</td>
         <td>${item.name}</td>
-        <td>₩${(item.consumerPrice || item.price).toLocaleString()}</td>
+        <td>₩${item.consumerPrice.toLocaleString()}</td>
         <td>₩${item.price.toLocaleString()}</td>
         <td><input type="number" value="${item.qty}" min="1" onchange="updateQty(${index}, this.value)"></td>
         <td>₩${rowTotal.toLocaleString()}</td>
@@ -219,13 +172,10 @@ function renderCart() {
   calculateTotalWithShipping();
 }
 
-/////////////////////////////////////////////////////
-// ✅ 장바구니 항목 삭제 처리
-/////////////////////////////////////////////////////
+// 장바구니 항목 삭제
 function removeItem(index) {
   cart.splice(index, 1);
   renderCart();
-  calculateTotalWithShipping();
 }
 
 /////////////////////////////////////////////////////
@@ -386,8 +336,13 @@ function confirmOrder() {
     });
 }
 
-/////////////////////////////////////////////////////
-// ✅ 모듈 내보내기 (여기서 한 번에 처리)
-/////////////////////////////////////////////////////
-export { searchProduct, searchSupplier, toggleEdit, confirmOrder };
+// 모듈 내보내기
+export {
+  searchProduct,
+  toggleEdit,
+  renderCart,
+  removeItem,
+  updateQty,
+  calculateTotalWithShipping
+};
 
