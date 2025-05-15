@@ -10,6 +10,25 @@ const cart = [];
 let priceMultiplier = 1;
 
 /////////////////////////////////////////////////////
+// ✅ DOMContentLoaded 이벤트 처리
+/////////////////////////////////////////////////////
+document.addEventListener("DOMContentLoaded", () => {
+  // ✅ 요소 로딩 후 이벤트 리스너 추가
+  document.getElementById("searchButton").addEventListener("click", searchProduct);
+  document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
+  document.getElementById("directPickup").addEventListener("change", calculateTotalWithShipping);
+});
+
+/////////////////////////////////////////////////////
+// ✅ 전역 등록
+/////////////////////////////////////////////////////
+window.searchSupplier = searchSupplier;
+window.searchProduct = searchProduct;
+window.updateQty = updateQty;
+window.removeItem = removeItem;
+window.toggleEdit = toggleEdit;
+
+/////////////////////////////////////////////////////
 // ✅ 주문 번호 생성기
 /////////////////////////////////////////////////////
 function generateOrderNumber() {
