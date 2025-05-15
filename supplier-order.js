@@ -25,6 +25,9 @@ const DELIVERY_FREE_METHODS = [
 // ✅ DOMContentLoaded 이벤트 처리
 /////////////////////////////////////////////////////
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ DOMContentLoaded: 이벤트 리스너 등록 완료");
+
+  // ✅ 전역 함수 등록
   window.searchProduct = searchProduct;
   window.confirmOrder = confirmOrder;
   window.updateQty = updateQty;
@@ -32,23 +35,47 @@ document.addEventListener("DOMContentLoaded", () => {
   window.toggleEdit = toggleEdit;
   window.searchSupplier = searchSupplier;
 
+  // ✅ 이벤트 리스너 연결
   document.getElementById("searchButton").addEventListener("click", searchProduct);
   document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
 
+  // ✅ 정보 수정 가능 체크박스
+  const unlockEditCheckbox = document.getElementById("unlockEdit");
+  if (unlockEditCheckbox) {
+    unlockEditCheckbox.addEventListener("change", (e) => {
+      console.log("🔄 정보 수정 가능 상태:", e.target.checked);
+      toggleEdit(e.target);
+    });
+  } else {
+    console.error("❌ 정보 수정 가능 체크박스를 찾을 수 없습니다.");
+  }
+
+  /////////////////////////////////////////////////////
+  // ✅ 정보 수정 가능 토글 함수
+  /////////////////////////////////////////////////////
   window.toggleEdit = function (checkbox) {
     const editableFields = [
       document.getElementById("supplierContact"),
       document.getElementById("supplierAddress"),
-      document.getElementById("supplierEmail")
+      document.getElementById("supplierEmail"),
+      document.getElementById("supplierZipcode")  // ✅ 우편번호 추가됨
     ];
 
     editableFields.forEach(field => {
       if (field) {
         if (checkbox.checked) {
+          console.log(`🔓 ${field.id} 수정 가능`);
           field.removeAttribute('readonly');
+          field.removeAttribute('disabled');
+          field.classList.remove('disabled-input');
         } else {
+          console.log(`🔒 ${field.id} 수정 불가`);
           field.setAttribute('readonly', true);
+          field.setAttribute('disabled', true);
+          field.classList.add('disabled-input');
         }
+      } else {
+        console.warn(`⚠️ ${field.id}를 찾을 수 없습니다.`);
       }
     });
   };
@@ -269,8 +296,9 @@ function removeItem(index) {
 /////////////////////////////////////////////////////
 // ✅ 정보 수정 가능 토글 처리
 /////////////////////////////////////////////////////
-window.toggleEdit = function (checkbox) {
-  // ✅ 수정 가능한 필드 정의
+function toggleEdit(checkbox) {
+  console.log("🔄 정보 수정 가능 상태:", checkbox.checked);
+
   const editableFields = [
     "supplierContact",
     "supplierAddress",
@@ -278,7 +306,6 @@ window.toggleEdit = function (checkbox) {
     "supplierZipcode"
   ];
 
-  // ✅ 반복문을 통해 각 필드에 접근
   editableFields.forEach(id => {
     const field = document.getElementById(id);
     if (field) {
@@ -297,7 +324,8 @@ window.toggleEdit = function (checkbox) {
       console.warn(`⚠️ ${id}를 찾을 수 없습니다.`);
     }
   });
-};
+}
+
 
 /////////////////////////////////////////////////////
 // ✅ 주문 확정 처리
