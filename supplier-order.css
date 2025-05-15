@@ -154,10 +154,18 @@ td button:hover {
 }
 
 /* ✅ 체크박스 그룹 스타일 */
-.checkbox-group {
-  margin-bottom: 15px;
+.checkbox-container {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+  display: flex;
+  align-items: center;
 }
 
-.checkbox-group input[type="checkbox"] {
-  margin-right: 5px;
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
