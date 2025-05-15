@@ -260,6 +260,57 @@ async function searchSupplier() {
 }
 
 /////////////////////////////////////////////////////
+// ✅ 자동완성 기능 구현
+/////////////////////////////////////////////////////
+const searchInput = document.getElementById("searchKeyword");
+const suggestionList = document.getElementById("suggestionList");
+
+searchInput.addEventListener("keyup", async (event) => {
+  const keyword = event.target.value.trim();
+  suggestionList.innerHTML = ""; // 기존 리스트 초기화
+
+  if (keyword.length < 2) return; // 최소 2글자 이상 입력 시 검색
+
+  try {
+    // 🔹 Supabase에서 유사 업체명 검색
+    const { data, error } = await supabase
+      .from('suppliers')
+      .select('company_name')
+      .ilike('company_name', `%${keyword}%`); // 부분 일치 검색
+
+    if (error) {
+      console.error("검색 오류:", error.message);
+      return;
+    }
+
+    if (data.length > 0) {
+      // 🔹 검색 결과 리스트 표시
+      data.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item.company_name;
+        
+        // 🔹 항목 클릭 시, 입력란에 반영하고 리스트 초기화
+        li.addEventListener("click", () => {
+          searchInput.value = item.company_name;
+          suggestionList.innerHTML = "";
+        });
+
+        suggestionList.appendChild(li);
+      });
+    }
+  } catch (err) {
+    console.error("자동완성 로딩 중 오류 발생:", err.message);
+  }
+});
+
+// 🔹 입력 창 이외의 곳을 클릭하면 리스트 닫기
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".input-group")) {
+    suggestionList.innerHTML = "";
+  }
+});
+
+/////////////////////////////////////////////////////
 // ✅ 전화번호 포맷터
 /////////////////////////////////////////////////////
 function formatPhoneNumber(phone) {
