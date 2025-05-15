@@ -84,7 +84,7 @@ window.toggleEdit = function (checkbox) {
 /////////////////////////////////////////////////////
 // ✅ 상품 검색 및 단가 계산 (중복 방지, 수량 증가)
 /////////////////////////////////////////////////////
-export async function searchProduct() {
+async function searchProduct() {
   const productCode = document.getElementById("productCode").value.trim();
   if (!productCode) {
     alert("제품 코드를 입력해주세요.");
@@ -132,6 +132,7 @@ export async function searchProduct() {
     alert("상품을 검색하는 동안 오류가 발생했습니다.");
   }
 }
+
 
 /////////////////////////////////////////////////////
 // ✅ 배송비 포함한 총 금액 계산
