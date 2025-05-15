@@ -20,16 +20,33 @@ const DELIVERY_FREE_METHODS = [
 ];
 
 // ✅ DOMContentLoaded 이벤트 처리
+// ✅ DOMContentLoaded 이벤트 처리
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("✅ 페이지 로딩 완료 - 이벤트 리스너 등록 시작");
+
   // 🔹 전역 등록
   window.removeItem = removeItem;
-
+  window.searchSupplier = searchSupplier;  // ✅ 이 부분이 누락되면 검색이 작동하지 않음
+  window.toggleEdit = toggleEdit;
+  
   // 🔹 정보 수정 가능 체크박스 이벤트 등록
   const unlockEditCheckbox = document.getElementById("unlockEdit");
   if (unlockEditCheckbox) {
     unlockEditCheckbox.addEventListener("change", (e) => {
       toggleEdit(e.target);
+      console.log("✅ 정보 수정 가능 토글 등록 완료");
     });
+  } else {
+    console.error("❌ unlockEdit 체크박스를 찾을 수 없습니다.");
+  }
+
+  // 🔹 사업자 검색 버튼 이벤트 등록
+  const searchButton = document.getElementById("supplierSearchButton");
+  if (searchButton) {
+    searchButton.addEventListener("click", searchSupplier);
+    console.log("✅ 검색 버튼에 이벤트 리스너 등록 완료");
+  } else {
+    console.error("❌ 검색 버튼을 찾을 수 없습니다.");
   }
 
   // 🔹 배송 방법 변경 시 비고란 업데이트
@@ -45,6 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
         remarksField.value = selectedMethod;
       }
     });
+    console.log("✅ 배송 방법 변경 리스너 등록 완료");
+  } else {
+    console.error("❌ 배송 방법 선택 요소를 찾을 수 없습니다.");
   }
 });
 
