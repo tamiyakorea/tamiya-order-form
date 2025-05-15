@@ -80,7 +80,7 @@ select:focus {
 
 /* ✅ 비고란 */
 #remarks {
-  height: 100px;
+  height: 300px;
   resize: vertical;
 }
 
