@@ -110,12 +110,6 @@ select:focus {
   resize: vertical;
 }
 
-#checkbox-group {
-  display: grid;
-  gap: 5px;
-  margin-bottom: 15px;
-}
-
 /* ✅ 버튼 공통 스타일 */
 button {
   padding: 12px 30px;
