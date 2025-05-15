@@ -33,7 +33,6 @@ h2 {
 input[type="text"],
 textarea,
 select {
-  width: 250px;
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ddd;
@@ -46,11 +45,12 @@ textarea:focus,
 select:focus {
   border-color: #4CAF50;
   outline: none;
+}
 
 /* ✅ 사업자 정보 입력 그룹 정렬 */
 .details {
   display: grid;
-  grid-template-columns: 150px 1fr; /* 라벨 150px, 인풋 1fr */
+  grid-template-columns: 150px 300px 150px 300px; /* 고정 폭 설정 */
   gap: 10px 20px;
   margin-bottom: 15px;
 }
@@ -65,23 +65,37 @@ select:focus {
   width: 100%;
 }
 
-/* ✅ 비고란은 두 칸을 차지 */
+/* ✅ 비고란은 네 칸을 차지 */
 #remarks {
-  grid-column: span 2;
+  grid-column: span 4;
   resize: vertical;
 }
 
 /* ✅ 버튼 공통 스타일 */
 button {
-  padding: 12px 30px;
-  font-size: 16px;
-  font-weight: bold;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
   cursor: pointer;
-  border: 1px solid #ccc;
-  border-radius: 0; /* 각진 직사각형 */
-  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
 }
 
+button:hover {
+  background-color: #45a049;
+}
+
+button.confirm-button {
+  width: 100%;
+  margin-top: 20px;
+  background-color: #2196F3;
+}
+
+button.confirm-button:hover {
+  background-color: #1976D2;
+}
 
 /* ✅ 테이블 스타일 */
 table {
