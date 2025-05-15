@@ -193,3 +193,14 @@ td button:hover {
 .autocomplete-list li:hover {
   background-color: #f0f0f0;
 }
+
+/* ✅ 검색창 하단의 불필요한 실선 제거 */
+.input-group {
+  border-bottom: none !important;   /* 혹시 남아있는 border 제거 */
+  box-shadow: none !important;      /* 혹시 남아있는 shadow 제거 */
+}
+
+#searchKeyword {
+  border-bottom: none !important;   /* 인풋 자체의 밑줄 제거 */
+  outline: none !important;         /* 포커스 시 생기는 실선 제거 */
+}
