@@ -33,6 +33,7 @@ h2 {
 input[type="text"],
 textarea,
 select {
+  width: 250%;
   padding: 10px;
   margin-bottom: 15px;
   border: 1px solid #ddd;
@@ -45,7 +46,6 @@ textarea:focus,
 select:focus {
   border-color: #4CAF50;
   outline: none;
-}
 
 /* ✅ 사업자 정보 입력 그룹 정렬 */
 .details {
