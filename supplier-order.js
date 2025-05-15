@@ -106,6 +106,41 @@ export async function searchSupplier() {
 }
 
 /////////////////////////////////////////////////////
+// ✅ 상품 검색 및 단가 계산 (EXPORT 추가)
+/////////////////////////////////////////////////////
+export async function searchProduct() {
+  const productCode = document.getElementById("productCode").value.trim();
+  if (!productCode) {
+    alert("제품 코드를 입력해주세요.");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('tamiya_items')
+    .select('*')
+    .eq('item_code', productCode)
+    .single();
+
+  if (error || !data) {
+    alert("해당 제품을 찾을 수 없습니다.");
+    return;
+  }
+
+  const isEightDigit = productCode.length === 8;
+  const multiplier = isEightDigit ? 15 : 13;
+  const price = data.j_retail * multiplier * priceMultiplier;
+
+  cart.push({
+    code: data.item_code,
+    name: data.description,
+    price: Math.round(price),
+    qty: 1
+  });
+
+  renderCart();
+}
+
+/////////////////////////////////////////////////////
 // ✅ 배송비 포함한 총 금액 계산
 /////////////////////////////////////////////////////
 function calculateTotalWithShipping() {
