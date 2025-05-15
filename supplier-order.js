@@ -10,7 +10,7 @@ const cart = [];
 let priceMultiplier = 1;
 
 /////////////////////////////////////////////////////
-// ✅ 배송비 상수 및 목록 선언 (최상단으로 이동)
+// ✅ 배송비 상수 및 목록 선언
 /////////////////////////////////////////////////////
 const DELIVERY_FEE = 3000;
 const DELIVERY_FREE_METHODS = [
@@ -34,6 +34,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("searchButton").addEventListener("click", searchProduct);
   document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
+
+  window.toggleEdit = function (checkbox) {
+    const editableFields = [
+      document.getElementById("supplierContact"),
+      document.getElementById("supplierAddress"),
+      document.getElementById("supplierEmail")
+    ];
+
+    editableFields.forEach(field => {
+      if (field) {
+        if (checkbox.checked) {
+          field.removeAttribute('readonly');
+        } else {
+          field.setAttribute('readonly', true);
+        }
+      }
+    });
+  };
 });
 
 /////////////////////////////////////////////////////
@@ -259,8 +277,13 @@ function confirmOrder() {
   const supplierContact = document.getElementById("supplierContact").value.trim();
   const supplierAddress = document.getElementById("supplierAddress").value.trim();
   const supplierEmail = document.getElementById("supplierEmail").value.trim();
-  const supplierZipcode = document.getElementById("supplierZipcode").value.trim();
-  const remarks = document.getElementById("remarks").value.trim();
+
+  // ✅ Null 참조 방지
+  const supplierZipcodeElement = document.getElementById("supplierZipcode");
+  const remarksElement = document.getElementById("remarks");
+
+  const supplierZipcode = supplierZipcodeElement ? supplierZipcodeElement.value.trim() : "";
+  const remarks = remarksElement ? remarksElement.value.trim() : "";
 
   if (!businessNumber || !supplierName || !supplierContact || !supplierAddress) {
     alert("사업자 정보를 모두 입력해주세요.");
