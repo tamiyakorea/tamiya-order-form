@@ -27,7 +27,7 @@ const DELIVERY_FREE_METHODS = [
 document.addEventListener("DOMContentLoaded", () => {
   // ✅ 전역 등록
   window.searchProduct = searchProduct;
-  window.confirmOrder = confirmOrder;   // 🔥 여기에 추가됨
+  window.confirmOrder = confirmOrder;
   window.updateQty = updateQty;
   window.removeItem = removeItem;
   window.toggleEdit = toggleEdit;
@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("searchButton").addEventListener("click", searchProduct);
   document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
   document.getElementById("directPickup").addEventListener("change", calculateTotalWithShipping);
-});
 
   // ✅ 토글 수정 기능
   window.toggleEdit = function (checkbox) {
