@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>업체용 개별 주문 신청</title>
-  <link rel="stylesheet" href="supplier-order.css">
-   <script type="module">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module">
     import { searchProduct, searchSupplier, confirmOrder, toggleEdit } from './supplier-order.js';
     window.searchProduct = searchProduct;
     window.searchSupplier = searchSupplier;
@@ -15,95 +15,91 @@
 </head>
 <body>
 
-  <header>
-    <h1>업체용 개별 주문 신청 페이지</h1>
-  </header>
+<main>
 
-  <main>
+  <!-- 🚀 사업자 정보 입력 -->
+  <section id="supplier-info">
+    <h2>사업자 정보 입력</h2>
 
-    <!-- 🚀 사업자 정보 입력 -->
-    <section id="supplier-info">
-      <h2>사업자 정보 입력</h2>
+    <div class="input-group">
+      <input type="text" id="searchKeyword" placeholder="사업자번호 또는 업체명 입력">
+      <button onclick="searchSupplier()">검색</button>
+    </div>
 
-      <div class="input-group">
-        <input type="text" id="searchKeyword" placeholder="사업자번호 또는 업체명 입력">
-        <button onclick="searchSupplier()">검색</button>
-      </div>
+    <div id="supplierDetails" class="details">
+      <label>업체명</label>
+      <input type="text" id="supplierName" readonly disabled class="disabled-input">
 
-      <div id="supplierDetails" class="details">
-        <label>업체명</label>
-        <input type="text" id="supplierName" readonly disabled class="disabled-input">
+      <label>사업자번호</label>
+      <input type="text" id="businessNumberDisplay" readonly disabled class="disabled-input">
 
-        <label>사업자번호</label>
-        <input type="text" id="businessNumberDisplay" readonly disabled class="disabled-input">
+      <label>연락처</label>
+      <input type="text" id="supplierContact" readonly disabled class="disabled-input">
 
-        <label>연락처</label>
-        <input type="text" id="supplierContact" readonly disabled class="disabled-input">
+      <label>우편번호</label>
+      <input type="text" id="supplierZipcode" readonly disabled class="disabled-input">
+      
+      <label>주소</label>
+      <input type="text" id="supplierAddress" readonly disabled class="disabled-input">
 
-        <label>우편번호</label>
-        <input type="text" id="supplierZipcode" readonly disabled class="disabled-input">
-        
-        <label>주소</label>
-        <input type="text" id="supplierAddress" readonly disabled class="disabled-input">
+      <label>이메일 주소</label>
+      <input type="text" id="supplierEmail" readonly disabled class="disabled-input">
 
-        <label>이메일 주소</label>
-        <input type="text" id="supplierEmail" readonly disabled class="disabled-input">
+      <label for="remarks">비고란:</label>
+      <textarea id="remarks" placeholder="주문 시 전달할 내용을 입력해주세요." rows="3"></textarea>
+    </div>
 
-        <label for="remarks">비고란:</label>
-        <textarea id="remarks" placeholder="주문 시 전달할 내용을 입력해주세요." rows="3"></textarea>
-      </div>
+    <div class="checkbox-group">
+      <input type="checkbox" id="unlockEdit">
+      <label for="unlockEdit">정보 수정 가능</label>
+    </div>
+  </section>
 
-      <div class="checkbox-group">
-        <input type="checkbox" id="unlockEdit">
-        <label for="unlockEdit">정보 수정 가능</label>
-      </div>
-    </section>
+  <!-- 🚀 주문 상품 입력 -->
+  <section id="order-section">
+    <h2>주문 상품 입력</h2>
 
-    <!-- 🚀 주문 상품 입력 -->
-    <section id="order-section">
-      <h2>주문 상품 입력</h2>
+    <div class="input-group">
+      <input type="text" id="productCode" placeholder="제품 코드 입력">
+      <button id="searchButton">상품 검색</button>
+    </div>
 
-      <div class="input-group">
-        <input type="text" id="productCode" placeholder="제품 코드 입력">
-        <button id="searchButton">상품 검색</button>
-      </div>
+    <table id="cartTable">
+      <thead>
+        <tr>
+          <th>제품 코드</th>
+          <th>제품명</th>
+          <th>소비자 판매가</th>
+          <th>단가</th>
+          <th>수량</th>
+          <th>합계</th>
+          <th>삭제</th>
+        </tr>
+      </thead>
+      <tbody id="cartBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="5" style="text-align:right;">총 주문 금액:</td>
+          <td id="cartTotal">₩0</td>
+        </tr>
+      </tfoot>
+    </table>
 
-      <table>
-        <thead>
-          <tr>
-            <th>제품 코드</th>
-            <th>제품명</th>
-            <th>소비자 판매가</th>
-            <th>단가</th>
-            <th>수량</th>
-            <th>합계</th>
-            <th>삭제</th>
-          </tr>
-        </thead>
-        <tbody id="cartBody"></tbody>
-        <tfoot>
-          <tr>
-            <td colspan="5" style="text-align:right;">총 주문 금액:</td>
-            <td id="cartTotal">₩0</td>
-          </tr>
-        </tfoot>
-      </table>
+    <!-- 🚀 배송 방법 선택 -->
+    <h3>배송 방법 선택</h3>
+    <select id="deliveryMethod">
+      <option value="">-- 배송 방법을 선택해주세요 --</option>
+      <option value="이천창고 직접 수령">이천창고 직접 수령</option>
+      <option value="도매 주문과 합배송">도매 주문과 합배송</option>
+      <option value="양재점 수령">양재점 수령</option>
+      <option value="용산점 수령">용산점 수령</option>
+      <option value="하남점 수령">하남점 수령</option>
+    </select>
 
-      <!-- 🚀 배송 방법 선택 -->
-      <h3>배송 방법 선택</h3>
-      <select id="deliveryMethod">
-        <option value="">-- 배송 방법을 선택해주세요 --</option>
-        <option value="이천창고 직접 수령">이천창고 직접 수령</option>
-        <option value="도매 주문과 합배송">도매 주문과 합배송</option>
-        <option value="양재점 수령">양재점 수령</option>
-        <option value="용산점 수령">용산점 수령</option>
-        <option value="하남점 수령">하남점 수령</option>
-      </select>
+    <button class="confirm-button" onclick="confirmOrder()">주문 확정</button>
 
-      <button class="confirm-button" onclick="confirmOrder()">💾 주문 확정</button>
-
-    </section>
-  </main>
+  </section>
+</main>
 
 </body>
 </html>
