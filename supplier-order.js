@@ -122,7 +122,7 @@ export async function searchSupplier() {
 }
 
 /////////////////////////////////////////////////////
-// ✅ 상품 검색 및 단가 계산 (EXPORT 추가)
+// ✅ 상품 검색 및 단가 계산 (중복 방지, 수량 증가)
 /////////////////////////////////////////////////////
 export async function searchProduct() {
   const productCode = document.getElementById("productCode").value.trim();
@@ -149,13 +149,21 @@ export async function searchProduct() {
     const multiplier = isEightDigit ? 15 : 13;
     const price = data.j_retail * multiplier * priceMultiplier;
 
-    // ✅ 장바구니에 추가
-    cart.push({
-      code: data.item_code,
-      name: data.description,
-      price: Math.round(price),
-      qty: 1
-    });
+    // ✅ 장바구니 중복 확인
+    const existingItem = cart.find(item => item.code === data.item_code);
+
+    if (existingItem) {
+      // 🚀 이미 존재하면 수량 증가
+      existingItem.qty += 1;
+    } else {
+      // 🚀 존재하지 않으면 새로 추가
+      cart.push({
+        code: data.item_code,
+        name: data.description,
+        price: Math.round(price),
+        qty: 1
+      });
+    }
 
     // ✅ 렌더링 업데이트
     renderCart();
@@ -170,9 +178,17 @@ export async function searchProduct() {
 /////////////////////////////////////////////////////
 function calculateTotalWithShipping() {
   let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+  // 🚀 장바구니가 비어있으면 배송비 계산하지 않음
+  if (cart.length === 0) {
+    document.getElementById("cartTotal").textContent = `₩0`;
+    return;
+  }
+
   const deliveryMethod = document.getElementById("deliveryMethod").value;
   const isDirectPickup = document.getElementById("directPickup").checked;
 
+  // 🚀 30,000원 미만일 때만 배송비 추가
   if (total < 30000) {
     if (!(isDirectPickup && DELIVERY_FREE_METHODS.includes(deliveryMethod))) {
       total += DELIVERY_FEE;
@@ -212,8 +228,10 @@ function renderCart() {
     `;
   });
 
+  // ✅ 총 금액 다시 계산
   calculateTotalWithShipping();
 }
+
 
 /////////////////////////////////////////////////////
 // ✅ 장바구니 항목 삭제 처리
