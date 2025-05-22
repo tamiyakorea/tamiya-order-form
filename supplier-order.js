@@ -204,6 +204,7 @@ function removeItem(index) {
 /////////////////////////////////////////////////////
 async function searchSupplier() {
   const keyword = document.getElementById("searchKeyword").value.trim();
+  const uniqueCode = document.getElementById("uniqueCode")?.value.trim(); // 🔹 새 필드
 
   if (!keyword) {
     alert("사업자번호 또는 업체명을 입력해주세요.");
@@ -214,15 +215,21 @@ async function searchSupplier() {
     let query = supabase.from('suppliers').select('*');
 
     if (/^[0-9]{3}-[0-9]{2}-[0-9]{5}$/.test(keyword)) {
+      // 사업자번호로 검색
       query = query.eq('business_registration_number', keyword);
     } else {
-      query = query.eq('company_name', keyword);
+      // 업체명 + 고유번호 조합으로 검색
+      if (!uniqueCode) {
+        alert("고유번호를 함께 입력해주세요.");
+        return;
+      }
+      query = query.eq('company_name', keyword).eq('unique_code', uniqueCode);
     }
 
     const { data, error } = await query.single();
 
     if (error || !data) {
-      alert("해당 정보를 찾을 수 없습니다.");
+      alert("입력한 정보와 일치하는 업체를 찾을 수 없습니다.");
 
       // ✅ 초기화 처리
       document.getElementById("supplierName").value = "";
@@ -234,24 +241,21 @@ async function searchSupplier() {
       if (zipcodeField) {
         zipcodeField.value = "";
       }
-
       return;
     }
 
-    // ✅ 화면에 데이터 표시
+    // ✅ 정보 표시
     document.getElementById("supplierName").value = data.company_name;
     document.getElementById("businessNumberDisplay").value = data.business_registration_number;
     document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
     document.getElementById("supplierAddress").value = data.address;
     document.getElementById("supplierEmail").value = data.email;
-
-    // ✅ zipcode가 있는 경우만 설정
     const zipcodeField = document.getElementById("supplierZipcode");
     if (zipcodeField) {
       zipcodeField.value = data.zipcode;
     }
-    
-    // ✅ 가격 배수 설정
+
+    // ✅ 단가 배수 적용
     priceMultiplier = parseFloat(data.price_multiplier);
 
   } catch (error) {
