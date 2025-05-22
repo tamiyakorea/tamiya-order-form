@@ -212,3 +212,8 @@ td button:hover {
   margin-top: 0 !important;
   border-top: none !important;
 }
+
+#uniqueCode {
+  width: 200px;
+  max-width: 300px;
+}
