@@ -14,9 +14,6 @@ const DELIVERY_FEE = 3000;
 const DELIVERY_FREE_METHODS = [
   "이천창고 직접 수령",
   "도매 주문과 합배송",
-  "양재점 수령",
-  "용산점 수령",
-  "하남점 수령"
 ];
 
 // ✅ DOMContentLoaded 이벤트 처리
