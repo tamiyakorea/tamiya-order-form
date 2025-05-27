@@ -222,7 +222,7 @@ td button:hover {
 .confirm-button {
   background-color: #2DC8F7; /* 이미지에서 추출한 색상 */
   color: white;              /* 글자색 흰색 */
-  padding: 10px 20px;
+  padding: 10px 50px;
   font-size: 16px;
   border: none;
   border-radius: 4px;
