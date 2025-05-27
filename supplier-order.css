@@ -237,7 +237,7 @@ td button:hover {
 .searchButton {
   background-color: #2DC8F7; /* 이미지에서 추출한 색상 */
   color: white;              /* 글자색 흰색 */
-  padding: 10px 50px;
+  padding: 10px 30px;
   font-size: 16px;
   border: none;
   border-radius: 0; /* 각진 직사각형 */
@@ -252,7 +252,7 @@ td button:hover {
 .supplierSearchButton {
   background-color: #2DC8F7; /* 이미지에서 추출한 색상 */
   color: white;              /* 글자색 흰색 */
-  padding: 10px 50px;
+  padding: 10px 30px;
   font-size: 16px;
   border: none;
   border-radius: 0; /* 각진 직사각형 */
