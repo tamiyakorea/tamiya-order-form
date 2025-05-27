@@ -12,7 +12,7 @@ body {
 
 /* ✅ 메인 컨테이너 */
 main {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
   background-color: white;
