@@ -6,10 +6,71 @@ const supabase = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
 );
 
+let currentSortKey = null;
+let currentSortAsc = true;
+
 function formatDateOnly(iso) {
   if (!iso) return '';
   const d = new Date(iso);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function sortAccountingData(data, key, asc = true) {
+  return data.slice().sort((a, b) => {
+    let valA = a[key], valB = b[key];
+
+    if (key === 'supply') valA = Math.floor(a.total / 1.1);
+    if (key === 'vat') valA = a.total - Math.floor(a.total / 1.1);
+    if (key === 'supply') valB = Math.floor(b.total / 1.1);
+    if (key === 'vat') valB = b.total - Math.floor(b.total / 1.1);
+
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+
+    if (valA < valB) return asc ? -1 : 1;
+    if (valA > valB) return asc ? 1 : -1;
+    return 0;
+  });
+}
+
+function renderAccountingTable(data) {
+  const tbody = document.getElementById('accounting-table-body');
+  tbody.innerHTML = '';
+
+  let totalAmount = 0;
+
+  data.forEach(order => {
+    const supply = Math.floor(order.total / 1.1);
+    const vat = order.total - supply;
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${order.order_id}</td>
+      <td><a href="#" onclick="showOrderDetails(${order.order_id})">${order.name}</a></td>
+      <td>${formatDateOnly(order.created_at)}</td>
+      <td>${order.payment_date ? formatDateOnly(order.payment_date) : '-'}</td>
+      <td>₩${supply.toLocaleString()}</td>
+      <td>₩${vat.toLocaleString()}</td>
+      <td>₩${order.total.toLocaleString()}</td>
+      <td>${order.tracking_date ? formatDateOnly(order.tracking_date) : '-'}</td>
+      <td>${order.receipt_info?.trim() ? '발행' : '-'}</td>
+      <td>${order.tracking_number || '-'}</td>
+    `;
+    tbody.appendChild(row);
+    totalAmount += order.total;
+  });
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10">검색 결과 없음</td></tr>';
+  }
+
+  const supplyPrice = Math.floor(totalAmount / 1.1);
+  const vat = totalAmount - supplyPrice;
+
+  document.getElementById('total').textContent = totalAmount.toLocaleString();
+  document.getElementById('supply-price').textContent = supplyPrice.toLocaleString();
+  document.getElementById('vat').textContent = vat.toLocaleString();
+  document.getElementById('order-count').textContent = data.length.toLocaleString();
 }
 
 window.setDateRange = function (type) {
@@ -70,45 +131,13 @@ window.loadAccountingData = async function () {
     filtered = filtered.filter(order => order.receipt_info?.trim());
   }
 
-  const tbody = document.getElementById('accounting-table-body');
-  tbody.innerHTML = '';
-
-  let totalAmount = 0;
-
-  filtered.forEach(order => {
-    const supply = Math.floor(order.total / 1.1);
-    const vat = order.total - supply;
-
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${order.order_id}</td>
-      <td><a href="#" onclick="showOrderDetails(${order.order_id})">${order.name}</a></td>
-      <td>${formatDateOnly(order.created_at)}</td>
-      <td>${order.payment_date ? formatDateOnly(order.payment_date) : '-'}</td>
-      <td>₩${supply.toLocaleString()}</td>
-      <td>₩${vat.toLocaleString()}</td>
-      <td>₩${order.total.toLocaleString()}</td>
-      <td>${order.tracking_date ? formatDateOnly(order.tracking_date) : '-'}</td>
-      <td>${order.receipt_info?.trim() ? '발행' : '-'}</td>
-      <td>${order.tracking_number || '-'}</td>
-    `;
-    tbody.appendChild(row);
-    totalAmount += order.total;
-  });
-
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="10">검색 결과 없음</td></tr>';
-  }
-
-  const supplyPrice = Math.floor(totalAmount / 1.1);
-  const vat = totalAmount - supplyPrice;
-
-  document.getElementById('total').textContent = totalAmount.toLocaleString();
-  document.getElementById('supply-price').textContent = supplyPrice.toLocaleString();
-  document.getElementById('vat').textContent = vat.toLocaleString();
-  document.getElementById('order-count').textContent = filtered.length.toLocaleString();
-
   window.currentAccountingData = filtered;
+  if (currentSortKey) {
+    const sorted = sortAccountingData(filtered, currentSortKey, currentSortAsc);
+    renderAccountingTable(sorted);
+  } else {
+    renderAccountingTable(filtered);
+  }
 };
 
 window.showOrderDetails = async function (orderId) {
@@ -152,9 +181,24 @@ window.downloadAccountingExcel = function () {
 };
 
 window.onload = () => {
-  // 기본 날짜 범위를 넉넉하게 지정 (예: 2020년 1월 1일 ~ 오늘)
   document.getElementById('start-date').value = '2020-01-01';
   document.getElementById('end-date').value = new Date().toISOString().slice(0, 10);
   window.loadAccountingData();
-};
 
+  document.querySelectorAll('th[data-sort-key]').forEach(th => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', () => {
+      const key = th.getAttribute('data-sort-key');
+      if (currentSortKey === key) {
+        currentSortAsc = !currentSortAsc;
+      } else {
+        currentSortKey = key;
+        currentSortAsc = true;
+      }
+      if (window.currentAccountingData) {
+        const sorted = sortAccountingData(window.currentAccountingData, currentSortKey, currentSortAsc);
+        renderAccountingTable(sorted);
+      }
+    });
+  });
+};
