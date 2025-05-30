@@ -187,6 +187,11 @@ window.onload = () => {
 
   document.querySelectorAll('th[data-sort-key]').forEach(th => {
     th.style.cursor = 'pointer';
+    const icon = document.createElement('span');
+    icon.className = 'sort-icon';
+    icon.style.marginLeft = '5px';
+    th.appendChild(icon);
+
     th.addEventListener('click', () => {
       const key = th.getAttribute('data-sort-key');
       if (currentSortKey === key) {
@@ -199,6 +204,8 @@ window.onload = () => {
         const sorted = sortAccountingData(window.currentAccountingData, currentSortKey, currentSortAsc);
         renderAccountingTable(sorted);
       }
+      document.querySelectorAll('.sort-icon').forEach(i => i.textContent = '');
+      icon.textContent = currentSortAsc ? '▲' : '▼';
     });
   });
 };
