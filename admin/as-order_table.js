@@ -8,10 +8,14 @@ const supabase = createClient(
 
 // ✅ A/S 신청 목록 불러오기
 window.loadOrders = async function () {
+  console.log("✅ loadOrders 실행됨");
+
   const { data, error } = await supabase
     .from('as_orders')
     .select('*')
     .order('created_at', { ascending: false });
+
+  console.log("📦 Supabase 응답:", { data, error });
 
   if (error) {
     console.error('불러오기 오류:', error);
