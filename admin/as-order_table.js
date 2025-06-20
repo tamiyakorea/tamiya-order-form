@@ -142,6 +142,24 @@ window.deleteOrder = async function (orderId) {
   loadOrders();
 };
 
+async function toggleStatus(orderId, currentStatus) {
+  const isReceiving = currentStatus !== '접수됨';
+  const newStatus = isReceiving ? '접수됨' : '대기';
+  const updatedAt = isReceiving ? new Date().toISOString() : null;
+
+  const { error } = await supabase
+    .from('as_orders')
+    .update({ status: newStatus, status_updated_at: updatedAt })
+    .eq('order_id', orderId);
+
+  if (error) {
+    console.error("상태 업데이트 실패", error);
+    alert("상태 변경에 실패했습니다.");
+  } else {
+    loadOrders(); // 갱신
+  }
+}
+
 window.downloadSelectedOrders = function () {
   alert('엑셀 다운로드 기능은 추후 구현 예정입니다.');
 };
