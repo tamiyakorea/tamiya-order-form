@@ -40,7 +40,7 @@ window.searchOrders = async function () {
   renderOrders(data);
 };
 
-// 🧾 테이블 렌더링
+// 🧼 테이블 렌더링
 function renderOrders(orders) {
   const tbody = document.getElementById('orderBody');
   if (!orders.length) {
@@ -60,9 +60,9 @@ function renderOrders(orders) {
       <td>${order.email}</td>
       <td>${(order.product_name || '').split(' > ')[0] || ''}</td>
       <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
-      <td>${extractMessageField(order.message, '고장시기')}</td>
-      <td>${extractMessageField(order.message, '고장증상')}</td>
-      <td>${extractMessageField(order.message, '요청사항')}</td>
+      <td><button onclick="showModal('고장시기', '${escapeHtml(extractMessageField(order.message, '고장시기'))}')">확인</button></td>
+      <td><button onclick="showModal('고장증상', '${escapeHtml(extractMessageField(order.message, '고장증상'))}')">확인</button></td>
+      <td><button onclick="showModal('요청사항', '${escapeHtml(extractMessageField(order.message, '요청사항'))}')">확인</button></td>
       <td></td>
     `;
     tbody.appendChild(row);
@@ -74,6 +74,34 @@ function extractMessageField(message, field) {
   const match = message.match(new RegExp(`${field}: ?([^\n]*)`));
   return match ? match[1].trim() : '';
 }
+
+function escapeHtml(text) {
+  return text.replace(/[&<>'"]/g, (tag) => {
+    const chars = {
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    };
+    return chars[tag] || tag;
+  });
+}
+
+window.showModal = function (title, content) {
+  const modal = document.createElement('div');
+  modal.id = 'modalOverlay';
+  modal.style = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+  `;
+
+  modal.innerHTML = `
+    <div style="background: white; padding: 20px; border-radius: 10px; max-width: 400px; text-align: center;">
+      <h3>${title}</h3>
+      <p style="white-space: pre-wrap; margin-top: 10px;">${content}</p>
+      <button onclick="document.getElementById('modalOverlay').remove()" style="margin-top: 20px;">닫기</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+};
 
 // ❌ 삭제
 window.deleteOrder = async function (orderId) {
@@ -93,7 +121,7 @@ window.deleteOrder = async function (orderId) {
   loadOrders();
 };
 
-// ✅ 선택 엑셀 다운로드 (추후 구현 가능)
+// ✅ 선택 엘셀 다운로드 (추후 구현 가능)
 window.downloadSelectedOrders = function () {
   alert('엑셀 다운로드 기능은 추후 구현 예정입니다.');
 };
@@ -108,5 +136,5 @@ window.logout = async function () {
   }
 };
 
-// 페이지 로드시 데이터 불러오기
+// 페이지 로버 데이터 불러오기
 loadOrders();
