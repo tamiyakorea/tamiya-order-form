@@ -6,7 +6,6 @@ const supabase = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
 );
 
-// ✅ A/S 신청 목록 불러오기
 window.loadOrders = async function () {
   console.log("✅ loadOrders 실행됨");
 
@@ -25,7 +24,6 @@ window.loadOrders = async function () {
   renderOrders(data);
 };
 
-// 🔍 검색
 window.searchOrders = async function () {
   const keyword = document.getElementById('searchInput').value.trim();
   if (!keyword) return loadOrders();
@@ -44,7 +42,6 @@ window.searchOrders = async function () {
   renderOrders(data);
 };
 
-// 🧼 테이블 렌더링
 function renderOrders(orders) {
   const tbody = document.getElementById('orderBody');
   if (!orders.length) {
@@ -67,7 +64,10 @@ function renderOrders(orders) {
       <td><button onclick="showModal('고장시기', '${escapeHtml(extractMessageField(order.message, '고장시기'))}')">확인</button></td>
       <td><button onclick="showModal('고장증상', '${escapeHtml(extractMessageField(order.message, '고장증상'))}')">확인</button></td>
       <td><button onclick="showModal('요청사항', '${escapeHtml(extractMessageField(order.message, '요청사항'))}')">확인</button></td>
-      <td></td>
+      <td class="status-cell">
+        <button onclick="markReceived(this)">접수</button>
+        <div class="received-date" style="font-size: 0.8em; color: green;"></div>
+      </td>
     `;
     tbody.appendChild(row);
   }
@@ -107,7 +107,16 @@ window.showModal = function (title, content) {
   document.body.appendChild(modal);
 };
 
-// ❌ 삭제
+window.markReceived = function (button) {
+  const date = new Date().toISOString().split('T')[0];
+  const cell = button.parentElement;
+  const row = cell.parentElement;
+
+  row.style.backgroundColor = '#e0ffe0';
+  const dateDiv = cell.querySelector('.received-date');
+  dateDiv.textContent = date;
+};
+
 window.deleteOrder = async function (orderId) {
   if (!confirm('정말 삭제하시겠습니까?')) return;
 
@@ -125,12 +134,10 @@ window.deleteOrder = async function (orderId) {
   loadOrders();
 };
 
-// ✅ 선택 엘셀 다운로드 (추후 구현 가능)
 window.downloadSelectedOrders = function () {
   alert('엑셀 다운로드 기능은 추후 구현 예정입니다.');
 };
 
-// 🔐 로그아웃
 window.logout = async function () {
   const { error } = await supabase.auth.signOut();
   if (error) {
@@ -140,5 +147,4 @@ window.logout = async function () {
   }
 };
 
-// 페이지 로버 데이터 불러오기
 loadOrders();
