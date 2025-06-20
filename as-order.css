@@ -2,9 +2,9 @@
 
 /* ✅ 고정된 텍스트 입력칸 */
 textarea.fixed-textarea {
-  width: 100%;
-  max-width: 100%;
-  height: 120px;
+  width: 800px;
+  max-width: 800px;
+  height: 400px;
   resize: none;
   font-size: 1em;
   padding: 10px;
