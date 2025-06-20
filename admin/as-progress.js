@@ -8,10 +8,10 @@ window.addEventListener('DOMContentLoaded', loadProgressOrders);
 
 async function loadProgressOrders() {
   const { data, error } = await supabase
-    .from('as_orders')
-    .select('*')
-    .not('status_updated_at', 'is', null)
-    .order('status_updated_at', { ascending: false });
+  .from('as_orders')
+  .select('*')
+  .eq('status', '수리진행')
+  .order('status_updated_at', { ascending: false });
 
   if (error) {
     console.error('불러오기 오류:', error);
