@@ -3,7 +3,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+  'YOUR_ANON_KEY'
 );
 
 // ✅ A/S 신청 목록 불러오기
@@ -12,6 +12,7 @@ window.loadOrders = async function () {
   const { data, error } = await supabase
     .from('as_orders')
     .select('*')
+    .eq('progress_stage', null) // 진행 단계가 없는 경우만 출력
     .order('created_at', { ascending: false });
 
   console.log("📦 Supabase 응답:", { data, error });
@@ -46,14 +47,14 @@ function renderOrders(orders) {
       <td>${order.email}</td>
       <td>${(order.product_name || '').split(' > ')[0] || ''}</td>
       <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
-      <td>${extractMessageField(order.message, '고장시기')}</td>
-      <td>${extractMessageField(order.message, '고장증상')}</td>
-      <td>${extractMessageField(order.message, '요청사항')}</td>
+      <td><button onclick="showModal('${sanitize(extractMessageField(order.message, '고장시기'))}')">확인</button></td>
+      <td><button onclick="showModal('${sanitize(extractMessageField(order.message, '고장증상'))}')">확인</button></td>
+      <td><button onclick="showModal('${sanitize(extractMessageField(order.message, '요청사항'))}')">확인</button></td>
       <td>
-        <button onclick="toggleStatus(this, '${order.order_id}', '${order.status || ''}')">
-          ${order.status === '접수' ? '되돌리기' : '접수'}
+        <button onclick="toggleStatus(this, '${order.order_id}', '${order.status || ''}', '${order.progress_stage || ''}')">
+          ${order.status === '접수' ? '수리진행' : '접수'}
         </button>
-        ${order.status_updated_at ? `<div class="status-date" onclick="toggleStatus(this.parentElement.querySelector('button'), '${order.order_id}', '${order.status || ''}')">${order.status_updated_at.split('T')[0]}</div>` : ''}
+        ${order.status_updated_at ? `<div class="status-date" onclick="toggleStatus(this.parentElement.querySelector('button'), '${order.order_id}', '${order.status || ''}', '${order.progress_stage || ''}')">${order.status_updated_at.split('T')[0]}</div>` : ''}
       </td>
     `;
 
@@ -61,16 +62,41 @@ function renderOrders(orders) {
   }
 }
 
-// 🔄 상태 토글
-window.toggleStatus = async function (buttonEl, orderId, currentStatus) {
-  const newStatus = currentStatus === '접수' ? null : '접수';
-  const updatedAt = newStatus ? new Date().toISOString() : null;
+// ✨ 모달 관련
+window.showModal = function (text) {
+  const modal = document.getElementById("modal");
+  const modalText = document.getElementById("modal-text");
+  modalText.textContent = text || '내용 없음';
+  modal.style.display = "block";
+};
+
+window.closeModal = function () {
+  document.getElementById("modal").style.display = "none";
+};
+
+function sanitize(text) {
+  return text.replace(/'/g, "\\'").replace(/\n/g, "\\n").replace(/"/g, '\\"');
+}
+
+// 🔄 상태 토글 + 진행단계 업데이트
+window.toggleStatus = async function (buttonEl, orderId, currentStatus, progressStage) {
+  let newStatus = null;
+  let newProgressStage = null;
+  let updatedAt = null;
+
+  if (currentStatus !== '접수') {
+    newStatus = '접수';
+    updatedAt = new Date().toISOString();
+  } else if (progressStage !== '진행') {
+    newProgressStage = '진행'; // 진행단계로 이동
+  }
 
   const { error } = await supabase
     .from('as_orders')
     .update({
       status: newStatus,
-      status_updated_at: updatedAt
+      status_updated_at: updatedAt,
+      progress_stage: newProgressStage
     })
     .eq('order_id', orderId);
 
@@ -80,7 +106,7 @@ window.toggleStatus = async function (buttonEl, orderId, currentStatus) {
     return;
   }
 
-  loadOrders(); // UI 갱신
+  loadOrders();
 };
 
 // 🔍 검색
@@ -92,6 +118,7 @@ window.searchOrders = async function () {
     .from('as_orders')
     .select('*')
     .or(`order_id.ilike.%${keyword}%,name.ilike.%${keyword}%`)
+    .eq('progress_stage', null)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -102,7 +129,6 @@ window.searchOrders = async function () {
   renderOrders(data);
 };
 
-// 🧹 메시지 추출 유틸
 function extractMessageField(message, field) {
   if (!message) return '';
   const match = message.match(new RegExp(`${field}: ?([^\n]*)`));
@@ -127,7 +153,7 @@ window.deleteOrder = async function (orderId) {
   loadOrders();
 };
 
-// 📥 엑셀 다운로드 (미구현)
+// 📥 엑셀 다운로드
 window.downloadSelectedOrders = function () {
   alert('엑셀 다운로드 기능은 추후 구현 예정입니다.');
 };
