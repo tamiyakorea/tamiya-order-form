@@ -66,7 +66,7 @@ function renderOrders(orders) {
       <td><button onclick="showModal('요청사항', '${escapeHtml(extractMessageField(order.message, '요청사항'))}')">확인</button></td>
       <td class="status-cell">
         <button onclick="markReceived(this)">접수</button>
-        <div class="received-date" style="font-size: 0.8em; color: green;"></div>
+        <div class="received-date" style="font-size: 0.8em; color: green; cursor: pointer;" onclick="revertReceived(this)"></div>
       </td>
     `;
     tbody.appendChild(row);
@@ -115,6 +115,14 @@ window.markReceived = function (button) {
   row.style.backgroundColor = '#e0ffe0';
   const dateDiv = cell.querySelector('.received-date');
   dateDiv.textContent = date;
+};
+
+window.revertReceived = function (dateDiv) {
+  const cell = dateDiv.parentElement;
+  const row = cell.parentElement;
+
+  row.style.backgroundColor = '';
+  dateDiv.textContent = '';
 };
 
 window.deleteOrder = async function (orderId) {
