@@ -279,8 +279,12 @@ window.searchOrderById = async function () {
       const shipping = subtotal < 30000 ? 3000 : 0;
       const orderDate = new Date(data.created_at).toISOString().split("T")[0];
       const receiptInfo = data.receipt_info ? `<p><strong>현금영수증:</strong> ${data.receipt_info}</p>` : "";
+      const paymentDateStr = new Date(data.payment_date).toLocaleDateString("ko-KR", {
+         year: 'numeric', month: '2-digit', day: '2-digit'
+          }).replace(/\./g, '-').replace(/\s/g, '');
+
       const paymentStatus = data.payment_confirmed
-        ? `<p style="color:green;"><strong>입금 확인됨</strong> (입금일: ${new Date(data.payment_date).toISOString().split("T")[0]})</p>`
+         ? `<p style="color:green;"><strong>입금 확인됨</strong> (입금일: ${paymentDateStr})</p>`
         : `<p style="color:red;"><strong>아직 입금 확인되지 않았습니다.</strong></p>`;
 
       const confirmationNoteHTML = data.confirmation_note
