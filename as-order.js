@@ -36,6 +36,10 @@ window.confirmOrder = async function () {
   const series = get("series").value;
   const product = get("product").value;
 
+  const faultDate = get("faultDate").value.trim();
+  const faultDescription = get("faultDescription").value.trim();
+  const requestDetails = get("requestDetails").value.trim();
+
   if (!name || !phone || !email || !zipcode || !address || !addressDetail) {
     alert("모든 고객 정보를 입력해주세요.");
     return;
@@ -57,7 +61,7 @@ window.confirmOrder = async function () {
     address_detail: addressDetail,
     receipt_info: receiptInfo,
     product_name: `${category} > ${series} > ${product}`,
-    message: null,
+    message: `고장시기: ${faultDate}\n고장증상: ${faultDescription}\n요청사항: ${requestDetails}`,
     proof_images: [],
     items: [],
     total: 0,
@@ -112,6 +116,7 @@ window.searchOrderById = async function () {
       <p><strong>연락처:</strong> ${data.phone}</p>
       <p><strong>주소:</strong> ${data.zipcode} ${data.address} ${data.address_detail}</p>
       <p><strong>제품명:</strong> ${data.product_name}</p>
+      <p><strong>요청 내용:</strong><br>${(data.message || '').replace(/\n/g, '<br>')}</p>
     `;
   } else {
     resultDiv.innerHTML = "<p style='color:red;'>신청 정보를 찾을 수 없습니다.</p>";
