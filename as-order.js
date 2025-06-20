@@ -92,7 +92,7 @@ window.confirmOrder = async function () {
     product_name: `${category} > ${product}`,
     message: `고장시기: ${faultDate}\n고장증상: ${faultDescription}\n요청사항: ${requestDetails}`,
     proof_images: [],
-    items: [],
+    order_items: [],
     total: 0,
     created_at: new Date().toISOString(),
   };
