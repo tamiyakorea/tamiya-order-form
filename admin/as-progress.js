@@ -30,27 +30,27 @@ function renderProgressTable(orders) {
     const [category, product] = (order.product_name || '').split(' > ');
 
     row.innerHTML = `
-  <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
-  <td>${order.status_updated_at?.split('T')[0] || ''}</td>
-  <td>${order.name}</td>
-  <td>${order.phone}</td>
-  <td>${category || ''}</td>
-  <td>${product || ''}</td>
-  <td>${extract(order.message, '고장시기')}</td>
-  <td>${extract(order.message, '고장증상')}</td>
-  <td>${extract(order.message, '요청사항')}</td>
-  <td><input type="text" value="${order.receipt_code || ''}" data-id="${order.order_id}" class="receipt-code-input" /></td>
-  <td><input type="text" value="${order.note || ''}" data-id="${order.order_id}" class="note-input" /></td>
-  <td><input type="text" value="${order.shipping_invoice || ''}" data-id="${order.order_id}" class="invoice-input" /></td>
-  <td>
-    <button class="process-btn" data-id="${order.order_id}">
-      ${order.processing_date ? '입고완료' : '입고처리'}
-    </button>
-    <div class="process-date" data-id="${order.order_id}">
-      ${order.processing_date ? formatDate(order.processing_date) : ''}
-    </div>
-  </td>
-`;
+      <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
+      <td>${order.status_updated_at?.split('T')[0] || ''}</td>
+      <td>${order.name}</td>
+      <td>${order.phone}</td>
+      <td>${category || ''}</td>
+      <td>${product || ''}</td>
+      <td>${extract(order.message, '고장시기')}</td>
+      <td>${extract(order.message, '고장증상')}</td>
+      <td>${extract(order.message, '요청사항')}</td>
+      <td><input type="text" value="${order.shipping_invoice || ''}" data-id="${order.order_id}" class="invoice-input" /></td>
+      <td><input type="text" value="${order.receipt_code || ''}" data-id="${order.order_id}" class="receipt-code-input" /></td>
+      <td><input type="text" value="${order.note || ''}" data-id="${order.order_id}" class="note-input" /></td>
+      <td>
+        <button class="process-btn" data-id="${order.order_id}">
+          ${order.processing_date ? '입고완료' : '입고처리'}
+        </button>
+        <div class="process-date" data-id="${order.order_id}">
+          ${order.processing_date ? formatDate(order.processing_date) : ''}
+        </div>
+      </td>
+    `;
     tbody.appendChild(row);
   }
 
