@@ -14,10 +14,19 @@
     <img src="images/logo.png" alt="로고" style="height: 90px;" />
   </div>
 
+<nav style="background-color: #000; color: #fff;">
+  <ul style="list-style: none; margin: 0; padding: 10px; display: flex; justify-content: center; gap: 20px;">
+    <li><a href="#notice" style="color: #fff; text-decoration: none;">개별주문 안내</a></li>
+    <li><a href="#form" style="color: #fff; text-decoration: none;">개별주문 신청</a></li>
+    <li><a href="#orderCheck" style="color: #fff; text-decoration: none;">주문 확인</a></li>
+    <li><a href="#faq" style="color: #fff; text-decoration: none;">질문과 답변</a></li>
+  </ul>
+</nav>
+  
   <main style="max-width: 800px; margin: 0 auto; padding: 20px;">
 
     <!-- 고객 안내사항 -->
-    <section class="section">
+    <div id="notice" class="section">
       <h2>고객 안내사항</h2>
       <p style="font-size: 1.2em; color: #a00;">※ 안내사항을 확인하지 않아 발생한 문제는 당사가 책임지지 않습니다.</p>
       <p>
@@ -28,7 +37,7 @@
     </section>
 
     <!-- 고객 정보 입력 -->
-    <section class="section">
+    <div id="form" class="section">
       <h2>고객 정보 입력</h2>
       <label for="customerName">성명</label>
       <input id="customerName" type="text" placeholder="홍길동" />
@@ -98,7 +107,7 @@
     </section>
 
     <!-- 신청 확인 -->
-    <section class="section">
+    <div id="orderCheck" class="section">
       <h2>신청 확인</h2>
       <p>신청번호를 입력하시면 신청 내역을 확인할 수 있습니다.</p>
       <div class="input-with-button">
@@ -109,7 +118,7 @@
     </section>
 
     <!-- FAQ -->
-    <section class="section" id="faq">
+    <div id="faq" class="section">
       <h2>질문과 답변 (FAQ)</h2>
       <div class="faq-item">
         <div class="faq-question">Q. 신청한 수리품은 언제 받을 수 있나요?</div>
