@@ -20,6 +20,32 @@ window.toggleCashReceipt = function () {
     document.getElementById("receiptRequested").checked ? "block" : "none";
 };
 
+// 대분류/소분류 연동
+const productOptions = {
+  송신기: ["MT-44", "MT-5", "MX-6", "M17", "M12S", "M12", "MT-S", "MX-V"],
+  수신기: ["RX-45", "RX-461", "RX-381", "RX-462", "RX-472", "RX-481", "RX-482", "RX-47T", "RX-481WP", "RX-371_WP", "RX-493", "RX-492B", "RX-481", "RX-493I", "RX-492I"],
+  서보: ["SRG-LS BLACK", "PGS-CLE", "PGS-LH2", "PGS-XB2", "PGS-LH", "ERS-XT", "PGS-CX", "PGS-CL", "PGS-LH TYPE-D", "PGS-XB", "PGS-XR", "SRG-BX Brushless Torque Type", "SRG-BS Brushless Torque Type", "SRM-102"]
+};
+
+window.addEventListener("DOMContentLoaded", () => {
+  const categorySelect = document.getElementById("category");
+  const productSelect = document.getElementById("product");
+
+  categorySelect.addEventListener("change", () => {
+    const selectedCategory = categorySelect.value;
+    productSelect.innerHTML = "<option value=''>선택</option>";
+
+    if (selectedCategory && productOptions[selectedCategory]) {
+      productOptions[selectedCategory].forEach(option => {
+        const el = document.createElement("option");
+        el.value = option;
+        el.textContent = option;
+        productSelect.appendChild(el);
+      });
+    }
+  });
+});
+
 window.confirmOrder = async function () {
   const get = (id) => document.getElementById(id);
 
@@ -33,7 +59,6 @@ window.confirmOrder = async function () {
   const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
 
   const category = get("category").value;
-  const series = get("series").value;
   const product = get("product").value;
 
   const faultDate = get("faultDate").value.trim();
@@ -44,7 +69,7 @@ window.confirmOrder = async function () {
     alert("모든 고객 정보를 입력해주세요.");
     return;
   }
-  if (!category || !series || !product) {
+  if (!category || !product) {
     alert("제품 정보를 모두 선택해주세요.");
     return;
   }
@@ -60,7 +85,7 @@ window.confirmOrder = async function () {
     address,
     address_detail: addressDetail,
     receipt_info: receiptInfo,
-    product_name: `${category} > ${series} > ${product}`,
+    product_name: `${category} > ${product}`,
     message: `고장시기: ${faultDate}\n고장증상: ${faultDescription}\n요청사항: ${requestDetails}`,
     proof_images: [],
     items: [],
