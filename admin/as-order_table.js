@@ -3,110 +3,25 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
-  'YOUR_ANON_KEY'
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
 );
 
 // ✅ A/S 신청 목록 불러오기
 window.loadOrders = async function () {
-  console.log("✅ loadOrders 실행됨");
+  console.log('✅ loadOrders 실행됨');
   const { data, error } = await supabase
     .from('as_orders')
     .select('*')
-    .eq('progress_stage', null) // 진행 단계가 없는 경우만 출력
+    .eq('progress_stage', '대기')
     .order('created_at', { ascending: false });
 
-  console.log("📦 Supabase 응답:", { data, error });
-
+  console.log('📦 Supabase 응답:', { data, error });
   if (error) {
     console.error('불러오기 오류:', error);
     return;
   }
 
   renderOrders(data);
-};
-
-// 🧾 테이블 렌더링
-function renderOrders(orders) {
-  const tbody = document.getElementById('orderBody');
-  if (!orders.length) {
-    tbody.innerHTML = '<tr><td colspan="13">결과가 없습니다.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = '';
-  for (const order of orders) {
-    const row = document.createElement('tr');
-    if (order.status === '접수') row.style.backgroundColor = '#d8f9c1';
-
-    row.innerHTML = `
-      <td><button onclick="deleteOrder('${order.order_id}')">삭제</button></td>
-      <td>${order.created_at?.split('T')[0] || ''}</td>
-      <td>${order.order_id}</td>
-      <td>${order.name}</td>
-      <td>${order.phone}</td>
-      <td>${order.email}</td>
-      <td>${(order.product_name || '').split(' > ')[0] || ''}</td>
-      <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
-      <td><button onclick="showModal('${sanitize(extractMessageField(order.message, '고장시기'))}')">확인</button></td>
-      <td><button onclick="showModal('${sanitize(extractMessageField(order.message, '고장증상'))}')">확인</button></td>
-      <td><button onclick="showModal('${sanitize(extractMessageField(order.message, '요청사항'))}')">확인</button></td>
-      <td>
-        <button onclick="toggleStatus(this, '${order.order_id}', '${order.status || ''}', '${order.progress_stage || ''}')">
-          ${order.status === '접수' ? '수리진행' : '접수'}
-        </button>
-        ${order.status_updated_at ? `<div class="status-date" onclick="toggleStatus(this.parentElement.querySelector('button'), '${order.order_id}', '${order.status || ''}', '${order.progress_stage || ''}')">${order.status_updated_at.split('T')[0]}</div>` : ''}
-      </td>
-    `;
-
-    tbody.appendChild(row);
-  }
-}
-
-// ✨ 모달 관련
-window.showModal = function (text) {
-  const modal = document.getElementById("modal");
-  const modalText = document.getElementById("modal-text");
-  modalText.textContent = text || '내용 없음';
-  modal.style.display = "block";
-};
-
-window.closeModal = function () {
-  document.getElementById("modal").style.display = "none";
-};
-
-function sanitize(text) {
-  return text.replace(/'/g, "\\'").replace(/\n/g, "\\n").replace(/"/g, '\\"');
-}
-
-// 🔄 상태 토글 + 진행단계 업데이트
-window.toggleStatus = async function (buttonEl, orderId, currentStatus, progressStage) {
-  let newStatus = null;
-  let newProgressStage = null;
-  let updatedAt = null;
-
-  if (currentStatus !== '접수') {
-    newStatus = '접수';
-    updatedAt = new Date().toISOString();
-  } else if (progressStage !== '진행') {
-    newProgressStage = '진행'; // 진행단계로 이동
-  }
-
-  const { error } = await supabase
-    .from('as_orders')
-    .update({
-      status: newStatus,
-      status_updated_at: updatedAt,
-      progress_stage: newProgressStage
-    })
-    .eq('order_id', orderId);
-
-  if (error) {
-    alert('상태 변경 오류');
-    console.error(error);
-    return;
-  }
-
-  loadOrders();
 };
 
 // 🔍 검색
@@ -118,7 +33,7 @@ window.searchOrders = async function () {
     .from('as_orders')
     .select('*')
     .or(`order_id.ilike.%${keyword}%,name.ilike.%${keyword}%`)
-    .eq('progress_stage', null)
+    .eq('progress_stage', '대기')
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -129,11 +44,82 @@ window.searchOrders = async function () {
   renderOrders(data);
 };
 
+// 🧾 테이블 렌더링
+function renderOrders(orders) {
+  const tbody = document.getElementById('orderBody');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="12">결과가 없습니다.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '';
+  for (const order of orders) {
+    const faultDateBtn = `<button onclick="showModal('고장시기', '${escapeQuotes(extractMessageField(order.message, '고장시기'))}')">확인</button>`;
+    const faultDescBtn = `<button onclick="showModal('고장증상', '${escapeQuotes(extractMessageField(order.message, '고장증상'))}')">확인</button>`;
+    const requestBtn = `<button onclick="showModal('요청사항', '${escapeQuotes(extractMessageField(order.message, '요청사항'))}')">확인</button>`;
+
+    const receivedDate = order.status === '접수됨' ? `<div style='font-size:0.8em; color:#555;'>${order.status_updated_at?.split('T')[0]}</div>` : '';
+    const rowClass = order.status === '접수됨' ? 'style="background-color:#e0f8d8"' : '';
+    const buttonLabel = order.status === '접수됨' ? '수리진행' : '접수';
+
+    const row = document.createElement('tr');
+    row.setAttribute('data-order-id', order.order_id);
+    row.innerHTML = `
+      <td><button onclick="deleteOrder('${order.order_id}')">삭제</button></td>
+      <td>${order.created_at?.split('T')[0] || ''}</td>
+      <td>${order.order_id}</td>
+      <td>${order.name}</td>
+      <td>${order.phone}</td>
+      <td>${order.email}</td>
+      <td>${(order.product_name || '').split(' > ')[0] || ''}</td>
+      <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
+      <td>${faultDateBtn}</td>
+      <td>${faultDescBtn}</td>
+      <td>${requestBtn}</td>
+      <td>
+        <button onclick="toggleStatus('${order.order_id}', this)" ${rowClass}>${buttonLabel}</button>
+        ${receivedDate}
+      </td>
+    `;
+    tbody.appendChild(row);
+  }
+}
+
+function escapeQuotes(str) {
+  return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
 function extractMessageField(message, field) {
   if (!message) return '';
   const match = message.match(new RegExp(`${field}: ?([^\n]*)`));
   return match ? match[1].trim() : '';
 }
+
+// ✅ 상태 토글
+window.toggleStatus = async function (orderId, button) {
+  const currentLabel = button.textContent.trim();
+  const isReceived = currentLabel === '접수';
+  const newStatus = isReceived ? '접수됨' : '대기';
+  const newStage = isReceived ? '대기' : '진행';
+  const newDate = isReceived ? new Date().toISOString() : null;
+
+  const { error } = await supabase
+    .from('as_orders')
+    .update({
+      status: newStatus,
+      status_updated_at: newDate,
+      progress_stage: newStage
+    })
+    .eq('order_id', orderId);
+
+  if (error) {
+    console.error('상태 변경 오류:', error);
+    alert('상태 변경 중 오류 발생');
+    return;
+  }
+
+  loadOrders();
+};
 
 // ❌ 삭제
 window.deleteOrder = async function (orderId) {
@@ -153,11 +139,6 @@ window.deleteOrder = async function (orderId) {
   loadOrders();
 };
 
-// 📥 엑셀 다운로드
-window.downloadSelectedOrders = function () {
-  alert('엑셀 다운로드 기능은 추후 구현 예정입니다.');
-};
-
 // 🔐 로그아웃
 window.logout = async function () {
   const { error } = await supabase.auth.signOut();
@@ -168,5 +149,19 @@ window.logout = async function () {
   }
 };
 
-// 초기 로딩
+// 📦 모달창
+window.showModal = function (title, content) {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class='modal-content'>
+      <span class='close-button' onclick='this.parentElement.parentElement.remove()'>&times;</span>
+      <h2>${title}</h2>
+      <p>${content}</p>
+    </div>
+  `;
+  document.body.appendChild(modal);
+};
+
+// 페이지 로드시 데이터 불러오기
 loadOrders();
