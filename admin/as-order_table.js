@@ -58,9 +58,9 @@ function renderOrders(orders) {
     const faultDescBtn = `<button onclick="showModal('고장증상', '${escapeQuotes(extractMessageField(order.message, '고장증상'))}')">확인</button>`;
     const requestBtn = `<button onclick="showModal('요청사항', '${escapeQuotes(extractMessageField(order.message, '요청사항'))}')">확인</button>`;
 
-    const receivedDate = order.status === '접수됨' ? `<div style='font-size:0.8em; color:#555;'>${order.status_updated_at?.split('T')[0]}</div>` : '';
-    const rowClass = order.status === '접수됨' ? 'style="background-color:#e0f8d8"' : '';
-    const buttonLabel = order.status === '접수됨' ? '수리진행' : '접수';
+    const receivedDate = order.status === '수리진행' ? `<div style='font-size:0.8em; color:#555;'>${order.status_updated_at?.split('T')[0]}</div>` : '';
+    const rowClass = order.status === '수리진행' ? 'style="background-color:#e0f8d8"' : '';
+    const buttonLabel = order.status === '수리진행' ? '수리진행' : '접수';
 
     const row = document.createElement('tr');
     row.setAttribute('data-order-id', order.order_id);
