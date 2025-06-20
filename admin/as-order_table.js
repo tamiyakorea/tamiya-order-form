@@ -149,19 +149,19 @@ window.logout = async function () {
   }
 };
 
-// 📦 모달창
-window.showModal = function (title, content) {
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.innerHTML = `
-    <div class='modal-content'>
-      <span class='close-button' onclick='this.parentElement.parentElement.remove()'>&times;</span>
-      <h2>${title}</h2>
-      <p>${content}</p>
-    </div>
-  `;
-  document.body.appendChild(modal);
-};
+function showModal(text) {
+    document.getElementById("modalText").textContent = text;
+    document.getElementById("modal").style.display = "block";
+  }
+
+  function closeModal() {
+    document.getElementById("modal").style.display = "none";
+  }
+
+  // ESC 누르면 모달 닫기
+  window.addEventListener('keydown', function (e) {
+    if (e.key === "Escape") closeModal();
+  });
 
 // 페이지 로드시 데이터 불러오기
 loadOrders();
