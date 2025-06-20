@@ -166,40 +166,8 @@ window.confirmOrder = async function () {
       return;
     }
   }
-
-  const fileInput = document.getElementById("proofImages");
-  if (fileInput.files.length !== 1) {
-    alert("사진 1장을 반드시 첨부해야 합니다.");
-    return;
-  }
-
-  const rawFile = fileInput.files[0];
-  const compressedFile = await compressImage(rawFile, 2000, 0.8);
-
-  if (compressedFile.size > 5 * 1024 * 1024) {
-    alert("압축 후에도 파일이 5MB를 초과합니다. 더 작은 이미지를 첨부해주세요.");
-    return;
-  }
-
   const orderId = generateOrderNumber();
-  const safeName = `${orderId}_${Date.now()}.jpg`;
-  const base64Data = await toBase64(compressedFile);
-
-  const uploadResponse = await fetch('https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/upload-proof', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fileName: safeName, fileData: base64Data })
-  });
-
-  const uploadResult = await uploadResponse.json();
-  if (!uploadResponse.ok) {
-    alert("이미지 업로드 중 오류가 발생했습니다.");
-    console.error(uploadResult);
-    return;
-  }
-
-  const proofUrl = uploadResult.publicUrl;
-
+  const proofUrl = null;
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + 
     (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
 
@@ -212,7 +180,7 @@ window.confirmOrder = async function () {
     address,
     address_detail: addressDetail,
     receipt_info: receiptInfo,
-    proof_images: [proofUrl],
+    proof_images: [],
     items: cart.map(item => ({
       code: item.item_code,
       name: item.description,
