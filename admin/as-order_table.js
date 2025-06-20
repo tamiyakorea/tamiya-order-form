@@ -3,12 +3,12 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+  'YOUR_ANON_KEY' // 보안상 실제 배포 시 환경변수로 처리할 것
 );
 
+// ✅ A/S 신청 목록 불러오기
 window.loadOrders = async function () {
   console.log("✅ loadOrders 실행됨");
-
   const { data, error } = await supabase
     .from('as_orders')
     .select('*')
@@ -24,6 +24,66 @@ window.loadOrders = async function () {
   renderOrders(data);
 };
 
+// 🧾 테이블 렌더링
+function renderOrders(orders) {
+  const tbody = document.getElementById('orderBody');
+  if (!orders.length) {
+    tbody.innerHTML = '<tr><td colspan="13">결과가 없습니다.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = '';
+  for (const order of orders) {
+    const row = document.createElement('tr');
+    if (order.status === '접수') row.style.backgroundColor = '#d8f9c1';
+
+    row.innerHTML = `
+      <td><button onclick="deleteOrder('${order.order_id}')">삭제</button></td>
+      <td>${order.created_at?.split('T')[0] || ''}</td>
+      <td>${order.order_id}</td>
+      <td>${order.name}</td>
+      <td>${order.phone}</td>
+      <td>${order.email}</td>
+      <td>${(order.product_name || '').split(' > ')[0] || ''}</td>
+      <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
+      <td>${extractMessageField(order.message, '고장시기')}</td>
+      <td>${extractMessageField(order.message, '고장증상')}</td>
+      <td>${extractMessageField(order.message, '요청사항')}</td>
+      <td>
+        <button onclick="toggleStatus(this, '${order.order_id}', '${order.status || ''}')">
+          ${order.status === '접수' ? '되돌리기' : '접수'}
+        </button>
+        ${order.status_updated_at ? `<div class="status-date" onclick="toggleStatus(this.parentElement.querySelector('button'), '${order.order_id}', '${order.status || ''}')">${order.status_updated_at.split('T')[0]}</div>` : ''}
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  }
+}
+
+// 🔄 상태 토글
+window.toggleStatus = async function (buttonEl, orderId, currentStatus) {
+  const newStatus = currentStatus === '접수' ? null : '접수';
+  const updatedAt = newStatus ? new Date().toISOString() : null;
+
+  const { error } = await supabase
+    .from('as_orders')
+    .update({
+      status: newStatus,
+      status_updated_at: updatedAt
+    })
+    .eq('order_id', orderId);
+
+  if (error) {
+    alert('상태 변경 오류');
+    console.error(error);
+    return;
+  }
+
+  loadOrders(); // UI 갱신
+};
+
+// 🔍 검색
 window.searchOrders = async function () {
   const keyword = document.getElementById('searchInput').value.trim();
   if (!keyword) return loadOrders();
@@ -42,89 +102,14 @@ window.searchOrders = async function () {
   renderOrders(data);
 };
 
-function renderOrders(orders) {
-  const tbody = document.getElementById('orderBody');
-  if (!orders.length) {
-    tbody.innerHTML = '<tr><td colspan="12">결과가 없습니다.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = '';
-  for (const order of orders) {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td><button onclick="deleteOrder('${order.order_id}')">삭제</button></td>
-      <td>${order.created_at?.split('T')[0] || ''}</td>
-      <td>${order.order_id}</td>
-      <td>${order.name}</td>
-      <td>${order.phone}</td>
-      <td>${order.email}</td>
-      <td>${(order.product_name || '').split(' > ')[0] || ''}</td>
-      <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
-      <td><button onclick="showModal('고장시기', '${escapeHtml(extractMessageField(order.message, '고장시기'))}')">확인</button></td>
-      <td><button onclick="showModal('고장증상', '${escapeHtml(extractMessageField(order.message, '고장증상'))}')">확인</button></td>
-      <td><button onclick="showModal('요청사항', '${escapeHtml(extractMessageField(order.message, '요청사항'))}')">확인</button></td>
-      <td class="status-cell">
-        <button onclick="markReceived(this)">접수</button>
-        <div class="received-date" style="font-size: 0.8em; color: green; cursor: pointer;" onclick="revertReceived(this)"></div>
-      </td>
-    `;
-    tbody.appendChild(row);
-  }
-}
-
+// 🧹 메시지 추출 유틸
 function extractMessageField(message, field) {
   if (!message) return '';
   const match = message.match(new RegExp(`${field}: ?([^\n]*)`));
   return match ? match[1].trim() : '';
 }
 
-function escapeHtml(text) {
-  return text.replace(/[&<>'"]/g, (tag) => {
-    const chars = {
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-    };
-    return chars[tag] || tag;
-  });
-}
-
-window.showModal = function (title, content) {
-  const modal = document.createElement('div');
-  modal.id = 'modalOverlay';
-  modal.style = `
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
-  `;
-
-  modal.innerHTML = `
-    <div style="background: white; padding: 20px; border-radius: 10px; max-width: 400px; text-align: center;">
-      <h3>${title}</h3>
-      <p style="white-space: pre-wrap; margin-top: 10px;">${content}</p>
-      <button onclick="document.getElementById('modalOverlay').remove()" style="margin-top: 20px;">닫기</button>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-};
-
-window.markReceived = function (button) {
-  const date = new Date().toISOString().split('T')[0];
-  const cell = button.parentElement;
-  const row = cell.parentElement;
-
-  row.style.backgroundColor = '#e0ffe0';
-  const dateDiv = cell.querySelector('.received-date');
-  dateDiv.textContent = date;
-};
-
-window.revertReceived = function (dateDiv) {
-  const cell = dateDiv.parentElement;
-  const row = cell.parentElement;
-
-  row.style.backgroundColor = '';
-  dateDiv.textContent = '';
-};
-
+// ❌ 삭제
 window.deleteOrder = async function (orderId) {
   if (!confirm('정말 삭제하시겠습니까?')) return;
 
@@ -142,28 +127,12 @@ window.deleteOrder = async function (orderId) {
   loadOrders();
 };
 
-async function toggleStatus(orderId, currentStatus) {
-  const isReceiving = currentStatus !== '접수됨';
-  const newStatus = isReceiving ? '접수됨' : '대기';
-  const updatedAt = isReceiving ? new Date().toISOString() : null;
-
-  const { error } = await supabase
-    .from('as_orders')
-    .update({ status: newStatus, status_updated_at: updatedAt })
-    .eq('order_id', orderId);
-
-  if (error) {
-    console.error("상태 업데이트 실패", error);
-    alert("상태 변경에 실패했습니다.");
-  } else {
-    loadOrders(); // 갱신
-  }
-}
-
+// 📥 엑셀 다운로드 (미구현)
 window.downloadSelectedOrders = function () {
   alert('엑셀 다운로드 기능은 추후 구현 예정입니다.');
 };
 
+// 🔐 로그아웃
 window.logout = async function () {
   const { error } = await supabase.auth.signOut();
   if (error) {
@@ -173,4 +142,5 @@ window.logout = async function () {
   }
 };
 
+// 초기 로딩
 loadOrders();
