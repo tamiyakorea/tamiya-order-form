@@ -24,11 +24,15 @@ async function loadProgressOrders() {
 function renderProgressTable(orders) {
   const tbody = document.getElementById('progressBody');
   tbody.innerHTML = '';
+
   for (const order of orders) {
     const row = document.createElement('tr');
     const [category, product] = (order.product_name || '').split(' > ');
 
     row.innerHTML = `
+      <td>
+        <button class="revert-btn" data-id="${order.order_id}">되돌리기</button>
+      </td>
       <td>${order.status_updated_at?.split('T')[0] || ''}</td>
       <td>${order.name}</td>
       <td>${order.phone}</td>
@@ -51,7 +55,6 @@ function renderProgressTable(orders) {
     tbody.appendChild(row);
   }
 
-  // 이벤트 바인딩
   bindUpdateEvents();
 }
 
