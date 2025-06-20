@@ -149,19 +149,5 @@ window.logout = async function () {
   }
 };
 
-function showModal(text) {
-    document.getElementById("modalText").textContent = text;
-    document.getElementById("modal").style.display = "block";
-  }
-
-  function closeModal() {
-    document.getElementById("modal").style.display = "none";
-  }
-
-  // ESC 누르면 모달 닫기
-  window.addEventListener('keydown', function (e) {
-    if (e.key === "Escape") closeModal();
-  });
-
 // 페이지 로드시 데이터 불러오기
 loadOrders();
