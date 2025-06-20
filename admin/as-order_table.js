@@ -139,6 +139,27 @@ window.deleteOrder = async function (orderId) {
   loadOrders();
 };
 
+function showModal(title, content) {
+  const modal = document.getElementById('modal');
+  const modalTitle = document.getElementById('modal-title');
+  const modalContent = document.getElementById('modal-content');
+
+  modalTitle.textContent = title;
+  modalContent.textContent = content;
+  modal.style.display = 'block';
+}
+
+// 닫기 버튼
+document.getElementById('modal-close').onclick = function () {
+  document.getElementById('modal').style.display = 'none';
+};
+
+// 외부 클릭 시 닫기
+window.onclick = function (e) {
+  const modal = document.getElementById('modal');
+  if (e.target === modal) modal.style.display = 'none';
+};
+
 // 🔐 로그아웃
 window.logout = async function () {
   const { error } = await supabase.auth.signOut();
