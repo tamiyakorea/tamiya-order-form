@@ -85,6 +85,18 @@ function bindUpdateEvents() {
     });
   });
 
+    document.querySelectorAll('.revert-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const orderId = btn.dataset.id;
+      const { error } = await supabase
+        .from('as_orders')
+        .update({ status: '접수대기', status_updated_at: null })
+        .eq('order_id', orderId);
+
+      if (!error) loadProgressOrders(); // 새로고침
+    });
+  });
+
   document.querySelectorAll('.process-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const orderId = btn.dataset.id;
