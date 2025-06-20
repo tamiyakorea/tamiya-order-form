@@ -1,7 +1,7 @@
 /* as-order.css */
 
-/* ✅ 고정된 텍스트 입력칸 */
-textarea.fixed-textarea {
+#faultDescription,
+#requestDetails {
   width: 800px;
   max-width: 800px;
   height: 400px;
@@ -9,60 +9,4 @@ textarea.fixed-textarea {
   font-size: 1em;
   padding: 10px;
   box-sizing: border-box;
-}
-
-/* ✅ 기본 설정 (필요 시 기존에서 유지) */
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  padding: 0;
-  margin: 0;
-  background-color: white;
-}
-
-main {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: white;
-}
-
-h2 {
-  border-bottom: 2px solid #333;
-  padding-bottom: 5px;
-  margin-top: 40px;
-}
-
-label {
-  display: block;
-  margin: 10px 0 4px;
-  font-weight: bold;
-}
-
-input[type="text"],
-input[type="email"],
-select {
-  padding: 8px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  margin-bottom: 10px;
-}
-
-button.confirm {
-  background-color: #65d3f8;
-  color: white;
-  border: 1px solid #65d3f8;
-  padding: 12px 30px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-button.confirm:hover {
-  background-color: #49c8f3;
 }
