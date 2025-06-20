@@ -10,10 +10,10 @@ const supabase = createClient(
 window.loadOrders = async function () {
   console.log('✅ loadOrders 실행됨');
   const { data, error } = await supabase
-    .from('as_orders')
-    .select('*')
-    .eq('progress_stage', '대기')
-    .order('created_at', { ascending: false });
+  .from('as_orders')
+  .select('*')
+  .eq('status', '접수대기')
+  .order('created_at', { ascending: false });
 
   console.log('📦 Supabase 응답:', { data, error });
   if (error) {
