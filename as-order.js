@@ -37,7 +37,10 @@ window.addEventListener("DOMContentLoaded", () => {
     productSelect.innerHTML = "<option value=''>선택</option>";
 
     if (selectedCategory && productOptions[selectedCategory]) {
-      productOptions[selectedCategory].forEach(option => {
+      productOptions[selectedCategory]
+      .slice()
+      .sort((a, b) => a.localeCompare(b, 'ko'))
+      .forEach(option => {
         const el = document.createElement("option");
         el.value = option;
         el.textContent = option;
