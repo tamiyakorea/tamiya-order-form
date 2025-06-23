@@ -61,18 +61,6 @@
   </div>
 
   <script type="module" src="as-charge.js"></script>
-  <script>
-    window.showModal = function(title, content) {
-      document.getElementById('modal-title').textContent = title;
-      document.getElementById('modal-content').textContent = content;
-      document.getElementById('modal').style.display = 'block';
-    };
-    document.getElementById('modal-close').onclick = function () {
-      document.getElementById('modal').style.display = 'none';
-    };
-    window.onclick = function (e) {
-      if (e.target.id === 'modal') document.getElementById('modal').style.display = 'none';
-    };
-  </script>
+
 </body>
 </html>
