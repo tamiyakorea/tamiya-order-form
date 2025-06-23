@@ -6,9 +6,7 @@ const supabase = createClient(
 );
 
 // 🔍 주문번호 추출
-const urlParams = new URLSearchParams(window.location.search);
-const orderIdRaw = urlParams.get("orderId");
-const orderId = orderIdRaw; // string 그대로
+const orderId = new URLSearchParams(window.location.search).get("orderId");
 
 if (!orderId || isNaN(Number(orderId))) {
   alert("잘못된 접근입니다. 주문번호가 없습니다.");
@@ -18,28 +16,31 @@ if (!orderId || isNaN(Number(orderId))) {
 
 // ✅ 주문 데이터 불러오기
 async function loadOrder(orderId) {
-  const { data, error } = await supabase
-    .from("as_orders")
-    .select("*")
-    .eq("order_id", orderId)
-    .maybeSingle(); // ← 오류 방지용
+  try {
+    const res = await fetch(
+      "https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/get-as-order-by-id",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ order_id: Number(orderId) }) // int8 대응
+      }
+    );
 
-  console.log("🔍 응답 데이터:", data);
-  console.log("❗ 오류:", error);
+    const result = await res.json();
+    if (!res.ok || !result.data) throw new Error(result.error || "데이터 없음");
 
-  if (error || !data) {
-    alert("A/S 신청 정보를 불러오지 못했습니다.");
-    return;
+    const data = result.data;
+    document.getElementById("orderId").textContent = data.order_id;
+    document.getElementById("createdAt").textContent = formatDate(data.created_at);
+    document.getElementById("name").textContent = data.name || "-";
+    document.getElementById("phone").textContent = data.phone || "-";
+    document.getElementById("email").textContent = data.email || "-";
+    document.getElementById("address").textContent =
+      `${data.zipcode || ''} ${data.address || ''} ${data.address_detail || ''}`;
+  } catch (err) {
+    alert("신청 정보를 불러오지 못했습니다.");
+    console.error("❌ Edge Function 오류:", err);
   }
-
-  // ✅ 출력
-  document.getElementById("orderId").textContent = data.order_id;
-  document.getElementById("createdAt").textContent = formatDate(data.created_at);
-  document.getElementById("name").textContent = data.name || "-";
-  document.getElementById("phone").textContent = data.phone || "-";
-  document.getElementById("email").textContent = data.email || "-";
-  document.getElementById("address").textContent =
-    `${data.zipcode || ''} ${data.address || ''} ${data.address_detail || ''}`;
 }
 
 // ✅ 날짜 포맷 함수
