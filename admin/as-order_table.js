@@ -99,18 +99,18 @@ function extractMessageField(message, field) {
 window.toggleStatus = async function (orderId, button) {
   const currentLabel = button.textContent.trim();
   const isReceived = currentLabel === '접수';
-  const newStatus = isReceived ? '접수됨' : '대기';
-  const newStage = isReceived ? '대기' : '진행';
+  const newStatus = isReceived ? '수리진행' : '접수대기';
+  const newStage = isReceived ? 'processing' : 'received';
   const newDate = isReceived ? new Date().toISOString() : null;
 
   const { error } = await supabase
-    .from('as_orders')
-    .update({
-      status: newStatus,
-      status_updated_at: newDate,
-      progress_stage: newStage
-    })
-    .eq('order_id', orderId);
+  .from('as_orders')
+  .update({
+    status: newStatus,
+    status_updated_at: newDate,
+    progress_stage: newStage
+  })
+  .eq('order_id', orderId);
 
   if (error) {
     console.error('상태 변경 오류:', error);
