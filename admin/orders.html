@@ -63,7 +63,7 @@
   <!-- ✅ 버튼 우측 정렬 영역 -->
   <div class="button-group">
   <button class="btn-upload" onclick="openUploadWindow()">엑셀 주문 등록</button>
-  <button class="btn-upload" onclick="openDirectUploadWindow()">직접 단가 업로드</button>
+  <button class="btn-upload" onclick="openEditOrderModal()">주문 수정</button>
   <button class="btn-excel" onclick="downloadSelectedOrders()">선택 주문서 다운로드</button>
   <button class="btn-upload" onclick="window.location.href='items.html'">DB 설정</button> <!-- ✅ 추가된 부분 -->
   <button class="btn-logout" onclick="logout()">로그아웃</button>
@@ -104,6 +104,30 @@
       </tbody>
     </table>
   </div>
+
+<!-- 주문 수정 모달 -->
+<div id="editOrderModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ccc; padding:20px; z-index:1000;">
+  <h3>주문 정보 수정</h3>
+  <label>고객명: <input type="text" id="editName" /></label><br>
+  <label>전화번호: <input type="text" id="editPhone" /></label><br>
+  <label>이메일: <input type="text" id="editEmail" /></label><br>
+  <label>주소: <input type="text" id="editAddress" /></label><br>
+  <label>상세주소: <input type="text" id="editAddressDetail" /></label><br>
+  <label>비고: <input type="text" id="editRemarks" /></label><br>
+  <label>
+    <input type="checkbox" id="editStaffDiscount" />
+    직원 할인 적용
+  </label><br><br>
+  <button onclick="confirmEditSave()">저장</button>
+  <button onclick="closeEditModal()">닫기</button>
+</div>
+
+<!-- 저장 확인 모달 -->
+<div id="editConfirmModal" style="display:none; position:fixed; top:30%; left:50%; transform:translateX(-50%); background:white; border:1px solid #aaa; padding:20px; z-index:1001;">
+  <p>수정된 내용을 저장하시겠습니까?</p>
+  <button onclick="applyEdit()">예</button>
+  <button onclick="cancelEdit()">아니오</button>
+</div>
 
   <script type="module" src="orders-enhanced.js"></script>
 </body>
