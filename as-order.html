@@ -8,6 +8,19 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script> 
 </head>
+
+<script>
+  function execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        document.getElementById('zipcode').value = data.zonecode;
+        document.getElementById('address').value = data.roadAddress;
+        document.getElementById('addressDetail').focus();
+      }
+    }).open();
+  }
+</script>
+
 <body>
   <div style="text-align: center; padding: 10px 0;">
     <img src="images/logo.png" alt="로고" style="height: 90px;" />
