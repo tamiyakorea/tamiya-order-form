@@ -121,10 +121,12 @@ document.querySelectorAll('.invoice-input').forEach(input => {
     });
   });
 
-  document.querySelectorAll('.process-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const orderId = btn.dataset.id;
-      const currentText = btn.textContent;
+document.querySelectorAll('.process-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    console.log("✅ 입고처리 버튼 클릭됨");
+
+    const orderId = btn.dataset.id;
+    const currentText = btn.textContent;
 
       if (currentText === '입고처리') {
         const { error } = await supabase.from('as_orders')
