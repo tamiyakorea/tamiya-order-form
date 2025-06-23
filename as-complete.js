@@ -6,10 +6,10 @@ const supabase = createClient(
 );
 
 // ✅ URL 파라미터에서 orderId 추출
-const urlParams = new URLSearchParams(window.location.search);
-const orderId = urlParams.get("orderId");
+const rawParam = urlParams.get("orderId");
+const orderId = Number(rawParam);
 
-if (!orderId) {
+if (!rawParam || isNaN(orderId)) {
   alert("잘못된 접근입니다. 주문번호가 없습니다.");
 } else {
   loadOrder(orderId);
