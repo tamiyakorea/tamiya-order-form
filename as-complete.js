@@ -6,10 +6,12 @@ const supabase = createClient(
 );
 
 // ✅ URL 파라미터에서 orderId 추출
-const rawParam = urlParams.get("orderId");
-const orderId = Number(rawParam);
+const urlParams = new URLSearchParams(window.location.search);
+const orderId = urlParams.get("orderId");
 
-if (!rawParam || isNaN(orderId)) {
+console.log("🔍 전달된 orderId:", orderId);
+
+if (!orderId || isNaN(Number(orderId))) {
   alert("잘못된 접근입니다. 주문번호가 없습니다.");
 } else {
   loadOrder(orderId);
@@ -20,8 +22,11 @@ async function loadOrder(orderId) {
   const { data, error } = await supabase
     .from("as_orders")
     .select("*")
-    .eq("order_id", orderId)
-    .single();
+    .eq("order_id", orderId) // ← 문자열 그대로
+    .maybeSingle();
+
+  console.log("📦 불러온 주문 데이터:", data);
+  console.log("❗ 오류:", error);
 
   if (error || !data) {
     alert("주문 정보를 불러오지 못했습니다.");
@@ -88,5 +93,3 @@ function downloadPDF() {
 window.goHome = goHome;
 window.downloadPDF = downloadPDF;
 
-console.log("🔍 전달받은 orderId:", orderId);
-console.log("🔍 Supabase 응답:", data, error);
