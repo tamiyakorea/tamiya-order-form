@@ -9,9 +9,17 @@ const supabase = createClient(
 const tableBody = document.querySelector("#itemsTable tbody");
 const searchInput = document.getElementById("searchInput");
 const toggleEditBtn = document.getElementById("toggleEditBtn");
+const deleteBtn = document.getElementById("deleteSelectedBtn");
+const addBtn = document.getElementById("addItemBtn");
 const confirmModal = document.getElementById("confirmModal");
 const confirmYes = document.getElementById("confirmYes");
 const confirmNo = document.getElementById("confirmNo");
+const deleteModal = document.getElementById("deleteModal");
+const deleteYes = document.getElementById("deleteYes");
+const deleteNo = document.getElementById("deleteNo");
+const addModal = document.getElementById("addModal");
+const addSave = document.getElementById("addSave");
+const addCancel = document.getElementById("addCancel");
 
 let originalData = [];
 let editData = [];
@@ -25,13 +33,14 @@ function escapeHTML(str) {
 function renderTable(data) {
   tableBody.innerHTML = "";
   if (!data.length) {
-    tableBody.innerHTML = '<tr><td colspan="6">데이터가 없습니다</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="7">데이터가 없습니다</td></tr>';
     return;
   }
 
   data.forEach(row => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
+      <td><input type="checkbox" class="row-check" data-id="${row.item_code}" /></td>
       <td>${escapeHTML(row.item_code)}</td>
       <td contenteditable="${isEditing}" data-key="description" data-id="${row.item_code}">${escapeHTML(row.description)}</td>
       <td contenteditable="${isEditing}" data-key="order_unit_ctn" data-id="${row.item_code}">${row.order_unit_ctn ?? ''}</td>
@@ -39,10 +48,24 @@ function renderTable(data) {
       <td contenteditable="${isEditing}" data-key="j_retail" data-id="${row.item_code}">${row.j_retail ?? ''}</td>
       <td contenteditable="${isEditing}" data-key="price" data-id="${row.item_code}">${row.price ?? ''}</td>
     `;
+    tr.dataset.id = row.item_code;
     tableBody.appendChild(tr);
   });
 
+  updateRowHighlight();
   if (isEditing) addEditListeners();
+
+  document.querySelectorAll('.row-check').forEach(cb =>
+    cb.addEventListener('change', updateRowHighlight)
+  );
+}
+
+function updateRowHighlight() {
+  document.querySelectorAll("tr").forEach(row => {
+    const cb = row.querySelector(".row-check");
+    if (cb?.checked) row.style.backgroundColor = "#eef5ff";
+    else row.style.backgroundColor = "";
+  });
 }
 
 function addEditListeners() {
@@ -62,13 +85,8 @@ function addEditListeners() {
 
 async function loadData() {
   const { data, error } = await supabase.from("tamiya_items").select("*").order("item_code", { ascending: true });
-
-  if (error) {
-    alert("데이터 불러오기 실패: " + error.message);
-    return;
-  }
-
-  originalData = JSON.parse(JSON.stringify(data)); // deep copy
+  if (error) return alert("불러오기 실패: " + error.message);
+  originalData = JSON.parse(JSON.stringify(data));
   editData = JSON.parse(JSON.stringify(data));
   renderTable(editData);
 }
@@ -117,15 +135,65 @@ confirmYes.addEventListener("click", async () => {
 
     if (Object.keys(updates).length > 0) {
       const { error } = await supabase.from("tamiya_items").update(updates).eq("item_code", row.item_code);
-      if (error) {
-        alert(`🚨 ${row.item_code} 업데이트 실패: ${error.message}`);
-      }
+      if (error) alert(`🚨 ${row.item_code} 업데이트 실패: ${error.message}`);
     }
   }
 
   originalData = JSON.parse(JSON.stringify(editData));
   renderTable(editData);
-  alert("✅ 모든 수정사항이 저장되었습니다.");
+  alert("✅ 수정사항 저장 완료!");
+});
+
+deleteBtn.addEventListener("click", () => {
+  const checked = [...document.querySelectorAll('.row-check:checked')];
+  if (!checked.length) return alert("삭제할 항목을 선택하세요.");
+  deleteModal.style.display = "block";
+});
+
+deleteNo.addEventListener("click", () => {
+  deleteModal.style.display = "none";
+});
+
+deleteYes.addEventListener("click", async () => {
+  const checkedIds = [...document.querySelectorAll('.row-check:checked')].map(cb => cb.dataset.id);
+  const { error } = await supabase.from("tamiya_items").delete().in("item_code", checkedIds);
+  if (error) alert("삭제 실패: " + error.message);
+  else alert("✅ 삭제 완료");
+  deleteModal.style.display = "none";
+  await loadData();
+});
+
+addBtn.addEventListener("click", () => {
+  addModal.style.display = "block";
+});
+
+addCancel.addEventListener("click", () => {
+  addModal.style.display = "none";
+});
+
+addSave.addEventListener("click", async () => {
+  const newItem = {
+    item_code: document.getElementById("add_item_code").value.trim(),
+    description: document.getElementById("add_description").value.trim(),
+    order_unit_ctn: Number(document.getElementById("add_order_unit_ctn").value),
+    order_unit_pck: Number(document.getElementById("add_order_unit_pck").value),
+    j_retail: Number(document.getElementById("add_j_retail").value),
+    price: Number(document.getElementById("add_price").value),
+  };
+
+  if (!newItem.item_code || !newItem.description) {
+    alert("제품코드와 제품명은 필수입니다.");
+    return;
+  }
+
+  const { error } = await supabase.from("tamiya_items").insert([newItem]);
+  if (error) {
+    alert("추가 실패: " + error.message);
+  } else {
+    alert("✅ 항목 추가 완료");
+    addModal.style.display = "none";
+    await loadData();
+  }
 });
 
 loadData();
