@@ -40,21 +40,26 @@ function renderChargeTable(orders) {
     }
 
     row.innerHTML = `
-      <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
-      <td>${order.status_updated_at?.split('T')[0] || ''}</td>
-      <td>${order.name}</td>
-      <td>${order.shipping_invoice || ''}</td>
-      <td>${order.receipt_code || ''}</td>
-      <td>${order.phone || ''}</td>
-      <td>${category || ''}</td>
-      <td>${product || ''}</td>
-      <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
-      <td><input type="text" value="${repairDetail}" data-id="${order.order_id}" class="repair-input" /></td>
-      <td><input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" /></td>
-      <td>${note}</td>
-      <td><button class="toggle-payment" data-id="${order.order_id}">${order.payment_confirmed ? '확인됨' : '미확인'}</button></td>
-      <td><button class="complete-shipping" data-id="${order.order_id}">완료</button></td>
-    `;
+  <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
+  <td>${order.status_updated_at?.split('T')[0] || ''}</td>
+  <td>${order.name}</td>
+  <td>${order.shipping_invoice || ''}</td>
+  <td>${order.receipt_code || ''}</td>
+  <td>${order.phone || ''}</td>
+  <td>${category || ''}</td>
+  <td>${product || ''}</td>
+  <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
+  <td><input type="text" value="${repairDetail}" data-id="${order.order_id}" class="repair-input" /></td>
+  <td><input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" /></td>
+  <td>${note}</td>
+  <td>
+    <button class="toggle-payment" data-id="${order.order_id}">
+      ${order.payment_confirmed ? '확인됨' : '미확인'}
+    </button>
+    ${paymentDateDisplay}
+  </td>
+  <td><button class="complete-shipping" data-id="${order.order_id}">완료</button></td>
+`;
     tbody.appendChild(row);
   }
 
@@ -100,23 +105,36 @@ function bindEvents() {
   });
 
   document.querySelectorAll('.toggle-payment').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const id = btn.dataset.id;
-      const current = btn.textContent.trim();
-      const confirmed = current === '확인됨' ? false : true;
+  btn.addEventListener('click', async () => {
+    const id = btn.dataset.id;
+    const current = btn.textContent.trim();
+    const confirmed = current === '확인됨' ? false : true;
 
-      const { error } = await supabase
-        .from('as_orders')
-        .update({ payment_confirmed: confirmed })
-        .eq('order_id', String(id));
+    const update = {
+      payment_confirmed: confirmed,
+      payment_date: confirmed ? new Date().toISOString() : null
+    };
 
-      if (!error) {
-        btn.textContent = confirmed ? '확인됨' : '미확인';
-        const row = btn.closest('tr');
-        row.style.backgroundColor = confirmed ? '#e0f8d8' : '';
-      }
-    });
+    const { error } = await supabase
+      .from('as_orders')
+      .update(update)
+      .eq('order_id', String(id));
+
+    if (!error) {
+      btn.textContent = confirmed ? '확인됨' : '미확인';
+
+      const row = btn.closest('tr');
+      row.style.backgroundColor = confirmed ? '#e0f8d8' : '';
+
+      // 날짜 표시도 갱신
+      const dateElem = document.createElement('div');
+      dateElem.style.fontSize = '0.8em';
+      dateElem.style.color = '#555';
+      dateElem.textContent = confirmed ? new Date().toISOString().split('T')[0] : '';
+      btn.parentNode.appendChild(dateElem);
+    }
   });
+});
 
   document.querySelectorAll('.complete-shipping').forEach(btn => {
     btn.addEventListener('click', () => {
