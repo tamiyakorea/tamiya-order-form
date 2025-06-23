@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>SANWA A/S 진행 관리</title>
-  <link rel="stylesheet" href="orders.css" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="orders.css" />
+  <link rel="icon" href="data:,">
 </head>
 <body>
   <nav>
@@ -20,7 +21,7 @@
     <a href="as-charge.html">A/S 청구 관리</a>
   </nav>
 
-  <h1>SANWA A/S 진행 관리</h1>
+ <h1>SANWA A/S 진행 관리</h1>
 
   <div class="table-wrapper">
     <table>
@@ -29,16 +30,16 @@
           <th>되돌리기</th>
           <th>접수일시</th>
           <th>고객명</th>
-          <th>발송INVOICE</th>
-          <th>접수코드</th>
           <th>연락처</th>
           <th>제품분류</th>
+          <th>제품명</th>
+          <th>고장시기</th>
           <th>고장증상</th>
-          <th>수리내역</th>
-          <th>수리비용</th>
+          <th>요청사항</th>
+          <th>발송INVOICE</th>
+          <th>접수코드</th>
           <th>비고</th>
-          <th>입금확인</th>
-          <th>배송완료</th>
+          <th>배송준비</th>
         </tr>
       </thead>
       <tbody id="progressBody">
@@ -47,15 +48,29 @@
     </table>
   </div>
 
-  <!-- 모달 영역 -->
+  <!-- 모달 -->
   <div id="modal" class="modal" style="display:none;">
     <div class="modal-content">
-      <span id="modalClose" class="close">&times;</span>
-      <h3 id="modalTitle"></h3>
-      <p id="modalContent"></p>
+      <span id="modal-close" class="close">&times;</span>
+      <h3 id="modal-title"></h3>
+      <p id="modal-content"></p>
     </div>
   </div>
 
-  <script type="module" src="as-charge.js"></script>
+  <script type="module" src="as-progress.js"></script>
+  <script>
+    // 모달 제어 스크립트
+    window.showModal = function(title, content) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-content').textContent = content;
+      document.getElementById('modal').style.display = 'block';
+    };
+    document.getElementById('modal-close').onclick = function () {
+      document.getElementById('modal').style.display = 'none';
+    };
+    window.onclick = function (e) {
+      if (e.target.id === 'modal') document.getElementById('modal').style.display = 'none';
+    };
+  </script>
 </body>
 </html>
