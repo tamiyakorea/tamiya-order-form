@@ -62,11 +62,12 @@
 
   <!-- ✅ 버튼 우측 정렬 영역 -->
   <div class="button-group">
-    <button class="btn-upload" onclick="openUploadWindow()">엑셀 주문 등록</button>
-    <button class="btn-upload" onclick="openDirectUploadWindow()">직접 단가 업로드</button>
-    <button class="btn-excel" onclick="downloadSelectedOrders()">선택 주문서 다운로드</button>
-    <button class="btn-logout" onclick="logout()">로그아웃</button>
-  </div>
+  <button class="btn-upload" onclick="openUploadWindow()">엑셀 주문 등록</button>
+  <button class="btn-upload" onclick="openDirectUploadWindow()">직접 단가 업로드</button>
+  <button class="btn-excel" onclick="downloadSelectedOrders()">선택 주문서 다운로드</button>
+  <button class="btn-upload" onclick="window.location.href='items.html'">DB 설정</button> <!-- ✅ 추가된 부분 -->
+  <button class="btn-logout" onclick="logout()">로그아웃</button>
+</div>
 
   <div class="table-wrapper">
     <table id="orderTable">
