@@ -142,11 +142,24 @@ function bindEvents() {
 
 
   document.querySelectorAll('.complete-shipping').forEach(btn => {
-    btn.addEventListener('click', () => {
-      alert('배송완료 처리는 별도 기능으로 추후 구현됩니다.');
-    });
+  btn.addEventListener('click', async () => {
+    const id = btn.dataset.id;
+
+    if (!confirm('이 주문을 A/S 처리 완료 상태로 이동하시겠습니까?')) return;
+
+    const { error } = await supabase
+      .from('as_orders')
+      .update({ status: '처리완료', status_updated_at: new Date().toISOString() })
+      .eq('order_id', id);
+
+    if (error) {
+      alert('처리 중 오류가 발생했습니다.');
+      console.error(error);
+    } else {
+      loadChargeOrders(); // 상태가 바뀌면 현재 목록에서 사라짐
+    }
   });
-}
+});
 
 // 모달 표시 함수
 window.showModal = function (title, content) {
