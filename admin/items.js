@@ -109,13 +109,24 @@ function renderPaginationControls() {
   }
 }
 
-searchInput.addEventListener("input", () => {
+searchInput.addEventListener("input", async () => {
   const q = searchInput.value.trim().toLowerCase();
-  const filtered = originalData.filter(row =>
-    row.item_code.toString().includes(q) || (row.description?.toLowerCase().includes(q))
-  );
-  editData = JSON.parse(JSON.stringify(filtered));
+  if (!q) return loadData(1); // 검색어 없을 경우 첫 페이지 로드
+
+  const { data, error } = await supabase
+    .from("tamiya_items")
+    .select("*")
+    .ilike("description", `%${q}%`)
+    .order("item_code");
+
+  if (error) return alert("검색 실패: " + error.message);
+
+  originalData = JSON.parse(JSON.stringify(data));
+  editData = JSON.parse(JSON.stringify(data));
+  totalPages = 1;
+  currentPage = 1;
   renderTable(editData);
+  renderPaginationControls();
 });
 
 toggleEditBtn.addEventListener("click", () => {
