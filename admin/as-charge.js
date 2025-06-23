@@ -27,7 +27,7 @@ function renderChargeTable(orders) {
 
   for (const order of orders) {
     const [category, product] = (order.product_name || '').split(' > ');
-    const faultDesc = extract(order.message, '고장증상') || '';
+    const faultDesc = escapeQuotes(extract(order.message, '고장증상'));
     const repairDetail = order.repair_detail || '';
     const repairCost = order.repair_cost || '';
     const note = order.note || '';
@@ -41,11 +41,11 @@ function renderChargeTable(orders) {
       <td>${order.receipt_code || ''}</td>
       <td>${order.phone || ''}</td>
       <td>${category || ''}</td>
-      <td>${product || ''}</td> <!-- 제품명 텍스트만 출력 -->
-      <td>${faultDesc}</td> <!-- 고장증상: 추출된 텍스트만 출력 -->
+      <td>${product || ''}</td>
+      <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
       <td><input type="text" value="${repairDetail}" data-id="${order.order_id}" class="repair-input" /></td>
       <td><input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" /></td>
-      <td>${note}</td> <!-- 비고: 수정불가 텍스트 출력 -->
+      <td>${note}</td>
       <td><button class="toggle-payment" data-id="${order.order_id}">${order.payment_confirmed ? '확인됨' : '미확인'}</button></td>
       <td><button class="complete-shipping" data-id="${order.order_id}">완료</button></td>
     `;
@@ -54,6 +54,7 @@ function renderChargeTable(orders) {
 
   bindEvents();
 }
+
 function escapeQuotes(str) {
   return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
