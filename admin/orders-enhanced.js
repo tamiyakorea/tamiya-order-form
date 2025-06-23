@@ -296,6 +296,82 @@ async function checkAuth() {
   }
 }
 
+// ✅ 주문 수정 기능 시작
+
+function openEditOrderModal() {
+  const checked = [...document.querySelectorAll('.download-checkbox:checked')];
+  if (checked.length !== 1) {
+    alert("수정할 주문 1개만 선택해주세요.");
+    return;
+  }
+
+  const orderId = checked[0].dataset.orderId;
+  supabase.from("orders").select("*").eq("order_id", orderId).single().then(({ data, error }) => {
+    if (error || !data) return alert("주문 정보를 불러오지 못했습니다.");
+
+    document.getElementById("editOrderId").value = data.order_id;
+    document.getElementById("editName").value = data.name || "";
+    document.getElementById("editPhone").value = data.phone || "";
+    document.getElementById("editEmail").value = data.email || "";
+    document.getElementById("editZipcode").value = data.zipcode || "";
+    document.getElementById("editAddress").value = data.address || "";
+    document.getElementById("editAddressDetail").value = data.address_detail || "";
+    document.getElementById("editRemarks").value = data.remarks || "";
+    document.getElementById("editTotal").value = data.total || 0;
+    document.getElementById("editStaffDiscount").checked = false;
+
+    document.getElementById("editOrderModal").style.display = "block";
+  });
+}
+
+function confirmEditSave() {
+  document.getElementById("editConfirmModal").style.display = "block";
+}
+
+function cancelEdit() {
+  document.getElementById("editConfirmModal").style.display = "none";
+}
+
+async function applyOrderEdit() {
+  const orderId = document.getElementById("editOrderId").value;
+  const name = document.getElementById("editName").value.trim();
+  const phone = document.getElementById("editPhone").value.trim();
+  const email = document.getElementById("editEmail").value.trim();
+  const zipcode = document.getElementById("editZipcode").value.trim();
+  const address = document.getElementById("editAddress").value.trim();
+  const addressDetail = document.getElementById("editAddressDetail").value.trim();
+  const remarks = document.getElementById("editRemarks").value.trim();
+  let total = Number(document.getElementById("editTotal").value);
+  const staffDiscount = document.getElementById("editStaffDiscount").checked;
+
+  const deliveryFee = total < 30000 ? 3000 : 0;
+
+  if (staffDiscount) {
+    const discountBase = total - deliveryFee;
+    total = Math.round(discountBase * 0.9);
+  }
+
+  const { error } = await supabase.from("orders").update({
+    name,
+    phone,
+    email,
+    zipcode,
+    address,
+    address_detail: addressDetail,
+    remarks,
+    total
+  }).eq("order_id", orderId);
+
+  if (error) {
+    alert("수정 실패: " + error.message);
+  } else {
+    alert("✅ 수정 완료");
+    document.getElementById("editOrderModal").style.display = "none";
+    document.getElementById("editConfirmModal").style.display = "none";
+    loadOrders();
+  }
+}
+
 
 window.addEventListener("DOMContentLoaded", () => {
   console.log("🌐 DOMContentLoaded 이벤트 발생!"); // ✅ 정상 출력됨
