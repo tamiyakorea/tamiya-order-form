@@ -12,7 +12,10 @@ const searchInput = document.getElementById("searchInput");
 let originalData = [];
 
 function escapeHTML(str) {
-  return str?.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") || '';
+  if (typeof str !== 'string') str = String(str ?? '');
+  return str.replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
 }
 
 function renderTable(data) {
