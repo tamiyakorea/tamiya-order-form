@@ -121,32 +121,32 @@ document.querySelectorAll('.invoice-input').forEach(input => {
     });
   });
 
-document.querySelectorAll('.process-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const orderId = btn.dataset.id;
-    const currentText = btn.textContent;
+  document.querySelectorAll('.process-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const orderId = btn.dataset.id;
+      const currentText = btn.textContent;
 
-    if (currentText === '입고처리') {
-      const { error } = await supabase.from('as_orders')
-        .update({
-          status: '청구대기',
-          status_updated_at: new Date().toISOString(),
-          processing_date: new Date().toISOString()
-        })
-        .eq('order_id', orderId);
+      if (currentText === '입고처리') {
+        const { error } = await supabase.from('as_orders')
+          .update({
+            status: '청구대기',
+            status_updated_at: new Date().toISOString(),
+            processing_date: new Date().toISOString()
+          })
+          .eq('order_id', orderId);
 
-      if (!error) loadProgressOrders();
-    } else {
-      const { error } = await supabase.from('as_orders')
-        .update({
-          status: '수리진행',
-          status_updated_at: new Date().toISOString(),
-          processing_date: null
-        })
-        .eq('order_id', orderId);
+        if (!error) loadProgressOrders();
+      } else {
+        const { error } = await supabase.from('as_orders')
+          .update({
+            status: '수리진행',
+            status_updated_at: new Date().toISOString(),
+            processing_date: null
+          })
+          .eq('order_id', orderId);
 
-      if (!error) loadProgressOrders();
-    }
+        if (!error) loadProgressOrders();
+      }
+    });
   });
-}); // ✅ forEach 닫힘
-
+} // ✅ 이 중괄호가 누락되어 있었음
