@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>상품 DB 설정</title>
+  <link rel="stylesheet" href="orders.css" />
+  <style>
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .table-wrapper {
+      margin: 20px;
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    td[contenteditable="true"] {
+      background-color: #fefcc9;
+      cursor: pointer;
+    }
+
+    td.edit-success {
+      background-color: #d4fcd4;
+    }
+
+    #searchInput {
+      width: 300px;
+      padding: 6px;
+      margin: 20px;
+    }
+
+    nav a.active {
+      text-decoration: underline;
+    }
+  </style>
+  <script type="module" src="items.js"></script>
+</head>
+<body>
+  <nav>
+    <a href="orders.html">TAMIYA 주문 관리</a>
+    <a href="items.html" class="active">상품 DB 설정</a>
+  </nav>
+
+  <h1>타미야 상품 DB 설정</h1>
+
+  <div style="text-align:center;">
+    <input type="text" id="searchInput" placeholder="제품코드 또는 이름으로 검색" />
+  </div>
+
+  <div class="table-wrapper">
+    <table id="itemsTable">
+      <thead>
+        <tr>
+          <th>제품코드</th>
+          <th>제품명</th>
+          <th>박스단위</th>
+          <th>팩단위</th>
+          <th>일본 소비자가</th>
+          <th>판매 단가</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="6">불러오는 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
