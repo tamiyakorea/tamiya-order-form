@@ -1,21 +1,19 @@
-// 📦 Supabase 클라이언트 설정
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
 );
 
-// ✅ A/S 신청 목록 불러오기
 window.loadOrders = async function () {
   console.log('✅ loadOrders 실행됨');
   const { data, error } = await supabase
-  .from('as_orders')
-  .select('*')
-  .eq('status', '접수대기')
-  .order('created_at', { ascending: false });
+    .from('as_orders')
+    .select('*')
+    .eq('status', '접수대기')
+    .order('created_at', { ascending: false });
 
   console.log('📦 Supabase 응답:', { data, error });
+
   if (error) {
     console.error('불러오기 오류:', error);
     return;
@@ -24,43 +22,22 @@ window.loadOrders = async function () {
   renderOrders(data);
 };
 
-// 🔍 검색
-window.searchOrders = async function () {
-  const keyword = document.getElementById('searchInput').value.trim();
-  if (!keyword) return loadOrders();
-
-  const { data, error } = await supabase
-    .from('as_orders')
-    .select('*')
-    .or(`order_id.ilike.%${keyword}%,name.ilike.%${keyword}%`)
-    .eq('progress_stage', '대기')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('검색 오류:', error);
-    return;
-  }
-
-  renderOrders(data);
-};
-
-// 🧾 테이블 렌더링
 function renderOrders(orders) {
   const tbody = document.getElementById('orderBody');
   if (!orders.length) {
-    tbody.innerHTML = '<tr><td colspan="12">결과가 없습니다.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="13">결과가 없습니다.</td></tr>';
     return;
   }
 
   tbody.innerHTML = '';
   for (const order of orders) {
-    const faultDateBtn = `<button onclick="showModal('고장시기', '${escapeQuotes(extractMessageField(order.message, '고장시기'))}')">확인</button>`;
-    const faultDescBtn = `<button onclick="showModal('고장증상', '${escapeQuotes(extractMessageField(order.message, '고장증상'))}')">확인</button>`;
-    const requestBtn = `<button onclick="showModal('요청사항', '${escapeQuotes(extractMessageField(order.message, '요청사항'))}')">확인</button>`;
+    const faultDate = extractMessageField(order.message, '고장시기');
+    const faultDesc = escapeQuotes(extractMessageField(order.message, '고장증상'));
+    const request = escapeQuotes(extractMessageField(order.message, '요청사항'));
 
-    const receivedDate = order.status === '수리진행' ? `<div style='font-size:0.8em; color:#555;'>${order.status_updated_at?.split('T')[0]}</div>` : '';
-    const rowClass = order.status === '수리진행' ? 'style="background-color:#e0f8d8"' : '';
-    const buttonLabel = order.status === '수리진행' ? '수리진행' : '접수';
+    const receivedDate = order.status === '접수됨' ? `<div style='font-size:0.8em; color:#555;'>${order.status_updated_at?.split('T')[0]}</div>` : '';
+    const rowClass = order.status === '접수됨' ? 'style="background-color:#e0f8d8"' : '';
+    const buttonLabel = order.status === '접수됨' ? '수리진행' : '접수';
 
     const row = document.createElement('tr');
     row.setAttribute('data-order-id', order.order_id);
@@ -73,9 +50,9 @@ function renderOrders(orders) {
       <td>${order.email}</td>
       <td>${(order.product_name || '').split(' > ')[0] || ''}</td>
       <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
-      <td>${faultDateBtn}</td>
-      <td>${faultDescBtn}</td>
-      <td>${requestBtn}</td>
+      <td>${faultDate}</td>
+      <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
+      <td><button onclick="showModal('요청사항', '${request}')">확인</button></td>
       <td>
         <button onclick="toggleStatus('${order.order_id}', this)" ${rowClass}>${buttonLabel}</button>
         ${receivedDate}
@@ -85,43 +62,38 @@ function renderOrders(orders) {
   }
 }
 
-function escapeQuotes(str) {
-  return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
-}
-
 function extractMessageField(message, field) {
   if (!message) return '';
   const match = message.match(new RegExp(`${field}: ?([^\n]*)`));
   return match ? match[1].trim() : '';
 }
 
-// ✅ 상태 토글
-window.toggleStatus = async function (orderId, button) {
-  const currentLabel = button.textContent.trim();
-  const isReceived = currentLabel === '접수';
-  const newStatus = isReceived ? '수리진행' : '접수대기';
-  const newStage = isReceived ? 'processing' : 'received';
-  const newDate = isReceived ? new Date().toISOString() : null;
+function escapeQuotes(str) {
+  return String(str || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\"');
+}
 
-  const { error } = await supabase
-  .from('as_orders')
-  .update({
+window.toggleStatus = async function (orderId, btn) {
+  const current = btn.textContent.trim();
+  const newStatus = current === '접수' ? '수리진행' : '접수대기';
+  const update = {
     status: newStatus,
-    status_updated_at: newDate,
-    progress_stage: newStage
-  })
-  .eq('order_id', orderId);
+    status_updated_at: new Date().toISOString()
+  };
+  const { error } = await supabase
+    .from('as_orders')
+    .update(update)
+    .eq('order_id', orderId);
 
   if (error) {
-    console.error('상태 변경 오류:', error);
-    alert('상태 변경 중 오류 발생');
-    return;
+    console.error('상태 업데이트 실패:', error);
+  } else {
+    loadOrders();
   }
-
-  loadOrders();
 };
 
-// ❌ 삭제
 window.deleteOrder = async function (orderId) {
   if (!confirm('정말 삭제하시겠습니까?')) return;
 
@@ -139,28 +111,40 @@ window.deleteOrder = async function (orderId) {
   loadOrders();
 };
 
-function showModal(title, content) {
-  const modal = document.getElementById('modal');
-  const modalTitle = document.getElementById('modal-title');
-  const modalContent = document.getElementById('modal-content');
+// 모달 표시 함수
+window.showModal = function (title, content) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalContent').textContent = content;
+  document.getElementById('modal').style.display = 'block';
+};
 
-  modalTitle.textContent = title;
-  modalContent.textContent = content;
-  modal.style.display = 'block';
-}
-
-// 닫기 버튼
-document.getElementById('modal-close').onclick = function () {
+document.getElementById('modalClose').addEventListener('click', () => {
   document.getElementById('modal').style.display = 'none';
+});
+
+document.getElementById('searchInput')?.addEventListener('keypress', e => {
+  if (e.key === 'Enter') window.searchOrders();
+});
+
+window.searchOrders = async function () {
+  const keyword = document.getElementById('searchInput').value.trim();
+  if (!keyword) return loadOrders();
+
+  const { data, error } = await supabase
+    .from('as_orders')
+    .select('*')
+    .or(`order_id.ilike.%${keyword}%,name.ilike.%${keyword}%`)
+    .eq('status', '접수대기')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('검색 오류:', error);
+    return;
+  }
+
+  renderOrders(data);
 };
 
-// 외부 클릭 시 닫기
-window.onclick = function (e) {
-  const modal = document.getElementById('modal');
-  if (e.target === modal) modal.style.display = 'none';
-};
-
-// 🔐 로그아웃
 window.logout = async function () {
   const { error } = await supabase.auth.signOut();
   if (error) {
@@ -170,5 +154,4 @@ window.logout = async function () {
   }
 };
 
-// 페이지 로드시 데이터 불러오기
 loadOrders();
