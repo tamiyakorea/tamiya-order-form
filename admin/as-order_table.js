@@ -118,7 +118,7 @@ window.showModal = function (title, content) {
   document.getElementById('modal').style.display = 'block';
 };
 
-document.getElementById('modalClose').addEventListener('click', () => {
+document.getElementById('modal-close').addEventListener('click', () => {
   document.getElementById('modal').style.display = 'none';
 });
 
