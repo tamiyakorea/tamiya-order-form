@@ -197,6 +197,41 @@ searchInput.addEventListener("input", async () => {
   renderPaginationControls();
 });
 
+document.getElementById("detailSearchBtn").addEventListener("click", () => {
+  document.getElementById("detailSearchModal").style.display = "block";
+});
+
+document.getElementById("detailSearchExecute").addEventListener("click", async () => {
+  const input = document.getElementById("detailSearchInput").value;
+  const codes = input
+    .split("\n")
+    .map(line => line.trim().replace(/,$/, ''))
+    .filter(code => code.length > 0);
+
+  if (codes.length === 0) {
+    alert("제품코드를 입력하세요.");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("tamiya_items")
+    .select("*")
+    .in("item_code", codes.map(code => isNaN(code) ? code : Number(code)));
+
+  if (error) {
+    alert("상세검색 실패: " + error.message);
+    return;
+  }
+
+  originalData = JSON.parse(JSON.stringify(data));
+  editData = JSON.parse(JSON.stringify(data));
+  currentPage = 1;
+  totalPages = 1;
+  renderTable(editData);
+  renderPaginationControls();
+  document.getElementById("detailSearchModal").style.display = "none";
+});
+
 async function saveEdits() {
   for (const row of editData) {
     const original = originalData.find(r => String(r.item_code) === String(row.item_code));
