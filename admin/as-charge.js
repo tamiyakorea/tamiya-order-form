@@ -127,17 +127,28 @@ function bindEvents() {
       .eq('order_id', String(id));
 
     if (!error) {
+      // 텍스트 변경
       btn.textContent = confirmed ? '확인됨' : '미확인';
 
+      // 배경색 처리
       const row = btn.closest('tr');
       row.style.backgroundColor = confirmed ? '#e0f8d8' : '';
 
-      // 날짜 표시도 갱신
-      const dateElem = document.createElement('div');
-      dateElem.style.fontSize = '0.8em';
-      dateElem.style.color = '#555';
-      dateElem.textContent = confirmed ? new Date().toISOString().split('T')[0] : '';
-      btn.parentNode.appendChild(dateElem);
+      // 기존 날짜 텍스트 제거
+      const existingDate = btn.nextElementSibling;
+      if (existingDate && existingDate.classList.contains('payment-date')) {
+        existingDate.remove();
+      }
+
+      // 새로 날짜 추가
+      if (confirmed) {
+        const dateElem = document.createElement('div');
+        dateElem.className = 'payment-date';
+        dateElem.style.fontSize = '0.8em';
+        dateElem.style.color = '#555';
+        dateElem.textContent = new Date().toISOString().split('T')[0];
+        btn.parentNode.appendChild(dateElem);
+      }
     }
   });
 });
