@@ -120,7 +120,7 @@ function bindEvents() {
 
 // 모달 표시 함수
 window.showModal = function (title, content) {
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalContent').textContent = content;
+  document.getElementById('modal-Title').textContent = title;
+  document.getElementById('modal-Content').textContent = content;
   document.getElementById('modal').style.display = 'block';
 };
