@@ -1,18 +1,28 @@
-// 📦 Supabase 클라이언트 설정
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
 );
 
-window.addEventListener('DOMContentLoaded', loadChargeOrders);
+window.addEventListener('DOMContentLoaded', () => {
+  loadProgressOrders();
 
-async function loadChargeOrders() {
+  const closeBtn = document.getElementById('modalClose');
+  if (closeBtn) {
+    closeBtn.onclick = () => document.getElementById('modal').style.display = 'none';
+  }
+  window.onclick = (event) => {
+    if (event.target.id === 'modal') {
+      document.getElementById('modal').style.display = 'none';
+    }
+  };
+});
+
+async function loadProgressOrders() {
   const { data, error } = await supabase
     .from('as_orders')
     .select('*')
-    .eq('status', '청구대기')
+    .eq('status', '수리진행')
     .order('status_updated_at', { ascending: false });
 
   if (error) {
@@ -20,98 +30,129 @@ async function loadChargeOrders() {
     return;
   }
 
-  renderChargeTable(data);
+  renderProgressTable(data);
 }
 
-function renderChargeTable(orders) {
-  const tbody = document.getElementById('chargeBody');
+function renderProgressTable(orders) {
+  const tbody = document.getElementById('progressBody');
   tbody.innerHTML = '';
 
   for (const order of orders) {
-    const [category, product] = (order.product_name || '').split(' > ');
-    const faultDesc = escapeQuotes(extract(order.message, '고장증상'));
-
     const row = document.createElement('tr');
+    const [category, product] = (order.product_name || '').split(' > ');
+    const faultDate = extract(order.message, '고장시기');
+    const faultDesc = escapeQuotes(extract(order.message, '고장증상'));
+    const request = escapeQuotes(extract(order.message, '요청사항'));
+
     row.innerHTML = `
-      <td><button onclick="revertToProgress('${order.order_id}')">되돌리기</button></td>
+      <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
       <td>${order.status_updated_at?.split('T')[0] || ''}</td>
       <td>${order.name}</td>
-      <td><input type="text" value="${order.shipping_invoice || ''}" data-id="${order.order_id}" class="invoice-input" /></td>
-      <td><input type="text" value="${order.receipt_code || ''}" data-id="${order.order_id}" class="receipt-code-input" /></td>
       <td>${order.phone}</td>
       <td>${category || ''}</td>
       <td>${product || ''}</td>
+      <td>${faultDate}</td>
       <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
-      <td><input type="text" value="${order.repair_detail || ''}" data-id="${order.order_id}" class="repair-detail-input" /></td>
-      <td><input type="number" value="${order.repair_cost || ''}" data-id="${order.order_id}" class="repair-cost-input" /></td>
+      <td><button onclick="showModal('요청사항', '${request}')">확인</button></td>
+      <td><input type="text" value="${order.shipping_invoice || ''}" data-id="${order.order_id}" class="invoice-input" /></td>
+      <td><input type="text" value="${order.receipt_code || ''}" data-id="${order.order_id}" class="receipt-code-input" /></td>
       <td><input type="text" value="${order.note || ''}" data-id="${order.order_id}" class="note-input" /></td>
-      <td><button class="toggle-charge" data-id="${order.order_id}">${order.charge_status === '입금완료' ? '입금완료 ✅' : '입금대기'}</button></td>
-      <td><button onclick="markComplete('${order.order_id}')">배송완료</button></td>
+      <td>
+        <button class="process-btn" data-id="${order.order_id}">
+          ${order.processing_date ? '입고완료' : '입고처리'}
+        </button>
+        <div class="process-date" data-id="${order.order_id}">
+          ${order.processing_date ? formatDate(order.processing_date) : ''}
+        </div>
+      </td>
     `;
     tbody.appendChild(row);
   }
 
-  bindChargeEvents();
-}
-
-function extract(msg, field) {
-  if (!msg) return '';
-  const match = msg.match(new RegExp(`${field}: ?([^\n]*)`));
-  return match ? match[1].trim() : '';
+  bindUpdateEvents();
 }
 
 function escapeQuotes(str) {
-  return String(str || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
 
-function bindChargeEvents() {
-  document.querySelectorAll('.invoice-input').forEach(input => {
-    input.addEventListener('change', async e => {
-      const { id, value } = { id: e.target.dataset.id, value: e.target.value };
-      await supabase.from('as_orders').update({ shipping_invoice: value }).eq('order_id', id);
-    });
-  });
+function extract(message, label) {
+  if (!message) return '';
+  const match = message.match(new RegExp(`${label}: ?([^\n]*)`));
+  return match ? match[1].trim() : '';
+}
+
+function formatDate(date) {
+  return new Date(date).toISOString().split('T')[0];
+}
+
+function bindUpdateEvents() {
   document.querySelectorAll('.receipt-code-input').forEach(input => {
-    input.addEventListener('change', async e => {
-      const { id, value } = { id: e.target.dataset.id, value: e.target.value };
-      await supabase.from('as_orders').update({ receipt_code: value }).eq('order_id', id);
-    });
-  });
-  document.querySelectorAll('.repair-detail-input').forEach(input => {
-    input.addEventListener('change', async e => {
-      const { id, value } = { id: e.target.dataset.id, value: e.target.value };
-      await supabase.from('as_orders').update({ repair_detail: value }).eq('order_id', id);
-    });
-  });
-  document.querySelectorAll('.repair-cost-input').forEach(input => {
-    input.addEventListener('change', async e => {
-      const { id, value } = { id: e.target.dataset.id, value: Number(value) };
-      await supabase.from('as_orders').update({ repair_cost: value }).eq('order_id', id);
-    });
-  });
-  document.querySelectorAll('.note-input').forEach(input => {
-    input.addEventListener('change', async e => {
-      const { id, value } = { id: e.target.dataset.id, value: e.target.value };
-      await supabase.from('as_orders').update({ note: value }).eq('order_id', id);
-    });
-  });
-  document.querySelectorAll('.toggle-charge').forEach(button => {
-    button.addEventListener('click', async e => {
+    input.addEventListener('change', async (e) => {
       const orderId = e.target.dataset.id;
-      const newStatus = e.target.textContent.includes('입금완료') ? '입금대기' : '입금완료';
-      const now = newStatus === '입금완료' ? new Date().toISOString() : null;
-      await supabase.from('as_orders').update({ charge_status: newStatus, charge_updated_at: now }).eq('order_id', orderId);
-      loadChargeOrders();
+      const value = e.target.value;
+      await supabase.from('as_orders').update({ receipt_code: value }).eq('order_id', orderId);
+    });
+  });
+
+  document.querySelectorAll('.note-input').forEach(input => {
+    input.addEventListener('change', async (e) => {
+      const orderId = e.target.dataset.id;
+      const value = e.target.value;
+      await supabase.from('as_orders').update({ note: value }).eq('order_id', orderId);
+    });
+  });
+
+  document.querySelectorAll('.invoice-input').forEach(input => {
+    input.addEventListener('change', async (e) => {
+      const orderId = e.target.dataset.id;
+      const value = e.target.value;
+      await supabase.from('as_orders').update({ shipping_invoice: value }).eq('order_id', orderId);
+    });
+  });
+
+  document.querySelectorAll('.revert-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const orderId = btn.dataset.id;
+      const { error } = await supabase
+        .from('as_orders')
+        .update({ status: '접수대기', status_updated_at: null })
+        .eq('order_id', orderId);
+      if (!error) loadProgressOrders();
+    });
+  });
+
+  document.querySelectorAll('.process-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const orderId = btn.dataset.id;
+      const currentText = btn.textContent.trim();
+
+      if (currentText === '입고처리') {
+        const { error } = await supabase.from('as_orders')
+          .update({
+            status: '청구대기',
+            status_updated_at: new Date().toISOString(),
+            processing_date: new Date().toISOString()
+          })
+          .eq('order_id', orderId);
+        if (!error) loadProgressOrders();
+      } else {
+        const { error } = await supabase.from('as_orders')
+          .update({
+            status: '수리진행',
+            status_updated_at: new Date().toISOString(),
+            processing_date: null
+          })
+          .eq('order_id', orderId);
+        if (!error) loadProgressOrders();
+      }
     });
   });
 }
 
-window.revertToProgress = async function(orderId) {
-  await supabase.from('as_orders').update({ status: '수리진행', status_updated_at: new Date().toISOString() }).eq('order_id', orderId);
-  loadChargeOrders();
-};
-
-window.markComplete = async function(orderId) {
-  await supabase.from('as_orders').update({ status: '청구완료', status_updated_at: new Date().toISOString() }).eq('order_id', orderId);
-  loadChargeOrders();
+// 모달 출력 함수
+window.showModal = function (title, content) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalContent').textContent = content;
+  document.getElementById('modal').style.display = 'block';
 };
