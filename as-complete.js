@@ -120,7 +120,7 @@ function downloadPDF() {
 
 // ✅ 홈으로 이동
 function goHome() {
-  window.location.href = "/tamiya-order-form/as-order.html";
+  window.location.href = "https://order.kidult-hobby.co.kr/as-order.html";
 }
 
 // ✅ 전역 등록
