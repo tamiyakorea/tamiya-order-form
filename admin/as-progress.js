@@ -29,6 +29,15 @@ function renderProgressTable(orders) {
     const row = document.createElement('tr');
     const [category, product] = (order.product_name || '').split(' > ');
 
+    // ✅ 내용 추출
+    const faultDate = extract(order.message, '고장시기');
+    const faultDesc = escapeQuotes(extract(order.message, '고장증상'));
+    const request = escapeQuotes(extract(order.message, '요청사항'));
+
+    // ✅ 버튼 HTML로 구성
+    const faultDescBtn = `<button onclick="showModal('고장증상', '${faultDesc}')">확인</button>`;
+    const requestBtn = `<button onclick="showModal('요청사항', '${request}')">확인</button>`;
+
     row.innerHTML = `
       <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
       <td>${order.status_updated_at?.split('T')[0] || ''}</td>
@@ -36,9 +45,9 @@ function renderProgressTable(orders) {
       <td>${order.phone}</td>
       <td>${category || ''}</td>
       <td>${product || ''}</td>
-      <td>${extract(order.message, '고장시기')}</td>
-      <td>${extract(order.message, '고장증상')}</td>
-      <td>${extract(order.message, '요청사항')}</td>
+      <td>${faultDate}</td>
+      <td>${faultDescBtn}</td>
+      <td>${requestBtn}</td>
       <td><input type="text" value="${order.shipping_invoice || ''}" data-id="${order.order_id}" class="invoice-input" /></td>
       <td><input type="text" value="${order.receipt_code || ''}" data-id="${order.order_id}" class="receipt-code-input" /></td>
       <td><input type="text" value="${order.note || ''}" data-id="${order.order_id}" class="note-input" /></td>
@@ -56,6 +65,14 @@ function renderProgressTable(orders) {
 
   bindUpdateEvents();
 }
+
+function escapeQuotes(str) {
+  return String(str || '')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\"');
+}
+
 
 function extract(message, label) {
   if (!message) return '';
