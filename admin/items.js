@@ -100,34 +100,50 @@ async function loadData(page = 1) {
 
 function renderPaginationControls() {
   paginationContainer.innerHTML = "";
-  for (let i = 1; i <= totalPages; i++) {
-    const btn = document.createElement("button");
-    btn.textContent = i;
-    if (i === currentPage) btn.disabled = true;
-    btn.addEventListener("click", () => loadData(i));
-    paginationContainer.appendChild(btn);
-  }
+
+  // ◀️ 이전 버튼
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "◀ 이전";
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => loadData(currentPage - 1);
+  paginationContainer.appendChild(prevBtn);
+
+  // 🔢 페이지 정보
+  const pageInfo = document.createElement("span");
+  pageInfo.textContent = ` 페이지 ${currentPage} / ${totalPages} `;
+  pageInfo.style.margin = "0 10px";
+  paginationContainer.appendChild(pageInfo);
+
+  // ▶️ 다음 버튼
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "다음 ▶";
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.onclick = () => loadData(currentPage + 1);
+  paginationContainer.appendChild(nextBtn);
+
+  // 📥 페이지 입력창
+  const input = document.createElement("input");
+  input.type = "number";
+  input.min = 1;
+  input.max = totalPages;
+  input.placeholder = "이동할 페이지";
+  input.style.width = "80px";
+  input.style.marginLeft = "15px";
+  paginationContainer.appendChild(input);
+
+  // 🚀 이동 버튼
+  const goBtn = document.createElement("button");
+  goBtn.textContent = "이동";
+  goBtn.onclick = () => {
+    const page = parseInt(input.value);
+    if (!isNaN(page) && page >= 1 && page <= totalPages) {
+      loadData(page);
+    } else {
+      alert(`1부터 ${totalPages} 사이의 페이지 번호를 입력하세요.`);
+    }
+  };
+  paginationContainer.appendChild(goBtn);
 }
-
-searchInput.addEventListener("input", async () => {
-  const q = searchInput.value.trim().toLowerCase();
-  if (!q) return loadData(1); // 검색어 없을 경우 첫 페이지 로드
-
-  const { data, error } = await supabase
-    .from("tamiya_items")
-    .select("*")
-    .ilike("description", `%${q}%`)
-    .order("item_code");
-
-  if (error) return alert("검색 실패: " + error.message);
-
-  originalData = JSON.parse(JSON.stringify(data));
-  editData = JSON.parse(JSON.stringify(data));
-  totalPages = 1;
-  currentPage = 1;
-  renderTable(editData);
-  renderPaginationControls();
-});
 
 toggleEditBtn.addEventListener("click", () => {
   if (!isEditing) {
