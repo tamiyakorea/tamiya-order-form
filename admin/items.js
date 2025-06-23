@@ -172,6 +172,31 @@ confirmYes.addEventListener("click", async () => {
   await saveEdits();
 });
 
+searchInput.addEventListener("input", async () => {
+  const q = searchInput.value.trim();
+  if (!q) return loadData(1);
+
+  let query = supabase.from("tamiya_items").select("*").order("item_code");
+
+  if (/^\d+$/.test(q)) {
+    // 숫자일 경우 item_code 정수 검색
+    query = query.eq("item_code", Number(q));
+  } else {
+    // 문자열일 경우 description 부분검색
+    query = query.ilike("description", `%${q.toLowerCase()}%`);
+  }
+
+  const { data, error } = await query;
+  if (error) return alert("검색 실패: " + error.message);
+
+  originalData = JSON.parse(JSON.stringify(data));
+  editData = JSON.parse(JSON.stringify(data));
+  totalPages = 1;
+  currentPage = 1;
+  renderTable(editData);
+  renderPaginationControls();
+});
+
 async function saveEdits() {
   for (const row of editData) {
     const original = originalData.find(r => String(r.item_code) === String(row.item_code));
@@ -184,7 +209,7 @@ async function saveEdits() {
       if (error) alert(`${row.item_code} 업데이트 실패: ${error.message}`);
     }
   }
-  alert("✅ 저장 완료");
+  alert("저장 완료");
   isEditing = false;
   toggleEditBtn.textContent = "수정하기";
   deleteBtn.disabled = true;
@@ -234,7 +259,7 @@ addSave.addEventListener("click", async () => {
   if (!newItem.item_code || !newItem.description) return alert("제품코드와 제품명은 필수입니다.");
   const { error } = await supabase.from("tamiya_items").insert([newItem]);
   if (error) return alert("추가 실패: " + error.message);
-  alert("✅ 항목 추가 완료");
+  alert("항목 추가 완료");
   addModal.style.display = "none";
   editData.push(newItem);
   await saveEdits();
