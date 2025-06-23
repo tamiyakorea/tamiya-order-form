@@ -27,6 +27,7 @@ function renderCompletedTable(orders) {
 
   for (const order of orders) {
     const [category, product] = (order.product_name || '').split(' > ');
+
     const fields = {
       phone: order.phone,
       email: order.email,
@@ -39,7 +40,9 @@ function renderCompletedTable(orders) {
       code: order.receipt_code,
       note: order.note,
       repair_detail: order.repair_detail,
-      repair_cost: order.repair_cost
+      repair_cost: order.repair_cost,
+      shipped_invoice: order.shipping_invoice,
+      shipped_at: order.shipped_at?.split('T')[0] || ''
     };
 
     const row = document.createElement('tr');
@@ -59,14 +62,14 @@ function renderCompletedTable(orders) {
   bindEvents();
 }
 
+function escapeQuotes(str) {
+  return String(str || '').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/'/g, "\\'");
+}
+
 function extract(message, label) {
   if (!message) return '';
   const match = message.match(new RegExp(`${label}: ?([^\n]*)`));
   return match ? match[1].trim() : '';
-}
-
-function escapeQuotes(str) {
-  return String(str || '').replace(/\\/g, '\\\\').replace(/`/g, '\\`');
 }
 
 function getTitle(field) {
@@ -82,7 +85,9 @@ function getTitle(field) {
     code: '접수코드',
     note: '비고',
     repair_detail: '수리내역',
-    repair_cost: '수리비용'
+    repair_cost: '수리비용',
+    shipped_invoice: '송장번호',
+    shipped_at: '배송완료일'
   }[field] || field;
 }
 
