@@ -49,32 +49,42 @@
       </p>
     </section>
 
-    <!-- 고객 정보 입력 -->
-    <div id="form" class="section">
-      <h2>고객 정보 입력</h2>
-      <label for="customerName">성명</label>
-      <input id="customerName" type="text" placeholder="홍길동" />
-      <label for="phoneNumber">전화번호</label>
-      <input id="phoneNumber" type="text" placeholder="010-1234-5678" />
-      <label for="email">이메일 주소</label>
-      <input id="email" type="email" placeholder="example@example.com" />
-      <label for="zipcode">우편번호</label>
-      <div class="input-with-button">
-        <input id="zipcode" type="text" readonly placeholder="우편번호" />
-        <button onclick="execDaumPostcode()" type="button" class="button-search">검색</button>
-      </div>
-      <label for="address">주소</label>
-      <input id="address" type="text" readonly placeholder="도로명 주소" />
-      <label for="addressDetail">상세주소</label>
-      <input id="addressDetail" type="text" placeholder="상세 주소를 입력하세요" />
-      <label>
-        <input id="receiptRequested" type="checkbox" onchange="toggleCashReceipt()" /> 현금영수증 신청
-      </label>
-      <div id="cashReceiptSection" style="display:none;">
-        <label for="receiptInfo">현금영수증 정보</label>
-        <input id="receiptInfo" type="text" placeholder="010-1234-5678 또는 123-45-67890" />
-      </div>
-    </section>
+  <!-- 고객 정보 입력 -->
+<div id="form" class="section">
+  <h2>고객 정보 입력</h2>
+
+  <label for="customerName">성명</label>
+  <input id="customerName" type="text" placeholder="홍길동" />
+
+  <label for="phoneNumber">전화번호</label>
+  <input id="phoneNumber" type="text" placeholder="010-1234-5678" />
+
+  <label for="email">이메일 주소</label>
+  <input id="email" type="email" placeholder="example@example.com" />
+
+  <label for="zipcode">우편번호</label>
+  <div class="input-with-button">
+    <input id="zipcode" type="text" readonly placeholder="우편번호" />
+    <button onclick="execDaumPostcode()" type="button" class="button-search">검색</button>
+  </div>
+
+  <label for="address">주소</label>
+  <input id="address" type="text" readonly placeholder="도로명 주소" />
+
+  <label for="addressDetail">상세주소</label>
+  <input id="addressDetail" type="text" placeholder="상세 주소를 입력하세요" />
+
+  <label>
+    <input type="checkbox" id="receiptRequested" onchange="toggleCashReceipt()" />
+    현금영수증 발급 요청
+  </label>
+
+  <div id="receiptInfoWrapper" style="display: none;">
+    <label for="receiptInfo">현금영수증 정보</label>
+    <input type="text" id="receiptInfo" placeholder="전화번호 또는 사업자번호" />
+  </div>
+</div>
+
 
     <!-- 제품 찾기 -->
     <section class="section">
