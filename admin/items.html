@@ -53,9 +53,13 @@
     <a href="items.html" class="active">상품 DB 설정</a>
   </nav>
 
-  <div style="margin: 20px;">
-    <button id="toggleEditBtn">수정하기</button>
-  </div>
+
+  <div style="margin: 40px;">
+  <button id="toggleEditBtn">수정하기</button>
+  <button id="deleteSelectedBtn">선택 삭제</button>
+  <button id="addItemBtn">DB 추가</button>
+</div>
+
 
   <h1>타미야 상품 DB 설정</h1>
 
@@ -88,11 +92,7 @@
     <button id="confirmNo">아니오</button>
   </div>
 
-  <div style="margin: 20px;">
-  <button id="toggleEditBtn">수정하기</button>
-  <button id="deleteSelectedBtn">선택 삭제</button>
-  <button id="addItemBtn">DB 추가</button>
-</div>
+
 
 <!-- ✅ 삭제 확인 모달 -->
 <div id="deleteModal" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-30%); background:white; border:1px solid #ccc; padding:20px; z-index:999;">
