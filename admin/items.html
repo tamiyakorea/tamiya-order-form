@@ -64,8 +64,18 @@
   <h1>타미야 상품 DB 설정</h1>
 
   <div style="text-align:center;">
-    <input type="text" id="searchInput" placeholder="제품코드 또는 이름으로 검색" />
+    <!-- 검색창 옆에 상세검색 버튼 -->
+<input id="searchInput" type="text" placeholder="제품명 또는 코드 검색" />
+<button id="detailSearchBtn">상세검색</button>
   </div>
+
+<!-- 상세검색 모달 -->
+<div id="detailSearchModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ccc; padding:20px; z-index:1000;">
+  <p>쉼표(,)로 끝나는 제품코드를 여러 줄로 입력하세요:</p>
+  <textarea id="detailSearchInput" rows="10" cols="40" placeholder="예:&#10;10303,&#10;10304,&#10;10305,"></textarea><br />
+  <button id="detailSearchExecute">검색 실행</button>
+  <button onclick="document.getElementById('detailSearchModal').style.display='none'">닫기</button>
+</div>
 
   <div class="table-wrapper">
     <table id="itemsTable">
