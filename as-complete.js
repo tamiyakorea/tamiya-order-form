@@ -52,36 +52,68 @@ function formatDate(iso) {
 // ✅ PDF 다운로드
 function downloadPDF() {
   const doc = {
-    content: [
-      { text: "A/S 신청 확인서", style: "header" },
-      { text: " " },
-      { text: `주문번호: ${document.getElementById("orderId").textContent}` },
-      { text: `주문일시: ${document.getElementById("createdAt").textContent}` },
-      { text: `고객명: ${document.getElementById("name").textContent}` },
-      { text: `연락처: ${document.getElementById("phone").textContent}` },
-      { text: `이메일: ${document.getElementById("email").textContent}` },
-      { text: `주소: ${document.getElementById("address").textContent}` },
-      { text: " " },
-      {
-        ul: [
-          "A/S 신청이 정상적으로 접수되었습니다.",
-          "수리 요청품을 아래 주소로 보내주시기 바랍니다.",
-          "서울특별시 서초구 바우뫼로 215, 070-8671-7440, 수신자: SANWA A/S 담당자",
-          "수리 기간은 1개월 이상 소요될 수 있으며, 수리 완료 후 비용이 청구됩니다.",
+  content: [
+    { text: "A/S 신청 확인서", style: "header" },
+    { text: " " },
+
+    {
+      style: "infoTable",
+      table: {
+        widths: ['30%', '70%'],
+        body: [
+          ["주문번호", orderId],
+          ["주문일시", createdAt],
+          ["고객명", name],
+          ["연락처", phone],
+          ["이메일", email],
+          ["주소", address],
         ],
       },
-    ],
-    styles: {
-      header: {
-        fontSize: 18,
-        bold: true,
-        alignment: "center",
+      layout: "lightHorizontalLines"
+    },
+
+    { text: " ", margin: [0, 10] },
+
+    {
+      style: "noticeBox",
+      table: {
+        widths: ["*"],
+        body: [
+          [{
+            text: [
+              { text: "수리 요청 안내\n\n", bold: true, fontSize: 13 },
+              "A/S 신청이 정상적으로 접수되었습니다.\n",
+              "수리 요청품을 아래 주소로 보내주시기 바랍니다:\n\n",
+              "서울특별시 서초구 바우뫼로 215\n",
+              "070-8671-7440 / 수신자: SANWA A/S 담당자\n\n",
+              "수리 기간은 1개월 이상 소요될 수 있으며,\n수리 완료 후 비용이 청구됩니다."
+            ]
+          }]
+        ]
       },
+      layout: "noBorders"
+    }
+  ],
+  styles: {
+    header: {
+      fontSize: 20,
+      bold: true,
+      alignment: "center",
+      margin: [0, 10]
     },
-    defaultStyle: {
-      font: "NanumGothic",
+    infoTable: {
+      fontSize: 11,
+      margin: [0, 0, 0, 10]
     },
-  };
+    noticeBox: {
+      fontSize: 11,
+      margin: [0, 0, 0, 10]
+    }
+  },
+  defaultStyle: {
+    font: "NanumGothic"
+  }
+};
 
   pdfMake.createPdf(doc).download(`AS_${document.getElementById("orderId").textContent}.pdf`);
 }
