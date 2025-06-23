@@ -25,6 +25,8 @@ let originalData = [];
 let editData = [];
 let isEditing = false;
 
+deleteBtn.disabled = true;
+
 function escapeHTML(str) {
   if (typeof str !== 'string') str = String(str ?? '');
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -103,6 +105,7 @@ toggleEditBtn.addEventListener("click", () => {
   if (!isEditing) {
     isEditing = true;
     toggleEditBtn.textContent = "저장하기";
+    deleteBtn.disabled = false;
     renderTable(editData);
   } else {
     confirmModal.style.display = "block";
@@ -111,40 +114,40 @@ toggleEditBtn.addEventListener("click", () => {
 
 confirmNo.addEventListener("click", () => {
   isEditing = false;
-  editData = JSON.parse(JSON.stringify(originalData));
   toggleEditBtn.textContent = "수정하기";
+  deleteBtn.disabled = true;
   confirmModal.style.display = "none";
+  editData = JSON.parse(JSON.stringify(originalData));
   renderTable(editData);
 });
 
 confirmYes.addEventListener("click", async () => {
   confirmModal.style.display = "none";
-  isEditing = false;
-  toggleEditBtn.textContent = "수정하기";
+  await saveEdits();
+});
 
+async function saveEdits() {
   for (const row of editData) {
     const original = originalData.find(r => String(r.item_code) === String(row.item_code));
-    if (!original) continue;
-
     const updates = {};
     for (const key of ['description', 'order_unit_ctn', 'order_unit_pck', 'j_retail', 'price']) {
-      if (row[key] !== original[key]) {
-        updates[key] = row[key];
-      }
+      if (row[key] !== original[key]) updates[key] = row[key];
     }
-
     if (Object.keys(updates).length > 0) {
       const { error } = await supabase.from("tamiya_items").update(updates).eq("item_code", row.item_code);
-      if (error) alert(`🚨 ${row.item_code} 업데이트 실패: ${error.message}`);
+      if (error) alert(`${row.item_code} 업데이트 실패: ${error.message}`);
     }
   }
 
-  originalData = JSON.parse(JSON.stringify(editData));
-  renderTable(editData);
-  alert("수정사항 저장 완료!");
-});
+  alert("✅ 저장 완료");
+  isEditing = false;
+  toggleEditBtn.textContent = "수정하기";
+  deleteBtn.disabled = true;
+  await loadData();
+}
 
 deleteBtn.addEventListener("click", () => {
+  if (!isEditing) return;
   const checked = [...document.querySelectorAll('.row-check:checked')];
   if (!checked.length) return alert("삭제할 항목을 선택하세요.");
   deleteModal.style.display = "block";
@@ -156,11 +159,17 @@ deleteNo.addEventListener("click", () => {
 
 deleteYes.addEventListener("click", async () => {
   const checkedIds = [...document.querySelectorAll('.row-check:checked')].map(cb => cb.dataset.id);
-  const { error } = await supabase.from("tamiya_items").delete().in("item_code", checkedIds);
-  if (error) alert("삭제 실패: " + error.message);
-  else alert("삭제 완료");
+
+  // 삭제
+  const { error: deleteError } = await supabase.from("tamiya_items").delete().in("item_code", checkedIds);
+  if (deleteError) return alert("삭제 실패: " + deleteError.message);
+
+  // 나머지 수정 저장
+  editData = editData.filter(row => !checkedIds.includes(String(row.item_code)));
+  originalData = originalData.filter(row => !checkedIds.includes(String(row.item_code)));
+  await saveEdits();
+
   deleteModal.style.display = "none";
-  await loadData();
 });
 
 addBtn.addEventListener("click", () => {
@@ -190,7 +199,7 @@ addSave.addEventListener("click", async () => {
   if (error) {
     alert("추가 실패: " + error.message);
   } else {
-    alert("항목 추가 완료");
+    alert("✅ 항목 추가 완료");
     addModal.style.display = "none";
     await loadData();
   }
