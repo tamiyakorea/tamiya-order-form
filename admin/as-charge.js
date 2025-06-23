@@ -39,27 +39,33 @@ function renderChargeTable(orders) {
       row.style.backgroundColor = '#e0f8d8'; // 연두색
     }
 
+    // ✅ 먼저 선언되어야 함!
+    const paymentDateDisplay = order.payment_date
+      ? `<div style="font-size: 0.8em; color: #555;">${order.payment_date.split('T')[0]}</div>`
+      : '';
+
     row.innerHTML = `
-  <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
-  <td>${order.status_updated_at?.split('T')[0] || ''}</td>
-  <td>${order.name}</td>
-  <td>${order.shipping_invoice || ''}</td>
-  <td>${order.receipt_code || ''}</td>
-  <td>${order.phone || ''}</td>
-  <td>${category || ''}</td>
-  <td>${product || ''}</td>
-  <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
-  <td><input type="text" value="${repairDetail}" data-id="${order.order_id}" class="repair-input" /></td>
-  <td><input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" /></td>
-  <td>${note}</td>
-  <td>
-    <button class="toggle-payment" data-id="${order.order_id}">
-      ${order.payment_confirmed ? '확인됨' : '미확인'}
-    </button>
-    ${paymentDateDisplay}
-  </td>
-  <td><button class="complete-shipping" data-id="${order.order_id}">완료</button></td>
-`;
+      <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
+      <td>${order.status_updated_at?.split('T')[0] || ''}</td>
+      <td>${order.name}</td>
+      <td>${order.shipping_invoice || ''}</td>
+      <td>${order.receipt_code || ''}</td>
+      <td>${order.phone || ''}</td>
+      <td>${category || ''}</td>
+      <td>${product || ''}</td>
+      <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
+      <td><input type="text" value="${repairDetail}" data-id="${order.order_id}" class="repair-input" /></td>
+      <td><input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" /></td>
+      <td>${note}</td>
+      <td>
+        <button class="toggle-payment" data-id="${order.order_id}">
+          ${order.payment_confirmed ? '확인됨' : '미확인'}
+        </button>
+        ${paymentDateDisplay}
+      </td>
+      <td><button class="complete-shipping" data-id="${order.order_id}">완료</button></td>
+    `;
+
     tbody.appendChild(row);
   }
 
