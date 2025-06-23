@@ -131,16 +131,34 @@ const subcategories = {
 
 document.getElementById("category").addEventListener("change", function () {
   const selected = this.value;
-  const productSelect = document.getElementById("product");
-  productSelect.innerHTML = '<option value="">선택</option>';
+  const container = document.getElementById("product").parentElement;
 
-  if (subcategories[selected]) {
-    subcategories[selected].forEach(item => {
-      const option = document.createElement("option");
-      option.value = item;
-      option.textContent = item;
-      productSelect.appendChild(option);
-    });
+  // 기존 select 또는 input 제거
+  const old = document.getElementById("product");
+  if (old) old.remove();
+
+  if (selected === "기타") {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = "product";
+    input.placeholder = "모델명을 직접 입력하세요";
+    input.required = true;
+    container.appendChild(input);
+  } else {
+    const select = document.createElement("select");
+    select.id = "product";
+    select.innerHTML = '<option value="">선택</option>';
+
+    if (subcategories[selected]) {
+      subcategories[selected].forEach(item => {
+        const option = document.createElement("option");
+        option.value = item;
+        option.textContent = item;
+        select.appendChild(option);
+      });
+    }
+
+    container.appendChild(select);
   }
 });
 
