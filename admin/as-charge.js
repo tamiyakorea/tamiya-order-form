@@ -4,6 +4,8 @@ const supabase = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
 );
 
+let currentShippingOrderId = null;
+
 window.addEventListener('DOMContentLoaded', loadChargeOrders);
 
 async function loadChargeOrders() {
@@ -82,84 +84,47 @@ function bindEvents() {
   });
 
   document.querySelectorAll('.repair-input').forEach(input => {
-  input.addEventListener('change', async (e) => {
-    const id = e.target.dataset.id;
-    const val = e.target.value;
-    await supabase
-      .from('as_orders')
-      .update({ repair_detail: val })
-      .eq('order_id', String(id)); // 여기!
+    input.addEventListener('change', async (e) => {
+      const id = e.target.dataset.id;
+      const val = e.target.value;
+      await supabase.from('as_orders').update({ repair_detail: val }).eq('order_id', String(id));
+    });
   });
-});
 
   document.querySelectorAll('.cost-input').forEach(input => {
     input.addEventListener('change', async (e) => {
       const id = e.target.dataset.id;
       const val = e.target.value;
-      await supabase
-      .from('as_orders')
-      .update({ repair_detail: val })
-      .eq('order_id', String(id)); // 여기!
+      await supabase.from('as_orders').update({ repair_cost: val }).eq('order_id', String(id));
+    });
   });
-});
-
-  document.querySelectorAll('.note-input').forEach(input => {
-    input.addEventListener('change', async (e) => {
-      const id = e.target.dataset.id;
-      const val = e.target.value;
-      await supabase
-      .from('as_orders')
-      .update({ repair_detail: val })
-      .eq('order_id', String(id)); // 여기!
-  });
-});
 
   document.querySelectorAll('.toggle-payment').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const id = btn.dataset.id;
-    const current = btn.textContent.trim();
-    const confirmed = current === '확인됨' ? false : true;
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const current = btn.textContent.trim();
+      const confirmed = current === '확인됨' ? false : true;
 
-    const { error } = await supabase
-      .from('as_orders')
-      .update({ payment_confirmed: confirmed })
-      .eq('order_id', String(id));
+      const { error } = await supabase
+        .from('as_orders')
+        .update({ payment_confirmed: confirmed })
+        .eq('order_id', String(id));
 
-    if (!error) {
-      // 버튼 텍스트 변경
-      btn.textContent = confirmed ? '확인됨' : '미확인';
-
-      // 행 배경색 토글
-      const row = btn.closest('tr');
-      if (confirmed) {
-        row.style.backgroundColor = '#e0f8d8'; // 연두색
-      } else {
-        row.style.backgroundColor = ''; // 기본색으로 초기화
+      if (!error) {
+        btn.textContent = confirmed ? '확인됨' : '미확인';
+        const row = btn.closest('tr');
+        row.style.backgroundColor = confirmed ? '#e0f8d8' : '';
       }
-    }
+    });
   });
-});
-
 
   document.querySelectorAll('.complete-shipping').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const id = btn.dataset.id;
-
-    if (!confirm('이 주문을 A/S 처리 완료 상태로 이동하시겠습니까?')) return;
-
-    const { error } = await supabase
-      .from('as_orders')
-      .update({ status: '처리완료', status_updated_at: new Date().toISOString() })
-      .eq('order_id', id);
-
-    if (error) {
-      alert('처리 중 오류가 발생했습니다.');
-      console.error(error);
-    } else {
-      loadChargeOrders(); // 상태가 바뀌면 현재 목록에서 사라짐
-    }
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      openShippingModal(id);
+    });
   });
-});
+}
 
 // 모달 표시 함수
 window.showModal = function (title, content) {
@@ -173,5 +138,46 @@ document.getElementById('modal-close').addEventListener('click', () => {
 });
 
 document.getElementById('searchInput')?.addEventListener('keypress', e => {
-  if (e.key === 'Enter') window.searchOrders();
+  if (e.key === 'Enter') window.searchOrders?.();
+});
+
+// 배송완료 모달 관련
+function openShippingModal(orderId) {
+  currentShippingOrderId = orderId;
+  document.getElementById('inputInvoice').value = '';
+  document.getElementById('inputDate').valueAsDate = new Date();
+  document.getElementById('shippingModal').style.display = 'block';
+}
+
+function closeShippingModal() {
+  currentShippingOrderId = null;
+  document.getElementById('shippingModal').style.display = 'none';
+}
+
+document.getElementById('shippingConfirmBtn').addEventListener('click', async () => {
+  const invoice = document.getElementById('inputInvoice').value.trim();
+  const date = document.getElementById('inputDate').value;
+
+  if (!invoice || !date) {
+    alert('송장번호와 날짜를 모두 입력해주세요.');
+    return;
+  }
+
+  const { error } = await supabase
+    .from('as_orders')
+    .update({
+      status: '처리완료',
+      status_updated_at: new Date().toISOString(),
+      shipped_at: date,
+      shipping_invoice: invoice
+    })
+    .eq('order_id', currentShippingOrderId);
+
+  if (error) {
+    alert('업데이트 중 오류가 발생했습니다.');
+    console.error(error);
+  } else {
+    closeShippingModal();
+    loadChargeOrders();
+  }
 });
