@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>SANWA A/S 신청 정보 확인</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <script src="fonts/NanumGothic.js"></script>
+  <script>
+    pdfMake.vfs = { ...pdfMake.vfs, ...NanumGothicVFS };
+    pdfMake.fonts = {
+      NanumGothic: {
+        normal: 'NanumGothic.ttf',
+        bold: 'NanumGothic.ttf',
+        italics: 'NanumGothic.ttf',
+        bolditalics: 'NanumGothic.ttf'
+      }
+    };
+  </script>
+</head>
+<body>
+
+  <div style="text-align: center; padding: 10px 0; background-color: white;">
+  <img src="images/logo.png" alt="한국타미야 로고" style="height: 90px;" />
+</div>
+  
+  <main>
+    <h1>A/S 신청 안내</h1>
+    <div class="section">
+      <p>A/S 신청이 정상적으로 접수되었습니다. 아래 주소 정보를 확인하신 후,
+      <span class="highlight">수리요청품을 보내주시기 바랍니다.</span></p>
+
+      <h3>보내시는 곳</h3>
+      <ul>
+        <li>주소: 서울특별시 서초구 바우뫼로 215</li>
+        <li>연락처:070-8671-7440</li>
+        <li>받는사람: SANWA A/S 담당자</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h3>A/S 진행 안내</h3>
+      <ul>
+        <li><span class="highlight">접수된 수리 요청품이 도착하면 배송 중 이상이 없는지 확인한 뒤, 제조사로 전달됩니다.</span></li>
+        <li>수리 완료까지 1개월 이상 소요될 수 있습니다.</li>
+        <li>신청자 정보를 바탕으로 안내가 진행되며, 이로인해 발생하는 문제에 대하여 당사는 일체 책임을 지지 않습니다.</li>
+        <li>SANWA정책으로 인하여, 수리가 완료된 뒤 발생비용이 청구됩니다. 수리 전 비용확인이 어려운점 양해 부탁드립니다.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>주문 정보</h2>
+      <p><strong>주문번호:</strong> <span class="highlight" id="orderId"></span></p>
+      <p><strong>주문일시:</strong> <span id="createdAt"></span></p>
+
+      <div id="orderResult">
+        <p><strong>고객명:</strong> <span id="name"></span></p>
+        <p><strong>연락처:</strong> <span id="phone"></span></p>
+        <p><strong>이메일:</strong> <span id="email"></span></p>
+        <p><strong>주소:</strong> <span id="address"></span></p>
+      </div>
+
+      <div id="orderTableContainer"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="confirm" onclick="goHome()">홈으로 돌아가기</button>
+      <button class="confirm" onclick="downloadPDF()">PDF로 저장</button>
+    </div>
+  </main>
+
+  <footer style="width: 100%; background-color: #2b2b2f; color: #aaa; padding: 20px 0; font-size: 0.85em; line-height: 1.6;">
+  <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+    <div style="display: flex; justify-content: center; align-items: flex-start; gap: 15px; flex-wrap: wrap;">
+      <img src="images/TamiyaPlamodelFactory.png" alt="한국타미야 로고" style="height: 80px; object-fit: contain;" />
+      <div style="text-align: left; min-width: 250px;">
+        <strong>TEL.</strong> 02-572-5353<br />
+        평일 오전 10:00 ~ 오후 16:00<br />
+        점심시간 오후 12:00 ~ 오후 13:00<br />
+        주말 및 공휴일 휴무
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <div style="margin-bottom: 10px;">
+        <strong>상호</strong> : (주)한국키덜트하비 |
+        <strong>대표자(성명)</strong> : 안진영 |
+        <strong>사업자 등록번호</strong> : 264-88-01483 |
+        <strong>통신판매업 신고</strong> : 2019-서울서초-1752 |
+        <a href="https://www.ftc.go.kr/bizCommPop.do?wrkr_no=2648801483" target="_blank" style="color: #aaa; text-decoration: underline;">사업자 정보 조회</a>
+      </div>
+      <div style="margin-bottom: 10px;">
+        <strong>전화</strong> : 02-572-5353 |
+        <strong>팩스</strong> : 02-572-1177 |
+        <strong>주소</strong> : 서울특별시 서초구 바우뫼로 215
+      </div>
+      <div style="margin-bottom: 10px;">
+        <strong>개인정보보호책임자</strong> : (주)한국키덜트하비 | 
+        <strong>E-mail 문의</strong> : 
+        <a href="mailto:webmaster@tamiya.co.kr" style="color: #aaa; text-decoration: underline;">webmaster@tamiya.co.kr</a>
+      </div>
+      <div style="margin-top: 10px;">
+        copyright (c) kidult-hobby.co.kr all rights reserved.
+      </div>
+    </div>
+  </div>
+</footer>
