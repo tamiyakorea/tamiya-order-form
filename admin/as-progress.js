@@ -4,75 +4,51 @@ const supabase = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
 );
 
-window.addEventListener('DOMContentLoaded', loadProgressOrders);
+window.addEventListener('DOMContentLoaded', loadChargeOrders);
 
-async function loadProgressOrders() {
+async function loadChargeOrders() {
   const { data, error } = await supabase
-  .from('as_orders')
-  .select('*')
-  .eq('status', '수리진행')
-  .order('status_updated_at', { ascending: false });
+    .from('as_orders')
+    .select('*')
+    .eq('status', '청구대기')
+    .order('status_updated_at', { ascending: false });
 
   if (error) {
     console.error('불러오기 오류:', error);
     return;
   }
 
-  renderProgressTable(data);
+  renderChargeTable(data);
 }
 
-function renderProgressTable(orders) {
-  const tbody = document.getElementById('progressBody');
+function renderChargeTable(orders) {
+  const tbody = document.getElementById('chargeBody');
   tbody.innerHTML = '';
 
   for (const order of orders) {
-    const row = document.createElement('tr');
     const [category, product] = (order.product_name || '').split(' > ');
 
-    // ✅ 내용 추출
-    const faultDate = extract(order.message, '고장시기');
-    const faultDesc = escapeQuotes(extract(order.message, '고장증상'));
-    const request = escapeQuotes(extract(order.message, '요청사항'));
-
-    // ✅ 버튼 HTML로 구성
-    const faultDescBtn = `<button onclick="showModal('고장증상', '${faultDesc}')">확인</button>`;
-    const requestBtn = `<button onclick="showModal('요청사항', '${request}')">확인</button>`;
-
+    const row = document.createElement('tr');
     row.innerHTML = `
       <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
       <td>${order.status_updated_at?.split('T')[0] || ''}</td>
       <td>${order.name}</td>
+      <td><input type="text" class="invoice-input" data-id="${order.order_id}" value="${order.shipping_invoice || ''}" /></td>
+      <td><input type="text" class="receipt-input" data-id="${order.order_id}" value="${order.receipt_code || ''}" /></td>
       <td>${order.phone}</td>
-      <td>${category || ''}</td>
-      <td>${product || ''}</td>
-      <td>${faultDate}</td>
-      <td>${faultDescBtn}</td>
-      <td>${requestBtn}</td>
-      <td><input type="text" value="${order.shipping_invoice || ''}" data-id="${order.order_id}" class="invoice-input" /></td>
-      <td><input type="text" value="${order.receipt_code || ''}" data-id="${order.order_id}" class="receipt-code-input" /></td>
-      <td><input type="text" value="${order.note || ''}" data-id="${order.order_id}" class="note-input" /></td>
-      <td>
-        <button class="process-btn" data-id="${order.order_id}">
-          ${order.processing_date ? '입고완료' : '입고처리'}
-        </button>
-        <div class="process-date" data-id="${order.order_id}">
-          ${order.processing_date ? formatDate(order.processing_date) : ''}
-        </div>
-      </td>
+      <td>${category || ''} / ${product || ''}</td>
+      <td><button onclick="showModal('고장증상', '${escapeQuotes(extract(order.message, '고장증상'))}')">확인</button></td>
+      <td><input type="text" class="repair-input" data-id="${order.order_id}" value="${order.repair_content || ''}" /></td>
+      <td><input type="text" class="cost-input" data-id="${order.order_id}" value="${order.repair_cost || ''}" /></td>
+      <td><input type="text" class="note-input" data-id="${order.order_id}" value="${order.note || ''}" /></td>
+      <td><button class="toggle-paid-btn" data-id="${order.order_id}">${order.is_paid ? '입금확인됨' : '입금확인'}</button></td>
+      <td><button class="complete-btn" data-id="${order.order_id}">배송완료</button></td>
     `;
     tbody.appendChild(row);
   }
 
-  bindUpdateEvents();
+  bindEvents();
 }
-
-function escapeQuotes(str) {
-  return String(str || '')
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "\\'")
-    .replace(/"/g, '\\"');
-}
-
 
 function extract(message, label) {
   if (!message) return '';
@@ -80,75 +56,68 @@ function extract(message, label) {
   return match ? match[1].trim() : '';
 }
 
-function formatDate(date) {
-  return new Date(date).toISOString().split('T')[0];
+function escapeQuotes(str) {
+  return String(str || '').replace(/'/g, "\'").replace(/"/g, '\"');
 }
 
-function bindUpdateEvents() {
-  document.querySelectorAll('.receipt-code-input').forEach(input => {
-    input.addEventListener('change', async (e) => {
-      const orderId = e.target.dataset.id;
-      const value = e.target.value;
-      await supabase.from('as_orders').update({ receipt_code: value }).eq('order_id', orderId);
-    });
-  });
-
-  document.querySelectorAll('.note-input').forEach(input => {
-    input.addEventListener('change', async (e) => {
-      const orderId = e.target.dataset.id;
-      const value = e.target.value;
-      await supabase.from('as_orders').update({ note: value }).eq('order_id', orderId);
-    });
-  });
-
-document.querySelectorAll('.invoice-input').forEach(input => {
-  input.addEventListener('change', async (e) => {
-    const orderId = e.target.dataset.id;
-    const value = e.target.value;
-    await supabase.from('as_orders').update({ shipping_invoice: value }).eq('order_id', orderId);
-  });
-});
-
-    document.querySelectorAll('.revert-btn').forEach(btn => {
+function bindEvents() {
+  document.querySelectorAll('.revert-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const orderId = btn.dataset.id;
-      const { error } = await supabase
-        .from('as_orders')
-        .update({ status: '접수대기', status_updated_at: null })
-        .eq('order_id', orderId);
-
-      if (!error) loadProgressOrders(); // 새로고침
+      await supabase.from('as_orders').update({ status: '수리진행', status_updated_at: new Date().toISOString() }).eq('order_id', orderId);
+      loadChargeOrders();
     });
   });
 
-document.querySelectorAll('.process-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    console.log("✅ 입고처리 버튼 클릭됨");
-
-    const orderId = btn.dataset.id;
-    const currentText = btn.textContent;
-
-      if (currentText === '입고처리') {
-        const { error } = await supabase.from('as_orders')
-          .update({
-            status: '청구대기',
-            status_updated_at: new Date().toISOString(),
-            processing_date: new Date().toISOString()
-          })
-          .eq('order_id', orderId);
-
-        if (!error) loadProgressOrders();
-      } else {
-        const { error } = await supabase.from('as_orders')
-          .update({
-            status: '수리진행',
-            status_updated_at: new Date().toISOString(),
-            processing_date: null
-          })
-          .eq('order_id', orderId);
-
-        if (!error) loadProgressOrders();
+  document.querySelectorAll('.invoice-input, .receipt-input, .repair-input, .cost-input, .note-input').forEach(input => {
+    input.addEventListener('change', async (e) => {
+      const { classList, dataset, value } = e.target;
+      const orderId = dataset.id;
+      const columnMap = {
+        'invoice-input': 'shipping_invoice',
+        'receipt-input': 'receipt_code',
+        'repair-input': 'repair_content',
+        'cost-input': 'repair_cost',
+        'note-input': 'note'
+      };
+      const column = [...classList].find(c => columnMap[c]);
+      if (column) {
+        await supabase.from('as_orders').update({ [columnMap[column]]: value }).eq('order_id', orderId);
       }
     });
   });
-} // ✅ 이 중괄호가 누락되어 있었음
+
+  document.querySelectorAll('.toggle-paid-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const orderId = btn.dataset.id;
+      const isPaid = btn.textContent.includes('확인됨');
+      await supabase.from('as_orders').update({ is_paid: !isPaid }).eq('order_id', orderId);
+      loadChargeOrders();
+    });
+  });
+
+  document.querySelectorAll('.complete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const orderId = btn.dataset.id;
+      await supabase.from('as_orders').update({ status: '배송완료', status_updated_at: new Date().toISOString() }).eq('order_id', orderId);
+      loadChargeOrders();
+    });
+  });
+}
+
+// 모달 함수
+window.showModal = function (title, content) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalContent').textContent = content;
+  document.getElementById('modal').style.display = 'block';
+};
+
+document.getElementById('modalClose').onclick = function () {
+  document.getElementById('modal').style.display = 'none';
+};
+
+window.onclick = function (event) {
+  if (event.target.id === 'modal') {
+    document.getElementById('modal').style.display = 'none';
+  }
+};
