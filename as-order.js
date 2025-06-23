@@ -50,7 +50,7 @@ function generateOrderNumber() {
   const MM = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
   const random = Math.floor(1000 + Math.random() * 9000);
-  return `AS${yyyy}${MM}${dd}${random}`;
+  return Number(`${yyyy}${MM}${dd}${random}`);  // ✅ 숫자형 반환
 }
 
 // 📤 신청서 제출
