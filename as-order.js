@@ -79,3 +79,13 @@ function generateOrderNumber() {
     String(now.getSeconds()).padStart(2, "0")
   );
 }
+
+window.execDaumPostcode = function () {
+  new daum.Postcode({
+    oncomplete: function (data) {
+      document.getElementById('zipcode').value = data.zonecode;
+      document.getElementById('address').value = data.roadAddress;
+      document.getElementById('addressDetail').focus();
+    }
+  }).open();
+};
