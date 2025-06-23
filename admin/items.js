@@ -141,7 +141,7 @@ confirmYes.addEventListener("click", async () => {
 
   originalData = JSON.parse(JSON.stringify(editData));
   renderTable(editData);
-  alert("✅ 수정사항 저장 완료!");
+  alert("수정사항 저장 완료!");
 });
 
 deleteBtn.addEventListener("click", () => {
@@ -158,7 +158,7 @@ deleteYes.addEventListener("click", async () => {
   const checkedIds = [...document.querySelectorAll('.row-check:checked')].map(cb => cb.dataset.id);
   const { error } = await supabase.from("tamiya_items").delete().in("item_code", checkedIds);
   if (error) alert("삭제 실패: " + error.message);
-  else alert("✅ 삭제 완료");
+  else alert("삭제 완료");
   deleteModal.style.display = "none";
   await loadData();
 });
@@ -190,7 +190,7 @@ addSave.addEventListener("click", async () => {
   if (error) {
     alert("추가 실패: " + error.message);
   } else {
-    alert("✅ 항목 추가 완료");
+    alert("항목 추가 완료");
     addModal.style.display = "none";
     await loadData();
   }
