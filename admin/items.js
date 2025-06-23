@@ -26,6 +26,7 @@ let editData = [];
 let isEditing = false;
 
 deleteBtn.disabled = true;
+addBtn.disabled = true;
 
 function escapeHTML(str) {
   if (typeof str !== 'string') str = String(str ?? '');
@@ -106,6 +107,7 @@ toggleEditBtn.addEventListener("click", () => {
     isEditing = true;
     toggleEditBtn.textContent = "저장하기";
     deleteBtn.disabled = false;
+    addBtn.disabled = false;
     renderTable(editData);
   } else {
     confirmModal.style.display = "block";
@@ -116,6 +118,7 @@ confirmNo.addEventListener("click", () => {
   isEditing = false;
   toggleEditBtn.textContent = "수정하기";
   deleteBtn.disabled = true;
+  addBtn.disabled = true;
   confirmModal.style.display = "none";
   editData = JSON.parse(JSON.stringify(originalData));
   renderTable(editData);
@@ -143,6 +146,7 @@ async function saveEdits() {
   isEditing = false;
   toggleEditBtn.textContent = "수정하기";
   deleteBtn.disabled = true;
+  addBtn.disabled = true;
   await loadData();
 }
 
@@ -160,19 +164,18 @@ deleteNo.addEventListener("click", () => {
 deleteYes.addEventListener("click", async () => {
   const checkedIds = [...document.querySelectorAll('.row-check:checked')].map(cb => cb.dataset.id);
 
-  // 삭제
   const { error: deleteError } = await supabase.from("tamiya_items").delete().in("item_code", checkedIds);
   if (deleteError) return alert("삭제 실패: " + deleteError.message);
 
-  // 나머지 수정 저장
   editData = editData.filter(row => !checkedIds.includes(String(row.item_code)));
   originalData = originalData.filter(row => !checkedIds.includes(String(row.item_code)));
-  await saveEdits();
 
+  await saveEdits();
   deleteModal.style.display = "none";
 });
 
 addBtn.addEventListener("click", () => {
+  if (!isEditing) return;
   addModal.style.display = "block";
 });
 
@@ -198,11 +201,14 @@ addSave.addEventListener("click", async () => {
   const { error } = await supabase.from("tamiya_items").insert([newItem]);
   if (error) {
     alert("추가 실패: " + error.message);
-  } else {
-    alert("✅ 항목 추가 완료");
-    addModal.style.display = "none";
-    await loadData();
+    return;
   }
+
+  alert("✅ 항목 추가 완료");
+  addModal.style.display = "none";
+
+  editData.push(newItem); // 임시 반영
+  await saveEdits(); // 추가 저장 및 수정모드 종료
 });
 
 loadData();
