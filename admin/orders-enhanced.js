@@ -384,7 +384,6 @@ window.addEventListener("DOMContentLoaded", () => {
   document.querySelector("button[onclick*='downloadSelectedOrders']")?.addEventListener("click", downloadSelectedOrders);
 });
 
-
 Object.assign(window, {
   logout,
   searchOrders,
@@ -395,6 +394,8 @@ Object.assign(window, {
   updateField,
   updateFieldByItem,
   confirmEditSave, 
+  applyOrderEdit,
   togglePayment,
+  cancelEdit,
   markAsOrdered // ✅ 추가
 });
