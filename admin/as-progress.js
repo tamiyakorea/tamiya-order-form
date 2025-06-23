@@ -121,16 +121,34 @@ document.querySelectorAll('.invoice-input').forEach(input => {
     });
   });
 
-  document.querySelectorAll('.process-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const orderId = btn.dataset.id;
-      const currentDate = new Date().toISOString();
+document.querySelectorAll('.process-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const orderId = btn.dataset.id;
+    const currentText = btn.textContent;
 
-      const currentText = btn.textContent;
-      const newDate = currentText === '입고처리' ? currentDate : null;
+    if (currentText === '입고처리') {
+      // ✅ 상태: 수리진행 → 청구대기 + 입고처리일 저장
+      const { error } = await supabase.from('as_orders')
+        .update({
+          status: '청구대기',
+          status_updated_at: new Date().toISOString(),
+          processing_date: new Date().toISOString()
+        })
+        .eq('order_id', orderId);
 
-      const { error } = await supabase.from('as_orders').update({ processing_date: newDate }).eq('order_id', orderId);
       if (!error) loadProgressOrders();
-    });
+    } else {
+      // ✅ 상태: 청구대기 → 수리진행 (되돌리기)
+      const { error } = await supabase.from('as_orders')
+        .update({
+          status: '수리진행',
+          status_updated_at: new Date().toISOString(),
+          processing_date: null
+        })
+        .eq('order_id', orderId);
+
+      if (!error) loadProgressOrders();
+    }
   });
-}
+});
+
