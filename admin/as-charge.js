@@ -78,28 +78,37 @@ function bindEvents() {
   });
 
   document.querySelectorAll('.repair-input').forEach(input => {
-    input.addEventListener('change', async (e) => {
-      const id = e.target.dataset.id;
-      const val = e.target.value;
-      await supabase.from('as_orders').update({ repair_detail: val }).eq('order_id', id);
-    });
+  input.addEventListener('change', async (e) => {
+    const id = e.target.dataset.id;
+    const val = e.target.value;
+    await supabase
+      .from('as_orders')
+      .update({ repair_detail: val })
+      .eq('order_id', String(id)); // 여기!
   });
+});
 
   document.querySelectorAll('.cost-input').forEach(input => {
     input.addEventListener('change', async (e) => {
       const id = e.target.dataset.id;
       const val = e.target.value;
-      await supabase.from('as_orders').update({ repair_cost: val }).eq('order_id', id);
-    });
+      await supabase
+      .from('as_orders')
+      .update({ repair_detail: val })
+      .eq('order_id', String(id)); // 여기!
   });
+});
 
   document.querySelectorAll('.note-input').forEach(input => {
     input.addEventListener('change', async (e) => {
       const id = e.target.dataset.id;
       const val = e.target.value;
-      await supabase.from('as_orders').update({ note: val }).eq('order_id', id);
-    });
+      await supabase
+      .from('as_orders')
+      .update({ repair_detail: val })
+      .eq('order_id', String(id)); // 여기!
   });
+});
 
   document.querySelectorAll('.toggle-payment').forEach(btn => {
     btn.addEventListener('click', async () => {
