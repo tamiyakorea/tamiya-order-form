@@ -33,6 +33,10 @@ function renderChargeTable(orders) {
     const note = order.note || '';
 
     const row = document.createElement('tr');
+    if (order.payment_confirmed) {
+      row.style.backgroundColor = '#e0f8d8'; // 연두색
+    }
+
     row.innerHTML = `
       <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
       <td>${order.status_updated_at?.split('T')[0] || ''}</td>
@@ -111,14 +115,31 @@ function bindEvents() {
 });
 
   document.querySelectorAll('.toggle-payment').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const id = btn.dataset.id;
-      const current = btn.textContent.trim();
-      const confirmed = current === '확인됨' ? false : true;
-      const { error } = await supabase.from('as_orders').update({ payment_confirmed: confirmed }).eq('order_id', id);
-      if (!error) loadChargeOrders();
-    });
+  btn.addEventListener('click', async () => {
+    const id = btn.dataset.id;
+    const current = btn.textContent.trim();
+    const confirmed = current === '확인됨' ? false : true;
+
+    const { error } = await supabase
+      .from('as_orders')
+      .update({ payment_confirmed: confirmed })
+      .eq('order_id', String(id));
+
+    if (!error) {
+      // 버튼 텍스트 변경
+      btn.textContent = confirmed ? '확인됨' : '미확인';
+
+      // 행 배경색 토글
+      const row = btn.closest('tr');
+      if (confirmed) {
+        row.style.backgroundColor = '#e0f8d8'; // 연두색
+      } else {
+        row.style.backgroundColor = ''; // 기본색으로 초기화
+      }
+    }
   });
+});
+
 
   document.querySelectorAll('.complete-shipping').forEach(btn => {
     btn.addEventListener('click', () => {
