@@ -394,6 +394,7 @@ Object.assign(window, {
   downloadSelectedOrders,
   updateField,
   updateFieldByItem,
+  confirmEditSave, 
   togglePayment,
   markAsOrdered // ✅ 추가
 });
