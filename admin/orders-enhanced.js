@@ -390,6 +390,7 @@ Object.assign(window, {
   searchOrders,
   loadOrders,
   deleteOrder,
+  openEditOrderModal,
   downloadSelectedOrders,
   updateField,
   updateFieldByItem,
