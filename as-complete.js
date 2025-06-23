@@ -87,3 +87,6 @@ function downloadPDF() {
 // ✅ 전역 등록
 window.goHome = goHome;
 window.downloadPDF = downloadPDF;
+
+console.log("🔍 전달받은 orderId:", orderId);
+console.log("🔍 Supabase 응답:", data, error);
