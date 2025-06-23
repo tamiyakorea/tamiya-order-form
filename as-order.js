@@ -110,7 +110,7 @@ window.confirmOrder = async function () {
 
     if (response.ok) {
       alert("신청이 완료되었습니다! 신청번호: " + orderId);
-      window.location.href = "as-confirm.html?orderId=" + orderId;
+      window.location.href = "as-complete.html?orderId=" + orderId;
     } else {
       const res = await response.json();
       console.error("저장 오류:", res.error);
