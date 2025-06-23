@@ -5,11 +5,10 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E"
 );
 
-// ✅ URL 파라미터에서 orderId 추출
+// 🔍 주문번호 추출
 const urlParams = new URLSearchParams(window.location.search);
-const orderId = urlParams.get("orderId");
-
-console.log("🔍 전달된 orderId:", orderId);
+const orderIdRaw = urlParams.get("orderId");
+const orderId = orderIdRaw; // string 그대로
 
 if (!orderId || isNaN(Number(orderId))) {
   alert("잘못된 접근입니다. 주문번호가 없습니다.");
@@ -17,42 +16,39 @@ if (!orderId || isNaN(Number(orderId))) {
   loadOrder(orderId);
 }
 
-// ✅ 주문 정보 불러오기
+// ✅ 주문 데이터 불러오기
 async function loadOrder(orderId) {
   const { data, error } = await supabase
     .from("as_orders")
     .select("*")
-    .eq("order_id", orderId) // ← 문자열 그대로
-    .maybeSingle();
+    .eq("order_id", orderId)
+    .maybeSingle(); // ← 오류 방지용
 
-  console.log("📦 불러온 주문 데이터:", data);
+  console.log("🔍 응답 데이터:", data);
   console.log("❗ 오류:", error);
 
   if (error || !data) {
-    alert("주문 정보를 불러오지 못했습니다.");
+    alert("A/S 신청 정보를 불러오지 못했습니다.");
     return;
   }
 
+  // ✅ 출력
   document.getElementById("orderId").textContent = data.order_id;
   document.getElementById("createdAt").textContent = formatDate(data.created_at);
-  document.getElementById("name").textContent = data.name || "";
-  document.getElementById("phone").textContent = data.phone || "";
-  document.getElementById("email").textContent = data.email || "";
-  document.getElementById("address").textContent = `${data.zipcode || ""} ${data.address || ""} ${data.address_detail || ""}`;
+  document.getElementById("name").textContent = data.name || "-";
+  document.getElementById("phone").textContent = data.phone || "-";
+  document.getElementById("email").textContent = data.email || "-";
+  document.getElementById("address").textContent =
+    `${data.zipcode || ''} ${data.address || ''} ${data.address_detail || ''}`;
 }
 
-// ✅ 날짜 포맷
+// ✅ 날짜 포맷 함수
 function formatDate(iso) {
   const d = new Date(iso);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// ✅ 홈으로 이동
-function goHome() {
-  window.location.href = "/tamiya-order-form/as-order.html";
-}
-
-// ✅ PDF 저장
+// ✅ PDF 다운로드
 function downloadPDF() {
   const doc = {
     content: [
@@ -89,7 +85,11 @@ function downloadPDF() {
   pdfMake.createPdf(doc).download(`AS_${document.getElementById("orderId").textContent}.pdf`);
 }
 
+// ✅ 홈으로 이동
+function goHome() {
+  window.location.href = "/tamiya-order-form/as-order.html";
+}
+
 // ✅ 전역 등록
 window.goHome = goHome;
 window.downloadPDF = downloadPDF;
-
