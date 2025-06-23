@@ -147,12 +147,17 @@ function bindUpdateEvents() {
   });
 }
 
+// 모달 표시 함수
 window.showModal = function (title, content) {
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-content').textContent = content;
   document.getElementById('modal').style.display = 'block';
 };
 
-document.getElementById('modalClose')?.addEventListener('click', () => {
+document.getElementById('modal-close').addEventListener('click', () => {
   document.getElementById('modal').style.display = 'none';
+});
+
+document.getElementById('searchInput')?.addEventListener('keypress', e => {
+  if (e.key === 'Enter') window.searchOrders();
 });
