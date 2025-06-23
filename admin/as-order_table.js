@@ -79,9 +79,9 @@ window.toggleStatus = async function (orderId, btn) {
   const current = btn.textContent.trim();
   const newStatus = current === '접수' ? '수리진행' : '접수대기';
   const update = {
-    status: newStatus,
-    status_updated_at: new Date().toISOString()
-  };
+  status: newStatus.trim(), // ✅ 공백 제거
+  status_updated_at: new Date().toISOString()
+};
   const { error } = await supabase
     .from('as_orders')
     .update(update)
