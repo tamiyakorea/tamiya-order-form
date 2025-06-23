@@ -127,7 +127,6 @@ document.querySelectorAll('.process-btn').forEach(btn => {
     const currentText = btn.textContent;
 
     if (currentText === '입고처리') {
-      // ✅ 상태: 수리진행 → 청구대기 + 입고처리일 저장
       const { error } = await supabase.from('as_orders')
         .update({
           status: '청구대기',
@@ -138,7 +137,6 @@ document.querySelectorAll('.process-btn').forEach(btn => {
 
       if (!error) loadProgressOrders();
     } else {
-      // ✅ 상태: 청구대기 → 수리진행 (되돌리기)
       const { error } = await supabase.from('as_orders')
         .update({
           status: '수리진행',
@@ -150,5 +148,5 @@ document.querySelectorAll('.process-btn').forEach(btn => {
       if (!error) loadProgressOrders();
     }
   });
-});
+}); // ✅ forEach 닫힘
 
