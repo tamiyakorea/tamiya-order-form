@@ -53,6 +53,10 @@
     <a href="items.html" class="active">상품 DB 설정</a>
   </nav>
 
+  <div style="margin: 20px;">
+    <button id="toggleEditBtn">수정하기</button>
+  </div>
+
   <h1>타미야 상품 DB 설정</h1>
 
   <div style="text-align:center;">
@@ -75,6 +79,13 @@
         <tr><td colspan="6">불러오는 중...</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- ✅ 저장 확인 모달 -->
+  <div id="confirmModal" style="display:none; position:fixed; top:30%; left:50%; transform:translate(-50%,-30%); background:white; border:1px solid #ccc; padding:20px; z-index:999;">
+    <p>수정된 내용을 저장하시겠습니까?</p>
+    <button id="confirmYes">예</button>
+    <button id="confirmNo">아니오</button>
   </div>
 </body>
 </html>
