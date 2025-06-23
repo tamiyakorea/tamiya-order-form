@@ -11,6 +11,8 @@ const searchInput = document.getElementById("searchInput");
 const toggleEditBtn = document.getElementById("toggleEditBtn");
 const deleteBtn = document.getElementById("deleteSelectedBtn");
 const addBtn = document.getElementById("addItemBtn");
+const paginationContainer = document.getElementById("pagination");
+
 const confirmModal = document.getElementById("confirmModal");
 const confirmYes = document.getElementById("confirmYes");
 const confirmNo = document.getElementById("confirmNo");
@@ -24,6 +26,9 @@ const addCancel = document.getElementById("addCancel");
 let originalData = [];
 let editData = [];
 let isEditing = false;
+let currentPage = 1;
+const pageSize = 50;
+let totalPages = 1;
 
 deleteBtn.disabled = true;
 addBtn.disabled = true;
@@ -39,7 +44,6 @@ function renderTable(data) {
     tableBody.innerHTML = '<tr><td colspan="7">데이터가 없습니다</td></tr>';
     return;
   }
-
   data.forEach(row => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -54,52 +58,64 @@ function renderTable(data) {
     tr.dataset.id = row.item_code;
     tableBody.appendChild(tr);
   });
-
   updateRowHighlight();
   if (isEditing) addEditListeners();
-
-  document.querySelectorAll('.row-check').forEach(cb =>
-    cb.addEventListener('change', updateRowHighlight)
-  );
+  document.querySelectorAll('.row-check').forEach(cb => cb.addEventListener('change', updateRowHighlight));
 }
 
 function updateRowHighlight() {
   document.querySelectorAll("tr").forEach(row => {
     const cb = row.querySelector(".row-check");
-    if (cb?.checked) row.style.backgroundColor = "#eef5ff";
-    else row.style.backgroundColor = "";
+    row.style.backgroundColor = cb?.checked ? "#eef5ff" : "";
   });
 }
 
 function addEditListeners() {
-  const editableCells = document.querySelectorAll("td[contenteditable='true']");
-  editableCells.forEach(cell => {
+  document.querySelectorAll("td[contenteditable='true']").forEach(cell => {
     cell.addEventListener("input", () => {
       const id = cell.dataset.id;
       const key = cell.dataset.key;
       const value = cell.textContent.trim();
       const idx = editData.findIndex(r => String(r.item_code) === id);
-      if (idx !== -1) {
-        editData[idx][key] = isNaN(value) || key === "description" ? value : Number(value);
-      }
+      if (idx !== -1) editData[idx][key] = isNaN(value) || key === "description" ? value : Number(value);
     });
   });
 }
 
-async function loadData() {
-  const { data, error } = await supabase.from("tamiya_items").select("*").order("item_code", { ascending: true });
-  if (error) return alert("불러오기 실패: " + error.message);
+async function loadData(page = 1) {
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const [{ data, error }, { count }] = await Promise.all([
+    supabase.from("tamiya_items").select("*", { count: "exact" }).range(from, to).order("item_code"),
+    supabase.from("tamiya_items").select("*", { count: "exact" })
+  ]);
+  if (error || !data) return alert("불러오기 실패: " + (error?.message || ""));
   originalData = JSON.parse(JSON.stringify(data));
   editData = JSON.parse(JSON.stringify(data));
+  totalPages = Math.ceil(count / pageSize);
+  currentPage = page;
   renderTable(editData);
+  renderPaginationControls();
+}
+
+function renderPaginationControls() {
+  paginationContainer.innerHTML = "";
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    if (i === currentPage) btn.disabled = true;
+    btn.addEventListener("click", () => loadData(i));
+    paginationContainer.appendChild(btn);
+  }
 }
 
 searchInput.addEventListener("input", () => {
   const q = searchInput.value.trim().toLowerCase();
-  const filtered = editData.filter(row =>
+  const filtered = originalData.filter(row =>
     row.item_code.toString().includes(q) || (row.description?.toLowerCase().includes(q))
   );
-  renderTable(filtered);
+  editData = JSON.parse(JSON.stringify(filtered));
+  renderTable(editData);
 });
 
 toggleEditBtn.addEventListener("click", () => {
@@ -134,20 +150,19 @@ async function saveEdits() {
     const original = originalData.find(r => String(r.item_code) === String(row.item_code));
     const updates = {};
     for (const key of ['description', 'order_unit_ctn', 'order_unit_pck', 'j_retail', 'price']) {
-      if (row[key] !== original[key]) updates[key] = row[key];
+      if (!original || row[key] !== original[key]) updates[key] = row[key];
     }
     if (Object.keys(updates).length > 0) {
       const { error } = await supabase.from("tamiya_items").update(updates).eq("item_code", row.item_code);
       if (error) alert(`${row.item_code} 업데이트 실패: ${error.message}`);
     }
   }
-
   alert("✅ 저장 완료");
   isEditing = false;
   toggleEditBtn.textContent = "수정하기";
   deleteBtn.disabled = true;
   addBtn.disabled = true;
-  await loadData();
+  await loadData(currentPage);
 }
 
 deleteBtn.addEventListener("click", () => {
@@ -163,13 +178,10 @@ deleteNo.addEventListener("click", () => {
 
 deleteYes.addEventListener("click", async () => {
   const checkedIds = [...document.querySelectorAll('.row-check:checked')].map(cb => cb.dataset.id);
-
   const { error: deleteError } = await supabase.from("tamiya_items").delete().in("item_code", checkedIds);
   if (deleteError) return alert("삭제 실패: " + deleteError.message);
-
   editData = editData.filter(row => !checkedIds.includes(String(row.item_code)));
   originalData = originalData.filter(row => !checkedIds.includes(String(row.item_code)));
-
   await saveEdits();
   deleteModal.style.display = "none";
 });
@@ -190,25 +202,15 @@ addSave.addEventListener("click", async () => {
     order_unit_ctn: Number(document.getElementById("add_order_unit_ctn").value),
     order_unit_pck: Number(document.getElementById("add_order_unit_pck").value),
     j_retail: Number(document.getElementById("add_j_retail").value),
-    price: Number(document.getElementById("add_price").value),
+    price: Number(document.getElementById("add_price").value)
   };
-
-  if (!newItem.item_code || !newItem.description) {
-    alert("제품코드와 제품명은 필수입니다.");
-    return;
-  }
-
+  if (!newItem.item_code || !newItem.description) return alert("제품코드와 제품명은 필수입니다.");
   const { error } = await supabase.from("tamiya_items").insert([newItem]);
-  if (error) {
-    alert("추가 실패: " + error.message);
-    return;
-  }
-
+  if (error) return alert("추가 실패: " + error.message);
   alert("✅ 항목 추가 완료");
   addModal.style.display = "none";
-
-  editData.push(newItem); // 임시 반영
-  await saveEdits(); // 추가 저장 및 수정모드 종료
+  editData.push(newItem);
+  await saveEdits();
 });
 
 loadData();
