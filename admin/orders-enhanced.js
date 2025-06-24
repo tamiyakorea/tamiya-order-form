@@ -434,6 +434,7 @@ Object.assign(window, {
   updateFieldByItem,
   confirmEditSave, 
   applyOrderEdit,
+  addEditItem,
   togglePayment,
   cancelEdit,
   markAsOrdered // ✅ 추가
