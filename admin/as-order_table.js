@@ -56,7 +56,6 @@ function renderOrders(orders) {
       <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
       <td>${order.request_type || ''}</td>
       <td>${order.inspection_followup || ''}</td>
-      <td>${order.show_cost_notice ? '✔' : ''}</td>
       <td>${faultDate}</td>
       <td>
         <button onclick="showModal('고장증상', \`${faultDesc.replace(/`/g, '\\`')}\`)">확인</button>
