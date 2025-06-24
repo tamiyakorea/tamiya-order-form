@@ -33,6 +33,8 @@ function renderCompletedTable(orders) {
       email: order.email,
       category,
       product,
+      request_type: order.request_type || '',
+      inspection_followup: order.inspection_followup || '',
       fault_time: extract(order.message, '고장시기'),
       fault_desc: extract(order.message, '고장증상'),
       request: extract(order.message, '요청사항'),
@@ -78,6 +80,8 @@ function getTitle(field) {
     email: '이메일',
     category: '제품분류',
     product: '제품명',
+    request_type: '신청종류', // ✅ 추가
+    inspection_followup: '수리여부', // ✅ 추가
     fault_time: '고장시기',
     fault_desc: '고장증상',
     request: '요청사항',
