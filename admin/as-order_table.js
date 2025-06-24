@@ -112,6 +112,66 @@ window.deleteOrder = async function (orderId) {
   loadOrders();
 };
 
+window.openEditModal = async function () {
+  const selected = [...document.querySelectorAll('.order-checkbox:checked')];
+  if (selected.length !== 1) {
+    alert("하나의 주문만 선택해주세요.");
+    return;
+  }
+
+  const orderId = selected[0].dataset.id;
+  const { data, error } = await supabase.from('as_orders').select('*').eq('order_id', orderId).single();
+  if (error || !data) return alert("주문 정보를 불러올 수 없습니다.");
+
+  const [category, model] = (data.product_name || '').split(' > ');
+  const faultDate = extractMessageField(data.message, '고장시기');
+  const faultDesc = extractMessageField(data.message, '고장증상');
+  const request = extractMessageField(data.message, '요청사항');
+
+  document.getElementById('editOrderId').value = orderId;
+  document.getElementById('editName').value = data.name;
+  document.getElementById('editPhone').value = data.phone;
+  document.getElementById('editEmail').value = data.email;
+  document.getElementById('editCategory').value = category;
+  document.getElementById('editModel').value = model;
+  document.getElementById('editFaultDate').value = faultDate;
+  document.getElementById('editFaultDesc').value = faultDesc;
+  document.getElementById('editRequest').value = request;
+
+  document.getElementById('editModal').style.display = 'block';
+};
+
+window.saveEdit = async function () {
+  const orderId = document.getElementById('editOrderId').value;
+  const name = document.getElementById('editName').value;
+  const phone = document.getElementById('editPhone').value;
+  const email = document.getElementById('editEmail').value;
+  const category = document.getElementById('editCategory').value;
+  const model = document.getElementById('editModel').value;
+  const faultDate = document.getElementById('editFaultDate').value;
+  const faultDesc = document.getElementById('editFaultDesc').value;
+  const request = document.getElementById('editRequest').value;
+
+  const update = {
+    name,
+    phone,
+    email,
+    product_name: `${category} > ${model}`,
+    message: `고장시기: ${faultDate}\n고장증상: ${faultDesc}\n요청사항: ${request}`,
+  };
+
+  const { error } = await supabase.from('as_orders').update(update).eq('order_id', orderId);
+  if (error) return alert("수정 실패");
+
+  alert("✅ 수정 완료");
+  document.getElementById('editModal').style.display = 'none';
+  loadOrders();
+};
+
+window.toggleAllCheckboxes = function (master) {
+  document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = master.checked);
+};
+
 // 모달 표시 함수
 window.showModal = function (title, content) {
   document.getElementById('modal-title').textContent = title;
