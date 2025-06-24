@@ -183,15 +183,26 @@ window.searchOrderById = async function () {
     return;
   }
 
+  // 기본 필드 처리
   const [category, model] = (data.product_name || "").split(" > ");
   const message = data.message || "";
   const faultDate = extractField(message, "고장시기");
   const faultDescription = extractField(message, "고장증상");
   const requestDetails = extractField(message, "요청사항");
 
+  // 진행 이력 필드
+  const receivedDate = data.status_updated_at ? formatDate(data.status_updated_at) : "";
+  const repairDetail = data.repair_detail || "";
+  const repairCost = data.repair_cost || "";
+  const paymentConfirmed = data.payment_confirmed;
+  const paymentDate = data.payment_date ? formatDate(data.payment_date) : "";
+  const completedDate = data.shipped_at ? formatDate(data.shipped_at) : "";
+  const shippingInvoice = data.shipping_invoice || "";
+
   resultBox.innerHTML = `
     <div style="background:#f4f4f4; border:1px solid #ccc; padding:15px;">
       <h3>📌 신청번호: ${data.order_id}</h3>
+
       <h4>🧍 고객 정보</h4>
       <ul>
         <li><strong>성명:</strong> ${data.name}</li>
@@ -205,13 +216,39 @@ window.searchOrderById = async function () {
       <p><strong>종류:</strong> ${category || "-"}, <strong>모델명:</strong> ${model || "-"}</p>
 
       <h4>🔧 고장 내역</h4>
-      <p><strong>고장시기:</strong> ${faultDate || "-"}<br />
-         <strong>고장증상:</strong><br /><div style="white-space: pre-wrap; border:1px solid #ccc; background:#fff; padding:10px;">${faultDescription || "-"}</div><br />
-         <strong>요청사항:</strong><br /><div style="white-space: pre-wrap; border:1px solid #ccc; background:#fff; padding:10px;">${requestDetails || "-"}</div>
+      <p>
+        <strong>고장시기:</strong> ${faultDate || "-"}<br />
+        <strong>고장증상:</strong><br />
+        <div style="white-space: pre-wrap; border:1px solid #ccc; background:#fff; padding:10px;">
+          ${faultDescription || "-"}
+        </div><br />
+        <strong>요청사항:</strong><br />
+        <div style="white-space: pre-wrap; border:1px solid #ccc; background:#fff; padding:10px;">
+          ${requestDetails || "-"}
+        </div>
       </p>
+  `;
 
-      <h4>📢 소비자 안내</h4>
-      <p style="color:#a00;">※ 접수 내역 확인 후, 안내에 따라 제품을 발송해 주세요.</p>
+  if (
+    receivedDate || repairDetail || repairCost ||
+    paymentConfirmed || completedDate || shippingInvoice
+  ) {
+    resultBox.innerHTML += `
+      <h4>🛠️ 진행 이력</h4>
+      <ul>
+        ${receivedDate ? `<li><strong>입고일:</strong> ${receivedDate}</li>` : ""}
+        ${repairDetail ? `<li><strong>수리내역:</strong> ${repairDetail}</li>` : ""}
+        ${repairCost ? `<li><strong>수리비용:</strong> ₩${Number(repairCost).toLocaleString()}</li>` : ""}
+        ${paymentConfirmed ? `<li><strong>입금 확인:</strong> 확인됨${paymentDate ? ` (${paymentDate})` : ""}</li>` : ""}
+        ${completedDate ? `<li><strong>출고일:</strong> ${completedDate}</li>` : ""}
+        ${shippingInvoice ? `<li><strong>송장번호:</strong> ${shippingInvoice} (우체국택배)</li>` : ""}
+      </ul>
+    `;
+  }
+
+  resultBox.innerHTML += `
+    <h4>📢 소비자 안내</h4>
+    <p style="color:#a00;">※ 접수 내역 확인 후, 안내에 따라 제품을 발송해 주세요.</p>
     </div>
   `;
 };
