@@ -14,9 +14,11 @@ const productOptions = {
 };
 
 // 🧠 옵션 연동 처리
-document.addEventListener('DOMContentLoaded', () => {
-  const categorySelect = document.getElementById("category");
-  const productSelect = document.getElementById("product");
+document.addEventListener("DOMContentLoaded", () => {
+  const checkInspection = document.getElementById("checkInspection");
+  const checkRepair = document.getElementById("checkRepair");
+  const inspectionOptions = document.getElementById("inspectionOptions");
+  const costNotice = document.getElementById("costNotice");
 
   categorySelect.addEventListener("change", () => {
     const selectedCategory = categorySelect.value;
@@ -43,6 +45,37 @@ window.execDaumPostcode = function () {
   }).open();
 };
 
+
+const checkRepair = document.getElementById("checkRepair");
+const inspectionOptions = document.getElementById("inspectionOptions");
+const costNotice = document.getElementById("costNotice");
+
+checkInspection.addEventListener("change", () => {
+  if (checkInspection.checked) {
+    checkRepair.checked = false;
+    inspectionOptions.style.display = "block";
+  } else {
+    inspectionOptions.style.display = "none";
+    costNotice.style.display = "none";
+    document.querySelectorAll('input[name="inspectionFollowup"]').forEach(el => el.checked = false);
+  }
+});
+
+checkRepair.addEventListener("change", () => {
+  if (checkRepair.checked) {
+    checkInspection.checked = false;
+    inspectionOptions.style.display = "none";
+    costNotice.style.display = "none";
+    document.querySelectorAll('input[name="inspectionFollowup"]').forEach(el => el.checked = false);
+  }
+});
+
+document.querySelectorAll('input[name="inspectionFollowup"]').forEach(el => {
+  el.addEventListener("change", () => {
+    costNotice.style.display = el.value === "repair" ? "block" : "none";
+  });
+});
+
 // 🧾 주문번호 생성
 function generateOrderNumber() {
   const now = new Date();
@@ -66,6 +99,25 @@ window.confirmOrder = async function () {
   
   const category = get("category").value;
   const product = get("product").value;
+
+  const requestType = checkRepair.checked ? '수리요청' : (checkInspection.checked ? '점검요청' : null);
+if (!requestType) {
+  alert("점검 요청 또는 수리 요청 중 하나를 선택해주세요.");
+  return;
+}
+
+let inspectionFollowup = null;
+let showCostNotice = false;
+
+if (requestType === '점검요청') {
+  const selected = document.querySelector('input[name="inspectionFollowup"]:checked');
+  if (!selected) {
+    alert("점검 시 수리 여부를 선택해주세요.");
+    return;
+  }
+  inspectionFollowup = selected.value === 'repair' ? '수리요청함' : '수리요청안함';
+  showCostNotice = selected.value === 'repair';
+}
 
   const faultDate = get("faultDate").value.trim();
   const faultDescription = get("faultDescription").value.trim();
@@ -97,6 +149,9 @@ window.confirmOrder = async function () {
     status_updated_at: null,
     progress_stage: 'received',
     progress_updated_at: null,
+    request_type: requestType,
+    inspection_followup: inspectionFollowup,
+    show_cost_notice: showCostNotice,
   };
 
   try {
