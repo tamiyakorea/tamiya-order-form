@@ -129,17 +129,15 @@ window.openEditModal = async function () {
   const request = extractMessageField(data.message, '요청사항');
 
   document.getElementById('editOrderId').value = orderId;
-  document.getElementById('editName').value = data.name;
-  document.getElementById('editPhone').value = data.phone;
-  document.getElementById('editEmail').value = data.email;
-  document.getElementById('editCategory').value = category;
-  document.getElementById('editModel').value = model;
-  document.getElementById('editFaultDate').value = faultDate;
-  document.getElementById('editFaultDesc').value = faultDesc;
-  document.getElementById('editRequest').value = request;
-
-  document.getElementById('editModal').style.display = 'flex';
-};
+document.getElementById('editName').value = data.name;
+document.getElementById('editPhone').value = data.phone;
+document.getElementById('editEmail').value = data.email;
+document.getElementById('editCategory').value = category;
+document.getElementById('editModel').value = model;
+document.getElementById('editFaultDate').value = faultDate;
+document.getElementById('editFaultDesc').value = faultDesc;
+document.getElementById('editRequest').value = request;
+document.getElementById('editModal').classList.add('show');
 
 window.saveEdit = async function () {
   const orderId = document.getElementById('editOrderId').value;
