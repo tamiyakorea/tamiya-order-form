@@ -44,7 +44,6 @@ function renderProgressTable(orders) {
       <td>${product || ''}</td>
       <td>${order.request_type || ''}</td>
       <td>${order.inspection_followup || ''}</td>
-      <td>${order.show_cost_notice ? '✔' : ''}</td>
       <td>${faultDate}</td>
       <td>${faultDescBtn}</td>
       <td>${requestBtn}</td>
