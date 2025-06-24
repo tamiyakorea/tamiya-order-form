@@ -174,9 +174,9 @@ window.toggleAllCheckboxes = function (master) {
   document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = master.checked);
 };
 
-function closeEditModal() {
+window.closeEditModal = function () {
   document.getElementById('editModal').classList.remove('show');
-}
+};
   
 // 모달 표시 함수
 window.showModal = function (title, content) {
