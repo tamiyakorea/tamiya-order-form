@@ -69,10 +69,11 @@ function renderOrders(orders) {
     tbody.appendChild(row);
   }
 }
+
 function extractMessageField(message, field) {
   if (!message) return '';
-  const pattern = new RegExp(`${field}:\\s*([\\s\\S]*?)(?=\\n\\w+:|$)`, 'g');
-  const match = pattern.exec(message + '\n');
+  const regex = new RegExp(`${field}:\\s*([\\s\\S]*?)(?=\\n(?:고장시기|고장증상|요청사항):|$)`, 'g');
+  const match = regex.exec(message + '\n');
   return match ? match[1].trim() : '';
 }
 
