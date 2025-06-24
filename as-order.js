@@ -253,7 +253,7 @@ window.searchOrderById = async function () {
   const paymentConfirmed = data.payment_confirmed;
   const paymentDate = data.payment_date ? formatDate(data.payment_date) : "";
   const completedDate = data.shipped_at ? formatDate(data.shipped_at) : "";
-  const shippingInvoice = data.shipping_invoice || "";
+  const shippingInvoice = data.delivery_invoice || "";
 
   resultBox.innerHTML = `
     <div style="background:#f4f4f4; border:1px solid #ccc; padding:15px;">
