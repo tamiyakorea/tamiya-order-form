@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <title>SANWA A/S 회계 확인</title>
   <link rel="stylesheet" href="orders.css">
+  <style>
+    .stat-box {
+      border: 1px solid #ccc;
+      padding: 15px;
+      background: #f9f9f9;
+      margin: 20px;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
   <nav>
@@ -40,7 +49,7 @@
     </label>
   </div>
 
-  <div style="margin: 20px;">
+  <div class="stat-box">
     <h3>📊 수리비 통계</h3>
     <div id="totalRepairCost">총 수리금액: ₩0</div>
     <div id="monthlyStats"></div>
