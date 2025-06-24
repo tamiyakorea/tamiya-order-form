@@ -266,12 +266,6 @@ window.searchOrderById = async function () {
   `;
 };
 
-// 메시지에서 필드 추출하는 함수
-function extractField(text, key) {
-  const match = new RegExp(`${key}\\s*:\\s*(.*?)\\n`).exec(text + '\n');
-  return match ? match[1].trim() : "";
-}
-
 // 현금영수증 요청 여부에 따라 입력창 표시/숨김
 window.toggleCashReceipt = function () {
   const checked = document.getElementById("receiptRequested").checked;
