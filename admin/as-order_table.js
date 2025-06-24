@@ -71,7 +71,8 @@ function renderOrders(orders) {
 }
 function extractMessageField(message, field) {
   if (!message) return '';
-  const match = message.match(new RegExp(`${field}:\\s*([\\s\\S]*?)(\\n\\w+:|$)`));
+  const pattern = new RegExp(`${field}:\\s*([\\s\\S]*?)(?=\\n\\w+:|$)`, 'g');
+  const match = pattern.exec(message + '\n');
   return match ? match[1].trim() : '';
 }
 
