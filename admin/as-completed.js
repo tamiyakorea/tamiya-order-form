@@ -117,6 +117,14 @@ function bindEvents() {
   });
 }
 
+function openEditModal() {
+  document.getElementById("editModal").style.display = "block";
+}
+
+function closeEditModal() {
+  document.getElementById("editModal").style.display = "none";
+}
+
 window.showModal = function (title, content) {
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-content').textContent = content;
