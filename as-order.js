@@ -252,7 +252,7 @@ window.searchOrderById = async function () {
         ${repairCost ? `<li><strong>수리비용:</strong> ₩${Number(repairCost).toLocaleString()}</li>` : ""}
         ${paymentConfirmed ? `<li><strong>입금 확인:</strong> 확인됨${paymentDate ? ` (${paymentDate})` : ""}</li>` : ""}
         ${completedDate ? `<li><strong>출고일:</strong> ${completedDate}</li>` : ""}
-        ${shippingInvoice ? `<li><strong>송장번호:</strong> ${shippingInvoice} (우체국택배)</li>` : ""}
+        ${shippingInvoice ? `<li><strong>송장번호:</strong> ${shippingInvoice}</li>` : ""}
       </ul>
     `;
   }
