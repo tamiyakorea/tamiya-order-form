@@ -54,7 +54,7 @@ function renderAccountingTable(data) {
       <td>₩${order.total.toLocaleString()}</td>
       <td>${order.tracking_date ? formatDateOnly(order.tracking_date) : '-'}</td>
       <td>${order.receipt_info?.trim() ? '발행' : '-'}</td>
-      <td>${order.tracking_number || '-'}</td>
+      <td>${order.delivery_invoice || '-'}</td>
     `;
     tbody.appendChild(row);
     totalAmount += order.total;
