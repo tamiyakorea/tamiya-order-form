@@ -266,10 +266,4 @@ window.searchOrderById = async function () {
   `;
 };
 
-// 현금영수증 요청 여부에 따라 입력창 표시/숨김
-window.toggleCashReceipt = function () {
-  const checked = document.getElementById("receiptRequested").checked;
-  document.getElementById("receiptInfoWrapper").style.display = checked ? "block" : "none";
-};
-
 
