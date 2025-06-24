@@ -1,78 +1,77 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>SANWA A/S 회계 확인</title>
-  <link rel="stylesheet" href="orders.css">
-  <style>
-    .stat-box {
-      border: 1px solid #ccc;
-      padding: 15px;
-      background: #f9f9f9;
-      margin: 20px;
-      border-radius: 8px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <title>회계 관리</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="shipping.css" />
 </head>
 <body>
   <nav>
+  <div>
     <a href="orders.html">TAMIYA 주문 관리</a>
     <a href="ordered.html">TAMIYA 발주 완료</a>
     <a href="shipping.html">TAMIYA 배송 관리</a>
     <a href="shipped.html">TAMIYA 배송 완료</a>
-    <a href="accounting.html">TAMIYA 회계 관리</a>
+    <a href="accounting.html" class="active">TAMIYA 회계 관리</a>
     <a href="as-order_table.html">SANWA A/S 신청 관리</a>
     <a href="as-progress.html">SANWA A/S 진행 관리</a>
     <a href="as-charge.html">SANWA A/S 청구 관리</a>
     <a href="as-completed.html">SANWA A/S 처리 완료</a>
-    <a href="as-accounting.html" class="active">SANWA A/S 회계 확인</a>
-  </nav>
+    <a href="as-accounting.html">SANWA A/S 회계 관리</a>
+  </div>
+</nav>
 
-  <h1>SANWA A/S 회계 확인</h1>
+  <h1 style="text-align:center">회계 관리</h1>
 
-  <div style="margin: 20px;">
-    <label>기간: 
-      <select id="rangeSelect">
-        <option value="1m">최근 1개월</option>
-        <option value="3m">최근 3개월</option>
-        <option value="6m">최근 6개월</option>
-        <option value="12m">최근 1년</option>
-        <option value="custom">직접 선택</option>
-      </select>
-    </label>
-    <input type="date" id="startDate" style="display:none;">
-    <input type="date" id="endDate" style="display:none;">
-    <button onclick="loadAccountingTable()">검색</button>
-
-    <label style="margin-left:30px;">검색어:
-      <input type="text" id="searchKeyword" placeholder="주문번호, INVOICE, 고객명">
-    </label>
+  <div style="text-align:center; margin: 20px 0;">
+    <label>조회 기간: </label>
+    <input type="date" id="start-date" /> ~
+    <input type="date" id="end-date" />
+    <button onclick="loadAccountingData()">검색</button>
+    <button onclick="setDateRange('month')">이번 달</button>
+    <button onclick="setDateRange('quarter')">이번 분기</button>
+    <button onclick="setDateRange('year')">올해</button>
+    <br/><br/>
+    <input type="text" id="search-name" placeholder="주문자명 또는 이메일 검색" style="padding:5px; width:250px;">
+    <label><input type="checkbox" id="receipt-only" /> 현금영수증 발행 주문만</label>
+    <button onclick="downloadAccountingExcel()">엑셀 다운로드</button>
   </div>
 
-  <div class="stat-box">
-    <h3>📊 수리비 통계</h3>
-    <div id="totalRepairCost">총 수리금액: ₩0</div>
-    <div id="monthlyStats"></div>
+  <div id="summary" style="text-align:center; margin-bottom:20px;">
+    <strong>공급가액:</strong> ₩<span id="supply-price">0</span>
+    <strong style="margin-left:30px;">부가세:</strong> ₩<span id="vat">0</span>
+    <strong style="margin-left:30px;">총금액:</strong> ₩<span id="total">0</span>
+    <strong style="margin-left:30px;">출고건수:</strong> <span id="order-count">0</span>
   </div>
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>주문번호</th>
-          <th>주문INVOICE</th>
-          <th>주문자명</th>
-          <th>주문일자</th>
-          <th>수리금액</th>
-          <th>입금일자</th>
-          <th>출고일자</th>
-          <th>송장번호</th>
-        </tr>
-      </thead>
-      <tbody id="accountingBody">
-        <tr><td colspan="8">불러오는 중...</td></tr>
-      </tbody>
-    </table>
+  <table>
+    <thead>
+  <tr>
+    <th data-sort-key="order_id">주문번호</th>
+    <th data-sort-key="name">주문자명</th>
+    <th data-sort-key="created_at">주문일자</th>
+    <th data-sort-key="payment_date">입금일자</th>
+    <th data-sort-key="supply">공급가</th>
+    <th data-sort-key="vat">부가세</th>
+    <th data-sort-key="total">총금액</th>
+    <th data-sort-key="tracking_date">출고일자</th>
+    <th data-sort-key="receipt_info">현금영수증</th>
+    <th data-sort-key="tracking_number">송장번호</th>
+  </tr>
+</thead>
+<tbody id="accounting-table-body">
+  <tr><td colspan="10">검색 결과 없음</td></tr> <!-- ✅ 10개로 맞춰야 함 -->
+</tbody>
+  </table>
+
+  <!-- 주문 상세 모달 -->
+  <div id="order-modal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; box-shadow:2px 2px 10px rgba(0,0,0,0.3); z-index:1000; max-width:600px; width:90%;">
+    <h3>주문 상세</h3>
+    <pre id="modal-content" style="white-space:pre-wrap; font-size:14px;"></pre>
+    <div style="text-align:right;"><button onclick="document.getElementById('order-modal').style.display='none'">닫기</button></div>
   </div>
 
   <script type="module" src="accounting.js"></script>
