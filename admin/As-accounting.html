@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>SANWA A/S 회계 확인</title>
+  <link rel="stylesheet" href="orders.css">
+</head>
+<body>
+  <nav>
+    <a href="orders.html">TAMIYA 주문 관리</a>
+    <a href="ordered.html">TAMIYA 발주 완료</a>
+    <a href="shipping.html">TAMIYA 배송 관리</a>
+    <a href="shipped.html">TAMIYA 배송 완료</a>
+    <a href="accounting.html">TAMIYA 회계 관리</a>
+    <a href="as-order_table.html">SANWA A/S 신청 관리</a>
+    <a href="as-progress.html">SANWA A/S 진행 관리</a>
+    <a href="as-charge.html">SANWA A/S 청구 관리</a>
+    <a href="as-completed.html">SANWA A/S 처리 완료</a>
+    <a href="as-accounting.html" class="active">SANWA A/S 회계 확인</a>
+  </nav>
+
+  <h1>SANWA A/S 회계 확인</h1>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>주문번호</th>
+          <th>주문INVOICE</th>
+          <th>주문자명</th>
+          <th>주문일자</th>
+          <th>수리금액</th>
+          <th>입금일자</th>
+          <th>출고일자</th>
+          <th>송장번호</th>
+        </tr>
+      </thead>
+      <tbody id="accountingBody">
+        <tr><td colspan="8">불러오는 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script type="module" src="as-accounting.js"></script>
+</body>
+</html>
