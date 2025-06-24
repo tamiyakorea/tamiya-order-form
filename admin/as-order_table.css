@@ -104,3 +104,14 @@ button[style*="background-color:#e0f8d8"] {
   font-size: 0.8em;
   color: #555;
 }
+
+/* 상태 강조된 행 */
+.highlighted {
+  background-color: #e0f8d8;
+}
+
+/* 상태변경 날짜 */
+.received-date {
+  font-size: 0.8em;
+  color: #555;
+}
