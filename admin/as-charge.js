@@ -53,6 +53,8 @@ function renderChargeTable(orders) {
       <td>${order.phone || ''}</td>
       <td>${category || ''}</td>
       <td>${product || ''}</td>
+      <td>${order.request_type || ''}</td>
+      <td>${order.inspection_followup || ''}</td>
       <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
       <td><input type="text" value="${repairDetail}" data-id="${order.order_id}" class="repair-input" /></td>
       <td><input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" /></td>
