@@ -172,6 +172,8 @@ thead th {
   padding: 20px;
   border-radius: 10px;
   width: 400px;
+  white-space: pre-wrap;
+  font-size: 14px;
 }
 
 .modal-content label {
