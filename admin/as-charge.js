@@ -190,7 +190,7 @@ function closeShippingModal() {
 }
 
 document.getElementById('shippingConfirmBtn').addEventListener('click', async () => {
-  const invoice = document.getElementById('inputInvoice').value.trim();
+  const invoice = document.getElementById('inputInvoice').value.trim(); // 새 송장번호
   const date = document.getElementById('inputDate').value;
 
   if (!invoice || !date) {
@@ -204,7 +204,7 @@ document.getElementById('shippingConfirmBtn').addEventListener('click', async ()
       status: '처리완료',
       status_updated_at: new Date().toISOString(),
       shipped_at: date,
-      shipping_invoice: invoice
+      delivery_invoice: invoice // ✅ 발송 INVOICE가 아닌 새로운 송장번호 컬럼에 저장
     })
     .eq('order_id', currentShippingOrderId);
 
