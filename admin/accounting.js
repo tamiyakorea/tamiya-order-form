@@ -54,7 +54,7 @@ function renderAccountingTable(data) {
       <td>₩${order.total.toLocaleString()}</td>
       <td>${order.tracking_date ? formatDateOnly(order.tracking_date) : '-'}</td>
       <td>${order.receipt_info?.trim() ? '발행' : '-'}</td>
-      <td>${order.delivery_invoice || '-'}</td>
+      <td>${order.tracking_number || '-'}</td>
     `;
     tbody.appendChild(row);
     totalAmount += order.total;
@@ -170,7 +170,7 @@ window.downloadAccountingExcel = function () {
       총금액: order.total,
       출고일자: order.tracking_date ? formatDateOnly(order.tracking_date) : '-',
       현금영수증: order.receipt_info?.trim() ? '발행' : '-',
-      송장번호: order.delivery_invoice || ''
+      송장번호: order.tracking_number || ''
     };
   });
 
