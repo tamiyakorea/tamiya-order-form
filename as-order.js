@@ -63,9 +63,7 @@ window.confirmOrder = async function () {
   const zipcode = get("zipcode").value.trim();
   const address = get("address").value.trim();
   const addressDetail = get("addressDetail").value.trim();
-  const receiptChecked = get("receiptRequested").checked;
-  const receiptInfo = receiptChecked ? get("receiptInfo").value.trim() : null;
-
+  
   const category = get("category").value;
   const product = get("product").value;
 
@@ -88,7 +86,7 @@ window.confirmOrder = async function () {
     zipcode,
     address,
     address_detail: addressDetail,
-    receipt_info: receiptInfo,
+    receipt_info: null,
     product_name: `${category} > ${product}`,
     message: `고장시기: ${faultDate}\n고장증상: ${faultDescription}\n요청사항: ${requestDetails}`,
     proof_images: [],
