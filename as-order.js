@@ -181,7 +181,7 @@ window.searchOrderById = async function () {
   resultBox.innerHTML = "";
 
   if (!input || input.length !== 12) {
-    resultBox.innerHTML = "<p style='color:red;'>✅ 12자리 신청번호를 정확히 입력해주세요.</p>";
+    resultBox.innerHTML = "<p style='color:red;'>12자리 신청번호를 정확히 입력해주세요.</p>";
     return;
   }
 
@@ -192,7 +192,7 @@ window.searchOrderById = async function () {
     .single();
 
   if (error || !data) {
-    resultBox.innerHTML = "<p style='color:red;'>❌ 해당 신청번호로 조회된 내역이 없습니다.</p>";
+    resultBox.innerHTML = "<p style='color:red;'>해당 신청번호로 조회된 내역이 없습니다.</p>";
     return;
   }
 
@@ -214,9 +214,9 @@ window.searchOrderById = async function () {
 
   resultBox.innerHTML = `
     <div style="background:#f4f4f4; border:1px solid #ccc; padding:15px;">
-      <h3>📌 신청번호: ${data.order_id}</h3>
+      <h3>신청번호: ${data.order_id}</h3>
 
-      <h4>🧍 고객 정보</h4>
+      <h4>고객 정보</h4>
       <ul>
         <li><strong>성명:</strong> ${data.name}</li>
         <li><strong>전화번호:</strong> ${data.phone}</li>
@@ -225,10 +225,10 @@ window.searchOrderById = async function () {
         <li><strong>주소:</strong> ${data.address} ${data.address_detail}</li>
       </ul>
 
-      <h4>📦 신청 제품</h4>
+      <h4>신청 제품</h4>
       <p><strong>종류:</strong> ${category || "-"}, <strong>모델명:</strong> ${model || "-"}</p>
 
-      <h4>🔧 고장 내역</h4>
+      <h4>고장 내역</h4>
       <p>
         <strong>고장시기:</strong> ${faultDate || "-"}<br />
         <strong>고장증상:</strong><br />
@@ -247,7 +247,7 @@ window.searchOrderById = async function () {
     paymentConfirmed || completedDate || shippingInvoice
   ) {
     resultBox.innerHTML += `
-      <h4>🛠️ 진행 이력</h4>
+      <h4>진행 이력</h4>
       <ul>
         ${receivedDate ? `<li><strong>입고일:</strong> ${receivedDate}</li>` : ""}
         ${repairDetail ? `<li><strong>수리내역:</strong> ${repairDetail}</li>` : ""}
@@ -260,7 +260,7 @@ window.searchOrderById = async function () {
   }
 
   resultBox.innerHTML += `
-    <h4>📢 소비자 안내</h4>
+    <h4>소비자 안내</h4>
     <p style="color:#a00;">※ 접수 내역 확인 후, 안내에 따라 제품을 발송해 주세요.</p>
     </div>
   `;
