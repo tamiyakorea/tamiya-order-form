@@ -112,6 +112,7 @@ window.deleteOrder = async function (orderId) {
   loadOrders();
 };
 
+// ✅ 모달 열기 함수
 window.openEditModal = async function () {
   const selected = [...document.querySelectorAll('.order-checkbox:checked')];
   if (selected.length !== 1) {
@@ -129,16 +130,19 @@ window.openEditModal = async function () {
   const request = extractMessageField(data.message, '요청사항');
 
   document.getElementById('editOrderId').value = orderId;
-document.getElementById('editName').value = data.name;
-document.getElementById('editPhone').value = data.phone;
-document.getElementById('editEmail').value = data.email;
-document.getElementById('editCategory').value = category;
-document.getElementById('editModel').value = model;
-document.getElementById('editFaultDate').value = faultDate;
-document.getElementById('editFaultDesc').value = faultDesc;
-document.getElementById('editRequest').value = request;
-document.getElementById('editModal').classList.add('show');
+  document.getElementById('editName').value = data.name;
+  document.getElementById('editPhone').value = data.phone;
+  document.getElementById('editEmail').value = data.email;
+  document.getElementById('editCategory').value = category;
+  document.getElementById('editModel').value = model;
+  document.getElementById('editFaultDate').value = faultDate;
+  document.getElementById('editFaultDesc').value = faultDesc;
+  document.getElementById('editRequest').value = request;
 
+  document.getElementById('editModal').classList.add('show');
+};
+
+// ✅ 모달 저장 함수 (밖에 위치해야 함)
 window.saveEdit = async function () {
   const orderId = document.getElementById('editOrderId').value;
   const name = document.getElementById('editName').value;
@@ -162,7 +166,7 @@ window.saveEdit = async function () {
   if (error) return alert("수정 실패");
 
   alert("✅ 수정 완료");
-  document.getElementById('editModal').style.display = 'none';
+  document.getElementById('editModal').classList.remove('show');
   loadOrders();
 };
 
