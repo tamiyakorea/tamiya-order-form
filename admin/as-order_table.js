@@ -216,3 +216,7 @@ window.logout = async function () {
 };
 
 loadOrders();
+
+window.closeEditModal = function () {
+  document.getElementById('editModal').style.display = 'none';
+};
