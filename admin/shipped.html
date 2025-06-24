@@ -8,86 +8,130 @@
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="shipped.css" />
   <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    const supabase = createClient(
-      'https://edgvrwekvnavkhcqwtxa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
-    );
+  const supabase = createClient(
+    'https://edgvrwekvnavkhcqwtxa.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+  );
 
-    function formatDateOnly(iso) {
-      if (!iso) return '';
-      const d = new Date(iso);
-      return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+  let deliveredData = [];
+  let currentSort = { key: null, asc: true };
+
+  function formatDateOnly(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  async function returnToShipping(orderId) {
+    const confirmBack = confirm("배송 관리 탭으로 다시 이동시키겠습니까?");
+    if (!confirmBack) return;
+    const { error } = await supabase.from('orders').update({ is_delivered: false }).eq('order_id', orderId);
+    if (!error) loadDeliveredOrders();
+  }
+
+  async function loadDeliveredOrders() {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('is_delivered', true);
+
+    if (error) {
+      document.getElementById('delivered-table-body').innerHTML =
+        `<tr><td colspan="17">오류 발생: ${error.message}</td></tr>`;
+      return;
     }
 
-    async function returnToShipping(orderId) {
-      const confirmBack = confirm("배송 관리 탭으로 다시 이동시키겠습니까?");
-      if (!confirmBack) return;
-      const { error } = await supabase.from('orders').update({ is_delivered: false }).eq('order_id', orderId);
-      if (!error) loadDeliveredOrders();
+    deliveredData = data || [];
+    renderDeliveredTable(deliveredData);
+  }
+
+  function renderDeliveredTable(data) {
+    const tbody = document.getElementById('delivered-table-body');
+    tbody.innerHTML = "";
+
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="17">배송 완료된 주문이 없습니다.</td></tr>`;
+      return;
     }
 
-    async function loadDeliveredOrders() {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('is_delivered', true)
-        .order('created_at', { ascending: false });
-
-      const tbody = document.getElementById('delivered-table-body');
-      tbody.innerHTML = '';
-
-      if (error) {
-        tbody.innerHTML = `<tr><td colspan="17">오류 발생: ${error.message}</td></tr>`;
-        return;
+    data.forEach(order => {
+      let items;
+      try {
+        items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+      } catch {
+        items = [];
       }
 
-      if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="17">배송 완료된 주문이 없습니다.</td></tr>`;
-        return;
-      }
+      const arrivalDue = items[0]?.arrival_due || '미정';
 
-      data.forEach(order => {
-        let items;
-        try {
-          items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
-        } catch (e) {
-          console.error(`items 파싱 실패 (order_id: ${order.order_id})`, e);
-          items = [];
-        }
-
-        const arrivalDue = items[0]?.arrival_due || '미정';
-
-        items.forEach((item, index) => {
-          const isFirst = index === 0;
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            ${isFirst ? `<td rowspan="${items.length}"><button onclick="returnToShipping(${order.order_id})">❌</button></td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.zipcode}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.address}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.address_detail}</td>` : ''}
-            <td>${item.code}</td>
-            <td>${item.name}</td>
-            <td>${item.qty}</td>
-            <td>₩${item.price?.toLocaleString?.() || '-'}</td>
-            ${isFirst ? `<td rowspan="${items.length}">₩${order.total?.toLocaleString?.() || '-'}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.tracking_number || '-'}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.remarks || '-'}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.shipping_note || '-'}</td>` : ''}
-          `;
-          tbody.appendChild(row);
-        });
+      items.forEach((item, index) => {
+        const isFirst = index === 0;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          ${isFirst ? `<td rowspan="${items.length}"><button onclick="returnToShipping(${order.order_id})">❌</button></td>` : ''}
+          ${isFirst ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
+          ${isFirst ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
+          ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
+          ${isFirst ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
+          ${isFirst ? `<td rowspan="${items.length}">${order.zipcode}</td>` : ''}
+          ${isFirst ? `<td rowspan="${items.length}">${order.address}</td>` : ''}
+          ${isFirst ? `<td rowspan="${items.length}">${order.address_detail}</td>` : ''}
+          <td>${item.code}</td>
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>₩${item.price?.toLocaleString?.() || '-'}</td>
+          ${isFirst ? `<td rowspan="${items.length}">₩${order.total?.toLocaleString?.() || '-'}</td>` : ''}
+          ${isFirst ? `<td rowspan="${items.length}">${order.tracking_number || '-'}</td>` : ''}
+          ${isFirst ? `<td rowspan="${items.length}">${order.remarks || '-'}</td>` : ''}
+          ${isFirst ? `<td rowspan="${items.length}">${order.shipping_note || '-'}</td>` : ''}
+        `;
+        tbody.appendChild(row);
       });
+    });
+  }
+
+  function sortTableBy(key) {
+    if (!deliveredData.length) return;
+
+    if (currentSort.key === key) {
+      currentSort.asc = !currentSort.asc;
+    } else {
+      currentSort.key = key;
+      currentSort.asc = true;
     }
 
-    window.returnToShipping = returnToShipping;
-    document.addEventListener('DOMContentLoaded', loadDeliveredOrders);
-  </script>
+    deliveredData.sort((a, b) => {
+      let valA = a[key];
+      let valB = b[key];
+      if (typeof valA === 'string') valA = valA.toLowerCase();
+      if (typeof valB === 'string') valB = valB.toLowerCase();
+      if (valA < valB) return currentSort.asc ? -1 : 1;
+      if (valA > valB) return currentSort.asc ? 1 : -1;
+      return 0;
+    });
+
+    updateSortIcons();
+    renderDeliveredTable(deliveredData);
+  }
+
+  function updateSortIcons() {
+    document.querySelectorAll('th[data-key]').forEach(th => {
+      const key = th.dataset.key;
+      if (key === currentSort.key) {
+        th.querySelector('.sort-icon').textContent = currentSort.asc ? '🔼' : '🔽';
+      } else {
+        th.querySelector('.sort-icon').textContent = '⬍';
+      }
+    });
+  }
+
+  window.returnToShipping = returnToShipping;
+  window.sortTableBy = sortTableBy;
+
+  document.addEventListener('DOMContentLoaded', loadDeliveredOrders);
+</script>
 </head>
 <body>
   <nav>
