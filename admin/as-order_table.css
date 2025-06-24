@@ -130,21 +130,23 @@ thead th {
   background: white;
   margin: 10% auto;
   padding: 20px;
-  width: 400px;
+  width: 90%;
+  max-width: 400px; /* 화면 작을 때 대비 */
+  box-sizing: border-box;
   border-radius: 10px;
 }
 
-#modal-title {
-  margin-top: 0;
-}
-
-#modal-content {
-  white-space: pre-wrap;
-  font-size: 14px;
+.modal-footer {
+  text-align: right;
 }
 
 #modal-close {
-  float: right;
+  padding: 6px 12px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 /* ✅ 수정 모달 (공통 스타일 재사용) */
