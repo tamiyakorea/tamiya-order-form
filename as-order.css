@@ -264,3 +264,37 @@ footer img {
   padding: 10px;
   box-sizing: border-box;
 }
+
+/* ✅ 제품 선택 박스 스타일 */
+select#category,
+select#product,
+input#product[type="text"] {
+  width: 300px;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  border-radius: 0;
+  box-sizing: border-box;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+/* 호버 및 포커스 시 효과 */
+select#category:hover,
+select#product:hover,
+input#product[type="text"]:hover {
+  border-color: #888;
+  background-color: #f9f9f9;
+}
+
+select#category:focus,
+select#product:focus,
+input#product[type="text"]:focus {
+  outline: none;
+  border-color: #65d3f8;
+  background-color: #f0fbff;
+}
