@@ -108,7 +108,7 @@ window.loadAccountingData = async function () {
 
   const { data, error } = await supabase
     .from('orders')
-    .select('order_id, name, email, created_at, payment_date, total, tracking_date, delivery_invoice, receipt_info, items')
+    .select('order_id, name, email, created_at, payment_date, total, tracking_date, tracking_number, receipt_info, items')
     .eq('is_shipped', true)
     .eq('is_delivered', true)
     .not('tracking_date', 'is', null)
