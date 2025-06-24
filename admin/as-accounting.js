@@ -95,3 +95,5 @@ async function loadAccountingTable() {
     .map(([month, val]) => `<div>${month}: ₩${val.toLocaleString()}</div>`) 
     .join('');
 }
+
+window.loadAccountingTable = loadAccountingTable;
