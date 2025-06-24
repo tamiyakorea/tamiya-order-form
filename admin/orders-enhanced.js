@@ -296,8 +296,6 @@ async function checkAuth() {
   }
 }
 
-// ✅ 주문 수정 기능 시작
-
 function openEditOrderModal() {
   const checked = [...document.querySelectorAll('.download-checkbox:checked')];
   if (checked.length !== 1) {
@@ -317,8 +315,25 @@ function openEditOrderModal() {
     document.getElementById("editAddress").value = data.address || "";
     document.getElementById("editAddressDetail").value = data.address_detail || "";
     document.getElementById("editRemarks").value = data.remarks || "";
-    document.getElementById("editTotal").value = data.total || 0;
+    document.getElementById("editReceiptInfo").value = data.receipt_info || "";
     document.getElementById("editStaffDiscount").checked = false;
+
+    // 주문상품 목록 표시
+    const itemsList = document.getElementById("editItemsList");
+    itemsList.innerHTML = "";
+    const items = typeof data.items === 'string' ? JSON.parse(data.items) : data.items || [];
+    items.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "edit-item-row";
+      row.innerHTML = `
+        <input type="text" placeholder="시리얼" value="${item.code || ''}" class="editItemCode" style="width:80px;" />
+        <input type="text" placeholder="상품명" value="${item.name || ''}" class="editItemName" style="width:200px;" />
+        <input type="number" placeholder="수량" value="${item.qty || 1}" class="editItemQty" style="width:60px;" />
+        <input type="number" placeholder="단가" value="${item.price || 0}" class="editItemPrice" style="width:80px;" />
+        <button type="button" onclick="this.parentElement.remove()">❌</button>
+      `;
+      itemsList.appendChild(row);
+    });
 
     document.getElementById("editOrderModal").style.display = "block";
   });
@@ -341,14 +356,24 @@ async function applyOrderEdit() {
   const address = document.getElementById("editAddress").value.trim();
   const addressDetail = document.getElementById("editAddressDetail").value.trim();
   const remarks = document.getElementById("editRemarks").value.trim();
-  let total = Number(document.getElementById("editTotal").value);
+  const receipt_info = document.getElementById("editReceiptInfo").value.trim();
   const staffDiscount = document.getElementById("editStaffDiscount").checked;
 
+  // 상품 목록 추출
+  const itemRows = document.querySelectorAll(".edit-item-row");
+  const items = Array.from(itemRows).map(row => ({
+    code: row.querySelector(".editItemCode").value.trim(),
+    name: row.querySelector(".editItemName").value.trim(),
+    qty: Number(row.querySelector(".editItemQty").value),
+    price: Number(row.querySelector(".editItemPrice").value)
+  }));
+
+  // 총금액 계산
+  let total = items.reduce((sum, i) => sum + (i.qty * i.price), 0);
   const deliveryFee = total < 30000 ? 3000 : 0;
 
   if (staffDiscount) {
-    const discountBase = total - deliveryFee;
-    total = Math.round(discountBase * 0.9);
+    total = Math.round((total - deliveryFee) * 0.9);
   }
 
   const { error } = await supabase.from("orders").update({
@@ -359,6 +384,8 @@ async function applyOrderEdit() {
     address,
     address_detail: addressDetail,
     remarks,
+    receipt_info,
+    items: JSON.stringify(items),
     total
   }).eq("order_id", orderId);
 
@@ -372,6 +399,18 @@ async function applyOrderEdit() {
   }
 }
 
+function addEditItem() {
+  const row = document.createElement("div");
+  row.className = "edit-item-row";
+  row.innerHTML = `
+    <input type="text" placeholder="시리얼" class="editItemCode" style="width:80px;" />
+    <input type="text" placeholder="상품명" class="editItemName" style="width:200px;" />
+    <input type="number" placeholder="수량" class="editItemQty" value="1" style="width:60px;" />
+    <input type="number" placeholder="단가" class="editItemPrice" value="0" style="width:80px;" />
+    <button type="button" onclick="this.parentElement.remove()">❌</button>
+  `;
+  document.getElementById("editItemsList").appendChild(row);
+}
 
 window.addEventListener("DOMContentLoaded", () => {
   console.log("🌐 DOMContentLoaded 이벤트 발생!"); // ✅ 정상 출력됨
