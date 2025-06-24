@@ -162,6 +162,19 @@ document.getElementById("category").addEventListener("change", function () {
   }
 });
 
+function formatDate(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
+
+
+// 메시지에서 정보 추출
+function extractField(text, key) {
+  const match = new RegExp(`${key}\\s*:\\s*(.*?)\\n`).exec(text + '\n');
+  return match ? match[1].trim() : "";
+}
+
 window.searchOrderById = async function () {
   const input = document.getElementById("orderSearchInput").value.trim();
   const resultBox = document.getElementById("orderResult");
