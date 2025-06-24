@@ -138,7 +138,7 @@ window.openEditModal = async function () {
   document.getElementById('editFaultDesc').value = faultDesc;
   document.getElementById('editRequest').value = request;
 
-  document.getElementById('editModal').style.display = 'block';
+  document.getElementById('editModal').style.display = 'flex';
 };
 
 window.saveEdit = async function () {
