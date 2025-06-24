@@ -35,11 +35,14 @@ function renderOrders(orders) {
     const faultDesc = escapeQuotes(extractMessageField(order.message, '고장증상'));
     const request = escapeQuotes(extractMessageField(order.message, '요청사항'));
 
-    const receivedDate = order.status === '접수됨' ? `<div style='font-size:0.8em; color:#555;'>${order.status_updated_at?.split('T')[0]}</div>` : '';
-    const rowClass = order.status === '접수됨' ? 'style="background-color:#e0f8d8"' : '';
+    const receivedDate = order.status === '접수됨'
+      ? `<div class="received-date">${order.status_updated_at?.split('T')[0]}</div>`
+      : '';
+    const rowClass = order.status === '접수됨' ? 'highlighted' : '';
     const buttonLabel = order.status === '접수됨' ? '수리진행' : '접수';
 
     const row = document.createElement('tr');
+    row.className = rowClass;
     row.setAttribute('data-order-id', order.order_id);
     row.innerHTML = `
       <td><input type="checkbox" class="order-checkbox" data-id="${order.order_id}" /></td>
@@ -55,14 +58,13 @@ function renderOrders(orders) {
       <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
       <td><button onclick="showModal('요청사항', '${request}')">확인</button></td>
       <td>
-        <button onclick="toggleStatus('${order.order_id}', this)" ${rowClass}>${buttonLabel}</button>
+        <button onclick="toggleStatus('${order.order_id}', this)">${buttonLabel}</button>
         ${receivedDate}
       </td>
     `;
     tbody.appendChild(row);
   }
 }
-
 function extractMessageField(message, field) {
   if (!message) return '';
   const match = message.match(new RegExp(`${field}: ?([^\n]*)`));
