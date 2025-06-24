@@ -298,3 +298,45 @@ input#product[type="text"]:focus {
   border-color: #65d3f8;
   background-color: #f0fbff;
 }
+
+/* 신청 종류 체크박스 컨테이너 */
+#requestTypeWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* 체크박스 라벨 */
+#requestTypeWrapper label {
+  display: flex;
+  align-items: center;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* 체크박스 자체 디자인 */
+#requestTypeWrapper input[type="checkbox"] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #888;
+  border-radius: 4px;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  top: 1px;
+}
+
+#requestTypeWrapper input[type="checkbox"]:checked {
+  background-color: #000;
+  border-color: #000;
+  background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 16 16" fill="white" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M6.173 13.674a.75.75 0 0 1-1.06-.012l-3.75-4a.75.75 0 1 1 1.122-.996l3.212 3.423 7.409-8.697a.75.75 0 1 1 1.133.983l-8.066 9.299Z"/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+}
+
