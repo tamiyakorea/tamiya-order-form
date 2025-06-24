@@ -162,6 +162,66 @@ document.getElementById("category").addEventListener("change", function () {
   }
 });
 
+window.searchOrderById = async function () {
+  const input = document.getElementById("orderSearchInput").value.trim();
+  const resultBox = document.getElementById("orderResult");
+  resultBox.innerHTML = "";
+
+  if (!input || input.length !== 12) {
+    resultBox.innerHTML = "<p style='color:red;'>✅ 12자리 신청번호를 정확히 입력해주세요.</p>";
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("as_orders")
+    .select("*")
+    .eq("order_id", input)
+    .single();
+
+  if (error || !data) {
+    resultBox.innerHTML = "<p style='color:red;'>❌ 해당 신청번호로 조회된 내역이 없습니다.</p>";
+    return;
+  }
+
+  const [category, model] = (data.product_name || "").split(" > ");
+  const message = data.message || "";
+  const faultDate = extractField(message, "고장시기");
+  const faultDescription = extractField(message, "고장증상");
+  const requestDetails = extractField(message, "요청사항");
+
+  resultBox.innerHTML = `
+    <div style="background:#f4f4f4; border:1px solid #ccc; padding:15px;">
+      <h3>📌 신청번호: ${data.order_id}</h3>
+      <h4>🧍 고객 정보</h4>
+      <ul>
+        <li><strong>성명:</strong> ${data.name}</li>
+        <li><strong>전화번호:</strong> ${data.phone}</li>
+        <li><strong>이메일:</strong> ${data.email}</li>
+        <li><strong>우편번호:</strong> ${data.zipcode}</li>
+        <li><strong>주소:</strong> ${data.address} ${data.address_detail}</li>
+      </ul>
+
+      <h4>📦 신청 제품</h4>
+      <p><strong>종류:</strong> ${category || "-"}, <strong>모델명:</strong> ${model || "-"}</p>
+
+      <h4>🔧 고장 내역</h4>
+      <p><strong>고장시기:</strong> ${faultDate || "-"}<br />
+         <strong>고장증상:</strong><br /><div style="white-space: pre-wrap; border:1px solid #ccc; background:#fff; padding:10px;">${faultDescription || "-"}</div><br />
+         <strong>요청사항:</strong><br /><div style="white-space: pre-wrap; border:1px solid #ccc; background:#fff; padding:10px;">${requestDetails || "-"}</div>
+      </p>
+
+      <h4>📢 소비자 안내</h4>
+      <p style="color:#a00;">※ 접수 내역 확인 후, 안내에 따라 제품을 발송해 주세요.</p>
+    </div>
+  `;
+};
+
+// 메시지에서 필드 추출하는 함수
+function extractField(text, key) {
+  const match = new RegExp(`${key}\\s*:\\s*(.*?)\\n`).exec(text + '\n');
+  return match ? match[1].trim() : "";
+}
+
 // 현금영수증 요청 여부에 따라 입력창 표시/숨김
 window.toggleCashReceipt = function () {
   const checked = document.getElementById("receiptRequested").checked;
