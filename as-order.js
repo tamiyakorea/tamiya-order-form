@@ -20,17 +20,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const inspectionOptions = document.getElementById("inspectionOptions");
   const costNotice = document.getElementById("costNotice");
 
-  categorySelect.addEventListener("change", () => {
-    const selectedCategory = categorySelect.value;
-    productSelect.innerHTML = "";
-    if (productOptions[selectedCategory]) {
-      productOptions[selectedCategory].sort((a, b) => a.localeCompare(b, 'ko')).forEach(item => {
-        const option = document.createElement("option");
-        option.value = item;
-        option.textContent = item;
-        productSelect.appendChild(option);
-      });
+  const checkInspectionLabel = checkInspection.parentElement;
+  const checkRepairLabel = checkRepair.parentElement;
+
+  checkInspection.addEventListener("change", () => {
+    if (checkInspection.checked) {
+      checkRepair.checked = false;
+      checkRepairLabel.style.display = "none";
+      inspectionOptions.style.display = "block";
+    } else {
+      checkRepairLabel.style.display = "inline-block";
+      inspectionOptions.style.display = "none";
+      costNotice.style.display = "none";
+      document.querySelectorAll('input[name="inspectionFollowup"]').forEach(el => el.checked = false);
     }
+  });
+
+  checkRepair.addEventListener("change", () => {
+    if (checkRepair.checked) {
+      checkInspection.checked = false;
+      checkInspectionLabel.style.display = "none";
+      inspectionOptions.style.display = "none";
+      costNotice.style.display = "none";
+      document.querySelectorAll('input[name="inspectionFollowup"]').forEach(el => el.checked = false);
+    } else {
+      checkInspectionLabel.style.display = "inline-block";
+    }
+  });
+
+  document.querySelectorAll('input[name="inspectionFollowup"]').forEach(el => {
+    el.addEventListener("change", () => {
+      costNotice.style.display = el.value === "repair" ? "block" : "none";
+    });
   });
 });
 
@@ -44,37 +65,6 @@ window.execDaumPostcode = function () {
     }
   }).open();
 };
-
-
-const checkRepair = document.getElementById("checkRepair");
-const inspectionOptions = document.getElementById("inspectionOptions");
-const costNotice = document.getElementById("costNotice");
-
-checkInspection.addEventListener("change", () => {
-  if (checkInspection.checked) {
-    checkRepair.checked = false;
-    inspectionOptions.style.display = "block";
-  } else {
-    inspectionOptions.style.display = "none";
-    costNotice.style.display = "none";
-    document.querySelectorAll('input[name="inspectionFollowup"]').forEach(el => el.checked = false);
-  }
-});
-
-checkRepair.addEventListener("change", () => {
-  if (checkRepair.checked) {
-    checkInspection.checked = false;
-    inspectionOptions.style.display = "none";
-    costNotice.style.display = "none";
-    document.querySelectorAll('input[name="inspectionFollowup"]').forEach(el => el.checked = false);
-  }
-});
-
-document.querySelectorAll('input[name="inspectionFollowup"]').forEach(el => {
-  el.addEventListener("change", () => {
-    costNotice.style.display = el.value === "repair" ? "block" : "none";
-  });
-});
 
 // 🧾 주문번호 생성
 function generateOrderNumber() {
