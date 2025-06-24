@@ -32,6 +32,7 @@
   </div>
 
   <div class="button-group" style="display: flex; justify-content: flex-end; gap: 10px; margin: -10px 30px 20px 0;">
+    <button onclick="openEditModal()" style="padding: 6px 12px;">선택 수정</button>
     <button class="btn-excel" onclick="downloadSelectedOrders()">선택 항목 다운로드</button>
     <button class="btn-logout" onclick="logout()">로그아웃</button>
   </div>
@@ -71,6 +72,26 @@
     </div>
   </div>
 </div>
+
+<div id="editModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>신청 정보 수정</h3>
+    <input type="hidden" id="editOrderId" />
+    <label>이름: <input type="text" id="editName" /></label><br/>
+    <label>연락처: <input type="text" id="editPhone" /></label><br/>
+    <label>이메일: <input type="text" id="editEmail" /></label><br/>
+    <label>제품분류: <input type="text" id="editCategory" /></label><br/>
+    <label>제품명: <input type="text" id="editModel" /></label><br/>
+    <label>고장시기: <input type="text" id="editFaultDate" /></label><br/>
+    <label>고장증상: <textarea id="editFaultDesc"></textarea></label><br/>
+    <label>요청사항: <textarea id="editRequest"></textarea></label><br/>
+    <div style="text-align: right; margin-top: 10px;">
+      <button onclick="saveEdit()">저장</button>
+      <button onclick="document.getElementById('editModal').style.display='none'">닫기</button>
+    </div>
+  </div>
+</div>
+
 
 <style>
   .modal {
