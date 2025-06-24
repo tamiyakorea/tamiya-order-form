@@ -92,6 +92,24 @@
       </select>
     </section>
 
+<!-- 신청 종류 섹션 -->
+<section class="section">
+  <h2>신청 종류</h2>
+  <div id="requestTypeWrapper">
+    <label><input type="checkbox" id="checkInspection" /> 점검 요청</label>
+    <label><input type="checkbox" id="checkRepair" /> 수리 요청</label>
+  </div>
+
+  <div id="inspectionOptions" style="display:none; margin-top: 10px; padding-left: 20px;">
+    <label><input type="radio" name="inspectionFollowup" value="repair" /> 문제 발생 시 수리 요청</label><br />
+    <label><input type="radio" name="inspectionFollowup" value="no-repair" /> 문제 발생해도 수리하지 않음</label>
+
+    <div id="costNotice" style="display:none; margin-top: 10px; padding: 10px; background: #fffbe6; border: 1px solid #e0b800;">
+      ※ 점검 후 수리를 요청하신 경우, 별도의 수리 비용이 발생할 수 있습니다.
+    </div>
+  </div>
+</section>
+  
     <!-- 고장 증상 입력 -->
     <section class="section">
       <h2>고장 증상 입력</h2>
