@@ -108,7 +108,7 @@ window.loadAccountingData = async function () {
 
   const { data, error } = await supabase
     .from('orders')
-    .select('order_id, name, email, created_at, payment_date, total, tracking_date, tracking_number, receipt_info, items')
+    .select('order_id, name, email, created_at, payment_date, total, tracking_date, delivery_invoice, receipt_info, items')
     .eq('is_shipped', true)
     .eq('is_delivered', true)
     .not('tracking_date', 'is', null)
@@ -170,7 +170,7 @@ window.downloadAccountingExcel = function () {
       총금액: order.total,
       출고일자: order.tracking_date ? formatDateOnly(order.tracking_date) : '-',
       현금영수증: order.receipt_info?.trim() ? '발행' : '-',
-      송장번호: order.tracking_number || ''
+      송장번호: order.delivery_invoice || ''
     };
   });
 
