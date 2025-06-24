@@ -21,6 +21,25 @@
 
   <h1>SANWA A/S 회계 확인</h1>
 
+  <div style="margin: 20px;">
+    <label>기간: 
+      <select id="rangeSelect">
+        <option value="1m">최근 1개월</option>
+        <option value="3m">최근 3개월</option>
+        <option value="6m">최근 6개월</option>
+        <option value="12m">최근 1년</option>
+        <option value="custom">직접 선택</option>
+      </select>
+    </label>
+    <input type="date" id="startDate" style="display:none;">
+    <input type="date" id="endDate" style="display:none;">
+    <button onclick="loadAccountingTable()">검색</button>
+
+    <label style="margin-left:30px;">검색어:
+      <input type="text" id="searchKeyword" placeholder="주문번호, INVOICE, 고객명">
+    </label>
+  </div>
+
   <div class="table-wrapper">
     <table>
       <thead>
@@ -39,6 +58,12 @@
         <tr><td colspan="8">불러오는 중...</td></tr>
       </tbody>
     </table>
+  </div>
+
+  <div style="margin: 20px;">
+    <h3>수리비 통계</h3>
+    <div id="totalRepairCost">총 수리금액: ₩0</div>
+    <div id="monthlyStats"></div>
   </div>
 
   <script type="module" src="as-accounting.js"></script>
