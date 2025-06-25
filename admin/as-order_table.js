@@ -36,8 +36,8 @@ function renderOrders(orders) {
     const faultDate = extractMessageField(order.message, '고장시기');
     const faultDesc = escapeQuotes(extractMessageField(order.message, '고장증상'));
     const request = escapeQuotes(extractMessageField(order.message, '요청사항'));
-    const address = escapeQuotes(order.address || '');
-    const address_detail = escapeQuotes(order.address_detail || '');
+    const address = escapeQuotes(order.address || '주소');
+    const address_detail = escapeQuotes(order.address_detail || '상세 주소');
 
 
     const receivedDate = order.status === '접수됨'
