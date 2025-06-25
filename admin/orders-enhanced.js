@@ -257,7 +257,8 @@ function confirmEditSave() {
 }
 
 function cancelEdit() {
-  document.getElementById("editConfirmModal").style.display = "none";
+  document.getElementById("editConfirmModal").classList.remove("show");
+  document.getElementById("editOrderModal").classList.remove("show");
 }
 
 async function applyOrderEdit() {
