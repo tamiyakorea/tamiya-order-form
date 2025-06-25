@@ -383,7 +383,7 @@ async function downloadProductPriceInfo() {
       matched.price ?? '',    // F: price
       "",                    // G: 공백
       item.qty,              // H: 수량
-      "", "", "", "", "", "", "", "", "", // I~Q: 공백
+      "", "", "", "", "", "", "", "", "","", // I~Q: 공백
       `${item.code} ${item.customer} ${item.payment_date}` // R: 조합된 설명 (문자열)
     ];
   });
