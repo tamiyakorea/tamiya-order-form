@@ -8,24 +8,6 @@
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="orders.css" />
   <link rel="icon" href="data:,">
-  <style>
-    .button-group {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin: -10px 30px 20px 0;
-    }
-    .button-group button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      color: white;
-    }
-    .btn-excel { background-color: green; }
-    .btn-upload { background-color: #007bff; }
-    .btn-logout { background-color: #dc3545; }
-  </style>
   <script>
     function logout() {
       if (typeof window.logout === 'function') window.logout();
@@ -58,45 +40,43 @@
     <input id="searchInput" type="text" placeholder="주문번호 또는 고객명을 입력하세요" style="padding: 6px; width: 300px;" />
     <button onclick="searchOrders()" style="padding: 6px 12px;">검색</button>
     <button onclick="loadOrders()" style="padding: 6px 12px;">전체보기</button>
-    </button>
   </div>
 
-  <!-- ✅ 버튼 우측 정렬 영역 -->
   <div class="button-group">
-  <button class="btn-upload" onclick="openUploadWindow()">엑셀 주문 등록</button>
-  <button class="btn-upload" onclick="openEditOrderModal()">주문 수정</button>
-  <button class="btn-excel" onclick="downloadSelectedOrders()">선택 주문서 다운로드</button>
-  <button class="btn-upload" onclick="window.location.href='items.html'">DB 설정</button> <!-- ✅ 추가된 부분 -->
-  <button class="btn-logout" onclick="logout()">로그아웃</button>
-</div>
+    <button class="btn-upload" onclick="openUploadWindow()">엑셀 주문 등록</button>
+    <button class="btn-upload" onclick="openEditOrderModal()">주문 수정</button>
+    <button class="btn-excel" onclick="downloadSelectedOrders()">선택 주문서 다운로드</button>
+    <button class="btn-upload" onclick="window.location.href='items.html'">DB 설정</button>
+    <button class="btn-logout" onclick="logout()">로그아웃</button>
+  </div>
 
   <div class="table-wrapper">
     <table id="orderTable">
       <colgroup id="colgroup"></colgroup>
       <thead>
         <tr>
-          <th rowspan="2" data-col-index="0">삭제</th>
-          <th rowspan="2" data-col-index="2">주문일시</th>
-          <th rowspan="2" data-col-index="3">주문번호</th>
-          <th rowspan="2" data-col-index="4">고객명</th>
-          <th rowspan="2" data-col-index="5">전화번호</th>
-          <th rowspan="2" data-col-index="6">이메일</th>
+          <th rowspan="2">삭제</th>
+          <th rowspan="2">주문일시</th>
+          <th rowspan="2">주문번호</th>
+          <th rowspan="2">고객명</th>
+          <th rowspan="2">전화번호</th>
+          <th rowspan="2">이메일</th>
           <th colspan="3">주소</th>
-          <th rowspan="2" data-col-index="10">현금영수증</th>
+          <th rowspan="2">현금영수증</th>
           <th colspan="4">주문 상품</th>
-          <th rowspan="2" data-col-index="15">총 금액</th>
-          <th rowspan="2" data-col-index="16">입금 상태</th>
-          <th rowspan="2" data-col-index="18">고객 안내</th>
-          <th rowspan="2" data-col-index="17">비고</th>
+          <th rowspan="2">총 금액</th>
+          <th rowspan="2">입금 상태</th>
+          <th rowspan="2">고객 안내</th>
+          <th rowspan="2">비고</th>
         </tr>
         <tr>
-          <th data-col-index="7">우편번호</th>
-          <th data-col-index="8">기본주소</th>
-          <th data-col-index="9">상세주소</th>
-          <th data-col-index="11">시리얼</th>
-          <th data-col-index="12">상품명</th>
-          <th data-col-index="13">수량</th>
-          <th data-col-index="14">단가</th>
+          <th>우편번호</th>
+          <th>기본주소</th>
+          <th>상세주소</th>
+          <th>시리얼</th>
+          <th>상품명</th>
+          <th>수량</th>
+          <th>단가</th>
         </tr>
       </thead>
       <tbody id="orderBody">
@@ -105,34 +85,34 @@
     </table>
   </div>
 
-<!-- 주문 수정 모달 -->
-<div id="editOrderModal" class="modal">
-  <input type="hidden" id="editOrderId" />
-  <label>이름: <input type="text" id="editName" /></label><br />
-  <label>전화번호: <input type="text" id="editPhone" /></label><br />
-  <label>이메일: <input type="text" id="editEmail" /></label><br />
-  <label>우편번호: <input type="text" id="editZipcode" /></label><br />
-  <label>현금영수증: <input type="text" id="editReceiptInfo" /></label><br />
-  <label>주소: <input type="text" id="editAddress" /></label><br />
-  <label>상세주소: <input type="text" id="editAddressDetail" /></label><br />
-  <label>비고: <input type="text" id="editRemarks" /></label><br />
-  <div id="editItemsContainer">
-  <p><strong>주문 상품 수정</strong></p>
-  <div id="editItemsList"></div>
-  <button type="button" onclick="addEditItem()">+ 상품 추가</button>
-</div>
-  <label>총금액 (자동계산됨): <input type="number" id="editTotal" disabled /></label><br />
-  <label><input type="checkbox" id="editStaffDiscount" /> 직원 할인 적용</label><br /><br />
-  <button onclick="confirmEditSave()">저장</button>
-  <button onclick="document.getElementById('editOrderModal').style.display='none'">닫기</button>
-</div>
+  <!-- 주문 수정 모달 -->
+  <div id="editOrderModal" class="modal">
+    <input type="hidden" id="editOrderId" />
+    <label>이름: <input type="text" id="editName" /></label><br />
+    <label>전화번호: <input type="text" id="editPhone" /></label><br />
+    <label>이메일: <input type="text" id="editEmail" /></label><br />
+    <label>우편번호: <input type="text" id="editZipcode" /></label><br />
+    <label>현금영수증: <input type="text" id="editReceiptInfo" /></label><br />
+    <label>주소: <input type="text" id="editAddress" /></label><br />
+    <label>상세주소: <input type="text" id="editAddressDetail" /></label><br />
+    <label>비고: <input type="text" id="editRemarks" /></label><br />
+    <div id="editItemsContainer">
+      <p><strong>주문 상품 수정</strong></p>
+      <div id="editItemsList"></div>
+      <button type="button" onclick="addEditItem()">+ 상품 추가</button>
+    </div>
+    <label>총금액 (자동계산됨): <input type="number" id="editTotal" disabled /></label><br />
+    <label><input type="checkbox" id="editStaffDiscount" /> 직원 할인 적용</label><br /><br />
+    <button onclick="confirmEditSave()">저장</button>
+    <button onclick="document.getElementById('editOrderModal').style.display='none'">닫기</button>
+  </div>
 
-<!-- 수정 확인 모달 -->
-<div id="editConfirmModal" class="modal">
-  <p>수정된 내용을 저장하시겠습니까?</p>
-  <button onclick="applyOrderEdit()">예</button>
-  <button onclick="cancelEdit()">아니오</button>
-</div>
+  <!-- 수정 확인 모달 -->
+  <div id="editConfirmModal" class="modal">
+    <p>수정된 내용을 저장하시겠습니까?</p>
+    <button onclick="applyOrderEdit()">예</button>
+    <button onclick="cancelEdit()">아니오</button>
+  </div>
 
   <script type="module" src="orders-enhanced.js"></script>
 </body>
