@@ -186,7 +186,7 @@ td.address-cell, td.address-detail-cell {
 }
 
 .modal {
-  display: none;
+  display: flex;  /* ❗ 기존 display: none → flex 로 변경 */
   position: fixed;
   z-index: 1000;
   left: 0;
