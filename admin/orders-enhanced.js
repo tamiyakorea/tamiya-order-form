@@ -349,7 +349,6 @@ async function downloadProductPriceInfo() {
     return;
   }
 
-  // 주문 내 아이템 펼치고 고객명 및 입금일 함께 매핑
   const allItems = orders.flatMap(order => {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
     return items.map(i => ({
@@ -361,7 +360,6 @@ async function downloadProductPriceInfo() {
     }));
   });
 
-  // item_code로 tamiya_items에서 j_retail, price 조회
   const uniqueCodes = [...new Set(allItems.map(i => i.code))];
   const { data: matchedItems, error: itemError } = await supabase
     .from("tamiya_items")
@@ -375,22 +373,37 @@ async function downloadProductPriceInfo() {
 
   const itemMap = Object.fromEntries(matchedItems.map(i => [String(i.item_code), i]));
 
-  // 최종 엑셀 데이터 구성
+  // 구성된 행 배열 생성
   const rows = allItems.map(item => {
     const matched = itemMap[item.code] || {};
-    return {
-      고객명: item.customer,
-      입금확인일: item.payment_date,
-      제품코드: item.code,
-      제품명: item.name,
-      수량: item.qty,
-      j_retail: matched.j_retail ?? '',
-      price: matched.price ?? ''
-    };
+    return [
+      item.code,             // A: 제품코드
+      item.name,             // B: 제품명
+      "", "",                // C, D: 빈칸
+      matched.j_retail ?? '', // E: j_retail
+      matched.price ?? '',    // F: price
+      "",                    // G: 빈칸
+      item.qty,              // H: 수량
+      "", "", "", "", "", "", "", "", "", // I~Q: 빈칸
+      `=A${rows.length + 2} & " ${item.customer} " & " ${item.payment_date} "` // R: 수식
+    ];
   });
 
-  const worksheet = XLSX.utils.json_to_sheet(rows, {
-    header: ["고객명", "입금확인일", "제품코드", "제품명", "수량", "j_retail", "price"]
+  // 헤더 행
+  const header = [
+    "제품코드", "제품명", "", "", "j_retail", "price", "", "수량",
+    "", "", "", "", "", "", "", "", "", "",
+    "설명 (제품코드 + 고객명 + 입금일)"
+  ];
+
+  const worksheet = XLSX.utils.aoa_to_sheet([header, ...rows]);
+
+  // 숨길 열 정의 (C, D, G, I~Q)
+  worksheet['!cols'] = Array.from({ length: 19 }, (_, idx) => {
+    if ([2, 3, 6, 8,9,10,11,12,13,14,15,16,17].includes(idx)) {
+      return { hidden: true };
+    }
+    return {};
   });
 
   const workbook = XLSX.utils.book_new();
