@@ -344,30 +344,43 @@ async function downloadProductPriceInfo() {
     .select("*")
     .in("order_id", selectedOrderIds);
 
-  if (orderError || !orders) return alert("주문 불러오기 실패: " + (orderError?.message || ''));
+  if (orderError || !orders) {
+    alert("주문 불러오기 실패: " + (orderError?.message || ''));
+    return;
+  }
 
+  // 주문 내 아이템 펼치고 고객명 및 입금일 함께 매핑
   const allItems = orders.flatMap(order => {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
     return items.map(i => ({
       code: String(i.code).trim(),
       name: i.name,
-      qty: i.qty
+      qty: i.qty,
+      customer: order.name,
+      payment_date: order.payment_date ? formatDateOnly(order.payment_date) : ''
     }));
   });
 
+  // item_code로 tamiya_items에서 j_retail, price 조회
   const uniqueCodes = [...new Set(allItems.map(i => i.code))];
   const { data: matchedItems, error: itemError } = await supabase
     .from("tamiya_items")
     .select("item_code, j_retail, price")
     .in("item_code", uniqueCodes.map(Number));
 
-  if (itemError || !matchedItems) return alert("제품 정보 불러오기 실패: " + (itemError?.message || ''));
+  if (itemError || !matchedItems) {
+    alert("제품 정보 불러오기 실패: " + (itemError?.message || ''));
+    return;
+  }
 
   const itemMap = Object.fromEntries(matchedItems.map(i => [String(i.item_code), i]));
 
+  // 최종 엑셀 데이터 구성
   const rows = allItems.map(item => {
     const matched = itemMap[item.code] || {};
     return {
+      고객명: item.customer,
+      입금확인일: item.payment_date,
       제품코드: item.code,
       제품명: item.name,
       수량: item.qty,
@@ -376,7 +389,10 @@ async function downloadProductPriceInfo() {
     };
   });
 
-  const worksheet = XLSX.utils.json_to_sheet(rows, { header: ["제품코드", "제품명", "수량", "j_retail", "price"] });
+  const worksheet = XLSX.utils.json_to_sheet(rows, {
+    header: ["고객명", "입금확인일", "제품코드", "제품명", "수량", "j_retail", "price"]
+  });
+
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "제품정보");
   XLSX.writeFile(workbook, "선택주문_제품정보.xlsx");
