@@ -77,8 +77,8 @@ function renderOrders(data) {
         <button class="proof-btn" onclick="showModal('이메일', \`${order.email || ''}\`)">확인</button>
       </td>
       <td rowspan="${items.length}">${order.zipcode}</td>
-      <td rowspan="${items.length}">${order.address}</td>
-      <td rowspan="${items.length}">${order.address_detail}</td>
+      <td rowspan="${items.length}" class="address-cell">${order.address}</td>
+      <td rowspan="${items.length}" class="address-detail-cell">${order.address_detail}</td>
       <td rowspan="${items.length}">
         <button class="proof-btn" onclick="showModal('현금영수증', \`${order.receipt_info || ''}\`)">확인</button>
       </td>
