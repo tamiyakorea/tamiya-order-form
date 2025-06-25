@@ -49,37 +49,38 @@ function renderOrders(orders) {
     const row = document.createElement('tr');
     row.className = rowClass;
     row.setAttribute('data-order-id', order.order_id);
-    row.innerHTML = `
-      <td><input type="checkbox" class="order-checkbox" data-id="${order.order_id}" /></td>
-      <td><button onclick="deleteOrder('${order.order_id}')">삭제</button></td>
-      <td>${order.created_at?.split('T')[0] || ''}</td>
-      <td>${order.order_id}</td>
-      <td>${order.name}</td>
-      <td>${order.phone}</td>
-      <td>${order.zipcode}</td>
-      <td>
-        <button onclick="showModal('주소', \`${address.replace(/`/g, '\\`')}\`)">확인</button>
-      </td
-      <td>
-        <button onclick="showModal('상세 주소', \`${address_detail.replace(/`/g, '\\`')}\`)">확인</button>
-      </td
-      <td>${order.email}</td>
-      <td>${(order.product_name || '').split(' > ')[0] || ''}</td>
-      <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
-      <td>${order.request_type || ''}</td>
-      <td>${order.inspection_followup || ''}</td>
-      <td>${faultDate}</td>
-      <td>
-        <button onclick="showModal('고장증상', \`${faultDesc.replace(/`/g, '\\`')}\`)">확인</button>
-      </td>
-      <td>
-        <button onclick="showModal('요청사항', \`${request.replace(/`/g, '\\`')}\`)">확인</button>
-      </td>
-      <td>
-        <button onclick="toggleStatus('${order.order_id}', this)">${buttonLabel}</button>
-        ${receivedDate}
-      </td>
-    `;
+row.innerHTML = `
+  <td><input type="checkbox" class="order-checkbox" data-id="${order.order_id}" /></td>
+  <td><button onclick="deleteOrder('${order.order_id}')">삭제</button></td>
+  <td>${order.created_at?.split('T')[0] || ''}</td>
+  <td>${order.order_id}</td>
+  <td>${order.name}</td>
+  <td>${order.phone}</td>
+  <td>${order.zipcode}</td>
+  <td>
+    <button onclick="showModal('주소', \`${address.replace(/`/g, '\\`')}\`)">확인</button>
+  </td>
+  <td>
+    <button onclick="showModal('상세 주소', \`${address_detail.replace(/`/g, '\\`')}\`)">확인</button>
+  </td>
+  <td>${order.email}</td>
+  <td>${(order.product_name || '').split(' > ')[0] || ''}</td>
+  <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
+  <td>${order.request_type || ''}</td>
+  <td>${order.inspection_followup || ''}</td>
+  <td>${faultDate}</td>
+  <td>
+    <button onclick="showModal('고장증상', \`${faultDesc.replace(/`/g, '\\`')}\`)">확인</button>
+  </td>
+  <td>
+    <button onclick="showModal('요청사항', \`${request.replace(/`/g, '\\`')}\`)">확인</button>
+  </td>
+  <td>
+    <button onclick="toggleStatus('${order.order_id}', this)">${buttonLabel}</button>
+    ${receivedDate}
+  </td>
+`;
+
     tbody.appendChild(row);
   }
 }
