@@ -334,7 +334,53 @@ function logout() {
   });
 }
 
+async function downloadProductPriceInfo() {
+  const checkboxes = document.querySelectorAll('.download-checkbox:checked');
+  if (checkboxes.length === 0) return alert('주문을 선택하세요.');
 
+  const selectedOrderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
+  const { data: orders, error: orderError } = await supabase
+    .from("orders")
+    .select("*")
+    .in("order_id", selectedOrderIds);
+
+  if (orderError || !orders) return alert("주문 불러오기 실패: " + (orderError?.message || ''));
+
+  const allItems = orders.flatMap(order => {
+    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+    return items.map(i => ({
+      code: String(i.code).trim(),
+      name: i.name,
+      qty: i.qty
+    }));
+  });
+
+  const uniqueCodes = [...new Set(allItems.map(i => i.code))];
+  const { data: matchedItems, error: itemError } = await supabase
+    .from("tamiya_items")
+    .select("item_code, j_retail, price")
+    .in("item_code", uniqueCodes.map(Number));
+
+  if (itemError || !matchedItems) return alert("제품 정보 불러오기 실패: " + (itemError?.message || ''));
+
+  const itemMap = Object.fromEntries(matchedItems.map(i => [String(i.item_code), i]));
+
+  const rows = allItems.map(item => {
+    const matched = itemMap[item.code] || {};
+    return {
+      제품코드: item.code,
+      제품명: item.name,
+      수량: item.qty,
+      j_retail: matched.j_retail ?? '',
+      price: matched.price ?? ''
+    };
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(rows, { header: ["제품코드", "제품명", "수량", "j_retail", "price"] });
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "제품정보");
+  XLSX.writeFile(workbook, "선택주문_제품정보.xlsx");
+}
 
 async function downloadSelectedOrders() {
   const checkboxes = document.querySelectorAll('.download-checkbox:checked');
@@ -383,6 +429,7 @@ Object.assign(window, {
   togglePayment,
   cancelEdit,
   markAsOrdered,
+  downloadProductPriceInfo,
   showModal  // ✅ 이 줄 추가!
 });
 
