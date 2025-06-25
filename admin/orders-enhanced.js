@@ -334,6 +334,64 @@ function logout() {
   });
 }
 
+async function copySelectedOrdersToCreate() {
+  const checkboxes = document.querySelectorAll('.download-checkbox:checked');
+  if (checkboxes.length === 0) return alert('복사할 주문을 선택하세요.');
+
+  const selectedOrderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
+
+  // 1. orders 테이블에서 주문 정보 가져오기
+  const { data: orders, error: orderError } = await supabase
+    .from("orders")
+    .select("order_id, items, payment_date")
+    .in("order_id", selectedOrderIds);
+
+  if (orderError || !orders) return alert("❌ 주문 데이터 불러오기 실패: " + (orderError?.message || ''));
+
+  const allItems = orders.flatMap(order => {
+    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+    return items.map(item => ({
+      order_id: order.order_id,
+      code: item.code,
+      name: item.name,
+      payment_date: order.payment_date || null
+    }));
+  });
+
+  const uniqueCodes = [...new Set(allItems.map(item => item.code))];
+
+  // 2. tamiya_items 테이블에서 j_retail, price 정보 조회
+  const { data: itemDetails, error: itemError } = await supabase
+    .from("tamiya_items")
+    .select("code, j_retail, price")
+    .in("code", uniqueCodes);
+
+  if (itemError || !itemDetails) return alert("❌ 상품 정보 조회 실패: " + (itemError?.message || ''));
+
+  const itemMap = Object.fromEntries(itemDetails.map(d => [d.code, d]));
+
+  // 3. order_create 테이블에 저장할 데이터 구성
+  const insertRows = allItems.map(item => {
+    const info = itemMap[item.code] || {};
+    return {
+      order_id: item.order_id,
+      code: item.code,
+      name: item.name,
+      payment_date: item.payment_date,
+      j_retail: info.j_retail || null,
+      price: info.price || null
+    };
+  });
+
+  const { error: insertError } = await supabase.from("order_create").insert(insertRows);
+  if (insertError) return alert("❌ order_create 테이블 저장 실패: " + insertError.message);
+
+  alert("✅ 선택한 주문이 order_create.html 페이지로 복사 저장되었습니다.");
+  window.open("order_create.html", "_blank");
+}
+
+window.copySelectedOrdersToCreate = copySelectedOrdersToCreate;
+
 async function downloadSelectedOrders() {
   const checkboxes = document.querySelectorAll('.download-checkbox:checked');
   if (checkboxes.length === 0) return alert('다운로드할 주문을 선택하세요.');
