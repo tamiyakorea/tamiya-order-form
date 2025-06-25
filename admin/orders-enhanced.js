@@ -381,3 +381,8 @@ Object.assign(window, {
   markAsOrdered,
   showModal  // ✅ 이 줄 추가!
 });
+
+function showModal(title, content) {
+  console.log('[DEBUG] showModal 호출됨:', title, content);  // ✅ 로그 찍힘 여부 확인
+  ...
+}
