@@ -87,7 +87,7 @@
             <td>₩${item.price?.toLocaleString?.() || '-'}</td>
             ${isFirst ? `<td rowspan="${items.length}">₩${order.total?.toLocaleString?.() || '-'}</td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${order.tracking_number || '-'}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.remarks || '-'}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}"><button class="detail-btn" onclick="showDetailModal('비고', \`${order.remarks || '-'}\`)">확인</button></td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${order.shipping_note || '-'}</td>` : ''}
           `;
           tbody.appendChild(row);
