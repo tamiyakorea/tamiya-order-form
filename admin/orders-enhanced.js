@@ -361,12 +361,19 @@ async function copySelectedOrdersToCreate() {
 
   const uniqueCodes = [...new Set(allItems.map(item => item.code).filter(Boolean))];
 
-  const { data: itemDetails, error: itemError } = await supabase
-    .from("tamiya_items")
-    .select("code, j_retail, price")
-    .in("code", uniqueCodes);
+  if (uniqueCodes.length === 0) {
+  alert("복사할 상품 코드가 없습니다.");
+  return;
+}
 
-  if (itemError || !itemDetails) return alert("❌ 상품 정보 조회 실패: " + (itemError?.message || ''));
+// ✅ 이 부분이 꼭 들어가야 함!
+const { data: itemDetails, error: itemError } = await supabase
+  .from("tamiya_items")
+  .select("code, j_retail, price")
+  .in("code", uniqueCodes);
+
+if (itemError || !itemDetails) return alert("❌ 상품 정보 조회 실패: " + (itemError?.message || ''));
+
 
   const itemMap = Object.fromEntries(itemDetails.map(d => [d.code, d]));
 
