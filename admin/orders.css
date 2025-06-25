@@ -163,3 +163,13 @@ th .resizer {
 .modal.show {
   display: flex;
 }
+
+.modal-content {
+  background-color: white;
+  padding: 20px 24px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+}
