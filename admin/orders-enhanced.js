@@ -248,7 +248,7 @@ function openEditOrderModal() {
       itemsList.appendChild(row);
     });
 
-    document.getElementById("editOrderModal").style.display = "block";
+    document.getElementById("editOrderModal").classList.add("show");
   });
 }
 
