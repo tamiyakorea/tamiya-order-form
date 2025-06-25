@@ -230,7 +230,7 @@ function openEditOrderModal() {
     document.getElementById("editAddressDetail").value = data.address_detail || "";
     document.getElementById("editRemarks").value = data.remarks || "";
     document.getElementById("editReceiptInfo").value = data.receipt_info || "";
-    document.getElementById("editStaffDiscount").checked = false;
+    document.getElementById("editStaffDiscount").checked = !!data.staff_discount;
 
     const itemsList = document.getElementById("editItemsList");
     itemsList.innerHTML = "";
@@ -257,8 +257,7 @@ function confirmEditSave() {
 }
 
 function cancelEdit() {
-  document.getElementById("editConfirmModal").classList.remove("show");
-  document.getElementById("editOrderModal").classList.remove("show");
+  document.getElementById("editConfirmModal").style.display = "none";
 }
 
 async function applyOrderEdit() {
