@@ -136,6 +136,37 @@ th .resizer {
   cursor: pointer;
 }
 
+/* ✅ 공통 버튼 스타일 */
+.top-action-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  margin-right: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.top-action-btn:hover {
+  background-color: #0056b3;
+}
+
+.top-action-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* ✅ 버튼 그룹 컨테이너 */
+.top-button-group {
+  margin: 20px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
 /* ✅ 주문 수정 영역 */
 .edit-item-row {
   display: flex;
