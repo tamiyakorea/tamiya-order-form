@@ -359,23 +359,29 @@ async function copySelectedOrdersToCreate() {
     }));
   });
 
-  // ✅ 문자열 코드만 필터링
-  const uniqueCodes = [...new Set(
-    allItems
-      .map(item => String(item.code).trim())
-      .filter(code => code !== '')
-  )];
+// ✅ 먼저 필터링된 uniqueCodes 만들기
+const uniqueCodes = [...new Set(
+  allItems
+    .map(item => String(item.code).trim())
+    .filter(code => code !== '')
+)];
 
-  if (uniqueCodes.length === 0) {
-    alert("복사할 상품 코드가 없습니다.");
-    return;
-  }
+if (uniqueCodes.length === 0) {
+  alert("복사할 상품 코드가 없습니다.");
+  return;
+}
 
-  // ✅ tamiya_items 정보 조회
-  const { data: itemDetails, error: itemError } = await supabase
-    .from("tamiya_items")
-    .select("code, j_retail, price")
-    .in("code", uniqueCodes);
+// ✅ 이후에 Supabase 쿼리 분기 처리
+const itemQuery = supabase
+  .from("tamiya_items")
+  .select("code, j_retail, price");
+
+const query =
+  uniqueCodes.length === 1
+    ? itemQuery.eq("code", uniqueCodes[0])
+    : itemQuery.in("code", uniqueCodes);
+
+const { data: itemDetails, error: itemError } = await query;
 
   if (itemError || !itemDetails) {
     return alert("❌ 상품 정보 조회 실패: " + (itemError?.message || ''));
