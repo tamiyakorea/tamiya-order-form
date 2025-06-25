@@ -379,5 +379,5 @@ Object.assign(window, {
   togglePayment,
   cancelEdit,
   markAsOrdered,
-  showModal
+  showModal  // ✅ 이 줄 추가!
 });
