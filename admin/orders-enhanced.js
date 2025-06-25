@@ -187,16 +187,17 @@ function injectColgroup() {
 }
 
 function showModal(title, content) {
-  console.log('[DEBUG] showModal 호출됨:', title, content);  // ✅ 로그 확인용
-  document.querySelector('.modal')?.remove();
+  console.log('[DEBUG] showModal 호출됨:', title, content);
+  document.querySelector('.popup-modal')?.remove(); // 기존 팝업 모달 제거
+
   const modal = document.createElement("div");
-  modal.className = "modal";
+  modal.className = "popup-modal";
   modal.innerHTML = `
-    <div class="modal-content">
+    <div class="popup-modal-content">
       <h3>${title}</h3>
-      <p style="white-space: pre-line;">${content || '(비어있음)'}</p>
+      <p>${content || '(비어있음)'}</p>
       <div style="text-align: right; margin-top: 20px;">
-        <button onclick="this.closest('.modal').remove()">닫기</button>
+        <button onclick="this.closest('.popup-modal').remove()">닫기</button>
       </div>
     </div>
   `;
