@@ -378,5 +378,6 @@ Object.assign(window, {
   addEditItem,
   togglePayment,
   cancelEdit,
-  markAsOrdered
+  markAsOrdered,
+  showModal
 });
