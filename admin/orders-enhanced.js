@@ -39,6 +39,89 @@ async function togglePayment(orderId, current, button) {
   }
 }
 
+function renderOrders(data) {
+  const tbody = document.getElementById("orderBody");
+  tbody.innerHTML = "";
+  if (!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="18">주문 내역이 없습니다.</td></tr>';
+    return;
+  }
+
+  data.forEach(order => {
+    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+    const paymentDateInput = order.payment_date ? formatDateInput(order.payment_date) : getTodayDateString();
+
+    items.forEach((item, idx) => {
+      const isFirstRow = idx === 0;
+      const rowClass = [
+        isFirstRow ? 'order-separator' : '',
+        order.payment_confirmed ? 'confirmed-row' : '',
+        order.confirmation_note ? 'confirmation-warning' : ''
+      ].join(' ');
+
+      const rowHtml = `
+  <tr class="${rowClass}">
+    ${isFirstRow ? `
+      <td rowspan="${items.length}">
+        <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
+        <br>
+        <input type="checkbox" class="download-checkbox" data-order-id="${order.order_id}">
+      </td>
+      <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
+      <td rowspan="${items.length}">${order.order_id}</td>
+      <td rowspan="${items.length}">${order.name}</td>
+      <td rowspan="${items.length}">
+        <button class="proof-btn" onclick="showModal('전화번호', \`${order.phone || ''}\`)">확인</button>
+      </td>
+      <td rowspan="${items.length}">
+        <button class="proof-btn" onclick="showModal('이메일', \`${order.email || ''}\`)">확인</button>
+      </td>
+      <td rowspan="${items.length}">${order.zipcode}</td>
+      <td rowspan="${items.length}">${order.address}</td>
+      <td rowspan="${items.length}">${order.address_detail}</td>
+      <td rowspan="${items.length}">
+        <button class="proof-btn" onclick="showModal('현금영수증', \`${order.receipt_info || ''}\`)">확인</button>
+      </td>
+    ` : ''}
+    <td>${item.code || '-'}</td>
+    <td class="ellipsis" title="${item.name}">${item.name}</td>
+    <td>${item.qty}</td>
+    <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
+    ${isFirstRow ? `
+      <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
+      <td rowspan="${items.length}" class="pay-status">
+        <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
+            ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
+          </button>
+          ${order.payment_confirmed ? `
+            <button onclick="markAsOrdered('${order.order_id}')">✔</button>
+          ` : ''}
+        </div>
+        ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+      </td>
+      <td rowspan="${items.length}">
+        <select class="input-box" onchange="updateField('${order.order_id}', 'confirmation_note', this.value)">
+          <option value="">-</option>
+          <option ${order.confirmation_note === '첨부된 구매증빙이 유효하지 않습니다.' ? 'selected' : ''}>첨부된 구매증빙이 유효하지 않습니다.</option>
+          <option ${order.confirmation_note === '주소가 올바르지 않습니다.' ? 'selected' : ''}>주소가 올바르지 않습니다.</option>
+          <option ${order.confirmation_note === '입금정보 불일치(고객센터로 문의)' ? 'selected' : ''}>입금정보 불일치(고객센터로 문의)</option>
+          <option ${order.confirmation_note === '기타 사유(고객센터로 문의)' ? 'selected' : ''}>기타 사유(고객센터로 문의)</option>
+        </select>
+      </td>
+      <td rowspan="${items.length}">
+        <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
+      </td>
+    ` : ''}
+  </tr>
+      `;
+      tbody.insertAdjacentHTML('beforeend', rowHtml);
+    });
+  });
+}
+
+
 async function updateField(orderId, field, value) {
   const { error } = await supabase.from("orders").update({ [field]: value || null }).eq("order_id", orderId);
   if (error) alert("업데이트 실패: " + error.message);
@@ -104,6 +187,7 @@ function injectColgroup() {
 }
 
 function showModal(title, content) {
+  document.querySelector('.modal')?.remove(); // ✅ 기존 모달 제거
   const modal = document.createElement("div");
   modal.className = "modal";
   modal.innerHTML = `
@@ -239,6 +323,14 @@ async function markAsOrdered(orderId) {
   }
 }
 
+function logout() {
+  supabase.auth.signOut().then(() => {
+    window.location.href = "/tamiya-order-form/admin/login.html";
+  }).catch(err => {
+    alert("로그아웃 실패: " + err.message);
+  });
+}
+
 async function downloadSelectedOrders() {
   const checkboxes = document.querySelectorAll('.download-checkbox:checked');
   if (checkboxes.length === 0) return alert('다운로드할 주문을 선택하세요.');
@@ -266,7 +358,9 @@ async function downloadSelectedOrders() {
   XLSX.writeFile(workbook, "selected_orders.xlsx");
 }
 
+
 window.addEventListener("DOMContentLoaded", () => {
+  injectColgroup();  // ✅ 여기에 추가
   checkAuth();
 });
 
