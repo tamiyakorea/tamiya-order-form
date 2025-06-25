@@ -131,7 +131,7 @@ thead th {
   margin: 10% auto;
   padding: 20px;
   width: 90%;
-  max-width: 400px; /* 화면 작을 때 대비 */
+  max-width: 400px;
   box-sizing: border-box;
   border-radius: 10px;
 }
@@ -149,6 +149,7 @@ thead th {
   cursor: pointer;
 }
 
+/* ✅ 수정 모달 */
 .modal {
   position: fixed;
   z-index: 1000;
@@ -159,6 +160,11 @@ thead th {
   overflow: auto;
   background-color: rgba(0,0,0,0.4);
   display: none; /* 기본은 숨김 */
+}
+
+/* ✅ 모달 표시 활성화 */
+.modal.show {
+  display: block !important;
 }
 
 .modal-content {
