@@ -53,6 +53,13 @@ function renderOrders(orders) {
       <td>${order.order_id}</td>
       <td>${order.name}</td>
       <td>${order.phone}</td>
+      <td>${order.zipcode}</td>
+      <td>
+        <button onclick="showModal('주소', \`${address.replace(/`/g, '\\`')}\`)">확인</button>
+      </td
+      <td>
+        <button onclick="showModal('상세 주소', \`${address_detail.replace(/`/g, '\\`')}\`)">확인</button>
+      </td
       <td>${order.email}</td>
       <td>${(order.product_name || '').split(' > ')[0] || ''}</td>
       <td>${(order.product_name || '').split(' > ')[1] || ''}</td>
