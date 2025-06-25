@@ -373,19 +373,18 @@ async function downloadProductPriceInfo() {
 
   const itemMap = Object.fromEntries(matchedItems.map(i => [String(i.item_code), i]));
 
-  // ✅ 행 배열 생성
-  const rows = allItems.map((item, idx) => {
+  const rows = allItems.map(item => {
     const matched = itemMap[item.code] || {};
     return [
       item.code,             // A: 제품코드
       item.name,             // B: 제품명
-      "", "",                // C, D: 빈칸
+      "", "",                // C, D: 숨김
       matched.j_retail ?? '', // E: j_retail
       matched.price ?? '',    // F: price
-      "",                    // G: 빈칸
+      "",                    // G: 숨김
       item.qty,              // H: 수량
-      "", "", "", "", "", "", "", "", "", // I~Q: 빈칸
-      `=A${idx + 2} & " ${item.customer} " & " ${item.payment_date} "` // R: 수식 (정상 순서)
+      "", "", "", "", "", "", "", "", "", // I~Q: 숨김
+      `${item.code} ${item.customer} ${item.payment_date}` // R: 조합된 설명 (문자열 출력)
     ];
   });
 
@@ -397,9 +396,9 @@ async function downloadProductPriceInfo() {
 
   const worksheet = XLSX.utils.aoa_to_sheet([header, ...rows]);
 
-  // ✅ 숨길 열 정의
+  // ❗ 숨김 열: C, D, G, I~Q
   worksheet['!cols'] = Array.from({ length: 19 }, (_, idx) => {
-    if ([2, 3, 6, 8, 9,10,11,12,13,14,15,16,17].includes(idx)) {
+    if ([2, 3, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17].includes(idx)) {
       return { hidden: true };
     }
     return {};
