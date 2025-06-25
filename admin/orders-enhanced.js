@@ -378,11 +378,10 @@ const itemQuery = supabase
 
 const query =
   uniqueCodes.length === 1
-    ? itemQuery.eq("code", uniqueCodes[0])
-    : itemQuery.in("code", uniqueCodes);
+    ? itemQuery.eq("code", String(uniqueCodes[0]))  // 🔐 여기 중요!
+    : itemQuery.in("code", uniqueCodes.map(code => String(code)));
 
 const { data: itemDetails, error: itemError } = await query;
-
   if (itemError || !itemDetails) {
     return alert("❌ 상품 정보 조회 실패: " + (itemError?.message || ''));
   }
