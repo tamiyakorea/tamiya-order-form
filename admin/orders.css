@@ -162,3 +162,51 @@ th .resizer {
 .edit-item-row input {
   padding: 4px;
 }
+
+/* ✅ 공통 모달 배경 */
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ✅ 모달 내부 콘텐츠 박스 */
+.modal > div {
+  background-color: white;
+  padding: 20px 24px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+}
+
+/* ✅ 제목 스타일 */
+.modal h3 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+/* ✅ 본문 내용 */
+.modal p {
+  font-size: 14px;
+  white-space: pre-line;
+}
+
+/* ✅ 닫기 버튼 */
+.modal button {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+}
