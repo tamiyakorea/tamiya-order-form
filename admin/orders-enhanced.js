@@ -360,7 +360,6 @@ async function copySelectedOrdersToCreate() {
   });
 
 // ✅ 먼저 필터링된 uniqueCodes 만들기
-const uniqueCodes = [...new Set(
 // 필터링 및 숫자 변환
 const uniqueCodes = [...new Set(
   allItems
