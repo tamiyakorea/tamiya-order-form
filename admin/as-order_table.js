@@ -234,7 +234,11 @@ window.logout = async function () {
 loadOrders();
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('btnEdit')?.addEventListener('click', () => {
-    window.openEditModal();
-  });
+  const btnEdit = document.getElementById('btnEdit');
+  if (btnEdit) {
+    btnEdit.addEventListener('click', () => {
+      window.openEditModal();
+    });
+  }
 });
+
