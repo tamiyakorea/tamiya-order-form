@@ -43,12 +43,67 @@ th, td {
   padding: 10px;
   text-align: center;
   vertical-align: middle;
+  word-break: break-word;
 }
 
 th {
   background-color: #f2f2f2;
+  position: relative;
+  cursor: pointer;
+}
+
+.sort-icon {
+  margin-left: 5px;
+  font-size: 0.9em;
+  color: #666;
 }
 
 tr.order-group td {
   border-top: 2px solid #333;
+}
+
+/* ✅ 모달 스타일 */
+#modal {
+  display: none;
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  z-index: 9999;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  max-width: 400px;
+  width: 80%;
+}
+
+#modal h3 {
+  margin-top: 0;
+}
+
+#modal button {
+  margin-top: 20px;
+  padding: 6px 12px;
+  background-color: #343a40;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#modal button:hover {
+  background-color: #555;
+}
+
+/* ✅ 확인 버튼 스타일 */
+.detail-btn {
+  padding: 4px 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #aaa;
+  cursor: pointer;
+  font-size: 0.9em;
+}
+
+.detail-btn:hover {
+  background-color: #e6e6e6;
 }
