@@ -32,7 +32,7 @@
   </div>
 
   <div class="button-group">
-    <button onclick="btnEdit()">선택 수정</button>
+    <button id="btnEdit">선택 수정</button>
     <button class="btn-excel" onclick="downloadSelectedOrders()">선택 항목 다운로드</button>
     <button class="btn-logout" onclick="logout()">로그아웃</button>
   </div>
@@ -50,16 +50,16 @@
           <th>이메일</th>
           <th>제품분류</th>
           <th>제품명</th>
-          <th>신청종류</th> <!-- 추가 -->
-          <th>수리여부</th> <!-- 추가 -->
+          <th>신청종류</th>
+          <th>수리여부</th>
           <th>고장시기</th>
           <th>고장증상</th>
           <th>요청사항</th>
           <th>상태</th>
-      </tr>
+        </tr>
       </thead>
       <tbody id="orderBody">
-        <tr><td colspan="12">불러오는 중...</td></tr>
+        <tr><td colspan="15">불러오는 중...</td></tr>
       </tbody>
     </table>
   </div>
@@ -76,32 +76,30 @@
   </div>
 
   <!-- ✅ 수정용 모달 -->
-<div id="editModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <h3>주문 정보 수정</h3>
-    <input type="hidden" id="editOrderId" />
-    <label>이름:<input type="text" id="editName" /></label>
-    <label>연락처:<input type="text" id="editPhone" /></label>
-    <label>이메일:<input type="text" id="editEmail" /></label>
-    <label>제품분류:<input type="text" id="editCategory" /></label>
-    <label>제품명:<input type="text" id="editModel" /></label>
-    <label>고장시기:<input type="text" id="editFaultDate" /></label>
-    <label>고장증상:<textarea id="editFaultDesc"></textarea></label>
-    <label>요청사항:<textarea id="editRequest"></textarea></label>
-    <div class="modal-actions">
-      <button onclick="saveEdit()">저장</button>
-      <button onclick="closeEditModal()">닫기</button>
+  <div id="editModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <h3>주문 정보 수정</h3>
+      <input type="hidden" id="editOrderId" />
+      <label>이름:<input type="text" id="editName" /></label>
+      <label>연락처:<input type="text" id="editPhone" /></label>
+      <label>이메일:<input type="text" id="editEmail" /></label>
+      <label>제품분류:<input type="text" id="editCategory" /></label>
+      <label>제품명:<input type="text" id="editModel" /></label>
+      <label>고장시기:<input type="text" id="editFaultDate" /></label>
+      <label>고장증상:<textarea id="editFaultDesc"></textarea></label>
+      <label>요청사항:<textarea id="editRequest"></textarea></label>
+      <div class="modal-actions">
+        <button onclick="saveEdit()">저장</button>
+        <button onclick="closeEditModal()">닫기</button>
+      </div>
     </div>
   </div>
-</div>
 
   <script>
     window.showModal = function(title, content) {
       const modal = document.getElementById('modal');
-      const modalTitle = document.getElementById('modal-title');
-      const modalContent = document.getElementById('modal-content');
-      modalTitle.textContent = title;
-      modalContent.textContent = content;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-content').textContent = content;
       modal.style.display = 'block';
     };
 
