@@ -7,145 +7,160 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="stylesheet" href="shipped.css" />
+  <style>
+    .sort-icon { margin-left: 5px; cursor: pointer; }
+    #modal {
+      display: none; position: fixed; top: 20%; left: 50%;
+      transform: translateX(-50%); background: white; border: 1px solid #ccc;
+      padding: 20px; z-index: 9999; box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+  </style>
   <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-  const supabase = createClient(
-    'https://edgvrwekvnavkhcqwtxa.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
-  );
+    const supabase = createClient(
+      'https://edgvrwekvnavkhcqwtxa.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+    );
 
-  let deliveredData = [];
-  let currentSort = { key: null, asc: true };
+    let deliveredData = [];
+    let currentSort = { key: null, asc: true };
 
-  function formatDateOnly(iso) {
-    if (!iso) return '';
-    const d = new Date(iso);
-    return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-  }
-
-  async function returnToShipping(orderId) {
-    const confirmBack = confirm("배송 관리 탭으로 다시 이동시키겠습니까?");
-    if (!confirmBack) return;
-    const { error } = await supabase.from('orders').update({ is_delivered: false }).eq('order_id', orderId);
-    if (!error) loadDeliveredOrders();
-  }
-
-  async function loadDeliveredOrders() {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('is_delivered', true);
-
-    if (error) {
-      document.getElementById('delivered-table-body').innerHTML =
-        `<tr><td colspan="17">오류 발생: ${error.message}</td></tr>`;
-      return;
+    function formatDateOnly(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
     }
 
-    deliveredData = data || [];
-    renderDeliveredTable(deliveredData);
-  }
-
-  function renderDeliveredTable(data) {
-    const tbody = document.getElementById('delivered-table-body');
-    tbody.innerHTML = "";
-
-    if (!data.length) {
-      tbody.innerHTML = `<tr><td colspan="17">배송 완료된 주문이 없습니다.</td></tr>`;
-      return;
+    async function returnToShipping(orderId) {
+      const confirmBack = confirm("배송 관리 탭으로 다시 이동시키겠습니까?");
+      if (!confirmBack) return;
+      const { error } = await supabase.from('orders').update({ is_delivered: false }).eq('order_id', orderId);
+      if (!error) loadDeliveredOrders();
     }
 
-    data.forEach(order => {
-      let items;
-      try {
-        items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
-      } catch {
-        items = [];
+    async function loadDeliveredOrders() {
+      const { data, error } = await supabase.from('orders').select('*').eq('is_delivered', true);
+      if (error) {
+        document.getElementById('delivered-table-body').innerHTML =
+          `<tr><td colspan="17">오류 발생: ${error.message}</td></tr>`;
+        return;
+      }
+      deliveredData = data || [];
+      renderDeliveredTable(deliveredData);
+    }
+
+    function renderDeliveredTable(data) {
+      const tbody = document.getElementById('delivered-table-body');
+      tbody.innerHTML = "";
+
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="17">배송 완료된 주문이 없습니다.</td></tr>`;
+        return;
       }
 
-      const arrivalDue = items[0]?.arrival_due || '미정';
+      data.forEach(order => {
+        let items;
+        try {
+          items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+        } catch {
+          items = [];
+        }
 
-      items.forEach((item, index) => {
-        const isFirst = index === 0;
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          ${isFirst ? `<td rowspan="${items.length}"><button onclick="returnToShipping(${order.order_id})">❌</button></td>` : ''}
-          ${isFirst ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
-          ${isFirst ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
-          ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
-          ${isFirst ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
-          ${isFirst ? `<td rowspan="${items.length}">${order.zipcode}</td>` : ''}
-          ${isFirst ? `<td rowspan="${items.length}">${order.address}</td>` : ''}
-          ${isFirst ? `<td rowspan="${items.length}">${order.address_detail}</td>` : ''}
-          <td>${item.code}</td>
-          <td>${item.name}</td>
-          <td>${item.qty}</td>
-          <td>₩${item.price?.toLocaleString?.() || '-'}</td>
-          ${isFirst ? `<td rowspan="${items.length}">₩${order.total?.toLocaleString?.() || '-'}</td>` : ''}
-          ${isFirst ? `<td rowspan="${items.length}">${order.tracking_number || '-'}</td>` : ''}
-          ${isFirst ? `<td rowspan="${items.length}">${order.remarks || '-'}</td>` : ''}
-          ${isFirst ? `<td rowspan="${items.length}">${order.shipping_note || '-'}</td>` : ''}
-        `;
-        tbody.appendChild(row);
+        const shippedDate = formatDateOnly(order.tracking_date) || '-';
+
+        items.forEach((item, index) => {
+          const isFirst = index === 0;
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            ${isFirst ? `<td rowspan="${items.length}"><button onclick="returnToShipping(${order.order_id})">❌</button></td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${shippedDate}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}"><button onclick="showDetailModal('연락처', '${order.phone}')">확인</button></td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}"><button onclick="showDetailModal('우편번호', '${order.zipcode}')">확인</button></td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}"><button onclick="showDetailModal('주소', '${order.address}')">확인</button></td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}"><button onclick="showDetailModal('상세주소', '${order.address_detail}')">확인</button></td>` : ''}
+            <td>${item.code}</td>
+            <td><button onclick="showDetailModal('아이템명', '${item.name}')">확인</button></td>
+            <td>${item.qty}</td>
+            <td>₩${item.price?.toLocaleString?.() || '-'}</td>
+            ${isFirst ? `<td rowspan="${items.length}">₩${order.total?.toLocaleString?.() || '-'}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.tracking_number || '-'}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.remarks || '-'}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.shipping_note || '-'}</td>` : ''}
+          `;
+          tbody.appendChild(row);
+        });
       });
-    });
-  }
-
-  function sortTableBy(key) {
-    if (!deliveredData.length) return;
-
-    if (currentSort.key === key) {
-      currentSort.asc = !currentSort.asc;
-    } else {
-      currentSort.key = key;
-      currentSort.asc = true;
     }
 
-    deliveredData.sort((a, b) => {
-      let valA = a[key];
-      let valB = b[key];
-      if (typeof valA === 'string') valA = valA.toLowerCase();
-      if (typeof valB === 'string') valB = valB.toLowerCase();
-      if (valA < valB) return currentSort.asc ? -1 : 1;
-      if (valA > valB) return currentSort.asc ? 1 : -1;
-      return 0;
-    });
+    function sortTableBy(key) {
+      if (!deliveredData.length) return;
 
-    updateSortIcons();
-    renderDeliveredTable(deliveredData);
-  }
-
-  function updateSortIcons() {
-    document.querySelectorAll('th[data-key]').forEach(th => {
-      const key = th.dataset.key;
-      if (key === currentSort.key) {
-        th.querySelector('.sort-icon').textContent = currentSort.asc ? '🔼' : '🔽';
+      if (currentSort.key === key) {
+        currentSort.asc = !currentSort.asc;
       } else {
-        th.querySelector('.sort-icon').textContent = '⬍';
+        currentSort.key = key;
+        currentSort.asc = true;
       }
-    });
-  }
 
-  window.returnToShipping = returnToShipping;
-  window.sortTableBy = sortTableBy;
+      deliveredData.sort((a, b) => {
+        let valA = a[key];
+        let valB = b[key];
 
-  document.addEventListener('DOMContentLoaded', loadDeliveredOrders);
-</script>
+        if (key === 'tracking_date') {
+          valA = new Date(valA);
+          valB = new Date(valB);
+        } else {
+          if (typeof valA === 'string') valA = valA.toLowerCase();
+          if (typeof valB === 'string') valB = valB.toLowerCase();
+        }
+
+        if (valA < valB) return currentSort.asc ? -1 : 1;
+        if (valA > valB) return currentSort.asc ? 1 : -1;
+        return 0;
+      });
+
+      updateSortIcons();
+      renderDeliveredTable(deliveredData);
+    }
+
+    function updateSortIcons() {
+      document.querySelectorAll('th[data-key]').forEach(th => {
+        const key = th.dataset.key;
+        if (key === currentSort.key) {
+          th.querySelector('.sort-icon').textContent = currentSort.asc ? '🔼' : '🔽';
+        } else {
+          th.querySelector('.sort-icon').textContent = '⬍';
+        }
+      });
+    }
+
+    window.returnToShipping = returnToShipping;
+    window.sortTableBy = sortTableBy;
+    window.showDetailModal = function (title, content) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-content').textContent = content;
+      document.getElementById('modal').style.display = 'block';
+    };
+
+    document.addEventListener('DOMContentLoaded', loadDeliveredOrders);
+  </script>
 </head>
 <body>
   <nav>
     <div>
-    <a href="orders.html">TAMIYA 주문 관리</a>
-    <a href="ordered.html">TAMIYA 발주 완료</a>
-    <a href="shipping.html">TAMIYA 배송 관리</a>
-    <a href="shipped.html" class="active">TAMIYA 배송 완료</a>
-    <a href="accounting.html">TAMIYA 회계 관리</a>
-    <a href="as-order_table.html">SANWA A/S 신청 관리</a>
-    <a href="as-progress.html">SANWA A/S 진행 관리</a>
-    <a href="as-charge.html">SANWA A/S 청구 관리</a>
-    <a href="as-completed.html">SANWA A/S 처리 완료</a>
-    <a href="as-accounting.html">SANWA A/S 회계 관리</a>
+      <a href="orders.html">TAMIYA 주문 관리</a>
+      <a href="ordered.html">TAMIYA 발주 완료</a>
+      <a href="shipping.html">TAMIYA 배송 관리</a>
+      <a href="shipped.html" class="active">TAMIYA 배송 완료</a>
+      <a href="accounting.html">TAMIYA 회계 관리</a>
+      <a href="as-order_table.html">SANWA A/S 신청 관리</a>
+      <a href="as-progress.html">SANWA A/S 진행 관리</a>
+      <a href="as-charge.html">SANWA A/S 청구 관리</a>
+      <a href="as-completed.html">SANWA A/S 처리 완료</a>
+      <a href="as-accounting.html">SANWA A/S 회계 관리</a>
     </div>
   </nav>
 
@@ -161,9 +176,9 @@
     <thead>
       <tr>
         <th>이동</th>
-        <th>입고 예정</th>
-        <th>주문번호</th>
-        <th>고객명</th>
+        <th data-key="tracking_date" onclick="sortTableBy('tracking_date')">출고일 <span class="sort-icon">⬍</span></th>
+        <th data-key="order_id" onclick="sortTableBy('order_id')">주문번호 <span class="sort-icon">⬍</span></th>
+        <th data-key="name" onclick="sortTableBy('name')">고객명 <span class="sort-icon">⬍</span></th>
         <th>연락처</th>
         <th>우편번호</th>
         <th>주소</th>
@@ -182,5 +197,11 @@
       <tr><td colspan="17">불러오는 중...</td></tr>
     </tbody>
   </table>
+
+  <div id="modal">
+    <h3 id="modal-title"></h3>
+    <p id="modal-content"></p>
+    <button onclick="document.getElementById('modal').style.display='none'">닫기</button>
+  </div>
 </body>
 </html>
