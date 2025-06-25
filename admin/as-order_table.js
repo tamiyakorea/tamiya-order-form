@@ -233,4 +233,8 @@ window.logout = async function () {
 
 loadOrders();
 
-
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btnEdit')?.addEventListener('click', () => {
+    window.openEditModal();
+  });
+});
