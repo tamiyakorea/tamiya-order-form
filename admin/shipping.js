@@ -224,7 +224,6 @@ async function loadShippingOrders() {
     groupMap.get(key).push(order);
   }
 
-  const refundHandled = new Set();
   const shippedHandled = new Set();
 
   data.forEach(order => {
@@ -260,7 +259,6 @@ async function loadShippingOrders() {
 
       row.innerHTML = `
         ${isFirst ? `<td rowspan="${items.length}"><button onclick="moveToOrderManagement('${order.order_id}')" style="color:red;font-weight:bold;border:none;background:none;cursor:pointer;">✖</button><br/><input type="checkbox" class="select-order" value="${order.order_id}" /></td>` : ''}
-        ${isFirst ? `<td rowspan="${items.length}">${arrivalDue}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.order_id}${order.is_merged ? `<div style="color:red; font-size:0.8em; cursor:pointer;" onclick="unmergeOrder('${order.order_id}')">합배송 처리됨 (클릭 시 취소)</div>` : ''}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
         ${isFirst ? `<td rowspan="${items.length}">${order.phone}</td>` : ''}
@@ -272,20 +270,6 @@ async function loadShippingOrders() {
         <td>${item.qty}</td>
         <td>${item.price.toLocaleString()}</td>
         ${isFirst ? `<td rowspan="${items.length}">${order.total.toLocaleString()}</td>` : ''}
-
-        ${
-          isFirst && isGroupLeader && order.is_merged && !refundHandled.has(groupKey)
-            ? (() => {
-                refundHandled.add(groupKey);
-                return `<td rowspan="${groupRowspan}">
-                  <div><strong style="color:red;">₩${refund.toLocaleString()}</strong></div>
-                  ${!order.is_refunded ? `<button onclick="markRefundedGroup('${groupKey}')">환불처리 완료</button>` : ''}
-                  ${order.refunded_at ? `<div style="font-size:0.8em;color:gray;cursor:pointer;" onclick="unmarkRefundedGroup('${groupKey}')">${formatDateOnly(order.refunded_at)}</div>` : ''}
-                </td>`;
-              })()
-            : isFirst ? `<td rowspan="${items.length}"></td>` : `<td style="display:none"></td>`
-        }
-
         ${
           isFirstOrderInGroup && !shippedHandled.has('tracking-' + groupKey)
             ? (() => {
