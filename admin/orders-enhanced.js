@@ -359,7 +359,7 @@ async function copySelectedOrdersToCreate() {
     }));
   });
 
-  const uniqueCodes = [...new Set(allItems.map(item => item.code))];
+  const uniqueCodes = [...new Set(allItems.map(item => item.code).filter(Boolean))];
 
   const { data: itemDetails, error: itemError } = await supabase
     .from("tamiya_items")
