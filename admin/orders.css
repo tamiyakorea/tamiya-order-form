@@ -86,6 +86,13 @@ th .resizer {
   display: none !important;
 }
 
+td.address-cell, td.address-detail-cell {
+  white-space: normal;           /* 자동 줄바꿈 허용 */
+  word-break: keep-all;          /* 단어 중간에서 줄바꿈 ❌ */
+  overflow-wrap: break-word;     /* 스페이스 있는 지점에서 줄바꿈 ⭕ */
+  max-width: 200px;              /* 최대 셀 너비 제한 */
+}
+
 /* ✅ 주문 강조 색상 */
 .order-separator td {
   border-top: 2px solid #333 !important;
