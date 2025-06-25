@@ -59,7 +59,7 @@ table {
   border-collapse: collapse;
   background: white;
   width: 100%;
-  table-layout: auto; /* ✅ 자동 조정 */
+  table-layout: auto;
 }
 
 th, td {
@@ -82,18 +82,21 @@ thead tr:nth-child(2) th {
 thead tr:nth-child(1) th { top: 0; }
 thead tr:nth-child(2) th { top: 42px; }
 
-/* ✅ 컬럼 리사이즈 제거 */
 th .resizer {
   display: none !important;
 }
 
-/* ✅ 선택된 주문 색상 */
+/* ✅ 주문 강조 색상 */
 .order-separator td {
   border-top: 2px solid #333 !important;
 }
 
 .confirmed-row {
   background-color: #e6ffe6;
+}
+
+.confirmation-warning {
+  background-color: #ffecec !important;
 }
 
 .input-box {
@@ -133,26 +136,7 @@ th .resizer {
   cursor: pointer;
 }
 
-.confirmation-warning {
-  background-color: #ffecec !important;
-}
-
-/* ✅ 중앙에 고정된 팝업 스타일 */
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* 중앙 정렬 */
-  background: white;
-  border: 1px solid #ccc;
-  padding: 24px;
-  z-index: 9999;
-  display: none; /* 기본 숨김 */
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  border-radius: 8px;
-  min-width: 320px;
-}
-
+/* ✅ 주문 수정 영역 */
 .edit-item-row {
   display: flex;
   gap: 6px;
@@ -163,8 +147,9 @@ th .resizer {
   padding: 4px;
 }
 
-/* ✅ 공통 모달 배경 */
+/* ✅ 모달: 전체 배경 + 중앙 정렬 */
 .modal {
+  display: none;
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -172,13 +157,15 @@ th .resizer {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.4);
+
+  /* 중앙 정렬 */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* ✅ 모달 내부 콘텐츠 박스 */
-.modal > div {
+/* ✅ 모달 내부 콘텐츠 */
+.modal-content {
   background-color: white;
   padding: 20px 24px;
   border-radius: 10px;
@@ -188,20 +175,19 @@ th .resizer {
   box-sizing: border-box;
 }
 
-/* ✅ 제목 스타일 */
-.modal h3 {
+/* ✅ 모달 텍스트 */
+.modal-content h3 {
   margin-top: 0;
   font-size: 18px;
 }
 
-/* ✅ 본문 내용 */
-.modal p {
+.modal-content p {
   font-size: 14px;
   white-space: pre-line;
 }
 
-/* ✅ 닫기 버튼 */
-.modal button {
+/* ✅ 모달 닫기 버튼 */
+.modal-content button {
   padding: 6px 12px;
   font-size: 13px;
   border-radius: 4px;
