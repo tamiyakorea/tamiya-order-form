@@ -181,30 +181,28 @@ th .resizer {
 .modal {
   display: none;
   position: fixed;
-  z-index: 9999; /* ✅ 테이블보다 앞에 위치하도록 충분히 높게 */
+  z-index: 1000;
   left: 0;
   top: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* ✅ 어두운 반투명 배경 */
-  display: flex;
+  background-color: rgba(0, 0, 0, 0.4);
   align-items: center;
   justify-content: center;
 }
 
 .modal.show {
-  display: flex; /* ✅ 모달 표시될 때 중앙 정렬용 flex 유지 */
+  display: flex;
 }
 
 .modal-content {
-  background-color: #fff;
-  padding: 24px 32px;
-  border-radius: 8px;
+  background-color: white;
+  padding: 20px 24px;
+  border-radius: 10px;
   width: 90%;
-  max-width: 600px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
-  z-index: 10000;
 }
 
 .modal-content label {
