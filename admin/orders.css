@@ -242,3 +242,29 @@ td.address-cell, td.address-detail-cell {
 .modal-content button:hover {
   background-color: #0056b3;
 }
+
+/* ✅ 팝업 모달 (전화번호 / 이메일 / 현금영수증 등 확인용) */
+.popup-modal {
+  display: flex;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-modal-content {
+  background-color: white;
+  padding: 20px 24px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-sizing: border-box;
+  white-space: pre-line;
+  word-break: break-word;
+}
