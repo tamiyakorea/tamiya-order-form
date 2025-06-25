@@ -187,7 +187,8 @@ function injectColgroup() {
 }
 
 function showModal(title, content) {
-  document.querySelector('.modal')?.remove(); // ✅ 기존 모달 제거
+  console.log('[DEBUG] showModal 호출됨:', title, content);  // ✅ 로그 확인용
+  document.querySelector('.modal')?.remove();
   const modal = document.createElement("div");
   modal.className = "modal";
   modal.innerHTML = `
@@ -357,12 +358,6 @@ async function downloadSelectedOrders() {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "선택주문");
   XLSX.writeFile(workbook, "selected_orders.xlsx");
-}
-
-
-function showModal(title, content) {
-  console.log('[DEBUG] showModal 호출됨:', title, content);  // ✅ 로그 찍힘 여부 확인
-  ...
 }
 
 window.addEventListener("DOMContentLoaded", () => {
