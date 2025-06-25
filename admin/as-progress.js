@@ -38,36 +38,37 @@ function renderProgressTable(orders) {
     const requestBtn = `<button onclick="showModal('요청사항', '${request}')">확인</button>`;
 
     row.innerHTML = `
-      <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
-      <td>${order.status_updated_at?.split('T')[0] || ''}</td>
-      <td>${order.name}</td>
-      <td>${order.phone}</td>
-      <td>${order.zipcode}</td>
-      <td>
-        <button onclick="showModal('주소', \`${address.replace(/`/g, '\\`')}\`)">확인</button>
-      </td
-      <td>
-        <button onclick="showModal('상세 주소', \`${address_detail.replace(/`/g, '\\`')}\`)">확인</button>
-      </td
-      <td>${category || ''}</td>
-      <td>${product || ''}</td>
-      <td>${order.request_type || ''}</td>
-      <td>${order.inspection_followup || ''}</td>
-      <td>${faultDate}</td>
-      <td>${faultDescBtn}</td>
-      <td>${requestBtn}</td>
-      <td><input type="text" value="${order.shipping_invoice || ''}" data-id="${order.order_id}" class="invoice-input" /></td>
-      <td><input type="text" value="${order.receipt_code || ''}" data-id="${order.order_id}" class="receipt-code-input" /></td>
-      <td><input type="text" value="${order.note || ''}" data-id="${order.order_id}" class="note-input" /></td>
-      <td>
-        <button class="process-btn" data-id="${order.order_id}">
-          ${order.processing_date ? '입고완료' : '입고처리'}
-        </button>
-        <div class="process-date" data-id="${order.order_id}">
-          ${order.processing_date ? formatDate(order.processing_date) : ''}
-        </div>
-      </td>
-    `;
+  <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
+  <td>${order.status_updated_at?.split('T')[0] || ''}</td>
+  <td>${order.name}</td>
+  <td>${order.phone}</td>
+  <td>${order.zipcode}</td>
+  <td>
+    <button onclick="showModal('주소', \`${address.replace(/`/g, '\\`')}\`)">확인</button>
+  </td>
+  <td>
+    <button onclick="showModal('상세 주소', \`${address_detail.replace(/`/g, '\\`')}\`)">확인</button>
+  </td>
+  <td>${category || ''}</td>
+  <td>${product || ''}</td>
+  <td>${order.request_type || ''}</td>
+  <td>${order.inspection_followup || ''}</td>
+  <td>${faultDate}</td>
+  <td>${faultDescBtn}</td>
+  <td>${requestBtn}</td>
+  <td><input type="text" value="${order.shipping_invoice || ''}" data-id="${order.order_id}" class="invoice-input" /></td>
+  <td><input type="text" value="${order.receipt_code || ''}" data-id="${order.order_id}" class="receipt-code-input" /></td>
+  <td><input type="text" value="${order.note || ''}" data-id="${order.order_id}" class="note-input" /></td>
+  <td>
+    <button class="process-btn" data-id="${order.order_id}">
+      ${order.processing_date ? '입고완료' : '입고처리'}
+    </button>
+    <div class="process-date" data-id="${order.order_id}">
+      ${order.processing_date ? formatDate(order.processing_date) : ''}
+    </div>
+  </td>
+`;
+
     tbody.appendChild(row);
   }
 
