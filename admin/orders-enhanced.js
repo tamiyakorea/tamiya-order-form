@@ -378,13 +378,13 @@ async function downloadProductPriceInfo() {
     return [
       item.code,             // A: 제품코드
       item.name,             // B: 제품명
-      "", "",                // C, D: 숨김
+      "", "",                // C, D: 공백
       matched.j_retail ?? '', // E: j_retail
       matched.price ?? '',    // F: price
-      "",                    // G: 숨김
+      "",                    // G: 공백
       item.qty,              // H: 수량
-      "", "", "", "", "", "", "", "", "", // I~Q: 숨김
-      `${item.code} ${item.customer} ${item.payment_date}` // R: 조합된 설명 (문자열 출력)
+      "", "", "", "", "", "", "", "", "", // I~Q: 공백
+      `${item.code} ${item.customer} ${item.payment_date}` // R: 조합된 설명 (문자열)
     ];
   });
 
@@ -396,18 +396,13 @@ async function downloadProductPriceInfo() {
 
   const worksheet = XLSX.utils.aoa_to_sheet([header, ...rows]);
 
-  // ❗ 숨김 열: C, D, G, I~Q
-  worksheet['!cols'] = Array.from({ length: 19 }, (_, idx) => {
-    if ([2, 3, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17].includes(idx)) {
-      return { hidden: true };
-    }
-    return {};
-  });
+  // ✅ 숨김 없음 — worksheet['!cols'] 제거
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "제품정보");
   XLSX.writeFile(workbook, "선택주문_제품정보.xlsx");
 }
+
 
 async function downloadSelectedOrders() {
   const checkboxes = document.querySelectorAll('.download-checkbox:checked');
