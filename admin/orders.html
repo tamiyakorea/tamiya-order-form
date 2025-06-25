@@ -85,8 +85,9 @@
     </table>
   </div>
 
-  <!-- 주문 수정 모달 -->
-  <div id="editOrderModal" class="modal">
+<!-- 주문 수정 모달 -->
+<div id="editOrderModal" class="modal">
+  <div class="modal-content">
     <input type="hidden" id="editOrderId" />
     <label>이름: <input type="text" id="editName" /></label><br />
     <label>전화번호: <input type="text" id="editPhone" /></label><br />
@@ -104,15 +105,18 @@
     <label>총금액 (자동계산됨): <input type="number" id="editTotal" disabled /></label><br />
     <label><input type="checkbox" id="editStaffDiscount" /> 직원 할인 적용</label><br /><br />
     <button onclick="confirmEditSave()">저장</button>
-    <button onclick="document.getElementById('editOrderModal').style.display='none'">닫기</button>
+    <button onclick="document.getElementById('editOrderModal').classList.remove('show')">닫기</button>
   </div>
+</div>
 
-  <!-- 수정 확인 모달 -->
-  <div id="editConfirmModal" class="modal">
+<!-- 수정 확인 모달 -->
+<div id="editConfirmModal" class="modal">
+  <div class="modal-content">
     <p>수정된 내용을 저장하시겠습니까?</p>
     <button onclick="applyOrderEdit()">예</button>
     <button onclick="cancelEdit()">아니오</button>
   </div>
+</div>
 
   <script type="module" src="orders-enhanced.js"></script>
 </body>
