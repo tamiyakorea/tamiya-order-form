@@ -31,6 +31,8 @@ function renderProgressTable(orders) {
     const faultDate = extract(order.message, '고장시기');
     const faultDesc = escapeQuotes(extract(order.message, '고장증상'));
     const request = escapeQuotes(extract(order.message, '요청사항'));
+    const address = escapeQuotes(order.address || '주소');
+    const address_detail = escapeQuotes(order.address_detail || '상세 주소');
 
     const faultDescBtn = `<button onclick="showModal('고장증상', '${faultDesc}')">확인</button>`;
     const requestBtn = `<button onclick="showModal('요청사항', '${request}')">확인</button>`;
@@ -40,6 +42,13 @@ function renderProgressTable(orders) {
       <td>${order.status_updated_at?.split('T')[0] || ''}</td>
       <td>${order.name}</td>
       <td>${order.phone}</td>
+      <td>${order.zipcode}</td>
+      <td>
+        <button onclick="showModal('주소', \`${address.replace(/`/g, '\\`')}\`)">확인</button>
+      </td
+      <td>
+        <button onclick="showModal('상세 주소', \`${address_detail.replace(/`/g, '\\`')}\`)">확인</button>
+      </td
       <td>${category || ''}</td>
       <td>${product || ''}</td>
       <td>${order.request_type || ''}</td>
