@@ -334,13 +334,14 @@ function logout() {
   });
 }
 
+// ✅ copySelectedOrdersToCreate 수정 (Supabase JS SDK 사용 안전 방식)
 async function copySelectedOrdersToCreate() {
   const checkboxes = document.querySelectorAll('.download-checkbox:checked');
   if (checkboxes.length === 0) return alert('복사할 주문을 선택하세요.');
 
   const selectedOrderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
 
-  // 1. orders 테이블에서 주문 정보 가져오기
+  // 1. 주문 정보 불러오기
   const { data: orders, error: orderError } = await supabase
     .from("orders")
     .select("order_id, items, payment_date")
@@ -360,7 +361,6 @@ async function copySelectedOrdersToCreate() {
 
   const uniqueCodes = [...new Set(allItems.map(item => item.code))];
 
-  // 2. tamiya_items 테이블에서 j_retail, price 정보 조회
   const { data: itemDetails, error: itemError } = await supabase
     .from("tamiya_items")
     .select("code, j_retail, price")
@@ -370,7 +370,6 @@ async function copySelectedOrdersToCreate() {
 
   const itemMap = Object.fromEntries(itemDetails.map(d => [d.code, d]));
 
-  // 3. order_create 테이블에 저장할 데이터 구성
   const insertRows = allItems.map(item => {
     const info = itemMap[item.code] || {};
     return {
@@ -378,8 +377,8 @@ async function copySelectedOrdersToCreate() {
       code: item.code,
       name: item.name,
       payment_date: item.payment_date,
-      j_retail: info.j_retail || null,
-      price: info.price || null
+      j_retail: info.j_retail ?? null,
+      price: info.price ?? null
     };
   });
 
