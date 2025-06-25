@@ -361,30 +361,37 @@ async function copySelectedOrdersToCreate() {
 
 // ✅ 먼저 필터링된 uniqueCodes 만들기
 const uniqueCodes = [...new Set(
+// 필터링 및 숫자 변환
+const uniqueCodes = [...new Set(
   allItems
-    .map(item => String(item.code).trim())
-    .filter(code => code !== '')
+    .map(item => {
+      const parsed = parseInt(item.code, 10);
+      return isNaN(parsed) ? null : parsed;
+    })
+    .filter(code => code !== null)
 )];
 
+// 사전 검사
 if (uniqueCodes.length === 0) {
   alert("복사할 상품 코드가 없습니다.");
   return;
 }
 
-// ✅ 이후에 Supabase 쿼리 분기 처리
+// Supabase JS SDK로 안전하게 요청
 const itemQuery = supabase
   .from("tamiya_items")
   .select("code, j_retail, price");
 
 const query =
   uniqueCodes.length === 1
-    ? itemQuery.eq("code", String(uniqueCodes[0]))  // 🔐 여기 중요!
-    : itemQuery.in("code", uniqueCodes.map(code => String(code)));
+    ? itemQuery.eq("code", uniqueCodes[0])
+    : itemQuery.in("code", uniqueCodes);
 
 const { data: itemDetails, error: itemError } = await query;
-  if (itemError || !itemDetails) {
-    return alert("❌ 상품 정보 조회 실패: " + (itemError?.message || ''));
-  }
+
+if (itemError || !itemDetails) {
+  return alert("❌ 상품 정보 조회 실패: " + (itemError?.message || ''));
+}
 
   const itemMap = Object.fromEntries(itemDetails.map(d => [d.code, d]));
 
