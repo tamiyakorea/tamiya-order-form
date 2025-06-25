@@ -300,6 +300,7 @@ async function applyOrderEdit() {
   }
 }
 
+
 function addEditItem() {
   const row = document.createElement("div");
   row.className = "edit-item-row";
@@ -359,6 +360,11 @@ async function downloadSelectedOrders() {
 }
 
 
+function showModal(title, content) {
+  console.log('[DEBUG] showModal 호출됨:', title, content);  // ✅ 로그 찍힘 여부 확인
+  ...
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   injectColgroup();  // ✅ 여기에 추가
   checkAuth();
@@ -382,7 +388,4 @@ Object.assign(window, {
   showModal  // ✅ 이 줄 추가!
 });
 
-function showModal(title, content) {
-  console.log('[DEBUG] showModal 호출됨:', title, content);  // ✅ 로그 찍힘 여부 확인
-  ...
-}
+
