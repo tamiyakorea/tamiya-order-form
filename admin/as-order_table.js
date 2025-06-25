@@ -233,12 +233,12 @@ window.logout = async function () {
 
 loadOrders();
 
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
   const btnEdit = document.getElementById('btnEdit');
   if (btnEdit) {
-    btnEdit.addEventListener('click', () => {
-      window.openEditModal();
-    });
+    btnEdit.addEventListener('click', window.openEditModal);
+  } else {
+    console.warn('⛔ btnEdit 버튼이 HTML에 존재하지 않습니다.');
   }
 });
 
