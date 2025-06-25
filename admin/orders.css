@@ -147,9 +147,19 @@ th .resizer {
   padding: 4px;
 }
 
-/* ✅ 모달: 전체 배경 + 중앙 정렬 */
 .modal {
   display: none;
   position: fixed;
   z-index: 1000;
   left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.show {
+  display: flex;
+}
