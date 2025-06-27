@@ -205,30 +205,36 @@ document.querySelectorAll('.print-invoice').forEach(btn => {
 
     const popup = window.open('', '_blank', 'width=800,height=1000');
     popup.document.write(`
-      <html lang="ko">
-      <head>
-        <meta charset="UTF-8" />
-        <title>SANWA A/S 수리비 청구서</title>
-        <style>
-          body { font-family: 'NanumGothic', sans-serif; padding: 40px; background: #f9f9f9; }
-          .invoice-box { max-width: 800px; margin: auto; background: white; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.15); border-radius: 8px; }
-          h1 { text-align: center; font-size: 24pt; margin-bottom: 40px; color: #222; }
-          table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-          th, td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; }
-          th { background: #f0f0f0; text-align: left; }
-          .section-title { font-weight: bold; background: #e6e6e6; padding: 8px 12px; margin-top: 30px; }
-          .footer { margin-top: 40px; text-align: right; font-size: 12px; color: #666; }
-          .print-btn { display: block; margin: 20px auto; padding: 10px 20px; font-size: 14px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-          .print-btn:hover { background: #45a049; }
-          @media print { .print-btn { display: none; } }
-        </style>
-      </head>
-      <body>
-        <div class="invoice-box">
-          <h1>SANWA A/S 수리비 청구서</h1>
+  <html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SANWA A/S 수리비 청구서</title>
+    <style>
+      body { font-family: 'NanumGothic', sans-serif; padding: 40px; background: #f9f9f9; }
+      .invoice-box { max-width: 800px; margin: auto; background: white; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.15); border-radius: 8px; }
+      .logo-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+      .logo-row img { height: 50px; }
+      h1 { text-align: center; font-size: 24pt; margin-bottom: 40px; color: #222; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+      th, td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+      th { background: #f0f0f0; text-align: left; }
+      .section-title { font-weight: bold; background: #e6e6e6; padding: 8px 12px; margin-top: 30px; }
+      .footer { margin-top: 40px; text-align: right; font-size: 12px; color: #666; }
+      .print-btn { display: block; margin: 20px auto; padding: 10px 20px; font-size: 14px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+      .print-btn:hover { background: #45a049; }
+      @media print { .print-btn { display: none; } }
+    </style>
+  </head>
+  <body>
+    <div class="invoice-box">
+      <div class="logo-row">
+        <img src="../images/logo.png" alt="Tamiya Logo" />
+        <img src="../images/sanwa.png" alt="Sanwa Logo" />
+      </div>
+      <h1>SANWA A/S 수리비 청구서</h1>
 
-          <div class="section-title">기본 정보</div>
-          <table>
+      <div class="section-title">기본 정보</div>
+      <table>
             <tr><th>신청일시</th><td>${data.created_at?.split('T')[0] || '-'}</td></tr>
             <tr><th>신청번호</th><td>${data.order_id}</td></tr>
             <tr><th>고객명</th><td>${data.name}</td></tr>
