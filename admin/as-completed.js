@@ -42,37 +42,36 @@ function renderCompletedTable(orders) {
   }
 
   // ✅ 버튼 바인딩은 DOM 삽입 후에!
-  document.querySelectorAll('.detail-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const order = JSON.parse(btn.dataset.order.replace(/&apos;/g, "'"));
-      const [category, product] = (order.product_name || '').split(' > ');
-      const fields = {
-        '연락처': order.phone || '',
-        '이메일': order.email || '',
-        '제품분류': category || '',
-        '제품명': product || '',
-        '신청종류': order.request_type || '',
-        '수리여부': order.inspection_followup || '',
-        '고장시기': extract(order.message, '고장시기'),
-        '고장증상': extract(order.message, '고장증상'),
-        '요청사항': extract(order.message, '요청사항'),
-        '발송INVOICE': order.shipping_invoice || '',
-        '접수코드': order.receipt_code || '',
-        '비고': order.note || '',
-        '수리내역': order.repair_detail || '',
-        '수리비용': order.repair_cost || '',
-        '송장번호': order.delivery_invoice || '',
-        '출고완료일': order.shipped_at?.split('T')[0] || ''
-      };
+  document.querySelectorAll('.detail-name').forEach(span => {
+  span.addEventListener('click', () => {
+    const order = JSON.parse(span.dataset.order.replace(/&apos;/g, "'"));
+    const [category, product] = (order.product_name || '').split(' > ');
+    const fields = {
+      '연락처': order.phone || '',
+      '이메일': order.email || '',
+      '제품분류': category || '',
+      '제품명': product || '',
+      '신청종류': order.request_type || '',
+      '수리여부': order.inspection_followup || '',
+      '고장시기': extract(order.message, '고장시기'),
+      '고장증상': extract(order.message, '고장증상'),
+      '요청사항': extract(order.message, '요청사항'),
+      '발송INVOICE': order.shipping_invoice || '',
+      '접수코드': order.receipt_code || '',
+      '비고': order.note || '',
+      '수리내역': order.repair_detail || '',
+      '수리비용': order.repair_cost || '',
+      '송장번호': order.delivery_invoice || '',
+      '출고완료일': order.shipped_at?.split('T')[0] || ''
+    };
 
-      const content = Object.entries(fields)
-        .map(([label, value]) => `${label}: ${value}`)
-        .join('\n');
+    const content = Object.entries(fields)
+      .map(([label, value]) => `${label}: ${value}`)
+      .join('\n');
 
-      showModal('상세정보', content);
-    });
+    showModal('상세정보', content);
   });
-
+});
   bindEvents();
 }
 
