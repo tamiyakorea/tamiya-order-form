@@ -211,7 +211,7 @@ document.querySelectorAll('.print-invoice').forEach(btn => {
 
     const popup = window.open('', '_blank', 'width=800,height=1000');
     
-popup.document.write(
+popup.document.write(`
   <html lang="ko">
   <head>
     <meta charset="UTF-8" />
@@ -291,7 +291,7 @@ popup.document.write(
     <button class="print-btn" onclick="window.print()">PDF 저장 또는 인쇄</button>
   </body>
   </html>
-);
+`);
     popup.document.close();
   });
 });
