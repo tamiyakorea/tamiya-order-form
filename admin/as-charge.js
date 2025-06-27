@@ -94,9 +94,9 @@ function extract(message, label) {
 pdfMake.fonts = {
   NanumMyeongjo: {
     normal: 'NanumMyeongjo.ttf',
-    bold: 'NanumMyeongjoExtraBold.ttf',
+    bold: 'NanumMyeongjo.ttf',
     italics: 'NanumMyeongjo.ttf',         // 기울임 없는 경우 일반체로 대체
-    bolditalics: 'NanumMyeongjoExtraBold.ttf'  // 없으면 Bold로 대체
+    bolditalics: 'NanumMyeongjo.ttf'  // 없으면 Bold로 대체
   }
 };
 
