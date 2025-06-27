@@ -32,7 +32,7 @@ function renderCompletedTable(orders) {
       <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
       <td>${order.created_at?.split('T')[0]}</td>
       <td>${order.order_id}</td>
-      <td><button class="detail-btn" data-order='${JSON.stringify(order).replace(/'/g, '&apos;')}'>${order.name}</button></td>
+      <td><span class="detail-name" data-order='${JSON.stringify(order).replace(/'/g, '&apos;')}'>${order.name}</span></td>
       <td>${order.phone || '-'}</td>
       <td>${order.shipping_invoice || '-'}</td>
       <td>${order.delivery_invoice || '-'}</td>
