@@ -43,7 +43,7 @@ function renderCompletedTable(orders) {
       note: order.note,
       repair_detail: order.repair_detail,
       repair_cost: order.repair_cost,
-      deilivery_invice: order.deilivery_invice,
+      deilivery_invoice: order.deilivery_invoice,
       shipped_at: order.shipped_at?.split('T')[0] || ''
     };
 
@@ -90,7 +90,7 @@ function getTitle(field) {
     note: '비고',
     repair_detail: '수리내역',
     repair_cost: '수리비용',
-    deilivery_invice: '송장번호',
+    deilivery_invoice: '송장번호',
     shipped_at: '배송완료일'
   }[field] || field;
 }
