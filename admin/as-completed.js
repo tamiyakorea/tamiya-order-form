@@ -26,40 +26,52 @@ function renderCompletedTable(orders) {
   tbody.innerHTML = '';
 
   for (const order of orders) {
-    const [category, product] = (order.product_name || '').split(' > ');
-
-    const fields = {
-      phone: order.phone,
-      email: order.email,
-      category,
-      product,
-      request_type: order.request_type || '',
-      inspection_followup: order.inspection_followup || '',
-      fault_time: extract(order.message, '고장시기'),
-      fault_desc: extract(order.message, '고장증상'),
-      request: extract(order.message, '요청사항'),
-      invoice: order.shipping_invoice,
-      code: order.receipt_code,
-      note: order.note,
-      repair_detail: order.repair_detail,
-      repair_cost: order.repair_cost,
-      delivery_invoice: order.delivery_invoice,
-      shipped_at: order.shipped_at?.split('T')[0] || ''
-    };
-
     const row = document.createElement('tr');
     row.innerHTML = `
       <td><button class="delete-btn" data-id="${order.order_id}">삭제</button></td>
       <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
       <td>${order.created_at?.split('T')[0]}</td>
       <td>${order.order_id}</td>
-      <td>${order.name}</td>
-      ${Object.entries(fields).map(([key, val]) =>
-        `<td><button onclick="showModal('${getTitle(key)}', \`${escapeQuotes(val)}\`)">확인</button></td>`
-      ).join('')}
+      <td><button class="detail-btn" data-order='${JSON.stringify(order).replace(/'/g, '&apos;')}'>${order.name}</button></td>
+      <td>${order.phone || '-'}</td>
+      <td>${order.shipping_invoice || '-'}</td>
+      <td>${order.delivery_invoice || '-'}</td>
+      <td>${order.shipped_at?.split('T')[0] || '-'}</td>
     `;
     tbody.appendChild(row);
   }
+
+  // ✅ 버튼 바인딩은 DOM 삽입 후에!
+  document.querySelectorAll('.detail-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const order = JSON.parse(btn.dataset.order.replace(/&apos;/g, "'"));
+      const [category, product] = (order.product_name || '').split(' > ');
+      const fields = {
+        '연락처': order.phone || '',
+        '이메일': order.email || '',
+        '제품분류': category || '',
+        '제품명': product || '',
+        '신청종류': order.request_type || '',
+        '수리여부': order.inspection_followup || '',
+        '고장시기': extract(order.message, '고장시기'),
+        '고장증상': extract(order.message, '고장증상'),
+        '요청사항': extract(order.message, '요청사항'),
+        '발송INVOICE': order.shipping_invoice || '',
+        '접수코드': order.receipt_code || '',
+        '비고': order.note || '',
+        '수리내역': order.repair_detail || '',
+        '수리비용': order.repair_cost || '',
+        '송장번호': order.delivery_invoice || '',
+        '출고완료일': order.shipped_at?.split('T')[0] || ''
+      };
+
+      const content = Object.entries(fields)
+        .map(([label, value]) => `${label}: ${value}`)
+        .join('\n');
+
+      showModal('상세정보', content);
+    });
+  });
 
   bindEvents();
 }
@@ -72,27 +84,6 @@ function extract(message, label) {
   if (!message) return '';
   const match = message.match(new RegExp(`${label}: ?([^\n]*)`));
   return match ? match[1].trim() : '';
-}
-
-function getTitle(field) {
-  return {
-    phone: '연락처',
-    email: '이메일',
-    category: '제품분류',
-    product: '제품명',
-    request_type: '신청종류', // ✅ 추가
-    inspection_followup: '수리여부', // ✅ 추가
-    fault_time: '고장시기',
-    fault_desc: '고장증상',
-    request: '요청사항',
-    invoice: '발송INVOICE',
-    code: '접수코드',
-    note: '비고',
-    repair_detail: '수리내역',
-    repair_cost: '수리비용',
-    deilivery_invoice: '송장번호',
-    shipped_at: '배송완료일'
-  }[field] || field;
 }
 
 function bindEvents() {
