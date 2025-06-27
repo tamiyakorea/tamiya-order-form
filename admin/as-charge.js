@@ -204,7 +204,7 @@ document.querySelectorAll('.print-invoice').forEach(btn => {
     const extraCost = Math.max(0, supplyCost - baseCost);
 
     const popup = window.open('', '_blank', 'width=800,height=1000');
-    popup.document.write(`
+popup.document.write(`
   <html lang="ko">
   <head>
     <meta charset="UTF-8" />
@@ -220,6 +220,10 @@ document.querySelectorAll('.print-invoice').forEach(btn => {
       th { background: #f0f0f0; text-align: left; }
       .section-title { font-weight: bold; background: #e6e6e6; padding: 8px 12px; margin-top: 30px; }
       .footer { margin-top: 40px; text-align: right; font-size: 12px; color: #666; }
+      .account-info { margin-top: 30px; font-size: 14px; text-align: left; }
+      .bottom-logo { margin-top: 60px; text-align: center; }
+      .bottom-logo img { height: 40px; margin-bottom: 8px; }
+      .bottom-logo div { font-size: 13px; color: #333; }
       .print-btn { display: block; margin: 20px auto; padding: 10px 20px; font-size: 14px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
       .print-btn:hover { background: #45a049; }
       @media print { .print-btn { display: none; } }
@@ -235,42 +239,51 @@ document.querySelectorAll('.print-invoice').forEach(btn => {
 
       <div class="section-title">기본 정보</div>
       <table>
-            <tr><th>신청일시</th><td>${data.created_at?.split('T')[0] || '-'}</td></tr>
-            <tr><th>신청번호</th><td>${data.order_id}</td></tr>
-            <tr><th>고객명</th><td>${data.name}</td></tr>
-            <tr><th>연락처</th><td>${data.phone || '-'}</td></tr>
-            <tr><th>이메일</th><td>${data.email || '-'}</td></tr>
-            <tr><th>우편번호</th><td>${data.zipcode || '-'}</td></tr>
-            <tr><th>주소</th><td>${data.address || '-'} ${data.address_detail || ''}</td></tr>
-            <tr><th>신청종류</th><td>${data.request_type || '-'}</td></tr>
-            <tr><th>수리여부</th><td>${data.inspection_followup || '-'}</td></tr>
-          </table>
+        <tr><th>신청일시</th><td>${data.created_at?.split('T')[0] || '-'}</td></tr>
+        <tr><th>신청번호</th><td>${data.order_id}</td></tr>
+        <tr><th>고객명</th><td>${data.name}</td></tr>
+        <tr><th>연락처</th><td>${data.phone || '-'}</td></tr>
+        <tr><th>이메일</th><td>${data.email || '-'}</td></tr>
+        <tr><th>우편번호</th><td>${data.zipcode || '-'}</td></tr>
+        <tr><th>주소</th><td>${data.address || '-'} ${data.address_detail || ''}</td></tr>
+        <tr><th>신청종류</th><td>${data.request_type || '-'}</td></tr>
+        <tr><th>수리여부</th><td>${data.inspection_followup || '-'}</td></tr>
+      </table>
 
-          <div class="section-title">제품 및 증상</div>
-          <table>
-            <tr><th>제품명</th><td>${data.product_name || '-'}</td></tr>
-            <tr><th>고장 증상</th><td>${extract(data.message, '고장증상') || '-'}</td></tr>
-            <tr><th>수리 내역</th><td>${data.repair_detail || '-'}</td></tr>
-          </table>
+      <div class="section-title">제품 및 증상</div>
+      <table>
+        <tr><th>제품명</th><td>${data.product_name || '-'}</td></tr>
+        <tr><th>고장 증상</th><td>${extract(data.message, '고장증상') || '-'}</td></tr>
+        <tr><th>수리 내역</th><td>${data.repair_detail || '-'}</td></tr>
+      </table>
 
-          <div class="section-title">수리 비용 내역</div>
-          <table>
-            <tr><th>항목</th><th>금액</th></tr>
-            <tr><td>기본 공임 비용</td><td>₩ ${baseCost.toLocaleString()}</td></tr>
-            <tr><td>추가 수리 비용</td><td>₩ ${extraCost.toLocaleString()}</td></tr>
-            <tr><td>부가세 (10%)</td><td>₩ ${vat.toLocaleString()}</td></tr>
-            <tr><th>총 청구 금액</th><th>₩ ${totalCost.toLocaleString()}</th></tr>
-          </table>
+      <div class="section-title">수리 비용 내역</div>
+      <table>
+        <tr><th>항목</th><th>금액</th></tr>
+        <tr><td>기본 공임 비용</td><td>₩ ${baseCost.toLocaleString()}</td></tr>
+        <tr><td>추가 수리 비용</td><td>₩ ${extraCost.toLocaleString()}</td></tr>
+        <tr><td>부가세 (10%)</td><td>₩ ${vat.toLocaleString()}</td></tr>
+        <tr><th>총 청구 금액</th><th>₩ ${totalCost.toLocaleString()}</th></tr>
+      </table>
 
-          <div class="footer">
-            출력일: ${new Date().toLocaleDateString()}
-          </div>
-        </div>
+      <div class="account-info">
+        <strong>예금계좌정보:</strong> 우리은행 / 1005-803-756392
+      </div>
 
-        <button class="print-btn" onclick="window.print()">PDF 저장 또는 인쇄</button>
-      </body>
-      </html>
-    `);
+      <div class="footer">
+        출력일: ${new Date().toLocaleDateString()}
+      </div>
+
+      <div class="bottom-logo">
+        <img src="../images/TamiyaPlamodelFactory.png" alt="Kidult Hobby Logo" />
+        <div>(주식회사 한국키덜트하비)</div>
+      </div>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">PDF 저장 또는 인쇄</button>
+  </body>
+  </html>
+`);
     popup.document.close();
   });
 });
