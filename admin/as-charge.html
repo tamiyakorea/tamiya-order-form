@@ -68,14 +68,14 @@
 <div id="calcModal" style="display:none; position:fixed; z-index:3000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.4);">
   <div style="background:white; margin:5% auto; padding:20px; width:400px; border-radius:10px;">
     <h3 style="margin-top:0;">수리비 계산기</h3>
-    <label>제조사 청구 금액 (엔)<br><input id="inputYen" type="number" style="width:100%;" /></label><br>
-    <label>청구 날짜<br><input id="inputDateYen" type="date" style="width:100%;" /></label><br>
-    <label>환율 
+    <label>SANWA 청구 금액 (엔)<br><input id="inputYen" type="number" style="width:100%;" /></label><br>
+    <label>SANWA 청구 날짜<br><input id="inputDateYen" type="date" style="width:100%;" /></label><br>
+    <label>적용 환율 
       <a href="http://www.smbs.biz/ExRate/TodayExRate.jsp" target="_blank" style="margin-left:8px; font-size:0.9em;">환율확인</a><br>
       <input id="inputRate" type="number" step="0.01" value="10.0" style="width:100%;" />
     </label><br>
-    <label>기기 정가 (원)<br><input id="inputPrice" type="number" style="width:100%;" /></label><br>
-    <label>수수료 배율<br><input id="inputMultiplier" type="number" step="0.01" value="1.3" style="width:100%;" /></label><br>
+    <label>소비자가 (원)<br><input id="inputPrice" type="number" style="width:100%;" /></label><br>
+    <label>적용 수수료 배율<br><input id="inputMultiplier" type="number" step="0.01" value="1.3" style="width:100%;" /></label><br>
     <div style="text-align:right; margin-top:10px;">
       <button id="calcConfirmBtn">계산</button>
       <button onclick="closeCalcModal()">취소</button>
