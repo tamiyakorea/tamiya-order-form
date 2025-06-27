@@ -199,6 +199,7 @@ function closeCalcModal() {
   currentCostInput = null;
   document.getElementById("calcModal").style.display = 'none';
 }
+window.closeCalcModal = closeCalcModal;
 
 document.getElementById('calcConfirmBtn').addEventListener('click', () => {
   const yen = parseFloat(document.getElementById("inputYen").value);
