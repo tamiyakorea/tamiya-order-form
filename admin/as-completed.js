@@ -76,10 +76,6 @@ function renderCompletedTable(orders) {
   bindEvents();
 }
 
-function escapeQuotes(str) {
-  return String(str || '').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/'/g, "\\'");
-}
-
 function extract(message, label) {
   if (!message) return '';
   const match = message.match(new RegExp(`${label}: ?([^\n]*)`));
@@ -108,13 +104,6 @@ function bindEvents() {
   });
 }
 
-function openEditModal() {
-  document.getElementById("editModal").style.display = "block";
-}
-
-function closeEditModal() {
-  document.getElementById("editModal").style.display = "none";
-}
 
 window.showModal = function (title, content) {
   document.getElementById('modal-title').textContent = title;
