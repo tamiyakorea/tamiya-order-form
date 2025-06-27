@@ -219,76 +219,100 @@ popup.document.write(`
   <style>
     body {
       font-family: 'NanumGothic', sans-serif;
-      padding: 16px;
-      background: #fff;
-      font-size: 10px;
+      padding: 16px 24px;
+      margin: 0;
+      background: #f9f9f9;
+      font-size: 11px;
     }
     .invoice-box {
-      max-width: 750px;
+      max-width: 780px;
       margin: auto;
-      padding: 16px;
-      border: 1px solid #ccc;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      border-radius: 6px;
+    }
+    .logo-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .logo-row img {
+      height: 36px;
     }
     h1 {
       text-align: center;
-      font-size: 14pt;
-      margin-bottom: 10px;
+      font-size: 18pt;
+      margin: 0 0 18px;
+      color: #222;
+    }
+    .section-title {
+      font-weight: bold;
+      background: #f0f0f0;
+      padding: 6px 10px;
+      margin: 18px 0 8px;
+      font-size: 11.5px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     th, td {
-      padding: 4px 6px;
+      padding: 6px 8px;
       border-bottom: 1px solid #ddd;
-      font-size: 10px;
+      font-size: 11px;
     }
     th {
-      background: #f0f0f0;
+      background: #f8f8f8;
       text-align: left;
     }
-    .section-title {
-      font-weight: bold;
-      margin: 6px 0 4px;
-      padding-left: 2px;
-    }
     .footer {
-      margin-top: 10px;
+      margin-top: 12px;
       text-align: right;
-      font-size: 9px;
+      font-size: 10px;
       color: #666;
     }
     .bottom-logo {
+      margin-top: 20px;
       text-align: center;
-      margin-top: 12px;
     }
     .bottom-logo img {
-      height: 40px;
+      height: 48px;
       margin-bottom: 4px;
     }
     .bottom-logo div {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: bold;
+      color: #222;
     }
     .print-btn {
       display: block;
-      margin: 10px auto;
-      padding: 6px 12px;
-      font-size: 11px;
+      margin: 16px auto;
+      padding: 8px 16px;
+      font-size: 12px;
       background: #4CAF50;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 5px;
       cursor: pointer;
+    }
+    .print-btn:hover {
+      background: #45a049;
     }
     @media print {
       .print-btn { display: none; }
+      body { background: white; }
     }
   </style>
 </head>
 <body>
   <div class="invoice-box">
+    <div class="logo-row">
+      <img src="../images/logo.png" alt="Tamiya Logo" />
+      <img src="../images/sanwa.png" alt="Sanwa Logo" />
+    </div>
     <h1>SANWA A/S 수리비 청구서</h1>
 
     <div class="section-title">신청 정보 및 고객 정보</div>
@@ -333,6 +357,7 @@ popup.document.write(`
       <div>주식회사 한국키덜트하비</div>
     </div>
   </div>
+
   <button class="print-btn" onclick="window.print()">PDF 저장 또는 인쇄</button>
 </body>
 </html>
