@@ -70,6 +70,9 @@ function renderChargeTable(orders) {
         ${paymentDateInput}
       </td>
       <td><button class="complete-shipping" data-id="${order.order_id}">완료</button></td>
+      <td>
+        <button class="generate-pdf" data-id="${order.order_id}">청구서 PDF</button>
+      </td>
     `;
 
     tbody.appendChild(row);
@@ -184,6 +187,42 @@ function bindEvents() {
       openShippingModal(id);
     });
   });
+
+document.querySelectorAll('.generate-pdf').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const id = btn.dataset.id;
+    const { data, error } = await supabase.from('as_orders').select('*').eq('order_id', id).single();
+    if (error || !data) {
+      alert('주문 정보를 불러올 수 없습니다.');
+      return;
+    }
+
+    const docDefinition = {
+      content: [
+        { text: 'SANWA A/S 수리비 청구서', style: 'header' },
+        { text: '\n' },
+        { text: `고객명: ${data.name}` },
+        { text: `접수코드: ${data.receipt_code || '-'}` },
+        { text: `제품명: ${data.product_name || '-'}` },
+        { text: `고장 증상: ${extract(data.message, '고장증상')}` },
+        { text: `수리 내역: ${data.repair_detail || '-'}` },
+        { text: `\n수리 비용: ₩ ${Number(data.repair_cost).toLocaleString()} (부가세 포함)` },
+        { text: '\n\n※ 본 수리비는 부가세 포함 금액입니다.', style: 'footer' }
+      ],
+      styles: {
+        header: { fontSize: 18, bold: true, alignment: 'center' },
+        footer: { fontSize: 10, color: 'gray', alignment: 'right' }
+      },
+      defaultStyle: {
+        font: 'Roboto',
+      }
+    };
+
+    pdfMake.createPdf(docDefinition).download(`A-S-청구서-${data.order_id}.pdf`);
+  });
+});
+  
+  
 }
 
 window.showModal = function (title, content) {
@@ -294,3 +333,5 @@ document.getElementById('shippingConfirmBtn').addEventListener('click', async ()
     loadChargeOrders();
   }
 });
+
+
