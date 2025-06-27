@@ -92,11 +92,11 @@ function extract(message, label) {
 }
 
 pdfMake.fonts = {
-  Nanum: {
+  NanumMyeongjo: {
     normal: 'NanumMyeongjo.ttf',
     bold: 'NanumMyeongjoBold.ttf',
-    italics: 'NanumMyeongjo.ttf',
-    bolditalics: 'NanumMyeongjoBold.ttf'
+    italics: 'NanumMyeongjo.ttf',         // 기울임 없는 경우 일반체로 대체
+    bolditalics: 'NanumMyeongjoBold.ttf'  // 없으면 Bold로 대체
   }
 };
 
