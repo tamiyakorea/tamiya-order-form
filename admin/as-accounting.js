@@ -82,7 +82,7 @@ async function loadAccountingTable() {
       <td>₩${cost.toLocaleString()}</td>
       <td>${order.payment_date?.split('T')[0] || '-'}</td>
       <td>${order.shipped_at?.split('T')[0] || '-'}</td>
-      <td>${order.deilivery_invice || '-'}</td>
+      <td>${order.deilivery_invoice || '-'}</td>
     `;
     tbody.appendChild(row);
   }
