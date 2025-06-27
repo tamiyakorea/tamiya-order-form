@@ -71,7 +71,7 @@ function renderChargeTable(orders) {
       </td>
       <td><button class="complete-shipping" data-id="${order.order_id}">완료</button></td>
       <td>
-        <button class="generate-pdf" data-id="${order.order_id}">청구서 PDF</button>
+        <button class="print-invoice" data-id="${order.order_id}">청구서 출력</button>
       </td>
     `;
 
@@ -90,15 +90,6 @@ function extract(message, label) {
   const match = message.match(new RegExp(`${label}: ?([^\n]*)`));
   return match ? match[1].trim() : '';
 }
-
-pdfMake.fonts = {
-  NanumMyeongjo: {
-    normal: 'NanumMyeongjo.ttf',
-    bold: 'NanumMyeongjo.ttf',
-    italics: 'NanumMyeongjo.ttf',         // 기울임 없는 경우 일반체로 대체
-    bolditalics: 'NanumMyeongjo.ttf'  // 없으면 Bold로 대체
-  }
-};
 
 function bindEvents() {
   document.querySelectorAll('.revert-btn').forEach(btn => {
@@ -197,7 +188,7 @@ function bindEvents() {
     });
   });
 
-document.querySelectorAll('.generate-pdf').forEach(btn => {
+document.querySelectorAll('.print-invoice').forEach(btn => {
   btn.addEventListener('click', async () => {
     const id = btn.dataset.id;
     const { data, error } = await supabase.from('as_orders').select('*').eq('order_id', id).single();
@@ -206,28 +197,43 @@ document.querySelectorAll('.generate-pdf').forEach(btn => {
       return;
     }
 
-    const docDefinition = {
-      content: [
-        { text: 'SANWA A/S 수리비 청구서', style: 'header' },
-        { text: '\n' },
-        { text: `고객명: ${data.name}` },
-        { text: `접수코드: ${data.receipt_code || '-'}` },
-        { text: `제품명: ${data.product_name || '-'}` },
-        { text: `고장 증상: ${extract(data.message, '고장증상')}` },
-        { text: `수리 내역: ${data.repair_detail || '-'}` },
-        { text: `\n수리 비용: ₩ ${Number(data.repair_cost).toLocaleString()} (부가세 포함)` },
-        { text: '\n\n※ 본 수리비는 부가세 포함 금액입니다.', style: 'footer' }
-      ],
-      styles: {
-        header: { fontSize: 18, bold: true, alignment: 'center' },
-        footer: { fontSize: 10, color: 'gray', alignment: 'right' }
-      },
-      defaultStyle: {
-        font: 'NanumMyeongjo',
-      }
-    };
-
-    pdfMake.createPdf(docDefinition).download(`A-S-청구서-${data.order_id}.pdf`);
+    const popup = window.open('', '_blank', 'width=800,height=1000');
+    popup.document.write(`
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8" />
+        <title>SANWA A/S 수리비 청구서</title>
+        <style>
+          body { font-family: 'NanumGothic', sans-serif; padding: 40px; }
+          h1 { text-align: center; font-size: 24pt; margin-bottom: 40px; }
+          table { width: 100%; border-collapse: collapse; }
+          td, th { padding: 12px; border: 1px solid #ddd; font-size: 12pt; }
+          .footer { margin-top: 50px; font-size: 10pt; text-align: right; color: gray; }
+          .print-btn { display: block; width: 100px; margin: 30px auto; padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer; font-size: 12pt; }
+          @media print {
+            .print-btn { display: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>SANWA A/S 수리비 청구서</h1>
+        <table>
+          <tr><th style="width: 30%;">고객명</th><td>${data.name}</td></tr>
+          <tr><th>접수코드</th><td>${data.receipt_code || '-'}</td></tr>
+          <tr><th>제품명</th><td>${data.product_name || '-'}</td></tr>
+          <tr><th>고장 증상</th><td>${extract(data.message, '고장증상') || '-'}</td></tr>
+          <tr><th>수리 내역</th><td>${data.repair_detail || '-'}</td></tr>
+          <tr><th>수리 비용</th><td>₩ ${Number(data.repair_cost).toLocaleString()} (부가세 포함)</td></tr>
+        </table>
+        <div class="footer">
+          ※ 본 수리비는 부가세 포함 금액입니다.<br>
+          출력일: ${new Date().toLocaleDateString()}
+        </div>
+        <button class="print-btn" onclick="window.print()">인쇄하기</button>
+      </body>
+      </html>
+    `);
+    popup.document.close();
   });
 });
   
