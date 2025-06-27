@@ -197,14 +197,21 @@ document.querySelectorAll('.print-invoice').forEach(btn => {
       return;
     }
 
-    const totalCost = Number(data.repair_cost) || 0;
-    const supplyCost = Math.floor(totalCost / 1.1); // 공급가
-    const vat = totalCost - supplyCost;
-    const baseCost = 30000;
-    const extraCost = Math.max(0, supplyCost - baseCost);
+    const baseTotal = 30000;
+    const baseCost = Math.round(baseTotal / 1.1); // 27273
+    const baseVAT = baseTotal - baseCost;
+
+    const extraCost = Math.round(Number(data.repair_cost) - baseTotal);
+    const extraVAT = Math.round(extraCost * 0.1);
+    const extraSupply = extraCost - extraVAT;
+
+    const totalSupply = baseCost + extraSupply;
+    const totalVAT = baseVAT + extraVAT;
+    const totalCost = totalSupply + totalVAT;
 
     const popup = window.open('', '_blank', 'width=800,height=1000');
-popup.document.write(`
+    
+popup.document.write(
   <html lang="ko">
   <head>
     <meta charset="UTF-8" />
@@ -258,11 +265,11 @@ popup.document.write(`
 
       <div class="section-title">수리 비용 내역</div>
       <table>
-        <tr><th>항목</th><th>금액</th></tr>
-        <tr><td>기본 공임 비용 (공급가)</td><td>₩ ${baseCost.toLocaleString()}</td></tr>
-        <tr><td>추가 수리 비용 (공급가)</td><td>₩ ${extraCost.toLocaleString()}</td></tr>
-        <tr><td>부가세 (10%)</td><td>₩ ${vat.toLocaleString()}</td></tr>
-        <tr><th>총 청구 금액 (부가세 포함)</th><th>₩ ${totalCost.toLocaleString()}</th></tr>
+        <tr><th>항목</th><th>공급가</th><th>부가세</th></tr>
+        <tr><td>기본 공임 비용</td><td>₩ ${baseCost.toLocaleString()}</td><td>₩ ${baseVAT.toLocaleString()}</td></tr>
+        <tr><td>추가 수리 비용</td><td>₩ ${extraSupply.toLocaleString()}</td><td>₩ ${extraVAT.toLocaleString()}</td></tr>
+        <tr><th>합계</th><th>₩ ${totalSupply.toLocaleString()}</th><th>₩ ${totalVAT.toLocaleString()}</th></tr>
+        <tr><th colspan="2">총 청구 금액 (부가세 포함)</th><th>₩ ${totalCost.toLocaleString()}</th></tr>
       </table>
 
       <div class="section-title">입금 계좌 정보</div>
@@ -284,7 +291,7 @@ popup.document.write(`
     <button class="print-btn" onclick="window.print()">PDF 저장 또는 인쇄</button>
   </body>
   </html>
-`);
+);
     popup.document.close();
   });
 });
