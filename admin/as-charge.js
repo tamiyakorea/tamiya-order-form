@@ -193,7 +193,7 @@ function openCalcModal(inputElement) {
   document.getElementById("inputMultiplier").value = '1.3';
   document.getElementById("calcModal").style.display = 'block';
 }
-window.openCalcModal = openCalcModal; // ✅ 전역 등록
+window.openCalcModal = openCalcModal;
 
 function closeCalcModal() {
   currentCostInput = null;
@@ -212,14 +212,31 @@ document.getElementById('calcConfirmBtn').addEventListener('click', () => {
     return;
   }
 
-  const cost = Math.min(price * 0.9, Math.max(30000, yen * rate * multiplier));
+  const rawCost = Math.min(price * 0.9, Math.max(30000, yen * rate * multiplier));
+  const roundedCost = Math.ceil(rawCost / 1000) * 1000;
+
   if (currentCostInput) {
-    currentCostInput.value = Math.round(cost);
-    currentCostInput.dispatchEvent(new Event('change')); // 저장 trigger
+    currentCostInput.value = roundedCost;
+    currentCostInput.dispatchEvent(new Event('change'));
   }
 
   closeCalcModal();
 });
+
+// ✅ 환율 입력 자동 보정: 엔터 OR 포커스 아웃 시
+function handleRateFix() {
+  const input = document.getElementById("inputRate");
+  const val = parseFloat(input.value);
+  if (!isNaN(val) && val > 100) {
+    input.value = (val / 100).toFixed(5);
+  }
+}
+
+document.getElementById("inputRate").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") handleRateFix();
+});
+
+document.getElementById("inputRate").addEventListener("blur", handleRateFix);
 
 // 배송완료 모달 관련
 function openShippingModal(orderId) {
