@@ -193,6 +193,7 @@ function openCalcModal(inputElement) {
   document.getElementById("inputMultiplier").value = '1.3';
   document.getElementById("calcModal").style.display = 'block';
 }
+window.openCalcModal = openCalcModal; // ✅ 전역 등록
 
 function closeCalcModal() {
   currentCostInput = null;
