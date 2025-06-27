@@ -91,6 +91,15 @@ function extract(message, label) {
   return match ? match[1].trim() : '';
 }
 
+pdfMake.fonts = {
+  Nanum: {
+    normal: 'NanumMyeongjo.ttf',
+    bold: 'NanumMyeongjoBold.ttf',
+    italics: 'NanumMyeongjo.ttf',
+    bolditalics: 'NanumMyeongjoBold.ttf'
+  }
+};
+
 function bindEvents() {
   document.querySelectorAll('.revert-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -214,7 +223,7 @@ document.querySelectorAll('.generate-pdf').forEach(btn => {
         footer: { fontSize: 10, color: 'gray', alignment: 'right' }
       },
       defaultStyle: {
-        font: 'Roboto',
+        font: 'NanumMyeongjo',
       }
     };
 
