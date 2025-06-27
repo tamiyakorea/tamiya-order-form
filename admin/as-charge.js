@@ -152,7 +152,7 @@ function bindEvents() {
           inputElem.style.fontSize = '0.8em';
           inputElem.value = new Date().toISOString().split('T')[0];
           inputElem.dataset.id = id;
-          btn.parentNode.appendChild(inputElem);
+          btn.after(inputElem);
 
           // 새 input에도 즉시 바인딩 (변경 시 DB 저장)
           inputElem.addEventListener('change', async (e) => {
