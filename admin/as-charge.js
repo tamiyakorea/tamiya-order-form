@@ -197,69 +197,75 @@ document.querySelectorAll('.print-invoice').forEach(btn => {
       return;
     }
 
+    const totalCost = Number(data.repair_cost) || 0;
+    const supplyCost = Math.floor(totalCost / 1.1); // 공급가
+    const vat = totalCost - supplyCost;
+    const baseCost = 30000;
+    const extraCost = Math.max(0, supplyCost - baseCost);
+
     const popup = window.open('', '_blank', 'width=800,height=1000');
     popup.document.write(`
-  <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <title>SANWA A/S 수리비 청구서</title>
-    <style>
-      body { font-family: 'NanumGothic', sans-serif; padding: 40px; background: #f9f9f9; }
-      .invoice-box { max-width: 800px; margin: auto; background: white; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.15); border-radius: 8px; }
-      h1 { text-align: center; font-size: 24pt; margin-bottom: 40px; color: #222; }
-      table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-      th, td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; }
-      th { background: #f0f0f0; text-align: left; }
-      .section-title { font-weight: bold; background: #e6e6e6; padding: 8px 12px; margin-top: 30px; }
-      .footer { margin-top: 40px; text-align: right; font-size: 12px; color: #666; }
-      .print-btn { display: block; margin: 20px auto; padding: 10px 20px; font-size: 14px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-      .print-btn:hover { background: #45a049; }
-      @media print { .print-btn { display: none; } }
-    </style>
-  </head>
-  <body>
-    <div class="invoice-box">
-      <h1>SANWA A/S 수리비 청구서</h1>
+      <html lang="ko">
+      <head>
+        <meta charset="UTF-8" />
+        <title>SANWA A/S 수리비 청구서</title>
+        <style>
+          body { font-family: 'NanumGothic', sans-serif; padding: 40px; background: #f9f9f9; }
+          .invoice-box { max-width: 800px; margin: auto; background: white; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.15); border-radius: 8px; }
+          h1 { text-align: center; font-size: 24pt; margin-bottom: 40px; color: #222; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+          th, td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+          th { background: #f0f0f0; text-align: left; }
+          .section-title { font-weight: bold; background: #e6e6e6; padding: 8px 12px; margin-top: 30px; }
+          .footer { margin-top: 40px; text-align: right; font-size: 12px; color: #666; }
+          .print-btn { display: block; margin: 20px auto; padding: 10px 20px; font-size: 14px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+          .print-btn:hover { background: #45a049; }
+          @media print { .print-btn { display: none; } }
+        </style>
+      </head>
+      <body>
+        <div class="invoice-box">
+          <h1>SANWA A/S 수리비 청구서</h1>
 
-      <div class="section-title">기본 정보</div>
-      <table>
-        <tr><th>신청일시</th><td>${data.created_at?.split('T')[0] || '-'}</td></tr>
-        <tr><th>신청번호</th><td>${data.order_id}</td></tr>
-        <tr><th>고객명</th><td>${data.name}</td></tr>
-        <tr><th>연락처</th><td>${data.phone || '-'}</td></tr>
-        <tr><th>이메일</th><td>${data.email || '-'}</td></tr>
-        <tr><th>우편번호</th><td>${data.zipcode || '-'}</td></tr>
-        <tr><th>주소</th><td>${data.address || '-'} ${data.address_detail || ''}</td></tr>
-        <tr><th>신청종류</th><td>${data.request_type || '-'}</td></tr>
-        <tr><th>수리여부</th><td>${data.inspection_followup || '-'}</td></tr>
-      </table>
+          <div class="section-title">기본 정보</div>
+          <table>
+            <tr><th>신청일시</th><td>${data.created_at?.split('T')[0] || '-'}</td></tr>
+            <tr><th>신청번호</th><td>${data.order_id}</td></tr>
+            <tr><th>고객명</th><td>${data.name}</td></tr>
+            <tr><th>연락처</th><td>${data.phone || '-'}</td></tr>
+            <tr><th>이메일</th><td>${data.email || '-'}</td></tr>
+            <tr><th>우편번호</th><td>${data.zipcode || '-'}</td></tr>
+            <tr><th>주소</th><td>${data.address || '-'} ${data.address_detail || ''}</td></tr>
+            <tr><th>신청종류</th><td>${data.request_type || '-'}</td></tr>
+            <tr><th>수리여부</th><td>${data.inspection_followup || '-'}</td></tr>
+          </table>
 
-      <div class="section-title">제품 및 증상</div>
-      <table>
-        <tr><th>제품명</th><td>${data.product_name || '-'}</td></tr>
-        <tr><th>고장 증상</th><td>${extract(data.message, '고장증상') || '-'}</td></tr>
-        <tr><th>수리 내역</th><td>${data.repair_detail || '-'}</td></tr>
-      </table>
+          <div class="section-title">제품 및 증상</div>
+          <table>
+            <tr><th>제품명</th><td>${data.product_name || '-'}</td></tr>
+            <tr><th>고장 증상</th><td>${extract(data.message, '고장증상') || '-'}</td></tr>
+            <tr><th>수리 내역</th><td>${data.repair_detail || '-'}</td></tr>
+          </table>
 
-      <div class="section-title">수리 비용 내역 (공급가 기준)</div>
-      <table>
-        <tr><th>항목</th><th>금액</th></tr>
-        <tr><td>기본 공임 비용</td><td>₩ 30,000</td></tr>
-        <tr><td>추가 수리 비용</td><td>₩ 10,000</td></tr>
-        <tr><td>부가세 (10%)</td><td>₩ 4,000</td></tr>
-        <tr><th>총 청구 금액 (부가세 포함)</th><th>₩ 44,000</th></tr>
-      </table>
+          <div class="section-title">수리 비용 내역 (공급가 기준)</div>
+          <table>
+            <tr><th>항목</th><th>금액</th></tr>
+            <tr><td>기본 공임 비용</td><td>₩ ${baseCost.toLocaleString()}</td></tr>
+            <tr><td>추가 수리 비용</td><td>₩ ${extraCost.toLocaleString()}</td></tr>
+            <tr><td>부가세 (10%)</td><td>₩ ${vat.toLocaleString()}</td></tr>
+            <tr><th>총 청구 금액 (부가세 포함)</th><th>₩ ${totalCost.toLocaleString()}</th></tr>
+          </table>
 
-      <div class="footer">
-        ※ 본 수리비는 부가세 포함 금액입니다.<br>
-        출력일: ${new Date().toLocaleDateString()}
-      </div>
-    </div>
+          <div class="footer">
+            ※ 본 수리비는 부가세 포함 금액입니다.<br>
+            출력일: ${new Date().toLocaleDateString()}
+          </div>
+        </div>
 
-    <button class="print-btn" onclick="window.print()">PDF 저장 또는 인쇄</button>
-  </body>
-  </html>
-`);
+        <button class="print-btn" onclick="window.print()">PDF 저장 또는 인쇄</button>
+      </body>
+      </html>
+    `);
     popup.document.close();
   });
 });
