@@ -210,17 +210,17 @@ popup.document.write(`
     <meta charset="UTF-8" />
     <title>SANWA A/S 수리비 청구서</title>
     <style>
-      body { font-family: 'NanumGothic', sans-serif; padding: 40px; background: #f9f9f9; }
-      .invoice-box { max-width: 800px; margin: auto; background: white; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.15); border-radius: 8px; }
-      .logo-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-      .logo-row img { height: 50px; }
-      h1 { text-align: center; font-size: 24pt; margin-bottom: 40px; color: #222; }
-      table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-      th, td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+      body { font-family: 'NanumGothic', sans-serif; padding: 24px; background: #f9f9f9; }
+      .invoice-box { max-width: 750px; margin: auto; background: white; padding: 24px; box-shadow: 0 0 10px rgba(0,0,0,0.15); border-radius: 8px; }
+      .logo-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+      .logo-row img { height: 40px; }
+      h1 { text-align: center; font-size: 20pt; margin-bottom: 24px; color: #222; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+      th, td { padding: 8px 10px; border-bottom: 1px solid #eee; font-size: 12px; }
       th { background: #f0f0f0; text-align: left; }
-      .section-title { font-weight: bold; background: #e6e6e6; padding: 8px 12px; margin-top: 30px; }
-      .footer { margin-top: 40px; text-align: right; font-size: 12px; color: #666; }
-      .bottom-logo { margin-top: 60px; text-align: center; }
+      .section-title { font-weight: bold; background: #e6e6e6; padding: 6px 10px; margin-top: 20px; }
+      .footer { margin-top: 20px; text-align: right; font-size: 10px; color: #666; }
+      .bottom-logo { margin-top: 40px; text-align: center; }
       .bottom-logo img { height: 60px; margin-bottom: 8px; }
       .bottom-logo div { font-size: 16px; font-weight: bold; color: #222; }
       .print-btn { display: block; margin: 20px auto; padding: 10px 20px; font-size: 14px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
@@ -236,7 +236,7 @@ popup.document.write(`
       </div>
       <h1>SANWA A/S 수리비 청구서</h1>
 
-      <div class="section-title">기본 정보</div>
+      <div class="section-title">신청 정보 및 고객 정보</div>
       <table>
         <tr><th>신청일시</th><td>${data.created_at?.split('T')[0] || '-'}</td></tr>
         <tr><th>신청번호</th><td>${data.order_id}</td></tr>
@@ -249,7 +249,7 @@ popup.document.write(`
         <tr><th>수리여부</th><td>${data.inspection_followup || '-'}</td></tr>
       </table>
 
-      <div class="section-title">제품 및 증상</div>
+      <div class="section-title">제품 및 수리 정보</div>
       <table>
         <tr><th>제품명</th><td>${data.product_name || '-'}</td></tr>
         <tr><th>고장 증상</th><td>${extract(data.message, '고장증상') || '-'}</td></tr>
@@ -259,10 +259,10 @@ popup.document.write(`
       <div class="section-title">수리 비용 내역</div>
       <table>
         <tr><th>항목</th><th>금액</th></tr>
-        <tr><td>기본 공임 비용</td><td>₩ ${baseCost.toLocaleString()} (공급가)</td></tr>
-        <tr><td>추가 수리 비용</td><td>₩ ${extraCost.toLocaleString()} (공급가)</td></tr>
+        <tr><td>기본 공임 비용 (공급가)</td><td>₩ ${baseCost.toLocaleString()}</td></tr>
+        <tr><td>추가 수리 비용 (공급가)</td><td>₩ ${extraCost.toLocaleString()}</td></tr>
         <tr><td>부가세 (10%)</td><td>₩ ${vat.toLocaleString()}</td></tr>
-        <tr><th>총 청구 금액</th><th>₩ ${totalCost.toLocaleString()} (부가세 포함)</th></tr>
+        <tr><th>총 청구 금액 (부가세 포함)</th><th>₩ ${totalCost.toLocaleString()}</th></tr>
       </table>
 
       <div class="section-title">입금 계좌 정보</div>
@@ -276,7 +276,7 @@ popup.document.write(`
       </div>
 
       <div class="bottom-logo">
-        <img src="../images/TamiyaPlamodelFactory.png" alt="Kidult Hobby Logo" />
+        <img src="../images/TamiyaPlamodelFactory_black.png" alt="Kidult Hobby Logo" />
         <div>주식회사 한국키덜트하비</div>
       </div>
     </div>
