@@ -1,3 +1,5 @@
+// ✅ 전체 코드 - 수정 포함 완료
+
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
@@ -36,13 +38,12 @@ function renderChargeTable(orders) {
 
     const row = document.createElement('tr');
     if (order.payment_confirmed) {
-      row.style.backgroundColor = '#e0f8d8'; // 연두색
+      row.style.backgroundColor = '#e0f8d8';
     }
 
-    // ✅ 먼저 선언되어야 함!
     const paymentDateInput = order.payment_date
-  ? `<input type="date" class="payment-date-input" data-id="${order.order_id}" value="${order.payment_date.split('T')[0]}" style="font-size:0.8em;" />`
-  : '';
+      ? `<br><input type="date" class="payment-date-input" data-id="${order.order_id}" value="${order.payment_date.split('T')[0]}" style="font-size:0.8em; margin-top:4px;" />`
+      : '';
 
     row.innerHTML = `
       <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
@@ -58,13 +59,13 @@ function renderChargeTable(orders) {
       <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
       <td><input type="text" value="${repairDetail}" data-id="${order.order_id}" class="repair-input" /></td>
       <td>
-          <input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" />
-            <button onclick="openCalcModal(this.previousElementSibling)">계산</button>
+        <input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" />
+        <button onclick="openCalcModal(this.previousElementSibling)">계산</button>
       </td>
       <td class="note-cell">${note}</td>
       <td>
         <button class="toggle-payment" data-id="${order.order_id}">
-        ${order.payment_confirmed ? '확인됨' : '미확인'}
+          ${order.payment_confirmed ? '확인됨' : '미확인'}
         </button>
         ${paymentDateInput}
       </td>
@@ -78,7 +79,7 @@ function renderChargeTable(orders) {
 }
 
 function escapeQuotes(str) {
-  return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+  return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\"/g, '\\"');
 }
 
 function extract(message, label) {
@@ -115,7 +116,6 @@ function bindEvents() {
     });
   });
 
-  // ✅ 입금확인 버튼 이벤트
   document.querySelectorAll('.toggle-payment').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.dataset.id;
@@ -127,45 +127,34 @@ function bindEvents() {
         payment_date: confirmed ? new Date().toISOString() : null
       };
 
-      const { error } = await supabase
-        .from('as_orders')
-        .update(update)
-        .eq('order_id', String(id));
+      const { error } = await supabase.from('as_orders').update(update).eq('order_id', id);
 
       if (!error) {
-        // 버튼 텍스트 변경
         btn.textContent = confirmed ? '확인됨' : '미확인';
-
-        // 배경색 처리
         const row = btn.closest('tr');
         row.style.backgroundColor = confirmed ? '#e0f8d8' : '';
 
-        // 기존 날짜 input 제거
         const existingInput = btn.parentNode.querySelector('.payment-date-input');
+        const existingBr = btn.parentNode.querySelector('br');
         if (existingInput) existingInput.remove();
+        if (existingBr) existingBr.remove();
 
-        // 확인됨인 경우 날짜 input 생성
         if (confirmed) {
           const inputElem = document.createElement('input');
           inputElem.type = 'date';
           inputElem.className = 'payment-date-input';
           inputElem.style.fontSize = '0.8em';
-          inputElem.value = new Date().toISOString().split('T')[0];
+          inputElem.style.marginTop = '4px';
           inputElem.dataset.id = id;
-          
+          inputElem.value = new Date().toISOString().split('T')[0];
+
           const br = document.createElement('br');
           btn.after(br, inputElem);
 
-          // 새 input에도 즉시 바인딩 (변경 시 DB 저장)
           inputElem.addEventListener('change', async (e) => {
             const newDate = e.target.value;
             if (!newDate) return;
-
-            const { error } = await supabase
-              .from('as_orders')
-              .update({ payment_date: newDate })
-              .eq('order_id', id);
-
+            const { error } = await supabase.from('as_orders').update({ payment_date: newDate }).eq('order_id', id);
             if (error) {
               alert('날짜 저장 중 오류 발생');
               console.error(error);
@@ -176,18 +165,12 @@ function bindEvents() {
     });
   });
 
-  // ✅ 기존 날짜 input 바인딩 (렌더링 시 이미 존재하는 경우)
   document.querySelectorAll('.payment-date-input').forEach(input => {
     input.addEventListener('change', async (e) => {
       const id = e.target.dataset.id;
       const newDate = e.target.value;
       if (!newDate) return;
-
-      const { error } = await supabase
-        .from('as_orders')
-        .update({ payment_date: newDate })
-        .eq('order_id', id);
-
+      const { error } = await supabase.from('as_orders').update({ payment_date: newDate }).eq('order_id', id);
       if (error) {
         alert('날짜 저장 중 오류 발생');
         console.error(error);
@@ -195,7 +178,6 @@ function bindEvents() {
     });
   });
 
-  // 배송완료 버튼 바인딩
   document.querySelectorAll('.complete-shipping').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.id;
@@ -204,7 +186,6 @@ function bindEvents() {
   });
 }
 
-// 모달 표시 함수
 window.showModal = function (title, content) {
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-content').textContent = content;
@@ -221,7 +202,6 @@ document.getElementById('searchInput')?.addEventListener('keypress', e => {
 
 let currentCostInput = null;
 
-// 수리비 계산 모달 열기
 function openCalcModal(inputElement) {
   currentCostInput = inputElement;
   document.getElementById("inputYen").value = '';
@@ -261,7 +241,6 @@ document.getElementById('calcConfirmBtn').addEventListener('click', () => {
   closeCalcModal();
 });
 
-// ✅ 환율 입력 자동 보정: 엔터 OR 포커스 아웃 시
 function handleRateFix() {
   const input = document.getElementById("inputRate");
   const val = parseFloat(input.value);
@@ -276,7 +255,6 @@ document.getElementById("inputRate").addEventListener("keydown", (e) => {
 
 document.getElementById("inputRate").addEventListener("blur", handleRateFix);
 
-// 배송완료 모달 관련
 function openShippingModal(orderId) {
   currentShippingOrderId = orderId;
   document.getElementById('inputInvoice').value = '';
@@ -290,7 +268,7 @@ function closeShippingModal() {
 }
 
 document.getElementById('shippingConfirmBtn').addEventListener('click', async () => {
-  const invoice = document.getElementById('inputInvoice').value.trim(); // 새 송장번호
+  const invoice = document.getElementById('inputInvoice').value.trim();
   const date = document.getElementById('inputDate').value;
 
   if (!invoice || !date) {
@@ -304,7 +282,7 @@ document.getElementById('shippingConfirmBtn').addEventListener('click', async ()
       status: '처리완료',
       status_updated_at: new Date().toISOString(),
       shipped_at: date,
-      delivery_invoice: invoice // ✅ 발송 INVOICE가 아닌 새로운 송장번호 컬럼에 저장
+      delivery_invoice: invoice
     })
     .eq('order_id', currentShippingOrderId);
 
