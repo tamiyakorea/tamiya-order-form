@@ -233,14 +233,45 @@ popup.document.write(`
       .print-btn { display: block; margin: 20px auto; padding: 10px 20px; font-size: 14px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
       .print-btn:hover { background: #45a049; }
       @media print { .print-btn { display: none; } }
+      .logo-row.separated {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .left-logo,
+  .center-logo,
+  .right-placeholder {
+    flex: 1;
+    text-align: center;
+  }
+
+  .left-logo {
+    text-align: left;
+  }
+
+  .right-placeholder {
+    text-align: right;
+    visibility: hidden;
+  }
+
+  .logo-row.separated img {
+    height: 40px;
+  }
     </style>
   </head>
   <body>
     <div class="invoice-box">
-      <div class="logo-row">
-        <img src="../images/logo.png" alt="Tamiya Logo" />
-        <img src="../images/sanwa.png" alt="Sanwa Logo" />
-      </div>
+      <div class="logo-row separated">
+  <div class="left-logo">
+    <img src="../images/logo.png" alt="Tamiya Logo" />
+  </div>
+  <div class="center-logo">
+    <img src="../images/sanwa.png" alt="Sanwa Logo" />
+  </div>
+  <div class="right-placeholder"></div>
+</div>
       <h1>SANWA A/S 수리비 청구서</h1>
 
       <div class="section-title">신청 정보 및 고객 정보</div>
