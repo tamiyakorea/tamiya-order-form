@@ -40,9 +40,9 @@ function renderChargeTable(orders) {
     }
 
     // ✅ 먼저 선언되어야 함!
-    const paymentDateDisplay = order.payment_date
-      ? `<div style="font-size: 0.8em; color: #555;">${order.payment_date.split('T')[0]}</div>`
-      : '';
+    const paymentDateInput = order.payment_date
+  ? `<input type="date" class="payment-date-input" data-id="${order.order_id}" value="${order.payment_date.split('T')[0]}" style="font-size:0.8em;" />`
+  : '';
 
     row.innerHTML = `
       <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
@@ -64,9 +64,9 @@ function renderChargeTable(orders) {
       <td class="note-cell">${note}</td>
       <td>
         <button class="toggle-payment" data-id="${order.order_id}">
-          ${order.payment_confirmed ? '확인됨' : '미확인'}
+        ${order.payment_confirmed ? '확인됨' : '미확인'}
         </button>
-        ${paymentDateDisplay}
+        ${paymentDateInput}
       </td>
       <td><button class="complete-shipping" data-id="${order.order_id}">완료</button></td>
     `;
@@ -115,49 +115,85 @@ function bindEvents() {
     });
   });
 
+  // ✅ 입금확인 버튼 이벤트
   document.querySelectorAll('.toggle-payment').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const id = btn.dataset.id;
-    const current = btn.textContent.trim();
-    const confirmed = current === '확인됨' ? false : true;
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const current = btn.textContent.trim();
+      const confirmed = current === '확인됨' ? false : true;
 
-    const update = {
-      payment_confirmed: confirmed,
-      payment_date: confirmed ? new Date().toISOString() : null
-    };
+      const update = {
+        payment_confirmed: confirmed,
+        payment_date: confirmed ? new Date().toISOString() : null
+      };
 
-    const { error } = await supabase
-      .from('as_orders')
-      .update(update)
-      .eq('order_id', String(id));
+      const { error } = await supabase
+        .from('as_orders')
+        .update(update)
+        .eq('order_id', String(id));
 
-    if (!error) {
-      // 텍스트 변경
-      btn.textContent = confirmed ? '확인됨' : '미확인';
+      if (!error) {
+        // 버튼 텍스트 변경
+        btn.textContent = confirmed ? '확인됨' : '미확인';
 
-      // 배경색 처리
-      const row = btn.closest('tr');
-      row.style.backgroundColor = confirmed ? '#e0f8d8' : '';
+        // 배경색 처리
+        const row = btn.closest('tr');
+        row.style.backgroundColor = confirmed ? '#e0f8d8' : '';
 
-      // 기존 날짜 텍스트 제거
-      const existingDate = btn.nextElementSibling;
-      if (existingDate && existingDate.classList.contains('payment-date')) {
-        existingDate.remove();
+        // 기존 날짜 input 제거
+        const existingInput = btn.parentNode.querySelector('.payment-date-input');
+        if (existingInput) existingInput.remove();
+
+        // 확인됨인 경우 날짜 input 생성
+        if (confirmed) {
+          const inputElem = document.createElement('input');
+          inputElem.type = 'date';
+          inputElem.className = 'payment-date-input';
+          inputElem.style.fontSize = '0.8em';
+          inputElem.value = new Date().toISOString().split('T')[0];
+          inputElem.dataset.id = id;
+          btn.parentNode.appendChild(inputElem);
+
+          // 새 input에도 즉시 바인딩 (변경 시 DB 저장)
+          inputElem.addEventListener('change', async (e) => {
+            const newDate = e.target.value;
+            if (!newDate) return;
+
+            const { error } = await supabase
+              .from('as_orders')
+              .update({ payment_date: newDate })
+              .eq('order_id', id);
+
+            if (error) {
+              alert('날짜 저장 중 오류 발생');
+              console.error(error);
+            }
+          });
+        }
       }
-
-      // 새로 날짜 추가
-      if (confirmed) {
-        const dateElem = document.createElement('div');
-        dateElem.className = 'payment-date';
-        dateElem.style.fontSize = '0.8em';
-        dateElem.style.color = '#555';
-        dateElem.textContent = new Date().toISOString().split('T')[0];
-        btn.parentNode.appendChild(dateElem);
-      }
-    }
+    });
   });
-});
 
+  // ✅ 기존 날짜 input 바인딩 (렌더링 시 이미 존재하는 경우)
+  document.querySelectorAll('.payment-date-input').forEach(input => {
+    input.addEventListener('change', async (e) => {
+      const id = e.target.dataset.id;
+      const newDate = e.target.value;
+      if (!newDate) return;
+
+      const { error } = await supabase
+        .from('as_orders')
+        .update({ payment_date: newDate })
+        .eq('order_id', id);
+
+      if (error) {
+        alert('날짜 저장 중 오류 발생');
+        console.error(error);
+      }
+    });
+  });
+
+  // 배송완료 버튼 바인딩
   document.querySelectorAll('.complete-shipping').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.id;
