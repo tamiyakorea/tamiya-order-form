@@ -57,7 +57,10 @@ function renderChargeTable(orders) {
       <td>${order.inspection_followup || ''}</td>
       <td><button onclick="showModal('고장증상', '${faultDesc}')">확인</button></td>
       <td><input type="text" value="${repairDetail}" data-id="${order.order_id}" class="repair-input" /></td>
-      <td><input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" /></td>
+      <td>
+          <input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" />
+            <button onclick="openCalcModal(this.previousElementSibling)">계산</button>
+      </td>
       <td>${note}</td>
       <td>
         <button class="toggle-payment" data-id="${order.order_id}">
@@ -177,6 +180,45 @@ document.getElementById('modal-close').addEventListener('click', () => {
 document.getElementById('searchInput')?.addEventListener('keypress', e => {
   if (e.key === 'Enter') window.searchOrders?.();
 });
+
+let currentCostInput = null;
+
+// 수리비 계산 모달 열기
+function openCalcModal(inputElement) {
+  currentCostInput = inputElement;
+  document.getElementById("inputYen").value = '';
+  document.getElementById("inputDateYen").valueAsDate = new Date();
+  document.getElementById("inputRate").value = '10.0';
+  document.getElementById("inputPrice").value = '';
+  document.getElementById("inputMultiplier").value = '1.3';
+  document.getElementById("calcModal").style.display = 'block';
+}
+
+function closeCalcModal() {
+  currentCostInput = null;
+  document.getElementById("calcModal").style.display = 'none';
+}
+
+document.getElementById('calcConfirmBtn').addEventListener('click', () => {
+  const yen = parseFloat(document.getElementById("inputYen").value);
+  const rate = parseFloat(document.getElementById("inputRate").value);
+  const price = parseFloat(document.getElementById("inputPrice").value);
+  const multiplier = parseFloat(document.getElementById("inputMultiplier").value);
+
+  if (!yen || !rate || !price || !multiplier) {
+    alert("모든 값을 정확히 입력해주세요.");
+    return;
+  }
+
+  const cost = Math.min(price * 0.9, Math.max(30000, yen * rate * multiplier));
+  if (currentCostInput) {
+    currentCostInput.value = Math.round(cost);
+    currentCostInput.dispatchEvent(new Event('change')); // 저장 trigger
+  }
+
+  closeCalcModal();
+});
+
 
 // 배송완료 모달 관련
 function openShippingModal(orderId) {
