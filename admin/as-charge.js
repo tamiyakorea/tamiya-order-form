@@ -220,28 +220,6 @@ document.getElementById('calcConfirmBtn').addEventListener('click', () => {
   closeCalcModal();
 });
 
-document.getElementById("inputDateYen").addEventListener("change", async () => {
-  const date = document.getElementById("inputDateYen").value;
-  if (!date) return;
-
-  const url = `https://api.exchangerate.host/${date}?base=JPY&symbols=KRW`;
-
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    const rate = data.rates?.KRW;
-
-    if (rate) {
-      document.getElementById("inputRate").value = rate.toFixed(3);
-    } else {
-      alert("환율 데이터를 가져올 수 없습니다.");
-    }
-  } catch (err) {
-    console.error("환율 불러오기 오류:", err);
-    alert("환율을 불러오는 중 오류가 발생했습니다.");
-  }
-});
-
 // 배송완료 모달 관련
 function openShippingModal(orderId) {
   currentShippingOrderId = orderId;
