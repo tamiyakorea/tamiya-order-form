@@ -61,7 +61,7 @@ function renderChargeTable(orders) {
           <input type="text" value="${repairCost}" data-id="${order.order_id}" class="cost-input" />
             <button onclick="openCalcModal(this.previousElementSibling)">계산</button>
       </td>
-      <td>${note}</td>
+      <td class="note-cell">${note}</td>
       <td>
         <button class="toggle-payment" data-id="${order.order_id}">
           ${order.payment_confirmed ? '확인됨' : '미확인'}
