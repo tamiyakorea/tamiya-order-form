@@ -247,17 +247,16 @@ document.querySelectorAll('.print-invoice').forEach(btn => {
             <tr><th>수리 내역</th><td>${data.repair_detail || '-'}</td></tr>
           </table>
 
-          <div class="section-title">수리 비용 내역 (공급가 기준)</div>
+          <div class="section-title">수리 비용 내역</div>
           <table>
             <tr><th>항목</th><th>금액</th></tr>
             <tr><td>기본 공임 비용</td><td>₩ ${baseCost.toLocaleString()}</td></tr>
             <tr><td>추가 수리 비용</td><td>₩ ${extraCost.toLocaleString()}</td></tr>
             <tr><td>부가세 (10%)</td><td>₩ ${vat.toLocaleString()}</td></tr>
-            <tr><th>총 청구 금액 (부가세 포함)</th><th>₩ ${totalCost.toLocaleString()}</th></tr>
+            <tr><th>총 청구 금액</th><th>₩ ${totalCost.toLocaleString()}</th></tr>
           </table>
 
           <div class="footer">
-            ※ 본 수리비는 부가세 포함 금액입니다.<br>
             출력일: ${new Date().toLocaleDateString()}
           </div>
         </div>
