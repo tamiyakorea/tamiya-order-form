@@ -215,7 +215,7 @@ popup.document.write(`
   <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <title>SANWA A/S 수리비 청구서</title>
+    <title>A/S 수리비 청구서</title>
     <style>
       body { font-family: 'NanumGothic', sans-serif; padding: 24px; background: #f9f9f9; }
       .invoice-box { max-width: 750px; margin: auto; background: white; padding: 24px; box-shadow: 0 0 10px rgba(0,0,0,0.15); border-radius: 8px; }
