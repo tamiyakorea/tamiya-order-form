@@ -220,10 +220,9 @@ popup.document.write(`
       th { background: #f0f0f0; text-align: left; }
       .section-title { font-weight: bold; background: #e6e6e6; padding: 8px 12px; margin-top: 30px; }
       .footer { margin-top: 40px; text-align: right; font-size: 12px; color: #666; }
-      .account-info { margin-top: 30px; font-size: 14px; text-align: left; }
       .bottom-logo { margin-top: 60px; text-align: center; }
-      .bottom-logo img { height: 40px; margin-bottom: 8px; }
-      .bottom-logo div { font-size: 13px; color: #333; }
+      .bottom-logo img { height: 60px; margin-bottom: 8px; }
+      .bottom-logo div { font-size: 16px; font-weight: bold; color: #222; }
       .print-btn { display: block; margin: 20px auto; padding: 10px 20px; font-size: 14px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
       .print-btn:hover { background: #45a049; }
       @media print { .print-btn { display: none; } }
@@ -260,15 +259,17 @@ popup.document.write(`
       <div class="section-title">수리 비용 내역</div>
       <table>
         <tr><th>항목</th><th>금액</th></tr>
-        <tr><td>기본 공임 비용</td><td>₩ ${baseCost.toLocaleString()}</td></tr>
-        <tr><td>추가 수리 비용</td><td>₩ ${extraCost.toLocaleString()}</td></tr>
+        <tr><td>기본 공임 비용</td><td>₩ ${baseCost.toLocaleString()} (공급가)</td></tr>
+        <tr><td>추가 수리 비용</td><td>₩ ${extraCost.toLocaleString()} (공급가)</td></tr>
         <tr><td>부가세 (10%)</td><td>₩ ${vat.toLocaleString()}</td></tr>
-        <tr><th>총 청구 금액</th><th>₩ ${totalCost.toLocaleString()}</th></tr>
+        <tr><th>총 청구 금액</th><th>₩ ${totalCost.toLocaleString()} (부가세 포함)</th></tr>
       </table>
 
-      <div class="account-info">
-        <strong>예금계좌정보:</strong> 우리은행 / 1005-803-756392
-      </div>
+      <div class="section-title">입금 계좌 정보</div>
+      <table>
+        <tr><th>예금주</th><td>주식회사 한국키덜트하비</td></tr>
+        <tr><th>은행 및 계좌번호</th><td>우리은행 / 1005-803-756392</td></tr>
+      </table>
 
       <div class="footer">
         출력일: ${new Date().toLocaleDateString()}
@@ -276,7 +277,7 @@ popup.document.write(`
 
       <div class="bottom-logo">
         <img src="../images/TamiyaPlamodelFactory.png" alt="Kidult Hobby Logo" />
-        <div>(주식회사 한국키덜트하비)</div>
+        <div>주식회사 한국키덜트하비</div>
       </div>
     </div>
 
