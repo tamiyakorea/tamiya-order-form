@@ -43,7 +43,7 @@ function renderCompletedTable(orders) {
       note: order.note,
       repair_detail: order.repair_detail,
       repair_cost: order.repair_cost,
-      deilivery_invoice: order.deilivery_invoice,
+      delivery_invoice: order.delivery_invoice,
       shipped_at: order.shipped_at?.split('T')[0] || ''
     };
 
