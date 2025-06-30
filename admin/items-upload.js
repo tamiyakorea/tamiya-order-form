@@ -69,50 +69,39 @@ async function handleFileUpload(event) {
   const dbMap = new Map(allExisting.map(row => [String(row.item_code), row]));
   const showIdentical = document.getElementById('showIdenticalCheckbox')?.checked;
 
-  comparisonData = [];
-  uploadedMap.forEach((newItem, code) => {
-    const oldItem = dbMap.get(code);
+comparisonData = [];
+uploadedMap.forEach((newItem, code) => {
+  const oldItem = dbMap.get(code);
 
-    const noValidUpdate =
-      newItem.j_retail === 0 &&
-      newItem.price === 0 &&
-      newItem.order_unit_ctn === 0 &&
-      newItem.order_unit_pck === 0 &&
-      newItem.description === '' &&
-      oldItem &&
-      Boolean(oldItem.hide_from_customer_search) === Boolean(newItem.hide);
+  const isDiff =
+    !oldItem ||
+    (newItem.j_retail !== 0 && Number(oldItem.j_retail) !== newItem.j_retail) ||
+    (newItem.price !== 0 && Number(oldItem.price) !== newItem.price) ||
+    (newItem.order_unit_ctn !== 0 && Number(oldItem.order_unit_ctn) !== newItem.order_unit_ctn) ||
+    (newItem.order_unit_pck !== 0 && Number(oldItem.order_unit_pck) !== newItem.order_unit_pck) ||
+    (newItem.description !== '' && oldItem.description !== newItem.description) ||
+    Boolean(oldItem.hide_from_customer_search) !== Boolean(newItem.hide);
 
-    if (noValidUpdate && !showIdentical) return;
+  // ✅ 완전히 동일하고 showIdentical이 체크 안되었으면 표시하지 않음
+  if (!isDiff && !showIdentical) return;
 
-const isDiff =
-  !oldItem ||
-  (newItem.j_retail !== 0 && Number(oldItem.j_retail) !== newItem.j_retail) ||
-  (newItem.price !== 0 && Number(oldItem.price) !== newItem.price) ||
-  (newItem.order_unit_ctn !== 0 && Number(oldItem.order_unit_ctn) !== newItem.order_unit_ctn) ||
-  (newItem.order_unit_pck !== 0 && Number(oldItem.order_unit_pck) !== newItem.order_unit_pck) ||
-  (newItem.description !== '' && oldItem.description !== newItem.description) ||
-  Boolean(oldItem.hide_from_customer_search) !== Boolean(newItem.hide);
-
-// ✅ 동일하고 showIdentical도 꺼져 있으면 표시하지 않음
-if (!isDiff && !showIdentical) return;
-
-comparisonData.push({
-  item_code: code,
-  description: newItem.description || oldItem?.description || '',
-  old_j: oldItem?.j_retail ?? '-',
-  new_j: newItem.j_retail,
-  old_p: oldItem?.price ?? '-',
-  new_p: newItem.price,
-  old_ctn: oldItem?.order_unit_ctn ?? '-',
-  new_ctn: newItem.order_unit_ctn,
-  old_pck: oldItem?.order_unit_pck ?? '-',
-  new_pck: newItem.order_unit_pck,
-  old_hide: oldItem?.hide_from_customer_search ?? false,
-  new_hide: newItem.hide,
-  isNew: !oldItem,
-  apply: isDiff // ✅ 변경된 항목만 체크된 상태로 표시
+  comparisonData.push({
+    item_code: code,
+    description: newItem.description || oldItem?.description || '',
+    old_j: oldItem?.j_retail ?? '-',
+    new_j: newItem.j_retail,
+    old_p: oldItem?.price ?? '-',
+    new_p: newItem.price,
+    old_ctn: oldItem?.order_unit_ctn ?? '-',
+    new_ctn: newItem.order_unit_ctn,
+    old_pck: oldItem?.order_unit_pck ?? '-',
+    new_pck: newItem.order_unit_pck,
+    old_hide: oldItem?.hide_from_customer_search ?? false,
+    new_hide: newItem.hide,
+    isNew: !oldItem,
+    apply: isDiff
+  });
 });
-    });
   });
 
   renderTable();
