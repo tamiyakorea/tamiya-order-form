@@ -33,7 +33,7 @@ async function handleFileUpload(event) {
 
   rows.forEach(row => {
     if (row.item_code) {
-      const item_code = String(row.item_code);
+      const item_code = String(row.item_code).trim();
       itemCodes.push(item_code);
       uploadedMap.set(item_code, {
         item_code,
@@ -69,17 +69,18 @@ async function handleFileUpload(event) {
 
   const dbMap = new Map(allExisting.map(row => [String(row.item_code), row]));
 
-  // ✅ 비교 처리
+  // ✅ 변경된 항목만 비교 처리
   comparisonData = [];
   uploadedMap.forEach((newItem, code) => {
     const oldItem = dbMap.get(code);
+
     const isDiff =
       !oldItem ||
-      oldItem.j_retail !== newItem.j_retail ||
-      oldItem.price !== newItem.price ||
-      oldItem.order_unit_ctn !== newItem.order_unit_ctn ||
-      oldItem.order_unit_pck !== newItem.order_unit_pck ||
-      (oldItem.hide_from_customer_search ?? false) !== newItem.hide;
+      Number(oldItem.j_retail) !== Number(newItem.j_retail) ||
+      Number(oldItem.price) !== Number(newItem.price) ||
+      Number(oldItem.order_unit_ctn) !== Number(newItem.order_unit_ctn) ||
+      Number(oldItem.order_unit_pck) !== Number(newItem.order_unit_pck) ||
+      Boolean(oldItem.hide_from_customer_search) !== Boolean(newItem.hide);
 
     if (isDiff) {
       comparisonData.push({
