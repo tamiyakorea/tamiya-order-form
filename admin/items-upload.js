@@ -99,7 +99,10 @@ function renderTable() {
   table.style.display = '';
   tableBody.innerHTML = '';
 
-  comparisonData.forEach((item, i) => {
+  const previewLimit = 100;
+  const toPreview = comparisonData.slice(0, previewLimit);
+
+  toPreview.forEach((item, i) => {
     const tr = document.createElement('tr');
     tr.className = item.isNew ? 'new-item' : 'diff';
     tr.innerHTML = `
@@ -126,6 +129,14 @@ function renderTable() {
       comparisonData[idx].apply = e.target.checked;
     });
   });
+
+  if (comparisonData.length > previewLimit) {
+    const info = document.createElement('div');
+    info.style.marginTop = '10px';
+    info.style.color = 'gray';
+    info.innerText = `※ 총 ${comparisonData.length}건 중 상위 ${previewLimit}건만 미리보기로 표시됩니다.`;
+    table.parentElement.appendChild(info);
+  }
 }
 
 async function applyUpdates() {
@@ -139,6 +150,7 @@ async function applyUpdates() {
     const inserts = batch.filter(b => b.isNew);
     const modifies = batch.filter(b => !b.isNew);
 
+    // ✅ 1. 신규 항목은 한 번에 insert
     if (inserts.length > 0) {
       const payloads = inserts.map(toPayload);
       const { error } = await supabase.from('tamiya_items').insert(payloads);
@@ -146,11 +158,22 @@ async function applyUpdates() {
       else successCount += inserts.length;
     }
 
-    for (const item of modifies) {
-      const payload = toPayload(item);
-      const { error } = await supabase.from('tamiya_items').update(payload).eq('item_code', item.item_code);
-      if (error) failCount++;
-      else successCount++;
+    // ✅ 2. 수정 항목은 10건씩 병렬 update 처리
+    for (let j = 0; j < modifies.length; j += 10) {
+      const chunk = modifies.slice(j, j + 10);
+
+      const updatePromises = chunk.map(item =>
+        supabase.from('tamiya_items')
+          .update(toPayload(item))
+          .eq('item_code', item.item_code)
+      );
+
+      const results = await Promise.all(updatePromises);
+
+      results.forEach(result => {
+        if (result.error) failCount++;
+        else successCount++;
+      });
     }
   }
 
