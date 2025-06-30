@@ -34,13 +34,16 @@ async function handleFileUpload(event) {
         item_code: String(row.item_code),
         description: row.description || '',
         j_retail: Number(row.j_retail) || 0,
-        price: Number(row.price) || 0
+        price: Number(row.price) || 0,
+        hide: row.hide_from_customer_search === true || row.hide_from_customer_search === 'TRUE' || row.hide_from_customer_search === 1
       });
     }
   });
 
-  // ✅ 기존 DB 데이터 가져오기
-  const { data: existing, error } = await supabase.from('tamiya_items').select('item_code, description, j_retail, price');
+  // ✅ 기존 DB 데이터 가져오기 (숨김 컬럼 포함)
+  const { data: existing, error } = await supabase
+    .from('tamiya_items')
+    .select('item_code, description, j_retail, price, hide_from_customer_search');
   if (error) {
     alert('DB 로딩 실패: ' + error.message);
     return;
@@ -51,7 +54,13 @@ async function handleFileUpload(event) {
   comparisonData = [];
   uploadedMap.forEach((newItem, code) => {
     const oldItem = dbMap.get(code);
-    if (!oldItem || oldItem.j_retail !== newItem.j_retail || oldItem.price !== newItem.price) {
+    const oldHide = oldItem?.hide_from_customer_search ?? false;
+    if (
+      !oldItem ||
+      oldItem.j_retail !== newItem.j_retail ||
+      oldItem.price !== newItem.price ||
+      oldHide !== newItem.hide
+    ) {
       comparisonData.push({
         item_code: code,
         description: newItem.description,
@@ -59,6 +68,8 @@ async function handleFileUpload(event) {
         new_j: newItem.j_retail,
         old_p: oldItem?.price ?? '-',
         new_p: newItem.price,
+        old_hide: oldHide,
+        new_hide: newItem.hide,
         isNew: !oldItem,
         apply: true
       });
@@ -82,6 +93,8 @@ function renderTable() {
       <td>${item.new_j}</td>
       <td>${item.old_p}</td>
       <td>${item.new_p}</td>
+      <td>${item.old_hide ? '✔' : ''}</td>
+      <td>${item.new_hide ? '✔' : ''}</td>
       <td><input type="checkbox" data-index="${i}" ${item.apply ? 'checked' : ''}></td>
     `;
     tableBody.appendChild(tr);
@@ -106,7 +119,8 @@ async function applyUpdates() {
       item_code: item.item_code,
       description: item.description,
       j_retail: item.new_j,
-      price: item.new_p
+      price: item.new_p,
+      hide_from_customer_search: item.new_hide
     };
 
     let result;
