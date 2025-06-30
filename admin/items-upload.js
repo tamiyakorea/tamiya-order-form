@@ -225,13 +225,16 @@ async function applyUpdates() {
 }
 
 function toPayload(item) {
+  const getMode = (name) =>
+    (document.querySelector(`input[name="${name}"]:checked`)?.value || 'new');
+
   return {
     item_code: item.item_code,
-    description: item.description,
-    order_unit_ctn: item.new_ctn,
-    order_unit_pck: item.new_pck,
-    j_retail: item.new_j,
-    price: item.new_p,
-    hide_from_customer_search: item.new_hide
+    description: item.description, // 항상 신규값 사용
+    j_retail: getMode('j_retail_mode') === 'old' ? item.old_j : item.new_j,
+    price: getMode('price_mode') === 'old' ? item.old_p : item.new_p,
+    order_unit_ctn: getMode('ctn_mode') === 'old' ? item.old_ctn : item.new_ctn,
+    order_unit_pck: getMode('pck_mode') === 'old' ? item.old_pck : item.new_pck,
+    hide_from_customer_search: getMode('hide_mode') === 'old' ? item.old_hide : item.new_hide
   };
 }
