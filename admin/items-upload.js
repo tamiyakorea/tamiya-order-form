@@ -27,12 +27,19 @@ async function handleFileUpload(event) {
   const sheetName = workbook.SheetNames[0];
   const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
+  // ✅ 업로드된 데이터 구성
   const uploadedMap = new Map();
+  const itemCodes = [];
+
   rows.forEach(row => {
     if (row.item_code) {
-      uploadedMap.set(String(row.item_code), {
-        item_code: String(row.item_code),
+      const item_code = String(row.item_code);
+      itemCodes.push(item_code);
+      uploadedMap.set(item_code, {
+        item_code,
         description: row.description || '',
+        order_unit_ctn: Number(row.order_unit_ctn) || 0,
+        order_unit_pck: Number(row.order_unit_pck) || 0,
         j_retail: Number(row.j_retail) || 0,
         price: Number(row.price) || 0,
         hide: row.hide_from_customer_search === true || row.hide_from_customer_search === 'TRUE' || row.hide_from_customer_search === 1
@@ -40,27 +47,32 @@ async function handleFileUpload(event) {
     }
   });
 
-  // ✅ 기존 DB 데이터 가져오기 (숨김 컬럼 포함)
+  // ✅ 기존 DB 데이터 불러오기 (item_code 기준으로 in() 조회)
   const { data: existing, error } = await supabase
     .from('tamiya_items')
-    .select('item_code, description, j_retail, price, hide_from_customer_search');
+    .select('item_code, description, order_unit_ctn, order_unit_pck, j_retail, price, hide_from_customer_search')
+    .in('item_code', itemCodes);
+
   if (error) {
     alert('DB 로딩 실패: ' + error.message);
     return;
   }
+
   const dbMap = new Map(existing.map(row => [String(row.item_code), row]));
 
-  // ✅ 비교
+  // ✅ 비교 처리
   comparisonData = [];
   uploadedMap.forEach((newItem, code) => {
     const oldItem = dbMap.get(code);
-    const oldHide = oldItem?.hide_from_customer_search ?? false;
-    if (
+    const isDiff =
       !oldItem ||
       oldItem.j_retail !== newItem.j_retail ||
       oldItem.price !== newItem.price ||
-      oldHide !== newItem.hide
-    ) {
+      oldItem.order_unit_ctn !== newItem.order_unit_ctn ||
+      oldItem.order_unit_pck !== newItem.order_unit_pck ||
+      (oldItem.hide_from_customer_search ?? false) !== newItem.hide;
+
+    if (isDiff) {
       comparisonData.push({
         item_code: code,
         description: newItem.description,
@@ -68,7 +80,11 @@ async function handleFileUpload(event) {
         new_j: newItem.j_retail,
         old_p: oldItem?.price ?? '-',
         new_p: newItem.price,
-        old_hide: oldHide,
+        old_ctn: oldItem?.order_unit_ctn ?? '-',
+        new_ctn: newItem.order_unit_ctn,
+        old_pck: oldItem?.order_unit_pck ?? '-',
+        new_pck: newItem.order_unit_pck,
+        old_hide: oldItem?.hide_from_customer_search ?? false,
         new_hide: newItem.hide,
         isNew: !oldItem,
         apply: true
@@ -93,6 +109,10 @@ function renderTable() {
       <td>${item.new_j}</td>
       <td>${item.old_p}</td>
       <td>${item.new_p}</td>
+      <td>${item.old_ctn}</td>
+      <td>${item.new_ctn}</td>
+      <td>${item.old_pck}</td>
+      <td>${item.new_pck}</td>
       <td>${item.old_hide ? '✔' : ''}</td>
       <td>${item.new_hide ? '✔' : ''}</td>
       <td><input type="checkbox" data-index="${i}" ${item.apply ? 'checked' : ''}></td>
@@ -114,30 +134,38 @@ async function applyUpdates() {
 
   let successCount = 0, failCount = 0;
 
-  for (const item of updates) {
-    const payload = {
-      item_code: item.item_code,
-      description: item.description,
-      j_retail: item.new_j,
-      price: item.new_p,
-      hide_from_customer_search: item.new_hide
-    };
+  for (let i = 0; i < updates.length; i += 100) {
+    const batch = updates.slice(i, i + 100);
+    const inserts = batch.filter(b => b.isNew);
+    const modifies = batch.filter(b => !b.isNew);
 
-    let result;
-    if (item.isNew) {
-      result = await supabase.from('tamiya_items').insert([payload]);
-    } else {
-      result = await supabase.from('tamiya_items').update(payload).eq('item_code', item.item_code);
+    if (inserts.length > 0) {
+      const payloads = inserts.map(toPayload);
+      const { error } = await supabase.from('tamiya_items').insert(payloads);
+      if (error) failCount += inserts.length;
+      else successCount += inserts.length;
     }
 
-    if (result.error) {
-      console.error(`❌ ${item.item_code} 처리 실패:`, result.error.message);
-      failCount++;
-    } else {
-      successCount++;
+    for (const item of modifies) {
+      const payload = toPayload(item);
+      const { error } = await supabase.from('tamiya_items').update(payload).eq('item_code', item.item_code);
+      if (error) failCount++;
+      else successCount++;
     }
   }
 
   alert(`✅ ${successCount}건 반영 완료\n❌ ${failCount}건 실패`);
   location.reload();
+}
+
+function toPayload(item) {
+  return {
+    item_code: item.item_code,
+    description: item.description,
+    order_unit_ctn: item.new_ctn,
+    order_unit_pck: item.new_pck,
+    j_retail: item.new_j,
+    price: item.new_p,
+    hide_from_customer_search: item.new_hide
+  };
 }
