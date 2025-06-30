@@ -102,7 +102,6 @@ uploadedMap.forEach((newItem, code) => {
     apply: isDiff
   });
 });
-  });
 
   renderTable();
 }
