@@ -143,14 +143,19 @@ async function applyUpdates() {
   const updates = comparisonData.filter(row => row.apply);
   if (updates.length === 0) return alert('반영할 항목을 선택하세요.');
 
+  applyBtn.disabled = true;
+  const statusText = document.getElementById('statusText');
+  statusText.textContent = `🚀 DB 반영 중... 잠시만 기다려주세요`;
+
   let successCount = 0, failCount = 0;
+  const total = updates.length;
 
   for (let i = 0; i < updates.length; i += 100) {
     const batch = updates.slice(i, i + 100);
     const inserts = batch.filter(b => b.isNew);
     const modifies = batch.filter(b => !b.isNew);
 
-    // ✅ 1. 신규 항목은 한 번에 insert
+    // ✅ 신규 항목 insert
     if (inserts.length > 0) {
       const payloads = inserts.map(toPayload);
       const { error } = await supabase.from('tamiya_items').insert(payloads);
@@ -158,26 +163,31 @@ async function applyUpdates() {
       else successCount += inserts.length;
     }
 
-    // ✅ 2. 수정 항목은 10건씩 병렬 update 처리
+    // ✅ 수정 항목 병렬 update (10건씩)
     for (let j = 0; j < modifies.length; j += 10) {
       const chunk = modifies.slice(j, j + 10);
-
       const updatePromises = chunk.map(item =>
         supabase.from('tamiya_items')
           .update(toPayload(item))
           .eq('item_code', item.item_code)
       );
-
       const results = await Promise.all(updatePromises);
-
-      results.forEach(result => {
-        if (result.error) failCount++;
+      results.forEach(r => {
+        if (r.error) failCount++;
         else successCount++;
       });
+
+      // ✅ 실시간 진행률 업데이트
+      const done = successCount + failCount;
+      statusText.textContent = `🔄 ${done} / ${total}건 반영 중...`;
     }
   }
 
+  // ✅ 완료 메시지
+  statusText.textContent = `✅ 반영 완료 (${successCount} 성공, ${failCount} 실패)`;
   alert(`✅ ${successCount}건 반영 완료\n❌ ${failCount}건 실패`);
+
+  applyBtn.disabled = false;
   location.reload();
 }
 
