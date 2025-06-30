@@ -74,22 +74,29 @@
   <div id="resultSection">
     <table id="compareTable" style="display:none;">
       <thead>
-        <tr>
-          <th>제품코드</th>
-          <th>제품명</th>
-          <th>기존 일본소비자가</th>
-          <th>신규 일본소비자가</th>
-          <th>기존 단가</th>
-          <th>신규 단가</th>
-          <th>기존 박스단위</th>
-          <th>신규 박스단위</th>
-          <th>기존 팩단위</th>
-          <th>신규 팩단위</th>
-          <th>기존 숨김</th>
-          <th>신규 숨김</th>
-          <th>반영</th>
-        </tr>
-      </thead>
+  <tr>
+    <th rowspan="2">제품코드</th>
+    <th rowspan="2">제품명</th>
+    <th colspan="2">일본소비자가</th>
+    <th colspan="2">단가</th>
+    <th colspan="2">박스단위</th>
+    <th colspan="2">팩단위</th>
+    <th colspan="2">숨김</th>
+    <th rowspan="2">반영</th>
+  </tr>
+  <tr>
+    <th><input type="radio" name="j_retail_mode" value="old">기존</th>
+    <th><input type="radio" name="j_retail_mode" value="new" checked>신규</th>
+    <th><input type="radio" name="price_mode" value="old">기존</th>
+    <th><input type="radio" name="price_mode" value="new" checked>신규</th>
+    <th><input type="radio" name="ctn_mode" value="old">기존</th>
+    <th><input type="radio" name="ctn_mode" value="new" checked>신규</th>
+    <th><input type="radio" name="pck_mode" value="old">기존</th>
+    <th><input type="radio" name="pck_mode" value="new" checked>신규</th>
+    <th><input type="radio" name="hide_mode" value="old">기존</th>
+    <th><input type="radio" name="hide_mode" value="new" checked>신규</th>
+  </tr>
+</thead>
       <tbody></tbody>
     </table>
   </div>
