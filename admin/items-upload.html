@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>상품 단가 업데이트</title>
+  <link rel="stylesheet" href="orders.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    #fileInput {
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    .new-item {
+      background-color: #fffbe0;
+    }
+
+    .diff {
+      background-color: #ffe0e0;
+    }
+
+    .center {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      margin: 10px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>상품 단가 비교 및 업데이트</h1>
+
+  <input type="file" id="fileInput" accept=".xlsx" />
+
+  <div id="resultSection">
+    <table id="compareTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>제품코드</th>
+          <th>제품명</th>
+          <th>기존 일본소비자가</th>
+          <th>신규 일본소비자가</th>
+          <th>기존 단가</th>
+          <th>신규 단가</th>
+          <th>반영</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="center">
+    <button id="applyBtn" class="btn">✅ 선택 항목 DB 반영</button>
+  </div>
+
+  <script type="module" src="items-upload.js"></script>
+</body>
+</html>
