@@ -70,37 +70,51 @@ async function handleFileUpload(event) {
   const dbMap = new Map(allExisting.map(row => [String(row.item_code), row]));
 
   // ✅ 변경된 항목만 비교 처리
-  comparisonData = [];
-  uploadedMap.forEach((newItem, code) => {
-    const oldItem = dbMap.get(code);
+comparisonData = [];
+uploadedMap.forEach((newItem, code) => {
+  const oldItem = dbMap.get(code);
 
-    const isDiff =
-      !oldItem ||
-      Number(oldItem.j_retail) !== Number(newItem.j_retail) ||
-      Number(oldItem.price) !== Number(newItem.price) ||
-      Number(oldItem.order_unit_ctn) !== Number(newItem.order_unit_ctn) ||
-      Number(oldItem.order_unit_pck) !== Number(newItem.order_unit_pck) ||
-      Boolean(oldItem.hide_from_customer_search) !== Boolean(newItem.hide);
+  // ⛔ 신규값이 완전히 비어있으면 업데이트하지 않음
+  const noValidUpdate =
+    newItem.j_retail === 0 &&
+    newItem.price === 0 &&
+    newItem.order_unit_ctn === 0 &&
+    newItem.order_unit_pck === 0 &&
+    newItem.description === '' &&
+    oldItem && ( // hide 상태만 바뀐 건 허용
+      Boolean(oldItem.hide_from_customer_search) === Boolean(newItem.hide)
+    );
 
-    if (isDiff) {
-      comparisonData.push({
-        item_code: code,
-        description: newItem.description,
-        old_j: oldItem?.j_retail ?? '-',
-        new_j: newItem.j_retail,
-        old_p: oldItem?.price ?? '-',
-        new_p: newItem.price,
-        old_ctn: oldItem?.order_unit_ctn ?? '-',
-        new_ctn: newItem.order_unit_ctn,
-        old_pck: oldItem?.order_unit_pck ?? '-',
-        new_pck: newItem.order_unit_pck,
-        old_hide: oldItem?.hide_from_customer_search ?? false,
-        new_hide: newItem.hide,
-        isNew: !oldItem,
-        apply: true
-      });
-    }
-  });
+  if (noValidUpdate) return; // ✅ Skip this row entirely
+
+  const isDiff =
+    !oldItem ||
+    (newItem.j_retail !== 0 && Number(oldItem.j_retail) !== newItem.j_retail) ||
+    (newItem.price !== 0 && Number(oldItem.price) !== newItem.price) ||
+    (newItem.order_unit_ctn !== 0 && Number(oldItem.order_unit_ctn) !== newItem.order_unit_ctn) ||
+    (newItem.order_unit_pck !== 0 && Number(oldItem.order_unit_pck) !== newItem.order_unit_pck) ||
+    (newItem.description !== '' && oldItem.description !== newItem.description) ||
+    Boolean(oldItem.hide_from_customer_search) !== Boolean(newItem.hide);
+
+  if (isDiff) {
+    comparisonData.push({
+      item_code: code,
+      description: newItem.description || oldItem?.description || '',
+      old_j: oldItem?.j_retail ?? '-',
+      new_j: newItem.j_retail,
+      old_p: oldItem?.price ?? '-',
+      new_p: newItem.price,
+      old_ctn: oldItem?.order_unit_ctn ?? '-',
+      new_ctn: newItem.order_unit_ctn,
+      old_pck: oldItem?.order_unit_pck ?? '-',
+      new_pck: newItem.order_unit_pck,
+      old_hide: oldItem?.hide_from_customer_search ?? false,
+      new_hide: newItem.hide,
+      isNew: !oldItem,
+      apply: true
+    });
+  }
+});
 
   renderTable();
 }
