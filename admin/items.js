@@ -98,10 +98,6 @@ async function loadData(page = 1) {
   renderPaginationControls();
 }
 
-function openDataSync() {
-    window.open('items-upload.html', '_blank', 'width=1000,height=800');
-  }
-
 function renderPaginationControls() {
   paginationContainer.innerHTML = "";
 
