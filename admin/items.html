@@ -47,6 +47,15 @@
   </style>
   <script type="module" src="items.js"></script>
 </head>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('openSyncBtn').addEventListener('click', () => {
+      window.open('items-upload.html', '_blank', 'width=1000,height=800');
+    });
+  });
+</script>
+  
 <body>
   <nav>
     <a href="orders.html">TAMIYA 주문 관리</a>
@@ -58,7 +67,7 @@
   <button id="toggleEditBtn">수정하기</button>
   <button id="deleteSelectedBtn">선택 삭제</button>
   <button id="addItemBtn">DB 추가</button>
-  <button onclick="openDataSync()">📤 데이터 최신화</button>
+  <button id="openSyncBtn">📤 데이터 최신화</button>
 </div>
 
 
