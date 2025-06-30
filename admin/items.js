@@ -54,6 +54,14 @@ function renderTable(data) {
       <td contenteditable="${isEditing}" data-key="order_unit_pck" data-id="${row.item_code}">${row.order_unit_pck ?? ''}</td>
       <td contenteditable="${isEditing}" data-key="j_retail" data-id="${row.item_code}">${row.j_retail ?? ''}</td>
       <td contenteditable="${isEditing}" data-key="price" data-id="${row.item_code}">${row.price ?? ''}</td>
+      <td>
+        <input type="checkbox"
+         data-key="hide_from_customer_search"
+         data-id="${row.item_code}"
+         ${row.hide_from_customer_search ? "checked" : ""}
+         ${isEditing ? "" : "disabled"}
+        />
+      </td>
     `;
     tr.dataset.id = row.item_code;
     tableBody.appendChild(tr);
@@ -80,6 +88,13 @@ function addEditListeners() {
       if (idx !== -1) editData[idx][key] = isNaN(value) || key === "description" ? value : Number(value);
     });
   });
+  document.querySelectorAll("input[type='checkbox'][data-key='hide_from_customer_search']").forEach(cb => {
+    cb.addEventListener("change", () => {
+     const id = cb.dataset.id;
+     const idx = editData.findIndex(r => String(r.item_code) === id);
+     if (idx !== -1) editData[idx].hide_from_customer_search = cb.checked;
+  });
+});
 }
 
 async function loadData(page = 1) {
@@ -289,7 +304,9 @@ addSave.addEventListener("click", async () => {
     order_unit_ctn: Number(document.getElementById("add_order_unit_ctn").value),
     order_unit_pck: Number(document.getElementById("add_order_unit_pck").value),
     j_retail: Number(document.getElementById("add_j_retail").value),
-    price: Number(document.getElementById("add_price").value)
+    price: Number(document.getElementById("add_price").value),
+    hide_from_customer_search: document.getElementById("add_hide_from_customer_search").checked
+
   };
   if (!newItem.item_code || !newItem.description) return alert("제품코드와 제품명은 필수입니다.");
   const { error } = await supabase.from("tamiya_items").insert([newItem]);
