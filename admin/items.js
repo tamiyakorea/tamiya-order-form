@@ -251,7 +251,7 @@ async function saveEdits() {
   for (const row of editData) {
     const original = originalData.find(r => String(r.item_code) === String(row.item_code));
     const updates = {};
-    for (const key of ['description', 'order_unit_ctn', 'order_unit_pck', 'j_retail', 'price']) {
+    for (const key of ['description', 'order_unit_ctn', 'order_unit_pck', 'j_retail', 'price', 'hide_from_customer_search']) {
       if (!original || row[key] !== original[key]) updates[key] = row[key];
     }
     if (Object.keys(updates).length > 0) {
