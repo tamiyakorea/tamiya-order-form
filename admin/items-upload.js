@@ -27,7 +27,6 @@ async function handleFileUpload(event) {
   const sheetName = workbook.SheetNames[0];
   const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
-  // ✅ 업로드된 데이터 구성
   const uploadedMap = new Map();
   const itemCodes = [];
 
@@ -47,7 +46,7 @@ async function handleFileUpload(event) {
     }
   });
 
-  // ✅ Chunk 방식으로 DB 데이터 로딩
+  // Chunk 방식 DB 로딩
   const chunkSize = 200;
   const chunks = [];
   for (let i = 0; i < itemCodes.length; i += chunkSize) {
@@ -68,35 +67,32 @@ async function handleFileUpload(event) {
   }
 
   const dbMap = new Map(allExisting.map(row => [String(row.item_code), row]));
+  const showIdentical = document.getElementById('showIdenticalCheckbox')?.checked;
 
-  // ✅ 변경된 항목만 비교 처리
-comparisonData = [];
-uploadedMap.forEach((newItem, code) => {
-  const oldItem = dbMap.get(code);
+  comparisonData = [];
+  uploadedMap.forEach((newItem, code) => {
+    const oldItem = dbMap.get(code);
 
-  // ⛔ 신규값이 완전히 비어있으면 업데이트하지 않음
-  const noValidUpdate =
-    newItem.j_retail === 0 &&
-    newItem.price === 0 &&
-    newItem.order_unit_ctn === 0 &&
-    newItem.order_unit_pck === 0 &&
-    newItem.description === '' &&
-    oldItem && ( // hide 상태만 바뀐 건 허용
-      Boolean(oldItem.hide_from_customer_search) === Boolean(newItem.hide)
-    );
+    const noValidUpdate =
+      newItem.j_retail === 0 &&
+      newItem.price === 0 &&
+      newItem.order_unit_ctn === 0 &&
+      newItem.order_unit_pck === 0 &&
+      newItem.description === '' &&
+      oldItem &&
+      Boolean(oldItem.hide_from_customer_search) === Boolean(newItem.hide);
 
-  if (noValidUpdate) return; // ✅ Skip this row entirely
+    if (noValidUpdate && !showIdentical) return;
 
-  const isDiff =
-    !oldItem ||
-    (newItem.j_retail !== 0 && Number(oldItem.j_retail) !== newItem.j_retail) ||
-    (newItem.price !== 0 && Number(oldItem.price) !== newItem.price) ||
-    (newItem.order_unit_ctn !== 0 && Number(oldItem.order_unit_ctn) !== newItem.order_unit_ctn) ||
-    (newItem.order_unit_pck !== 0 && Number(oldItem.order_unit_pck) !== newItem.order_unit_pck) ||
-    (newItem.description !== '' && oldItem.description !== newItem.description) ||
-    Boolean(oldItem.hide_from_customer_search) !== Boolean(newItem.hide);
+    const isDiff =
+      !oldItem ||
+      (newItem.j_retail !== 0 && Number(oldItem.j_retail) !== newItem.j_retail) ||
+      (newItem.price !== 0 && Number(oldItem.price) !== newItem.price) ||
+      (newItem.order_unit_ctn !== 0 && Number(oldItem.order_unit_ctn) !== newItem.order_unit_ctn) ||
+      (newItem.order_unit_pck !== 0 && Number(oldItem.order_unit_pck) !== newItem.order_unit_pck) ||
+      (newItem.description !== '' && oldItem.description !== newItem.description) ||
+      Boolean(oldItem.hide_from_customer_search) !== Boolean(newItem.hide);
 
-  if (isDiff) {
     comparisonData.push({
       item_code: code,
       description: newItem.description || oldItem?.description || '',
@@ -111,10 +107,9 @@ uploadedMap.forEach((newItem, code) => {
       old_hide: oldItem?.hide_from_customer_search ?? false,
       new_hide: newItem.hide,
       isNew: !oldItem,
-      apply: true
+      apply: isDiff
     });
-  }
-});
+  });
 
   renderTable();
 }
@@ -238,3 +233,10 @@ function toPayload(item) {
     hide_from_customer_search: getMode('hide_mode') === 'old' ? item.old_hide : item.new_hide
   };
 }
+
+
+document.getElementById('showIdenticalCheckbox')?.addEventListener('change', () => {
+  if (fileInput.files[0]) {
+    handleFileUpload({ target: fileInput });
+  }
+});
