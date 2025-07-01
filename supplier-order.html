@@ -39,7 +39,7 @@
       header.addEventListener('click', () => {
         const isVisible = box.style.display === 'block';
         box.style.display = isVisible ? 'none' : 'block';
-        header.textContent = isVisible ? '📘 사이트 이용 안내 보기' : '📘 사이트 이용 안내 접기';
+        header.textContent = isVisible ? '📘 사이트 이용 안내' : '📘 사이트 이용 안내';
       });
     }
   });
@@ -51,7 +51,7 @@
 <!-- ✅ 사용법 안내 박스 -->
 <div style="border:1px solid #ccc; background:#f9f9f9; padding:0; margin:20px; border-radius:6px; overflow:hidden;">
   <div id="guideHeader" style="padding:12px 15px; cursor:pointer; background:#e9ecef; font-weight:bold; border-bottom:1px solid #ccc;">
-    📘 사이트 이용 안내 보기
+    📘 사이트 이용 안내
   </div>
   <div id="guideBox" style="display:none; padding:15px;">
     <ul style="line-height:1.6; padding-left:20px; margin:0;">
