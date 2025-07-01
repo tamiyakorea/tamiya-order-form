@@ -31,10 +31,38 @@
         });
       }
     });
+    
+    // 📘 안내 접기/펼치기 기능
+    const header = document.getElementById('guideHeader');
+    const box = document.getElementById('guideBox');
+
+    header.addEventListener('click', () => {
+      const isVisible = box.style.display === 'block';
+      box.style.display = isVisible ? 'none' : 'block';
+      header.textContent = isVisible ? '📘 사이트 이용 안내' : '📘 사이트 이용 안내';
+    });
+  });
   </script>
 </head>
 <body>
 
+<!-- ✅ 사용법 안내 박스 -->
+<div style="border:1px solid #ccc; background:#f9f9f9; padding:0; margin:20px; border-radius:6px; overflow:hidden;">
+  <div id="guideHeader" style="padding:12px 15px; cursor:pointer; background:#e9ecef; font-weight:bold; border-bottom:1px solid #ccc;">
+    📘 사이트 이용 안내 보기
+  </div>
+  <div id="guideBox" style="display:none; padding:15px;">
+    <ul style="line-height:1.6; padding-left:20px; margin:0;">
+      <li><strong>사업자 검색</strong>에 업체명 혹은 사업자번호를 입력합니다.</li>
+      <li><strong>TAMIYA B2B 사이트 접속 비밀번호</strong>를 입력 후 검색버튼을 클릭하세요.</li>
+      <li>주문정보 수정하기 체크박스에 체크하여 배송정보를 수정할 수 있습니다.</li>
+      <li><strong>부품 검색</strong> 기능을 사용하여 주문하고자 하는 부품을 장바구니에 추가 할 수 있습니다.</li>
+      <li>배송 방법을 선택한 뒤, <strong>주문확정</strong> 버튼을 클릭하여 주문을 신청합니다.</li>
+      <li>주문확정 버튼을 짧은 시간 내 여러번 클릭시 주문이 중복되어 접수 될 수 있습니다.</li>
+    </ul>
+  </div>
+</div>
+  
 <main>
 
   <!-- 🚀 사업자 정보 입력 -->
