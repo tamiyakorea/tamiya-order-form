@@ -56,8 +56,11 @@
   aspect-ratio: 2 / 1;      /* ✅ 가로:세로 비율 고정 (옵션) */
   margin-bottom: 20px;
 }
-
-    
+    .stat-section-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}    
   </style>
 </head>
 <body>
@@ -101,7 +104,7 @@
       <div id="avgShipDays">-</div>
     </div>
   </div>
-
+<div class="stat-section-wrapper">
   <!-- 📦 자주 주문된 상품 TOP 10 -->
 <div class="section">
   <h2>📦 자주 주문된 상품 TOP 10</h2>
@@ -159,6 +162,8 @@
   <div class="section">
     <h2>🔁 반복 주문 비율</h2>
     <div id="repeatRate" style="font-size: 1.5em; font-weight: bold; text-align:center;">-</div>
+  </div>
+
   </div>
 
   <script type="module" src="order-stats.js"></script>
