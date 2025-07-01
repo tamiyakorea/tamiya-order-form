@@ -54,6 +54,23 @@
       window.open('items-upload.html', '_blank', 'width=1000,height=800');
     });
   });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // 기존 버튼 이벤트 등록 유지
+    document.getElementById('openSyncBtn').addEventListener('click', () => {
+      window.open('items-upload.html', '_blank', 'width=1000,height=800');
+    });
+
+    // 📘 안내 접기/펼치기 기능
+    const header = document.getElementById('guideHeader');
+    const box = document.getElementById('guideBox');
+
+    header.addEventListener('click', () => {
+      const isVisible = box.style.display === 'block';
+      box.style.display = isVisible ? 'none' : 'block';
+      header.textContent = isVisible ? '📘 사용법 안내 보기' : '📘 사용법 안내 닫기';
+    });
+  });
 </script>
   
 <body>
