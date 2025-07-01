@@ -292,3 +292,8 @@ button {
   margin: 0;
 }
 
+.search-hint {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 10px;  /* 버튼과의 간격 추가 */
+}
