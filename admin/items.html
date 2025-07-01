@@ -79,16 +79,22 @@
 <button id="detailSearchBtn">상세검색</button>
   </div>
 
-  <div id="guideBox" style="border:1px solid #ccc; background:#f9f9f9; padding:15px; margin-bottom:20px; border-radius:6px;">
-  <h3 style="margin-top:0;">📘 사용법 안내</h3>
-  <ul style="line-height:1.6; padding-left:20px;">
-    <li><strong>수정하기</strong>을 클릭하여 수정기능을 활성화 하세요.</li>
-    <li>첫번째 열의 <strong>체크박스</strong>를 체크하여 수정할 항목을 선택하세요.</li>
-    <li>저장하기 버튼을 클릭하여 수정사항을 DB에 반영할 수 있습니다.</li>
-    <li><strong>"DB 추가"</strong> 기능을 사용하여 직접 DB를 추가할 수 있습니다.</li>
-    <li>데이터 최신화 버튼을 사용하여 <strong>복수의 신규데이터 추가 및 기존 데이터 수정</strong>이 가능 합니다.</li>
-    <li>두명 이상의 사용자 <strong> 동시에 수정 시</strong> 오류가 발생할 수 있습니다.</li>
-  </ul>
+  <!-- ✅ 사용법 안내 박스 -->
+<div style="border:1px solid #ccc; background:#f9f9f9; padding:0; margin:20px; border-radius:6px; overflow:hidden;">
+  <div id="guideHeader" style="padding:12px 15px; cursor:pointer; background:#e9ecef; font-weight:bold; border-bottom:1px solid #ccc;">
+    📘 사용법 안내 보기
+  </div>
+  <div id="guideBox" style="display:none; padding:15px;">
+    <ul style="line-height:1.6; padding-left:20px; margin:0;">
+      <li><strong>수정하기</strong>을 클릭하여 수정기능을 활성화 하세요.</li>
+      <li>첫번째 열의 <strong>체크박스</strong>를 체크하여 수정할 항목을 선택하세요.</li>
+      <li>저장하기 버튼을 클릭하여 수정사항을 DB에 반영할 수 있습니다.</li>
+      <li><strong>"DB 추가"</strong> 기능을 사용하여 직접 DB를 추가할 수 있습니다.</li>
+      <li>데이터 최신화 버튼을 사용하여 <strong>복수의 신규데이터 추가 및 기존 데이터 수정</strong>이 가능 합니다.</li>
+      <li>두명 이상의 사용자 <strong> 동시에 수정 시</strong> 오류가 발생할 수 있습니다.</li>
+    </ul>
+  </div>
+</div>
 
 <!-- 상세검색 모달 -->
 <div id="detailSearchModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:white; border:1px solid #ccc; padding:20px; z-index:1000;">
