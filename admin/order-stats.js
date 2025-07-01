@@ -3,7 +3,7 @@ import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/+esm';
 
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
-  'YOUR_PUBLIC_ANON_KEY_HERE' // 배포 시 보안 필요
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'' // 배포 시 보안 필요
 );
 
 // ✅ 기간 계산
