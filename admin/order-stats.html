@@ -14,6 +14,7 @@
       margin: 20px 0;
       justify-content: space-around;
     }
+
     .stat-card {
       flex: 1 1 200px;
       background: #f1f1f1;
@@ -22,45 +23,53 @@
       text-align: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
+
     .section {
       margin: 30px 0;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
+
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
       text-align: center;
       white-space: nowrap;
     }
+
     h2 {
       margin-top: 40px;
       margin-bottom: 10px;
       border-bottom: 2px solid #333;
       padding-bottom: 4px;
     }
+
     .filters {
       margin: 20px 0;
       text-align: center;
     }
+
     .filters input, .filters select {
       padding: 6px;
       margin: 0 10px;
     }
+
     canvas {
-  max-width: 100%;
-  height: auto !important; /* ✅ 자동 높이 조정 */
-  aspect-ratio: 2 / 1;      /* ✅ 가로:세로 비율 고정 (옵션) */
-  margin-bottom: 20px;
-}
+      max-width: 100%;
+      height: auto !important;
+      aspect-ratio: 2 / 1;
+      margin-bottom: 20px;
+    }
+
     .stat-section-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 16px;
-}    
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
   </style>
 </head>
 <body>
@@ -104,66 +113,67 @@
       <div id="avgShipDays">-</div>
     </div>
   </div>
-<div class="stat-section-wrapper">
-  <!-- 📦 자주 주문된 상품 TOP 10 -->
-<div class="section">
-  <h2>📦 자주 주문된 상품 TOP 10</h2>
-  <canvas id="topItemsChart"></canvas>
-  <table id="topItemsTable">
-    <thead>
-      <tr><th>순위</th><th>상품명</th><th>총 수량</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
 
-  <!-- 👤 단골 고객 TOP 10 -->
-<div class="section">
-  <h2>👤 단골 고객 TOP 10</h2>
-  <canvas id="topCustomersChart"></canvas>
-  <table id="topCustomersTable">
-    <thead>
-      <tr><th>순위</th><th>고객명</th><th>연락처</th><th>주문횟수</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+  <div class="stat-section-wrapper">
+    <!-- 📦 자주 주문된 상품 TOP 10 -->
+    <div class="section">
+      <h2>📦 자주 주문된 상품 TOP 10</h2>
+      <canvas id="topItemsChart"></canvas>
+      <table id="topItemsTable">
+        <thead>
+          <tr><th>순위</th><th>상품명</th><th>총 수량</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-  <!-- 📅 월별 주문 추이 -->
-<div class="section">
-  <h2>📅 월별 주문 추이</h2>
-  <canvas id="monthlyChart" height="200" style="margin-bottom:10px;"></canvas>
-</div>
+    <!-- 👤 단골 고객 TOP 10 -->
+    <div class="section">
+      <h2>👤 단골 고객 TOP 10</h2>
+      <canvas id="topCustomersChart"></canvas>
+      <table id="topCustomersTable">
+        <thead>
+          <tr><th>순위</th><th>고객명</th><th>연락처</th><th>주문횟수</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-  <!-- 💰 총 매출 TOP 10 아이템 -->
-<div class="section">
-  <h2>💰 총 매출 TOP 10 아이템</h2>
-  <canvas id="topItemsChart"></canvas>
-  <table id="topSalesItemsTable">
-    <thead>
-      <tr><th>순위</th><th>상품명</th><th>총 매출액</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+    <!-- 📅 월별 주문 추이 -->
+    <div class="section">
+      <h2>📅 월별 주문 추이</h2>
+      <canvas id="monthlyChart"></canvas>
+    </div>
 
-  <!-- 💎 고가 아이템 TOP 10 -->
-<div class="section">
-  <h2>💎 고가 아이템 TOP 10</h2>
-  <canvas id="topExpensiveItemsChart"></canvas>
-  <table id="topExpensiveItemsTable">
-    <thead>
-      <tr><th>순위</th><th>상품명</th><th>평균 단가</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+    <!-- 💰 총 매출 TOP 10 아이템 -->
+    <div class="section">
+      <h2>💰 총 매출 TOP 10 아이템</h2>
+      <canvas id="topSalesItemsChart"></canvas>
+      <table id="topSalesItemsTable">
+        <thead>
+          <tr><th>순위</th><th>상품명</th><th>총 매출액</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-  <div class="section">
-    <h2>🔁 반복 주문 비율</h2>
-    <div id="repeatRate" style="font-size: 1.5em; font-weight: bold; text-align:center;">-</div>
-  </div>
+    <!-- 💎 고가 아이템 TOP 10 -->
+    <div class="section">
+      <h2>💎 고가 아이템 TOP 10</h2>
+      <canvas id="topExpensiveItemsChart"></canvas>
+      <table id="topExpensiveItemsTable">
+        <thead>
+          <tr><th>순위</th><th>상품명</th><th>평균 단가</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
+    <!-- 🔁 반복 주문 비율 -->
+    <div class="section">
+      <h2>🔁 반복 주문 비율</h2>
+      <div id="repeatRate" style="font-size: 1.5em; font-weight: bold; text-align:center;">-</div>
+    </div>
   </div>
 
   <script type="module" src="order-stats.js"></script>
