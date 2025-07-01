@@ -9,40 +9,41 @@
   <img src="images/logo.png" alt="한국타미야 로고" style="height: 90px;" />
 </div>
   <script type="module">
-    import {
-      searchProduct,
-      searchSupplier,
-      confirmOrder,
-      toggleEdit,
-      calculateTotalWithShipping
-    } from './supplier-order.js';
+  import {
+    searchProduct,
+    searchSupplier,
+    confirmOrder,
+    toggleEdit,
+    calculateTotalWithShipping
+  } from './supplier-order.js';
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // 🚀 버튼 이벤트 등록
-      document.getElementById("searchButton").addEventListener("click", searchProduct);
-      document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
-      document.getElementById("confirmButton").addEventListener("click", confirmOrder);
+  document.addEventListener("DOMContentLoaded", () => {
+    // 🚀 버튼 이벤트 등록
+    document.getElementById("searchButton").addEventListener("click", searchProduct);
+    document.getElementById("deliveryMethod").addEventListener("change", calculateTotalWithShipping);
+    document.getElementById("confirmButton").addEventListener("click", confirmOrder);
 
-      // 🚀 정보 수정 가능 체크박스 이벤트
-      const unlockEditCheckbox = document.getElementById("unlockEdit");
-      if (unlockEditCheckbox) {
-        unlockEditCheckbox.addEventListener("change", (e) => {
-          toggleEdit(e.target);
-        });
-      }
-    });
-    
+    // 🚀 정보 수정 가능 체크박스 이벤트
+    const unlockEditCheckbox = document.getElementById("unlockEdit");
+    if (unlockEditCheckbox) {
+      unlockEditCheckbox.addEventListener("change", (e) => {
+        toggleEdit(e.target);
+      });
+    }
+
     // 📘 안내 접기/펼치기 기능
     const header = document.getElementById('guideHeader');
     const box = document.getElementById('guideBox');
 
-    header.addEventListener('click', () => {
-      const isVisible = box.style.display === 'block';
-      box.style.display = isVisible ? 'none' : 'block';
-      header.textContent = isVisible ? '📘 사이트 이용 안내' : '📘 사이트 이용 안내';
-    });
+    if (header && box) {
+      header.addEventListener('click', () => {
+        const isVisible = box.style.display === 'block';
+        box.style.display = isVisible ? 'none' : 'block';
+        header.textContent = isVisible ? '📘 사이트 이용 안내 보기' : '📘 사이트 이용 안내 접기';
+      });
+    }
   });
-  </script>
+</script>
 </head>
 <body>
 
