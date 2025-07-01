@@ -262,3 +262,33 @@ button {
 .supplierSearchButton:hover {
   background-color: #1FB4E3; /* 호버 시 더 진한 색상으로 */
 }
+
+/* ✅ 안내 박스 스타일 */
+.guide-box {
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  padding: 0;
+  margin-bottom: 30px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.guide-header {
+  padding: 12px 15px;
+  cursor: pointer;
+  background: #e9ecef;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+}
+
+.guide-content {
+  display: none;
+  padding: 15px;
+}
+
+.guide-content ul {
+  line-height: 1.6;
+  padding-left: 20px;
+  margin: 0;
+}
+
