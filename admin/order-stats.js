@@ -1,5 +1,4 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/+esm';
 
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
