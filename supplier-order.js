@@ -100,10 +100,11 @@ async function searchProduct() {
 
   try {
     const { data, error } = await supabase
-      .from('tamiya_items')
-      .select('*')
-      .eq('item_code', productCode)
-      .single();
+  .from('tamiya_items')
+  .select('*')
+  .eq('item_code', productCode)
+  .eq('hide_from_customer_search', false)  // ✅ 추가된 조건
+  .single();
 
     if (error || !data) {
       alert("해당 제품을 찾을 수 없습니다.");
