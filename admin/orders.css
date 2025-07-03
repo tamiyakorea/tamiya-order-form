@@ -218,16 +218,34 @@ td.address-cell, td.address-detail-cell {
   font-size: 14px;
 }
 
-.modal-content input[type="text"],
-.modal-content input[type="number"] {
-  width: 100%;
-  padding: 6px 10px;
+.modal-content label input[type="text"],
+.modal-content label input[type="number"] {
   margin-top: 4px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  width: 100%;
   box-sizing: border-box;
 }
-
+.modal-content fieldset {
+  margin-bottom: 16px;
+}
+.edit-item-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.edit-item-row input {
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.edit-item-row button {
+  background: #ff4d4f;
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
 .modal-content button {
   margin-top: 12px;
   margin-right: 8px;
