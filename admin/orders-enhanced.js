@@ -373,7 +373,6 @@ async function downloadProductPriceInfo() {
 
   const itemMap = Object.fromEntries(matchedItems.map(i => [String(i.item_code), i]));
 
-  // 제품코드 분리
   const items8 = [];
   const items5 = [];
 
@@ -393,16 +392,14 @@ async function downloadProductPriceInfo() {
     else if (/^\d{5}$/.test(item.code)) items5.push(row);
   }
 
-  // 📥 템플릿 가져오기
   const url8 = 'https://edgvrwekvnavkhcqwtxa.supabase.co/storage/v1/object/public/templates/TKC00000000-USER-8digit_archive.xlsx';
-const url5 = 'https://edgvrwekvnavkhcqwtxa.supabase.co/storage/v1/object/public/templates/TKC00000000-USER-5digit_archive.xlsx';
+  const url5 = 'https://edgvrwekvnavkhcqwtxa.supabase.co/storage/v1/object/public/templates/TKC00000000-USER-5digit_archive.xlsx';
 
-const [tpl8, tpl5] = await Promise.all([
-  fetch(url8).then(r => r.arrayBuffer()),
-  fetch(url5).then(r => r.arrayBuffer())
-]);
+  const [tpl8, tpl5] = await Promise.all([
+    fetch(url8).then(r => r.arrayBuffer()),
+    fetch(url5).then(r => r.arrayBuffer())
+  ]);
 
-  // 🎯 날짜 제목
   const today = new Date();
   const yy = String(today.getFullYear()).slice(-2);
   const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -411,47 +408,47 @@ const [tpl8, tpl5] = await Promise.all([
   const title5 = `TKC${yy}${mm}${dd}-USER-5digit`;
   const dateStr = `${mm}/${dd}/${today.getFullYear()}`;
 
-  if (items8.length > 0) {
-    const wb8 = XLSX.read(tpl8, { type: 'array' });
-    const ws = wb8.Sheets[wb8.SheetNames[0]];
+  function fillSheet(ws, items, title) {
+    ws['A2'] = { t: 's', v: title };
+    ws['B2'] = { t: 's', v: dateStr };
 
-    // A2, B2
-    ws['A2'].v = title8;
-    ws['B2'].v = dateStr;
+    const startRow = 2;
 
-    // D2, E2, H2, I2, K2, V2 = code, name, j_retail, price, qty, 설명
-    items8.forEach((item, i) => {
-      const row = 3 + i;
+    items.forEach((item, i) => {
+      const row = startRow + i;
       ws[`D${row}`] = { t: 's', v: item.code };
       ws[`E${row}`] = { t: 's', v: item.name };
       ws[`H${row}`] = { t: 'n', v: item.j_retail };
       ws[`I${row}`] = { t: 'n', v: item.price };
       ws[`K${row}`] = { t: 'n', v: item.qty };
-      ws[`V${row}`] = { t: 's', v: `${item.code} ${item.customer} ${item.payment_date}` };
       ws[`U${row}`] = { t: 'n', v: item.price * item.qty };
+      ws[`V${row}`] = { t: 's', v: `${item.code} ${item.customer} ${item.payment_date}` };
     });
 
+    const totalRow = startRow + items.length;
+    const infoStartRow = totalRow + 1;
+
+    ws[`I${totalRow}`] = { t: 's', v: 'Total' };
+    ws[`K${totalRow}`] = { t: 'n', f: `SUM(K${startRow}:K${totalRow - 1})` };
+    ws[`U${totalRow}`] = { t: 'n', f: `SUM(U${startRow}:U${totalRow - 1})` };
+
+    ws[`E${infoStartRow}`]     = { t: 's', v: 'Delivery: By Ocean Freight' };
+    ws[`E${infoStartRow + 1}`] = { t: 's', v: 'Payment: By L/C' };
+    ws[`E${infoStartRow + 2}`] = { t: 's', v: 'Hyun-kun Kim' };
+    ws[`E${infoStartRow + 4}`] = { t: 's', v: 'Tamiya Korea Co., LTD.' };
+  }
+
+  if (items8.length > 0) {
+    const wb8 = XLSX.read(tpl8, { type: 'array' });
+    const ws8 = wb8.Sheets[wb8.SheetNames[0]];
+    fillSheet(ws8, items8, title8);
     XLSX.writeFile(wb8, `${title8}_보관용.xlsx`);
   }
 
   if (items5.length > 0) {
     const wb5 = XLSX.read(tpl5, { type: 'array' });
-    const ws = wb5.Sheets[wb5.SheetNames[0]];
-
-    ws['A2'].v = title5;
-    ws['B2'].v = dateStr;
-
-    items5.forEach((item, i) => {
-      const row = 3 + i;
-      ws[`D${row}`] = { t: 's', v: item.code };
-      ws[`E${row}`] = { t: 's', v: item.name };
-      ws[`H${row}`] = { t: 'n', v: item.j_retail };
-      ws[`I${row}`] = { t: 'n', v: item.price };
-      ws[`K${row}`] = { t: 'n', v: item.qty };
-      ws[`V${row}`] = { t: 's', v: `${item.code} ${item.customer} ${item.payment_date}` };
-      ws[`U${row}`] = { t: 'n', v: item.price * item.qty };
-    });
-
+    const ws5 = wb5.Sheets[wb5.SheetNames[0]];
+    fillSheet(ws5, items5, title5);
     XLSX.writeFile(wb5, `${title5}_보관용.xlsx`);
   }
 }
