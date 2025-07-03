@@ -309,4 +309,16 @@ window.searchOrderById = async function () {
   `;
 };
 
+// ✅ FAQ 아코디언 동작
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".faq-question").forEach((question) => {
+    question.addEventListener("click", () => {
+      const answer = question.nextElementSibling;
+
+      // 클래스 토글
+      question.classList.toggle("active");
+      answer.classList.toggle("open");
+    });
+  });
+});
 
