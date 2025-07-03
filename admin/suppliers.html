@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>거래처 정보 관리</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    #searchInput {
+      width: 300px;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    button {
+      padding: 6px 10px;
+      margin: 2px;
+      cursor: pointer;
+    }
+    #supplierModal, #overlay {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+    }
+    #overlay {
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+    }
+    #supplierModal {
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 1px solid #ccc;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      max-width: 400px;
+      width: 90%;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input[type="text"], input[type="email"], input[type="number"] {
+      width: 100%;
+      padding: 6px;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <h1>거래처 정보 관리</h1>
+  <input type="text" id="searchInput" placeholder="업체명 또는 사업자번호 검색" oninput="loadSuppliers()" />
+  <button onclick="openAddModal()">➕ 거래처 등록</button>
+  <table id="supplierTable">
+    <thead>
+      <tr>
+        <th>사업자번호</th>
+        <th>업체명</th>
+        <th>연락처</th>
+        <th>이메일</th>
+        <th>주소</th>
+        <th>배율</th>
+        <th>비밀번호</th>
+        <th>작업</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- 모달창 -->
+  <div id="overlay"></div>
+  <div id="supplierModal">
+    <h3 id="modalTitle">거래처 등록</h3>
+
+    <label>업체명</label>
+    <input type="text" id="companyNameInput" placeholder="예) 사업자명" />
+
+    <label>사업자등록번호</label>
+    <input type="text" id="brnInput" placeholder="예) 123-45-67890" />
+
+    <label>연락처</label>
+    <input type="text" id="phoneInput" placeholder="예) 02-123-4567" />
+
+    <label>이메일</label>
+    <input type="email" id="emailInput" placeholder="예) aaa@bbb.com" />
+
+    <label>우편번호</label>
+    <input type="text" id="zipcodeInput" placeholder="예) 01234" />
+
+    <label>주소</label>
+    <input type="text" id="addressInput" placeholder="예) 서울특별시 성북구 화랑로11길 26" />
+
+    <label>상세주소</label>
+    <input type="text" id="detailInput" placeholder="예) 103동 1602호 (하월곡동, OO아파트)" />
+
+    <label>단가 배율 (price_multiplier)</label>
+    <input type="number" id="multiplierInput" step="0.01" placeholder="예) 0.9" />
+
+    <label>비밀번호 (unique_code)</label>
+    <input type="text" id="uniqueCodeInput" placeholder="예) 123456" />
+
+    <div style="margin-top:15px; text-align: right;">
+      <button onclick="saveSupplier()">💾 저장</button>
+      <button onclick="closeModal()">닫기</button>
+    </div>
+  </div>
+
+  <script type="module" src="suppliers.js"></script>
+</body>
+</html>
