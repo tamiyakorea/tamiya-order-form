@@ -88,28 +88,43 @@
 
 <!-- 주문 수정 모달 -->
 <div id="editOrderModal" class="modal"> 
-  <div class="modal-content">
-    <input type="hidden" id="editOrderId" />
-    <label>이름: <input type="text" id="editName" /></label>
-    <label>전화번호: <input type="text" id="editPhone" /></label>
-    <label>이메일: <input type="text" id="editEmail" /></label>
-    <label>우편번호: <input type="text" id="editZipcode" /></label>
-    <label>현금영수증: <input type="text" id="editReceiptInfo" /></label>
-    <label>주소: <input type="text" id="editAddress" /></label>
-    <label>상세주소: <input type="text" id="editAddressDetail" /></label>
-    <label>비고: <input type="text" id="editRemarks" /></label>
+  <div class="modal-content" style="position: relative;">
+    <button onclick="document.getElementById('editOrderModal').classList.remove('show')" 
+            style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 20px; cursor: pointer;">✖</button>
 
-    <div id="editItemsContainer">
-      <p><strong>주문 상품 수정</strong></p>
+    <h2 style="margin-top: 0; font-size: 18px;">주문 정보 수정</h2>
+    
+    <fieldset style="border: 1px solid #ccc; padding: 16px; margin-bottom: 16px; border-radius: 6px;">
+      <legend>고객 정보</legend>
+      <label>이름: <input type="text" id="editName" /></label>
+      <label>전화번호: <input type="text" id="editPhone" /></label>
+      <label>이메일: <input type="text" id="editEmail" /></label>
+      <label>우편번호: <input type="text" id="editZipcode" /></label>
+      <label>현금영수증: <input type="text" id="editReceiptInfo" /></label>
+      <label>주소: <input type="text" id="editAddress" /></label>
+      <label>상세주소: <input type="text" id="editAddressDetail" /></label>
+      <label>비고: <input type="text" id="editRemarks" /></label>
+    </fieldset>
+
+    <fieldset style="border: 1px solid #ccc; padding: 16px; margin-bottom: 16px; border-radius: 6px;">
+      <legend>주문 상품 수정</legend>
       <div id="editItemsList"></div>
-      <button type="button" onclick="addEditItem()">+ 상품 추가</button>
-    </div>
+      <div style="text-align: right; margin-top: 8px;">
+        <button type="button" onclick="addEditItem()">+ 상품 추가</button>
+      </div>
+    </fieldset>
 
-    <label>총금액 (자동계산됨): <input type="number" id="editTotal" disabled /></label>
-    <label><input type="checkbox" id="editStaffDiscount" /> 직원 할인 적용</label>
-    <div style="margin-top: 12px;">
+    <label style="display: block; margin-bottom: 8px;">총금액 (자동계산됨): 
+      <input type="number" id="editTotal" disabled />
+    </label>
+
+    <label style="display: block; margin-bottom: 16px;">
+      <input type="checkbox" id="editStaffDiscount" /> 직원 할인 적용
+    </label>
+
+    <div style="text-align: right;">
       <button onclick="confirmEditSave()">저장</button>
-      <button onclick="document.getElementById('editOrderModal').classList.remove('show')">닫기</button>
+      <button onclick="document.getElementById('editOrderModal').classList.remove('show')" style="background: #aaa;">닫기</button>
     </div>
   </div>
 </div>
