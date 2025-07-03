@@ -48,16 +48,27 @@
 
 tamiyakorea/tamiya-order-form/
 ├── index.html # 고객 주문 페이지
+
 ├── as-order.html # A/S 신청 페이지
+
 ├── admin/
+
 │ ├── orders.html # 관리자 주문 관리
+
 │ ├── shipping.html # 배송 처리
+
 │ ├── shipped.html # 배송 완료
+
 │ ├── accounting.html # 회계 관리
+
 │ ├── as-progress.html # A/S 수리 진행
+
 │ └── as-charge.html # A/S 청구 관리
+
 ├── items.html # 상품 DB 관리
+
 ├── order-stats.html # 통계 대시보드
+
 └── supabase/functions/ # Edge Functions
 
 ---
