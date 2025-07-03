@@ -55,6 +55,12 @@ thead th {
   z-index: 2;
 }
 
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 80vh; /* 필요 시 조정 */
+}
+
 tbody td {
   border: 1px solid #ddd;
   padding: 8px;
