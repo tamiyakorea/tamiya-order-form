@@ -394,10 +394,13 @@ async function downloadProductPriceInfo() {
   }
 
   // 📥 템플릿 가져오기
-  const [tpl8, tpl5] = await Promise.all([
-    fetch('/tamiya-order-form/templates/TKC00000000-USER-8digit_archive.xlsx').then(r => r.arrayBuffer()),
-    fetch('/tamiya-order-form/templates/TKC00000000-USER-5digit_archive.xlsx').then(r => r.arrayBuffer())
-  ]);
+  const url8 = 'https://edgvrwekvnavkhcqwtxa.supabase.co/storage/v1/object/public/templates/TKC00000000-USER-8digit_archive.xlsx';
+const url5 = 'https://edgvrwekvnavkhcqwtxa.supabase.co/storage/v1/object/public/templates/TKC00000000-USER-5digit_archive.xlsx';
+
+const [tpl8, tpl5] = await Promise.all([
+  fetch(url8).then(r => r.arrayBuffer()),
+  fetch(url5).then(r => r.arrayBuffer())
+]);
 
   // 🎯 날짜 제목
   const today = new Date();
