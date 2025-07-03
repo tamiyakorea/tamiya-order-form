@@ -401,6 +401,6 @@ Object.assign(window, {
   togglePayment,
   cancelEdit,
   markAsOrdered,
-  downloadProductPriceInfo,
+  downloadProductExcelFromServer,
   showModal  // ✅ 이 줄 추가!
 });
