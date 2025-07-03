@@ -48,6 +48,7 @@ function renderChargeTable(orders) {
     row.innerHTML = `
       <td><button class="revert-btn" data-id="${order.order_id}">되돌리기</button></td>
       <td>${order.status_updated_at?.split('T')[0] || ''}</td>
+      <td>${order.order_id}</td>
       <td>${order.name}</td>
       <td>${order.shipping_invoice || ''}</td>
       <td>${order.receipt_code || ''}</td>
