@@ -523,7 +523,6 @@ for (let r = 2; r <= lastRow; r++) {
 }
 
 // ✅ 부가 정보 텍스트: 파란색 글씨
-const infoRowBase = totalRow + 1;
 ["Delivery: By Ocean Freight", "Payment: By L/C", "Hyun-kun Kim", "Tamiya Korea Co., LTD."].forEach((text, i) => {
   const rowOffset = i >= 2 ? i + 1 : i; // 서명 공간 비워둠
   const addr = `E${infoRowBase + rowOffset}`;
