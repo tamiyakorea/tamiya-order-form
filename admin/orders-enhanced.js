@@ -360,11 +360,11 @@ async function downloadProductPriceInfo() {
     }));
   });
 
-  const itemCodes = [...new Set(allItems.map(i => i.code))];
+  const uniqueCodes = [...new Set(allItems.map(i => i.code))];
   const { data: matchedItems, error: itemError } = await supabase
     .from("tamiya_items")
     .select("item_code, j_retail, price")
-    .in("item_code", itemCodes.map(code => Number(code)));
+    .in("item_code", uniqueCodes.map(Number));
 
   if (itemError || !matchedItems) {
     alert("제품 정보 불러오기 실패: " + (itemError?.message || ''));
@@ -373,179 +373,35 @@ async function downloadProductPriceInfo() {
 
   const itemMap = Object.fromEntries(matchedItems.map(i => [String(i.item_code), i]));
 
-  const items8 = [], items5 = [];
-  for (const item of allItems) {
+  const rows = allItems.map(item => {
     const matched = itemMap[item.code] || {};
-    const row = {
-      code: item.code,
-      name: item.name,
-      j_retail: matched.j_retail || '',
-      price: matched.price || '',
-      qty: item.qty,
-      customer: item.customer,
-      payment_date: item.payment_date
-    };
-    if (/^\d{8}$/.test(item.code)) items8.push(row);
-    else if (/^\d{5}$/.test(item.code)) items5.push(row);
-  }
+    return [
+      item.code,             // A: 제품코드
+      item.name,             // B: 제품명
+      "", "",                // C, D: 공백
+      matched.j_retail ?? '', // E: j_retail
+      matched.price ?? '',    // F: price
+      "",                    // G: 공백
+      item.qty,              // H: 수량
+      "", "", "", "", "", "", "", "", "", "", // I~Q: 공백
+      `${item.code} ${item.customer} ${item.payment_date}` // R: 조합된 설명 (문자열)
+    ];
+  });
 
-  const url8 = 'https://edgvrwekvnavkhcqwtxa.supabase.co/storage/v1/object/public/templates/TKC00000000-USER-8digit_archive.xlsx';
-  const url5 = 'https://edgvrwekvnavkhcqwtxa.supabase.co/storage/v1/object/public/templates/TKC00000000-USER-5digit_archive.xlsx';
+  const header = [
+    "제품코드", "제품명", "", "", "j_retail", "price", "", "수량",
+    "", "", "", "", "", "", "", "", "", "",
+    "설명 (제품코드 + 고객명 + 입금일)"
+  ];
 
-  const [tpl8, tpl5] = await Promise.all([
-    fetch(url8).then(r => r.arrayBuffer()),
-    fetch(url5).then(r => r.arrayBuffer())
-  ]);
+  const worksheet = XLSX.utils.aoa_to_sheet([header, ...rows]);
 
-  const today = new Date();
-  const yy = String(today.getFullYear()).slice(-2);
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const title8 = `TKC${yy}${mm}${dd}-USER-8digit`;
-  const title5 = `TKC${yy}${mm}${dd}-USER-5digit`;
-  const dateStr = `${mm}/${dd}/${today.getFullYear()}`;
+  // ✅ 숨김 없음 — worksheet['!cols'] 제거
 
-  function fillSheet(ws, items, title) {
-    ws['A2'] = { t: 's', v: title };
-    ws['B2'] = { t: 's', v: dateStr };
-
-    const startRow = 2;
-    items.forEach((item, i) => {
-      const row = startRow + i;
-      ws[`D${row}`] = { t: 's', v: item.code };
-      ws[`E${row}`] = { t: 's', v: item.name };
-      ws[`H${row}`] = { t: 'n', v: item.j_retail };
-      ws[`I${row}`] = { t: 'n', v: item.price };
-      ws[`K${row}`] = { t: 'n', v: item.qty };
-      ws[`U${row}`] = { t: 'n', v: item.price * item.qty };
-      ws[`V${row}`] = { t: 's', v: `${item.code} ${item.customer} ${item.payment_date}` };
-    });
-
-    const totalRow = startRow + items.length;
-    const infoRowBase = totalRow + 1;
-    const lastRow = totalRow + 6;
-
-    ws[`I${totalRow}`] = { t: 's', v: 'Total' };
-    ws[`K${totalRow}`] = { t: 'n', f: `SUM(K${startRow}:K${totalRow - 1})` };
-    ws[`U${totalRow}`] = { t: 'n', f: `SUM(U${startRow}:U${totalRow - 1})` };
-
-    // 부가 정보 (파란 글씨)
-    ws[`E${infoRowBase}`] = { t: 's', v: 'Delivery: By Ocean Freight', s: { font: { color: { rgb: "0000FF" }, name: "Arial", sz: 11 } } };
-    ws[`E${infoRowBase + 1}`] = { t: 's', v: 'Payment: By L/C', s: { font: { color: { rgb: "0000FF" }, name: "Arial", sz: 11 } } };
-    ws[`E${infoRowBase + 3}`] = { t: 's', v: 'Hyun-kun Kim', s: { font: { color: { rgb: "0000FF" }, name: "Arial", sz: 11 } } };
-    ws[`E${infoRowBase + 5}`] = { t: 's', v: 'Tamiya Korea Co., LTD.', s: { font: { color: { rgb: "0000FF" }, name: "Arial", sz: 11 } } };
-
-    // 👉 스타일 적용 코드 별도로 아래에서 삽입 (앞서 공유한 스타일 적용 for-loop 코드를 여기 붙여넣기)
-    const defaultFont = { name: "Arial", sz: 11 };
-
-const boldCenter = {
-  font: { ...defaultFont, bold: true },
-  alignment: { horizontal: "center", vertical: "top" },
-  border: { bottom: { style: "thin", color: { rgb: "000000" } } }
-};
-
-const redBold = () => ({
-  ...boldCenter,
-  font: { ...defaultFont, bold: true, color: { rgb: "FF0000" } }
-});
-
-const blueBold = () => ({
-  ...boldCenter,
-  font: { ...defaultFont, bold: true, color: { rgb: "0000FF" } }
-});
-
-const yellowBackground = {
-  fill: { fgColor: { rgb: "FFFF00" } },
-  font: defaultFont
-};
-
-const centerAlign = {
-  alignment: { horizontal: "center" },
-  font: defaultFont
-};
-
-// ✅ 헤더 스타일: A1~V1
-for (let col = 0; col < 22; col++) {
-  const colLetter = XLSX.utils.encode_col(col);
-  const cell = `${colLetter}1`;
-  ws[cell] = ws[cell] || {};
-  ws[cell].s = boldCenter;
-
-  if (["A", "B", "K", "S", "U"].includes(colLetter)) {
-    ws[cell].s = redBold();
-  }
-  if (["C", "D", "E", "F", "G", "H", "I", "P", "Q", "R"].includes(colLetter)) {
-    ws[cell].s = blueBold();
-  }
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "제품정보");
+  XLSX.writeFile(workbook, "선택주문_제품정보.xlsx");
 }
-
-// ✅ B열, N열 오른쪽 테두리
-for (let r = 1; r <= lastRow; r++) {
-  ws[`B${r}`] = ws[`B${r}`] || {};
-  ws[`B${r}`].s = { ...ws[`B${r}`].s, border: { right: { style: "thin" } } };
-
-  ws[`N${r}`] = ws[`N${r}`] || {};
-  ws[`N${r}`].s = { ...ws[`N${r}`].s, border: { right: { style: "thin" } } };
-}
-
-// ✅ H열 배경색 노란색
-for (let r = 2; r <= lastRow; r++) {
-  ws[`H${r}`] = ws[`H${r}`] || {};
-  ws[`H${r}`].s = { ...yellowBackground };
-}
-
-// ✅ 총계행 (예: totalRow)
-for (let c = 8; c <= 20; c++) { // I~U
-  const col = XLSX.utils.encode_col(c);
-  const addr = `${col}${totalRow}`;
-  ws[addr] = ws[addr] || {};
-  ws[addr].s = { ...ws[addr].s, border: { bottom: { style: "thin" } } };
-}
-ws[`I${totalRow}`].s = { ...ws[`I${totalRow}`].s, font: { color: { rgb: "0000FF" } } };
-ws[`K${totalRow}`].s = { ...ws[`K${totalRow}`].s, font: { color: { rgb: "FF0000" } } };
-
-// ✅ U열: 통화 서식 JPY
-for (let r = 2; r <= lastRow; r++) {
-  const addr = `U${r}`;
-  ws[addr] = ws[addr] || {};
-  ws[addr].s = { ...ws[addr].s, numFmt: "¥#,##0" };
-}
-
-// ✅ 데이터 입력 셀: E/V 제외 가운데 정렬
-for (let r = 2; r <= lastRow; r++) {
-  for (let c = 0; c <= 21; c++) {
-    const col = XLSX.utils.encode_col(c);
-    if (["E", "V"].includes(col)) continue;
-    const addr = `${col}${r}`;
-    ws[addr] = ws[addr] || {};
-    ws[addr].s = { ...ws[addr].s, alignment: { horizontal: "center" } };
-  }
-}
-
-// ✅ 부가 정보 텍스트: 파란색 글씨
-["Delivery: By Ocean Freight", "Payment: By L/C", "Hyun-kun Kim", "Tamiya Korea Co., LTD."].forEach((text, i) => {
-  const rowOffset = i >= 2 ? i + 1 : i; // 서명 공간 비워둠
-  const addr = `E${infoRowBase + rowOffset}`;
-  ws[addr] = { t: "s", v: text, s: { font: { color: { rgb: "0000FF" }, name: "Arial", sz: 11 } } };
-});
-    // 예: 헤더 A1~V1, 총계 행, 색상/폰트 적용 등
-  }
-
-  if (items8.length > 0) {
-    const wb8 = XLSX.read(tpl8, { type: 'array', cellStyles: true });
-    const ws8 = wb8.Sheets[wb8.SheetNames[0]];
-    fillSheet(ws8, items8, title8);
-    XLSX.writeFile(wb8, `${title8}_보관용.xlsx`);
-  }
-
-  if (items5.length > 0) {
-    const wb5 = XLSX.read(tpl5, { type: 'array', cellStyles: true });
-    const ws5 = wb5.Sheets[wb5.SheetNames[0]];
-    fillSheet(ws5, items5, title5);
-    XLSX.writeFile(wb5, `${title5}_보관용.xlsx`);
-  }
-}
-
 
 
 async function downloadSelectedOrders() {
@@ -598,5 +454,3 @@ Object.assign(window, {
   downloadProductPriceInfo,
   showModal  // ✅ 이 줄 추가!
 });
-
-
