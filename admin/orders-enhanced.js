@@ -360,11 +360,11 @@ async function downloadProductPriceInfo() {
     }));
   });
 
-  const uniqueCodes = [...new Set(allItems.map(i => i.code))];
+  const itemCodes = [...new Set(allItems.map(i => i.code))];
   const { data: matchedItems, error: itemError } = await supabase
     .from("tamiya_items")
     .select("item_code, j_retail, price")
-    .in("item_code", uniqueCodes.map(Number));
+    .in("item_code", itemCodes.map(code => Number(code)));
 
   if (itemError || !matchedItems) {
     alert("제품 정보 불러오기 실패: " + (itemError?.message || ''));
@@ -373,34 +373,84 @@ async function downloadProductPriceInfo() {
 
   const itemMap = Object.fromEntries(matchedItems.map(i => [String(i.item_code), i]));
 
-  const rows = allItems.map(item => {
+  // 제품코드 분리
+  const items8 = [];
+  const items5 = [];
+
+  for (const item of allItems) {
     const matched = itemMap[item.code] || {};
-    return [
-      item.code,             // A: 제품코드
-      item.name,             // B: 제품명
-      "", "",                // C, D: 공백
-      matched.j_retail ?? '', // E: j_retail
-      matched.price ?? '',    // F: price
-      "",                    // G: 공백
-      item.qty,              // H: 수량
-      "", "", "", "", "", "", "", "", "", "", // I~Q: 공백
-      `${item.code} ${item.customer} ${item.payment_date}` // R: 조합된 설명 (문자열)
-    ];
-  });
+    const row = {
+      code: item.code,
+      name: item.name,
+      j_retail: matched.j_retail || '',
+      price: matched.price || '',
+      qty: item.qty,
+      customer: item.customer,
+      payment_date: item.payment_date
+    };
 
-  const header = [
-    "제품코드", "제품명", "", "", "j_retail", "price", "", "수량",
-    "", "", "", "", "", "", "", "", "", "",
-    "설명 (제품코드 + 고객명 + 입금일)"
-  ];
+    if (/^\d{8}$/.test(item.code)) items8.push(row);
+    else if (/^\d{5}$/.test(item.code)) items5.push(row);
+  }
 
-  const worksheet = XLSX.utils.aoa_to_sheet([header, ...rows]);
+  // 📥 템플릿 가져오기
+  const [tpl8, tpl5] = await Promise.all([
+    fetch('/tamiya-order-form/templates/TKC00000000-USER-8digit_archive.xlsx').then(r => r.arrayBuffer()),
+    fetch('/tamiya-order-form/templates/TKC00000000-USER-5digit_archive.xlsx').then(r => r.arrayBuffer())
+  ]);
 
-  // ✅ 숨김 없음 — worksheet['!cols'] 제거
+  // 🎯 날짜 제목
+  const today = new Date();
+  const yy = String(today.getFullYear()).slice(-2);
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const title8 = `TKC${yy}${mm}${dd}-USER-8digit`;
+  const title5 = `TKC${yy}${mm}${dd}-USER-5digit`;
+  const dateStr = `${mm}/${dd}/${today.getFullYear()}`;
 
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "제품정보");
-  XLSX.writeFile(workbook, "선택주문_제품정보.xlsx");
+  if (items8.length > 0) {
+    const wb8 = XLSX.read(tpl8, { type: 'array' });
+    const ws = wb8.Sheets[wb8.SheetNames[0]];
+
+    // A2, B2
+    ws['A2'].v = title8;
+    ws['B2'].v = dateStr;
+
+    // D2, E2, H2, I2, K2, V2 = code, name, j_retail, price, qty, 설명
+    items8.forEach((item, i) => {
+      const row = 3 + i;
+      ws[`D${row}`] = { t: 's', v: item.code };
+      ws[`E${row}`] = { t: 's', v: item.name };
+      ws[`H${row}`] = { t: 'n', v: item.j_retail };
+      ws[`I${row}`] = { t: 'n', v: item.price };
+      ws[`K${row}`] = { t: 'n', v: item.qty };
+      ws[`V${row}`] = { t: 's', v: `${item.code} ${item.customer} ${item.payment_date}` };
+      ws[`U${row}`] = { t: 'n', v: item.price * item.qty };
+    });
+
+    XLSX.writeFile(wb8, `${title8}_보관용.xlsx`);
+  }
+
+  if (items5.length > 0) {
+    const wb5 = XLSX.read(tpl5, { type: 'array' });
+    const ws = wb5.Sheets[wb5.SheetNames[0]];
+
+    ws['A2'].v = title5;
+    ws['B2'].v = dateStr;
+
+    items5.forEach((item, i) => {
+      const row = 3 + i;
+      ws[`D${row}`] = { t: 's', v: item.code };
+      ws[`E${row}`] = { t: 's', v: item.name };
+      ws[`H${row}`] = { t: 'n', v: item.j_retail };
+      ws[`I${row}`] = { t: 'n', v: item.price };
+      ws[`K${row}`] = { t: 'n', v: item.qty };
+      ws[`V${row}`] = { t: 's', v: `${item.code} ${item.customer} ${item.payment_date}` };
+      ws[`U${row}`] = { t: 'n', v: item.price * item.qty };
+    });
+
+    XLSX.writeFile(wb5, `${title5}_보관용.xlsx`);
+  }
 }
 
 
