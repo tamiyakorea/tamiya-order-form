@@ -334,75 +334,25 @@ function logout() {
   });
 }
 
-async function downloadProductPriceInfo() {
+async function downloadProductExcelFromServer() {
   const checkboxes = document.querySelectorAll('.download-checkbox:checked');
-  if (checkboxes.length === 0) return alert('주문을 선택하세요.');
+  const orderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
+  if (orderIds.length === 0) return alert("주문을 선택하세요.");
 
-  const selectedOrderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
-  const { data: orders, error: orderError } = await supabase
-    .from("orders")
-    .select("*")
-    .in("order_id", selectedOrderIds);
-
-  if (orderError || !orders) {
-    alert("주문 불러오기 실패: " + (orderError?.message || ''));
-    return;
-  }
-
-  const allItems = orders.flatMap(order => {
-    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
-    return items.map(i => ({
-      code: String(i.code).trim(),
-      name: i.name,
-      qty: i.qty,
-      customer: order.name,
-      payment_date: order.payment_date ? formatDateOnly(order.payment_date) : ''
-    }));
+  const res = await fetch('http://localhost:3001/generate-excel', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(orderIds)
   });
 
-  const uniqueCodes = [...new Set(allItems.map(i => i.code))];
-  const { data: matchedItems, error: itemError } = await supabase
-    .from("tamiya_items")
-    .select("item_code, j_retail, price")
-    .in("item_code", uniqueCodes.map(Number));
-
-  if (itemError || !matchedItems) {
-    alert("제품 정보 불러오기 실패: " + (itemError?.message || ''));
-    return;
-  }
-
-  const itemMap = Object.fromEntries(matchedItems.map(i => [String(i.item_code), i]));
-
-  const rows = allItems.map(item => {
-    const matched = itemMap[item.code] || {};
-    return [
-      item.code,             // A: 제품코드
-      item.name,             // B: 제품명
-      "", "",                // C, D: 공백
-      matched.j_retail ?? '', // E: j_retail
-      matched.price ?? '',    // F: price
-      "",                    // G: 공백
-      item.qty,              // H: 수량
-      "", "", "", "", "", "", "", "", "", "", // I~Q: 공백
-      `${item.code} ${item.customer} ${item.payment_date}` // R: 조합된 설명 (문자열)
-    ];
+  const { files } = await res.json();
+  files.forEach(file => {
+    const a = document.createElement('a');
+    a.href = `http://localhost:3001${file}`;
+    a.download = file.split('/').pop();
+    a.click();
   });
-
-  const header = [
-    "제품코드", "제품명", "", "", "j_retail", "price", "", "수량",
-    "", "", "", "", "", "", "", "", "", "",
-    "설명 (제품코드 + 고객명 + 입금일)"
-  ];
-
-  const worksheet = XLSX.utils.aoa_to_sheet([header, ...rows]);
-
-  // ✅ 숨김 없음 — worksheet['!cols'] 제거
-
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "제품정보");
-  XLSX.writeFile(workbook, "선택주문_제품정보.xlsx");
 }
-
 
 async function downloadSelectedOrders() {
   const checkboxes = document.querySelectorAll('.download-checkbox:checked');
