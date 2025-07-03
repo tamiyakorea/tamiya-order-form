@@ -47,23 +47,60 @@
       background: rgba(0,0,0,0.5);
     }
     #supplierModal {
-      left: 50%; top: 50%;
+      position: fixed;
+      top: 50%;
+      left: 50%;
       transform: translate(-50%, -50%);
       background: white;
-      border: 1px solid #ccc;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      max-width: 400px;
-      width: 90%;
+      border-radius: 8px;
+      padding: 30px 24px;
+      width: 100%;
+      max-width: 480px; /* ✅ 더 넉넉하게 */
+      box-shadow: 0 0 16px rgba(0, 0, 0, 0.25);
+      box-sizing: border-box;
     }
     label {
       display: block;
-      margin-top: 10px;
+      margin-top: 14px;
+      font-weight: 500;
+      font-size: 14px;
     }
-    input[type="text"], input[type="email"], input[type="number"] {
+      input[type="text"],
+      input[type="email"],
+      input[type="number"] {
       width: 100%;
-      padding: 6px;
-      margin-top: 2px;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    #supplierModal h3 {
+      margin-top: 0;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #supplierModal .modal-actions {
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    #supplierModal button {
+      padding: 8px 14px;
+      font-size: 14px;
+      margin-left: 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: #333;
+      color: white;
+      cursor: pointer;
+    }
+
+    #supplierModal button:hover {
+      background-color: #555;
     }
   </style>
 </head>
