@@ -373,9 +373,7 @@ async function downloadProductPriceInfo() {
 
   const itemMap = Object.fromEntries(matchedItems.map(i => [String(i.item_code), i]));
 
-  const items8 = [];
-  const items5 = [];
-
+  const items8 = [], items5 = [];
   for (const item of allItems) {
     const matched = itemMap[item.code] || {};
     const row = {
@@ -387,7 +385,6 @@ async function downloadProductPriceInfo() {
       customer: item.customer,
       payment_date: item.payment_date
     };
-
     if (/^\d{8}$/.test(item.code)) items8.push(row);
     else if (/^\d{5}$/.test(item.code)) items5.push(row);
   }
@@ -413,7 +410,6 @@ async function downloadProductPriceInfo() {
     ws['B2'] = { t: 's', v: dateStr };
 
     const startRow = 2;
-
     items.forEach((item, i) => {
       const row = startRow + i;
       ws[`D${row}`] = { t: 's', v: item.code };
@@ -426,32 +422,37 @@ async function downloadProductPriceInfo() {
     });
 
     const totalRow = startRow + items.length;
-    const infoStartRow = totalRow + 1;
+    const infoRowBase = totalRow + 1;
 
     ws[`I${totalRow}`] = { t: 's', v: 'Total' };
     ws[`K${totalRow}`] = { t: 'n', f: `SUM(K${startRow}:K${totalRow - 1})` };
     ws[`U${totalRow}`] = { t: 'n', f: `SUM(U${startRow}:U${totalRow - 1})` };
 
-    ws[`E${infoStartRow}`]     = { t: 's', v: 'Delivery: By Ocean Freight' };
-    ws[`E${infoStartRow + 1}`] = { t: 's', v: 'Payment: By L/C' };
-    ws[`E${infoStartRow + 2}`] = { t: 's', v: 'Hyun-kun Kim' };
-    ws[`E${infoStartRow + 4}`] = { t: 's', v: 'Tamiya Korea Co., LTD.' };
+    // 부가 정보 (파란 글씨)
+    ws[`E${infoRowBase}`] = { t: 's', v: 'Delivery: By Ocean Freight', s: { font: { color: { rgb: "0000FF" }, name: "Arial", sz: 11 } } };
+    ws[`E${infoRowBase + 1}`] = { t: 's', v: 'Payment: By L/C', s: { font: { color: { rgb: "0000FF" }, name: "Arial", sz: 11 } } };
+    ws[`E${infoRowBase + 3}`] = { t: 's', v: 'Hyun-kun Kim', s: { font: { color: { rgb: "0000FF" }, name: "Arial", sz: 11 } } };
+    ws[`E${infoRowBase + 5}`] = { t: 's', v: 'Tamiya Korea Co., LTD.', s: { font: { color: { rgb: "0000FF" }, name: "Arial", sz: 11 } } };
+
+    // 👉 스타일 적용 코드 별도로 아래에서 삽입 (앞서 공유한 스타일 적용 for-loop 코드를 여기 붙여넣기)
+    // 예: 헤더 A1~V1, 총계 행, 색상/폰트 적용 등
   }
 
   if (items8.length > 0) {
-    const wb8 = XLSX.read(tpl8, { type: 'array' });
+    const wb8 = XLSX.read(tpl8, { type: 'array', cellStyles: true });
     const ws8 = wb8.Sheets[wb8.SheetNames[0]];
     fillSheet(ws8, items8, title8);
     XLSX.writeFile(wb8, `${title8}_보관용.xlsx`);
   }
 
   if (items5.length > 0) {
-    const wb5 = XLSX.read(tpl5, { type: 'array' });
+    const wb5 = XLSX.read(tpl5, { type: 'array', cellStyles: true });
     const ws5 = wb5.Sheets[wb5.SheetNames[0]];
     fillSheet(ws5, items5, title5);
     XLSX.writeFile(wb5, `${title5}_보관용.xlsx`);
   }
 }
+
 
 
 async function downloadSelectedOrders() {
