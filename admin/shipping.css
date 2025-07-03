@@ -58,7 +58,7 @@ thead th {
 .table-wrapper {
   overflow-x: auto;
   overflow-y: auto;
-  max-height: 80vh; /* 필요 시 조정 */
+  max-height: 90vh; /* 필요 시 조정 */
 }
 
 tbody td {
