@@ -339,20 +339,21 @@ async function downloadProductExcelFromServer() {
   const orderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
   if (orderIds.length === 0) return alert("주문을 선택하세요.");
 
-  const res = await fetch('http://localhost:3001/generate-excel', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(orderIds)
-  });
+  const res = await fetch("http://localhost:3001/generate-excel", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(orderIds)
+});
+const { files } = await res.json();
 
-  const { files } = await res.json();
-  files.forEach(file => {
-    const a = document.createElement('a');
-    a.href = `http://localhost:3001${file}`;
-    a.download = file.split('/').pop();
-    a.click();
-  });
-}
+files.forEach(file => {
+  const a = document.createElement('a');
+  a.href = file; 
+  a.download = file.split('/').pop();
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
 
 async function downloadSelectedOrders() {
   const checkboxes = document.querySelectorAll('.download-checkbox:checked');
