@@ -1,0 +1,6 @@
+@echo off
+title Tamiya Excel Generator Server Run...
+cd /d C:\Users\tamiya\tamiya-excel-generator
+echo Node.js Server Run...
+node server.js
+pause
