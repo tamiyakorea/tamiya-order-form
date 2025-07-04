@@ -347,23 +347,11 @@ async function downloadProductExcelFromServer() {
 
   if (!res.ok) {
     const errorText = await res.text();
-    alert("❌ 다운로드 생성 실패:\n" + errorText);
+    alert("❌ 주문서 생성 실패:\n" + errorText);
     return;
   }
 
-  const { files } = await res.json();
-  console.log("📥 반환된 files:", files);  // 🧪 확인용 로그
-
-  files.forEach(file => {
-    // ✅ file은 '/download/xxx.xlsx' 형식으로 들어온다고 가정
-    const fileName = file.split('/').pop();
-    const a = document.createElement('a');
-    a.href = file.startsWith('/download/') ? file : `/download/${fileName}`;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
+  alert("✅ 주문서가 서버에 저장되었습니다 (output 폴더 확인).");
 }
 
 
