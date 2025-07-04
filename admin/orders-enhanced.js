@@ -344,17 +344,30 @@ async function downloadProductExcelFromServer() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(orderIds)
   });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    alert("❌ 다운로드 생성 실패:\n" + errorText);
+    return;
+  }
+
   const { files } = await res.json();
 
   files.forEach(file => {
+    const fileName = file.split('/').pop();
+    const url = file.startsWith('/download/')
+      ? file
+      : `/download/${fileName}`;
+
     const a = document.createElement('a');
-    a.href = file; 
-    a.download = file.split('/').pop();
+    a.href = url;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   });
 }
+
 
 async function downloadSelectedOrders() {
   const checkboxes = document.querySelectorAll('.download-checkbox:checked');
