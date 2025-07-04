@@ -66,7 +66,6 @@
   ├── items.html # 상품 DB 관리 
   ├── order-stats.html # 통계 대시보드 
   ├── public/ # 프론트엔드 리소스 
-  ├── output/ # 생성된 엑셀 저장 폴더 
   ├── admin/ 
   │ ├── orders.html # 주문 관리 
   │ ├── shipping.html # 배송 처리 
@@ -74,9 +73,15 @@
   │ ├── accounting.html # 회계 관리 
   │ ├── as-progress.html # A/S 수리 진행 
   │ └── as-charge.html # A/S 청구 관리 
-  ├── supabase/ 
+  supabase/ 
+  │ ├── orders
+  │ ├── as_orders
+  │ ├── tamiya_items
+  │ ├── suppliers
   │ └── functions/ # Edge Functions 
-  ├── server.js # 주문서 엑셀 생성 서버 
+  로컬 서버(7440PC)/
+  ├── server.js # 주문서 엑셀 생성 서버
+  ├── output/ # 생성된 엑셀 저장 폴더
   └── package.json </code></pre>
 
 
