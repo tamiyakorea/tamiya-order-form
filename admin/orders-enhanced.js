@@ -352,15 +352,13 @@ async function downloadProductExcelFromServer() {
   }
 
   const { files } = await res.json();
+  console.log("📥 반환된 files:", files);  // 🧪 확인용 로그
 
   files.forEach(file => {
+    // ✅ file은 '/download/xxx.xlsx' 형식으로 들어온다고 가정
     const fileName = file.split('/').pop();
-    const url = file.startsWith('/download/')
-      ? file
-      : `/download/${fileName}`;
-
     const a = document.createElement('a');
-    a.href = url;
+    a.href = file.startsWith('/download/') ? file : `/download/${fileName}`;
     a.download = fileName;
     document.body.appendChild(a);
     a.click();
