@@ -10,7 +10,9 @@
 
 ## 🌍 배포 주소
 
-- **고객 주문 페이지**: [https://order.kidult-hobby.co.kr](https://order.kidult-hobby.co.kr)
+- **개별주문 고객 주문 페이지**: [https://order.kidult-hobby.co.kr](https://order.kidult-hobby.co.kr)
+- **개별주문 B2B 주문 페이지**: [https://order.kidult-hobby.co.kr/supplier-order.html](https://order.kidult-hobby.co.kr/supplier-order.html)
+- **SANWA A/S 신청 페이지**: [https://order.kidult-hobby.co.kr/as-order.html](https://order.kidult-hobby.co.kr/as-order.html)
 - **관리자 페이지**: [https://order.kidult-hobby.co.kr/admin/orders.html](https://order.kidult-hobby.co.kr/admin/orders.html) *(인증 필요)*
 
 ---
