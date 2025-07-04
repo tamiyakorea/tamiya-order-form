@@ -50,32 +50,13 @@
 
 ### 📂 예시 결과
 
-output/
-├── TKC250704-USER-8digit_보관용.xlsx   ← 고객정보 포함
-└── TKC250704-USER-8digit.xlsx         ← 고객정보 제외
+<pre><code>output/ ├── TKC250704-USER-8digit_보관용.xlsx ← 고객정보 포함 └── TKC250704-USER-8digit.xlsx ← 고객정보 제외 </code></pre>
 
 ---
 
 ## 🧱 디렉터리 구조
 
-tamiya-order-form/
-├── index.html              # 고객 주문 페이지
-├── as-order.html           # A/S 신청 페이지
-├── items.html              # 상품 DB 관리
-├── order-stats.html        # 통계 대시보드
-├── public/                 # 프론트엔드 리소스
-├── output/                 # 생성된 엑셀 저장 폴더
-├── admin/
-│   ├── orders.html         # 주문 관리
-│   ├── shipping.html       # 배송 처리
-│   ├── shipped.html        # 배송 완료
-│   ├── accounting.html     # 회계 관리
-│   ├── as-progress.html    # A/S 수리 진행
-│   └── as-charge.html      # A/S 청구 관리
-├── supabase/
-│   └── functions/          # Edge Functions
-├── server.js               # 주문서 엑셀 생성 서버
-└── package.json
+<pre><code>tamiya-order-form/ ├── index.html # 고객 주문 페이지 ├── as-order.html # A/S 신청 페이지 ├── items.html # 상품 DB 관리 ├── order-stats.html # 통계 대시보드 ├── public/ # 프론트엔드 리소스 ├── output/ # 생성된 엑셀 저장 폴더 ├── admin/ │ ├── orders.html # 주문 관리 │ ├── shipping.html # 배송 처리 │ ├── shipped.html # 배송 완료 │ ├── accounting.html # 회계 관리 │ ├── as-progress.html # A/S 수리 진행 │ └── as-charge.html # A/S 청구 관리 ├── supabase/ │ └── functions/ # Edge Functions ├── server.js # 주문서 엑셀 생성 서버 └── package.json </code></pre>
 
 
 ---
