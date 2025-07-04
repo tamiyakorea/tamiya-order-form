@@ -1,0 +1,10 @@
+0. https://nodejs.org/ko // node.js 설치
+   만약 이미 설치된 상태일 경우, 생략합니다.
+1. tamiya-excel-generator.zip 압축 해제 위치 C:\Users\tamiya\
+2. server.js 내 실제 서비스 키로 교체하세요. 
+   -----참고-----
+    const supabase = createClient(
+   'https://edgvrwekvnavkhcqwtxa.supabase.co',
+   'service_role_key' // ❗ 실제 서비스 키로 교체하세요. Supabase - Project Settings - API Keys - service_rolesecret 복사하기
+    );
+3. Server Lunch.bat을 실행하여 서버를 실행합니다.
