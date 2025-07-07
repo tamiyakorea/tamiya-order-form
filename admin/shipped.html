@@ -76,25 +76,47 @@
             ${isFirst ? `<td rowspan="${items.length}"><button onclick="returnToShipping(${order.order_id})">❌</button></td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${shippedDate}</td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.name}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}"><button onclick="showDetailModal('연락처', '${order.phone}')">확인</button></td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}"><button onclick="showDetailModal('우편번호', '${order.zipcode}')">확인</button></td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}"><button onclick="showDetailModal('주소', '${order.address}')">확인</button></td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}"><button onclick="showDetailModal('상세주소', '${order.address_detail}')">확인</button></td>` : ''}
-            <td>${item.code}</td>
-            <td><button onclick="showDetailModal('아이템명', '${item.name}')">확인</button></td>
-            <td>${item.qty}</td>
-            <td>₩${item.price?.toLocaleString?.() || '-'}</td>
-            ${isFirst ? `<td rowspan="${items.length}">₩${order.total?.toLocaleString?.() || '-'}</td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">
+                <span class="detail-name" onclick='showOrderDetail(${JSON.stringify({ order, items }).replace(/\\/g, '\\\\').replace(/'/g, "\\'")})'>${order.name}</span>
+             </td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${order.tracking_number || '-'}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}"><button class="detail-btn" onclick="showDetailModal('비고', \`${order.remarks || '-'}\`)">확인</button></td>` : ''}
+            ${isFirst ? `<td rowspan="${items.length}">${order.remarks || '-'}</td>` : ''}
             ${isFirst ? `<td rowspan="${items.length}">${order.shipping_note || '-'}</td>` : ''}
-          `;
+            `;
           tbody.appendChild(row);
         });
       });
     }
 
+window.showOrderDetail = function({ order, items }) {
+  const shippedDate = formatDateOnly(order.tracking_date) || '-';
+  const itemDetails = items.map(item => `
+    - [${item.code}] ${item.name} / 수량: ${item.qty} / 단가: ₩${item.price?.toLocaleString?.() || '-'}
+  `).join('\n');
+
+  const modalText = `
+출고일: ${shippedDate}
+주문번호: ${order.order_id}
+고객명: ${order.name}
+연락처: ${order.phone || '-'}
+우편번호: ${order.zipcode || '-'}
+주소: ${order.address || '-'}
+상세주소: ${order.address_detail || '-'}
+
+[주문 상품 목록]
+${itemDetails}
+
+총금액: ₩${order.total?.toLocaleString?.() || '-'}
+송장번호: ${order.tracking_number || '-'}
+비고: ${order.remarks || '-'}
+배송비고: ${order.shipping_note || '-'}
+  `;
+
+  document.getElementById('modal-title').textContent = '주문 상세정보';
+  document.getElementById('modal-content').textContent = modalText;
+  document.getElementById('modal').style.display = 'block';
+};
+    
     function sortTableBy(key) {
       if (!deliveredData.length) return;
 
@@ -175,25 +197,17 @@
 <div style="overflow-x: auto; overflow-y: auto; max-height: 80vh;">
   <table>
     <thead>
-      <tr>
-        <th>이동</th>
-        <th data-key="tracking_date" onclick="sortTableBy('tracking_date')">출고일 <span class="sort-icon">⬍</span></th>
-        <th data-key="order_id" onclick="sortTableBy('order_id')">주문번호 <span class="sort-icon">⬍</span></th>
-        <th data-key="name" onclick="sortTableBy('name')">고객명 <span class="sort-icon">⬍</span></th>
-        <th>연락처</th>
-        <th>우편번호</th>
-        <th>주소</th>
-        <th>상세주소</th>
-        <th>아이템 시리얼</th>
-        <th>아이템명</th>
-        <th>수량</th>
-        <th>개별금액</th>
-        <th>총금액</th>
-        <th>송장번호</th>
-        <th>비고</th>
-        <th>배송 비고</th>
-      </tr>
-    </thead>
+      <thead>
+  <tr>
+    <th>이동</th>
+    <th data-key="tracking_date" onclick="sortTableBy('tracking_date')">출고일 <span class="sort-icon">⬍</span></th>
+    <th data-key="order_id" onclick="sortTableBy('order_id')">주문번호 <span class="sort-icon">⬍</span></th>
+    <th data-key="name" onclick="sortTableBy('name')">고객명 <span class="sort-icon">⬍</span></th>
+    <th>송장번호</th>
+    <th>비고</th>
+    <th>배송 비고</th>
+  </tr>
+</thead>
     <tbody id="delivered-table-body">
       <tr><td colspan="17">불러오는 중...</td></tr>
     </tbody>
