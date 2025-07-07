@@ -309,21 +309,21 @@ td.note-cell {
 }
 
 .shipped_modal.show {
-  display: flex;
+  display: flex; /* ✅ 이게 핵심 */
 }
 
 .shipped_modal-content {
   background-color: white;
-  padding: 20px 24px;
+  padding: 24px;
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-sizing: border-box;
   white-space: pre-line;
   word-break: break-word;
-  box-sizing: border-box;
 }
 
 .detail-name {
