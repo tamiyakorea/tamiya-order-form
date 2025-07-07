@@ -288,3 +288,9 @@ td.address-cell, td.address-detail-cell {
   white-space: pre-line;
   word-break: break-word;
 }
+
+td.note-cell {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 300px;
+}
