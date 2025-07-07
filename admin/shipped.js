@@ -72,36 +72,41 @@ row.innerHTML = `
 
 function showOrderDetail({ order, items }) {
   const shippedDate = formatDateOnly(order.tracking_date) || '-';
-  const itemDetails = items.map(item => {
-    const priceStr = item.price ? item.price.toLocaleString() : '-';
-    return `- [${item.code}] ${item.name} / 수량: ${item.qty} / 단가: \u20A9${priceStr}`;
-  }).join('\n');
-
   const totalStr = order.total ? order.total.toLocaleString() : '-';
 
-  const modalText = `
-출고일: ${shippedDate}
-주문번호: ${order.order_id}
-고객명: ${order.name}
-연락처: ${order.phone || '-'}
-우편번호: ${order.zipcode || '-'}
-주소: ${order.address || '-'}
-상세주소: ${order.address_detail || '-'}
-
-[주문 상품 목록]
-${itemDetails}
-
-총금액: \u20A9${totalStr}
-송장번호: ${order.tracking_number || '-'}
-비고: ${order.remarks || '-'}
-배송비고: ${order.shipping_note || '-'}
+  // ✅ 주문 정보 필드 구성
+  const infoHTML = `
+    <div class="field"><div class="field-label">출고일</div><div>${shippedDate}</div></div>
+    <div class="field"><div class="field-label">주문번호</div><div>${order.order_id}</div></div>
+    <div class="field"><div class="field-label">고객명</div><div>${order.name}</div></div>
+    <div class="field"><div class="field-label">연락처</div><div>${order.phone || '-'}</div></div>
+    <div class="field"><div class="field-label">우편번호</div><div>${order.zipcode || '-'}</div></div>
+    <div class="field"><div class="field-label">주소</div><div>${order.address || '-'}</div></div>
+    <div class="field"><div class="field-label">상세주소</div><div>${order.address_detail || '-'}</div></div>
+    <div class="field"><div class="field-label">총금액</div><div>₩${totalStr}</div></div>
+    <div class="field"><div class="field-label">송장번호</div><div>${order.tracking_number || '-'}</div></div>
+    <div class="field"><div class="field-label">비고</div><div>${order.remarks || '-'}</div></div>
+    <div class="field"><div class="field-label">배송 비고</div><div>${order.shipping_note || '-'}</div></div>
   `;
+  document.getElementById('order-info-section').innerHTML = infoHTML;
 
-  document.getElementById('modal-title').textContent = '주문 상세정보';
-document.getElementById('modal-content').textContent = modalText;
-document.getElementById('shippedModal').classList.add('show');
+  // ✅ 주문 상품 목록 테이블 구성
+  const itemsHTML = items.map(item => {
+    const priceStr = item.price ? item.price.toLocaleString() : '-';
+    return `
+      <tr>
+        <td>${item.code}</td>
+        <td>${item.name}</td>
+        <td>${item.qty}</td>
+        <td>₩${priceStr}</td>
+      </tr>
+    `;
+  }).join('');
+  document.getElementById('order-items-body').innerHTML = itemsHTML;
 
+  document.getElementById('shippedModal').classList.add('show');
 }
+
 
 function sortTableBy(key) {
   if (!deliveredData.length) return;
