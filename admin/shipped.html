@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>배송 완료</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link rel="stylesheet" href="shipped.css" />
+  <style>
+    .sort-icon { margin-left: 5px; cursor: pointer; }
+    #modal {
+      display: none;
+      position: fixed;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border: 1px solid #ccc;
+      padding: 20px;
+      z-index: 9999;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 90%;
+    }
+    #modal h3 {
+      margin-top: 0;
+    }
+    #modal p {
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    #modal button {
+      margin-top: 20px;
+      padding: 6px 12px;
+      background-color: #343a40;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    #modal button:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div>
+      <a href="orders.html">TAMIYA 주문 관리</a>
+      <a href="ordered.html">TAMIYA 발주 완료</a>
+      <a href="shipping.html">TAMIYA 배송 관리</a>
+      <a href="shipped.html" class="active">TAMIYA 배송 완료</a>
+      <a href="accounting.html">TAMIYA 회계 관리</a>
+      <a href="as-order_table.html">SANWA A/S 신청 관리</a>
+      <a href="as-progress.html">SANWA A/S 진행 관리</a>
+      <a href="as-charge.html">SANWA A/S 청구 관리</a>
+      <a href="as-completed.html">SANWA A/S 처리 완료</a>
+      <a href="as-accounting.html">SANWA A/S 회계 관리</a>
+    </div>
+  </nav>
+
+  <h1>배송 완료</h1>
+
+  <div style="text-align:right; margin-right:30px;">
+    <button onclick="window.open('upload-shipped.html', '_blank', 'width=600,height=600')">
+      📤 배송 완료 엑셀 업로드
+    </button>
+  </div>
+  
+  <div style="overflow-x: auto; overflow-y: auto; max-height: 80vh;">
+    <table>
+      <thead>
+        <tr>
+          <th>이동</th>
+          <th data-key="tracking_date" onclick="sortTableBy('tracking_date')">출고일 <span class="sort-icon">⬍</span></th>
+          <th data-key="order_id" onclick="sortTableBy('order_id')">주문번호 <span class="sort-icon">⬍</span></th>
+          <th data-key="name" onclick="sortTableBy('name')">고객명 <span class="sort-icon">⬍</span></th>
+          <th>송장번호</th>
+          <th>비고</th>
+          <th>배송 비고</th>
+        </tr>
+      </thead>
+      <tbody id="delivered-table-body">
+        <tr><td colspan="7">불러오는 중...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="modal">
+    <h3 id="modal-title"></h3>
+    <p id="modal-content"></p>
+    <button onclick="document.getElementById('modal').style.display='none'">닫기</button>
+  </div>
+
+  <!-- ✅ 외부 모듈 스크립트 연결 -->
+  <script type="module" src="shipped.js"></script>
+</body>
+</html>
