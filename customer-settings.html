@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>고객 주문페이지 텍스트 설정</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const supabase = createClient(
+      'https://edgvrwekvnavkhcqwtxa.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+    ); 
+
+    const KEYS = ['notice', 'confirm_notice', 'faq'];
+
+    async function loadSettings() {
+      const { data, error } = await supabase.from('customer_settings').select('*');
+      if (error) {
+        alert("설정 불러오기 실패: " + error.message);
+        return;
+      }
+
+      for (const row of data) {
+        const textarea = document.getElementById(row.key);
+        if (textarea) textarea.value = row.content;
+      }
+    }
+
+    async function saveSettings() {
+      const updates = KEYS.map(key => ({
+        key,
+        content: document.getElementById(key).value.trim()
+      }));
+
+      const { error } = await supabase.from('customer_settings').upsert(updates);
+      if (error) {
+        alert("저장 실패: " + error.message);
+      } else {
+        alert("✅ 저장 완료");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSettings();
+      document.getElementById("saveBtn").addEventListener("click", () => {
+        if (confirm("설정을 저장하시겠습니까?")) saveSettings();
+      });
+    });
+  </script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      font-family: monospace;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      display: block;
+      margin: 40px auto;
+      padding: 12px 30px;
+      font-size: 16px;
+      background-color: #005bac;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004b94;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛠 고객 주문페이지 설정 텍스트 관리</h1>
+
+  <div class="section">
+    <label for="notice">📌 고객 안내사항 (`notice`)</label>
+    <textarea id="notice" placeholder="HTML 내용 입력 가능"></textarea>
+  </div>
+
+  <div class="section">
+    <label for="confirm_notice">✅ 주문 확정 전 안내 (`confirm_notice`)</label>
+    <textarea id="confirm_notice" placeholder="HTML 내용 입력 가능"></textarea>
+  </div>
+
+  <div class="section">
+    <label for="faq">💬 질문과 답변 FAQ (`faq`)</label>
+    <textarea id="faq" placeholder="HTML FAQ 블럭 전체 입력"></textarea>
+  </div>
+
+  <button id="saveBtn">💾 저장하기</button>
+</body>
+</html>
