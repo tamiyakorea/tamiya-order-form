@@ -51,42 +51,39 @@
     }
 
     function renderDeliveredTable(data) {
-      const tbody = document.getElementById('delivered-table-body');
-      tbody.innerHTML = "";
+  const tbody = document.getElementById('delivered-table-body');
+  tbody.innerHTML = "";
 
-      if (!data.length) {
-        tbody.innerHTML = `<tr><td colspan="17">배송 완료된 주문이 없습니다.</td></tr>`;
-        return;
-      }
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="6">배송 완료된 주문이 없습니다.</td></tr>`;
+    return;
+  }
 
-      data.forEach(order => {
-        let items;
-        try {
-          items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
-        } catch {
-          items = [];
-        }
-
-        const shippedDate = formatDateOnly(order.tracking_date) || '-';
-
-        items.forEach((item, index) => {
-          const isFirst = index === 0;
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            ${isFirst ? `<td rowspan="${items.length}"><button onclick="returnToShipping(${order.order_id})">❌</button></td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${shippedDate}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.order_id}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">
-                <span class="detail-name" onclick='showOrderDetail(${JSON.stringify({ order, items }).replace(/\\/g, '\\\\').replace(/'/g, "\\'")})'>${order.name}</span>
-             </td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.tracking_number || '-'}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.remarks || '-'}</td>` : ''}
-            ${isFirst ? `<td rowspan="${items.length}">${order.shipping_note || '-'}</td>` : ''}
-            `;
-          tbody.appendChild(row);
-        });
-      });
+  data.forEach(order => {
+    let items;
+    try {
+      items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+    } catch {
+      items = [];
     }
+
+    const shippedDate = formatDateOnly(order.tracking_date) || '-';
+
+    const payload = JSON.stringify({ order, items }).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><button onclick="returnToShipping(${order.order_id})">❌</button></td>
+      <td>${shippedDate}</td>
+      <td>${order.order_id}</td>
+      <td><span class="detail-name" onclick='showOrderDetail(${payload})'>${order.name}</span></td>
+      <td>${order.tracking_number || '-'}</td>
+      <td>${order.remarks || '-'}</td>
+      <td>${order.shipping_note || '-'}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
 
 window.showOrderDetail = function({ order, items }) {
   const shippedDate = formatDateOnly(order.tracking_date) || '-';
