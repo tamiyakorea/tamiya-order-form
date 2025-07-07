@@ -53,7 +53,7 @@ function renderDeliveredTable(data) {
 
     const row = document.createElement('tr');
     row.innerHTML = `
-      <td><button onclick="returnToShipping(${order.order_id})">❌</button></td>
+      <button onclick="document.getElementById('shippedModal').classList.remove('show')">닫기</button>
       <td>${shippedDate}</td>
       <td>${order.order_id}</td>
       <td><span class="detail-name">${order.name}</span></td>
@@ -98,8 +98,9 @@ ${itemDetails}
   `;
 
   document.getElementById('modal-title').textContent = '주문 상세정보';
-  document.getElementById('modal-content').textContent = modalText;
-  document.getElementById('modal').style.display = 'block';
+document.getElementById('modal-content').textContent = modalText;
+document.getElementById('shippedModal').classList.add('show');
+
 }
 
 function sortTableBy(key) {
