@@ -23,13 +23,6 @@ window.toggleCashReceipt = function () {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  // FAQ 아코디언 바인딩
-  bindFaqAccordion();
-
-  // Supabase 설정 불러오기 (faq 덮어씌우면 아코디언 자동 재연결)
-  loadCustomerSettings();
-
-  // 입력값 실시간 포맷 처리
   document.getElementById("phoneNumber").addEventListener("input", function (e) {
     e.target.value = formatPhoneNumberLive(e.target.value);
   });
@@ -336,6 +329,15 @@ window.searchOrderById = async function () {
   }
 };
 
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+      question.classList.toggle('active');
+      const answer = question.nextElementSibling;
+      answer.classList.toggle('open');
+    });
+  });
+});
 
 window.updateQty = function (index, value) {
   const qty = parseInt(value, 10);
@@ -354,37 +356,3 @@ window.updateQty = function (index, value) {
 };
 
 console.log("index.js loaded successfully.");
-
-function bindFaqAccordion() {
-  document.querySelectorAll('.faq-question').forEach(question => {
-    question.addEventListener('click', () => {
-      question.classList.toggle('active');
-      const answer = question.nextElementSibling;
-      answer.classList.toggle('open');
-    });
-  });
-}
-
-// 2️⃣ Supabase에서 설정 불러오기 함수 내에 FAQ 바인딩 포함
-async function loadCustomerSettings() {
-  try {
-    const res = await fetch("https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/get-customer-settings");
-    const settings = await res.json();
-    if (!Array.isArray(settings)) return;
-
-    settings.forEach(row => {
-      const el = document.getElementById(row.key + "Content");
-      if (el && row.content?.trim()) {
-        el.innerHTML = row.content;
-
-        // FAQ 항목일 경우 이벤트 재바인딩
-        if (row.key === "faq") {
-          bindFaqAccordion(); // ✅ FAQ HTML 교체 후 재바인딩
-        }
-      }
-    });
-  } catch (err) {
-    console.warn("[설정 불러오기 실패] 기본 텍스트로 유지됩니다.");
-  }
-}
-
