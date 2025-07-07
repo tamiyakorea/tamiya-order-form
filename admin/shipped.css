@@ -121,3 +121,12 @@ thead th {
 .detail-btn:hover {
   background-color: #e6e6e6;
 }
+
+.detail-name {
+  cursor: pointer;
+  text-decoration: underline;
+}
+.detail-name:hover {
+  font-weight: bold;
+  color: #007bff;
+}
