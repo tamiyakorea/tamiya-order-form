@@ -337,6 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
       answer.classList.toggle('open');
     });
   });
+  loadCustomerSettings();
 });
 
 window.updateQty = function (index, value) {
@@ -356,3 +357,20 @@ window.updateQty = function (index, value) {
 };
 
 console.log("index.js loaded successfully.");
+
+async function loadCustomerSettings() {
+  try {
+    const res = await fetch("https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/get-customer-settings");
+    const settings = await res.json();
+    if (!Array.isArray(settings)) return;
+
+    settings.forEach(row => {
+      const el = document.getElementById(row.key + "Content");
+      if (el && row.content?.trim()) {
+        el.innerHTML = row.content;
+      }
+    });
+  } catch (err) {
+    console.warn("[설정 불러오기 실패] 기본 텍스트로 유지됩니다.");
+  }
+}
