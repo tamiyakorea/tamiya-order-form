@@ -73,20 +73,23 @@
     const itemsSafe = JSON.stringify(items).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const detailCall = `showOrderDetail({ order: ${orderSafe}, items: ${itemsSafe} })`;
 
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td><button onclick="returnToShipping(${order.order_id})">❌</button></td>
-      <td>${shippedDate}</td>
-      <td>${order.order_id}</td>
-      <td><span class="detail-name" onclick="${detailCall}">${order.name}</span></td>
-      <td>${order.tracking_number || '-'}</td>
-      <td>${order.remarks || '-'}</td>
-      <td>${order.shipping_note || '-'}</td>
-    `;
-    tbody.appendChild(row);
-  });
-}
+   const row = document.createElement('tr');
 
+row.innerHTML = `
+  <td><button onclick="returnToShipping(${order.order_id})">❌</button></td>
+  <td>${shippedDate}</td>
+  <td>${order.order_id}</td>
+  <td><span class="detail-name">${order.name}</span></td>
+  <td>${order.tracking_number || '-'}</td>
+  <td>${order.remarks || '-'}</td>
+  <td>${order.shipping_note || '-'}</td>
+`;
+
+row.querySelector('.detail-name').addEventListener('click', () => {
+  showOrderDetail({ order, items });
+});
+
+tbody.appendChild(row);
 window.showOrderDetail = function({ order, items }) {
   const shippedDate = formatDateOnly(order.tracking_date) || '-';
   const itemDetails = items.map(item => `
@@ -196,7 +199,6 @@ ${itemDetails}
 <div style="overflow-x: auto; overflow-y: auto; max-height: 80vh;">
   <table>
     <thead>
-      <thead>
   <tr>
     <th>이동</th>
     <th data-key="tracking_date" onclick="sortTableBy('tracking_date')">출고일 <span class="sort-icon">⬍</span></th>
