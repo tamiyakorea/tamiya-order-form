@@ -339,3 +339,44 @@ td.note-cell {
   font-weight: bold;
   text-decoration: underline;
 }
+
+.order-info-section {
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.8;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 12px;
+  background-color: #f9f9f9;
+}
+
+.order-info-section .field {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.order-info-section .field-label {
+  width: 100px;
+  font-weight: bold;
+  color: #555;
+}
+
+.order-items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.order-items-table th,
+.order-items-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.order-items-table th {
+  background-color: #007bff;
+  color: white;
+}
