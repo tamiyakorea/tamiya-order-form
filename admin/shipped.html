@@ -53,9 +53,24 @@
 
 <div class="shipped_modal" id="shippedModal">
   <div class="shipped_modal-content">
-    <h3 id="modal-title"></h3>
-    <p id="modal-content"></p>
-    <div style="text-align: right; margin-top: 20px;">
+    <h3 id="modal-title">주문 상세정보</h3>
+
+    <div id="order-info-section" class="order-info-section"></div>
+
+    <h4>주문 상품 목록</h4>
+    <table class="order-items-table">
+      <thead>
+        <tr>
+          <th>코드</th>
+          <th>상품명</th>
+          <th>수량</th>
+          <th>단가</th>
+        </tr>
+      </thead>
+      <tbody id="order-items-body"></tbody>
+    </table>
+
+    <div style="text-align:right; margin-top: 20px;">
       <button onclick="document.getElementById('shippedModal').classList.remove('show')">닫기</button>
     </div>
   </div>
