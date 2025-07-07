@@ -52,15 +52,15 @@ function renderDeliveredTable(data) {
     const shippedDate = formatDateOnly(order.tracking_date) || '-';
 
     const row = document.createElement('tr');
-    row.innerHTML = `
-      <button onclick="document.getElementById('shippedModal').classList.remove('show')">닫기</button>
-      <td>${shippedDate}</td>
-      <td>${order.order_id}</td>
-      <td><span class="detail-name">${order.name}</span></td>
-      <td>${order.tracking_number || '-'}</td>
-      <td class="note-cell">${order.remarks || '-'}</td>
-      <td class="note-cell">${order.shipping_note || '-'}</td>
-    `;
+row.innerHTML = `
+  <td><button onclick="returnToShipping(${order.order_id})">❌</button></td>
+  <td>${shippedDate}</td>
+  <td>${order.order_id}</td>
+  <td><span class="detail-name">${order.name}</span></td>
+  <td>${order.tracking_number || '-'}</td>
+  <td class="note-cell">${order.remarks || '-'}</td>
+  <td class="note-cell">${order.shipping_note || '-'}</td>
+`;
 
     row.querySelector('.detail-name').addEventListener('click', () => {
       showOrderDetail({ order, items });
