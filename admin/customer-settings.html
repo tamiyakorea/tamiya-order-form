@@ -30,7 +30,7 @@
     }
     button {
       display: block;
-      margin: 40px auto;
+      margin: 20px auto;
       padding: 12px 30px;
       font-size: 16px;
       background-color: #005bac;
@@ -41,6 +41,11 @@
     }
     button:hover {
       background-color: #004b94;
+    }
+    .faq-group { margin-bottom: 20px; border: 1px solid #ccc; padding: 10px; border-radius: 6px; }
+    .faq-group input, .faq-group textarea {
+      width: 100%; margin: 6px 0; padding: 8px;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -59,7 +64,8 @@
 
   <div class="section">
     <label>💬 질문과 답변 FAQ (`faq`)</label>
-    <div id="faqEditor" class="quill-editor"></div>
+    <div id="faqContainer"></div>
+    <button type="button" onclick="addFaqItem()">➕ 질문 추가</button>
   </div>
 
   <button id="saveBtn">💾 저장하기</button>
@@ -73,53 +79,73 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
     );
 
-    const KEYS = ['notice', 'confirm_notice', 'faq'];
     const editors = {};
 
-    function initEditors() {
-      KEYS.forEach(key => {
-        const quill = new Quill(`#${key}Editor`, {
-          theme: 'snow',
-          placeholder: '내용을 입력하세요...'
-        });
-        editors[key] = quill;
+    function initQuillEditor(id) {
+      return new Quill(`#${id}`, {
+        theme: 'snow',
+        placeholder: '내용을 입력하세요...'
       });
     }
+
+    function addFaqItem(question = '', answer = '') {
+      const container = document.getElementById('faqContainer');
+      const div = document.createElement('div');
+      div.className = 'faq-group';
+      div.innerHTML = `
+        <input type="text" class="faq-question-input" placeholder="질문" value="${question}" />
+        <textarea class="faq-answer-input" placeholder="답변">${answer}</textarea>
+        <button type="button" onclick="this.parentElement.remove()">❌ 삭제</button>
+      `;
+      container.appendChild(div);
+    }
+
+    window.addFaqItem = addFaqItem;
 
     async function loadSettings() {
       const { data, error } = await supabase.from('customer_settings').select('*');
-      if (error) {
-        alert("불러오기 실패: " + error.message);
-        return;
-      }
+      if (error) return alert("불러오기 실패: " + error.message);
+
       data.forEach(row => {
-        const editor = editors[row.key];
-        if (editor) editor.root.innerHTML = row.content;
+        if (row.key === 'notice' && editors.notice) editors.notice.root.innerHTML = row.content;
+        if (row.key === 'confirm_notice' && editors.confirm_notice) editors.confirm_notice.root.innerHTML = row.content;
+        if (row.key === 'faq') {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(row.content, 'text/html');
+          doc.querySelectorAll('.faq-item').forEach(item => {
+            const q = item.querySelector('.faq-question')?.innerText || '';
+            const a = item.querySelector('.faq-answer')?.innerText || '';
+            addFaqItem(q, a);
+          });
+        }
       });
+    }
+
+    function buildFaqHtml() {
+      const blocks = document.querySelectorAll('.faq-group');
+      return Array.from(blocks).map(block => {
+        const q = block.querySelector('.faq-question-input').value.trim();
+        const a = block.querySelector('.faq-answer-input').value.trim();
+        return `<div class="faq-item"><div class="faq-question">${q}</div><div class="faq-answer">${a}</div></div>`;
+      }).join('\n');
     }
 
     async function saveSettings() {
-      const updates = KEYS.map(key => ({
-        key,
-        content: editors[key].root.innerHTML.trim()
-      }));
-
+      const updates = [
+        { key: 'notice', content: editors.notice.root.innerHTML.trim() },
+        { key: 'confirm_notice', content: editors.confirm_notice.root.innerHTML.trim() },
+        { key: 'faq', content: buildFaqHtml() }
+      ];
       const { error } = await supabase.from('customer_settings').upsert(updates);
-      if (error) {
-        alert("저장 실패: " + error.message);
-      } else {
-        alert("✅ 저장 완료");
-      }
+      if (error) alert("저장 실패: " + error.message);
+      else alert("✅ 저장 완료");
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
-      initEditors();
+      editors.notice = initQuillEditor('noticeEditor');
+      editors.confirm_notice = initQuillEditor('confirm_noticeEditor');
       await loadSettings();
-      document.getElementById("saveBtn").addEventListener("click", () => {
-        if (confirm("설정을 저장하시겠습니까?")) {
-          saveSettings();
-        }
-      });
+      document.getElementById("saveBtn").addEventListener("click", saveSettings);
     });
   </script>
 </body>
