@@ -51,12 +51,12 @@
     </table>
   </div>
 
-<div class="shipped_modal" id="shippedModal" style="display:none;">
+<div class="shipped_modal" id="shippedModal">
   <div class="shipped_modal-content">
     <h3 id="modal-title"></h3>
     <p id="modal-content"></p>
     <div style="text-align: right; margin-top: 20px;">
-      <button onclick="document.getElementById('shippedModal').style.display='none'">닫기</button>
+      <button onclick="document.getElementById('shippedModal').classList.remove('show')">닫기</button>
     </div>
   </div>
 </div>
