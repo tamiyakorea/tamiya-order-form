@@ -55,7 +55,7 @@
   tbody.innerHTML = "";
 
   if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="6">배송 완료된 주문이 없습니다.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7">배송 완료된 주문이 없습니다.</td></tr>`;
     return;
   }
 
@@ -69,14 +69,16 @@
 
     const shippedDate = formatDateOnly(order.tracking_date) || '-';
 
-    const payload = JSON.stringify({ order, items }).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const orderSafe = JSON.stringify(order).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const itemsSafe = JSON.stringify(items).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const detailCall = `showOrderDetail({ order: ${orderSafe}, items: ${itemsSafe} })`;
 
     const row = document.createElement('tr');
     row.innerHTML = `
       <td><button onclick="returnToShipping(${order.order_id})">❌</button></td>
       <td>${shippedDate}</td>
       <td>${order.order_id}</td>
-      <td><span class="detail-name" onclick='showOrderDetail(${payload})'>${order.name}</span></td>
+      <td><span class="detail-name" onclick="${detailCall}">${order.name}</span></td>
       <td>${order.tracking_number || '-'}</td>
       <td>${order.remarks || '-'}</td>
       <td>${order.shipping_note || '-'}</td>
