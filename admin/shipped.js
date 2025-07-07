@@ -58,8 +58,8 @@ function renderDeliveredTable(data) {
       <td>${order.order_id}</td>
       <td><span class="detail-name">${order.name}</span></td>
       <td>${order.tracking_number || '-'}</td>
-      <td>${order.remarks || '-'}</td>
-      <td>${order.shipping_note || '-'}</td>
+      <td class="note-cell">${order.remarks || '-'}</td>
+      <td class="note-cell">${order.shipping_note || '-'}</td>
     `;
 
     row.querySelector('.detail-name').addEventListener('click', () => {
