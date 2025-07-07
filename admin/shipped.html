@@ -20,7 +20,7 @@
 
     const supabase = createClient(
       'https://edgvrwekvnavkhcqwtxa.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E'
+      'YOUR_PUBLIC_ANON_KEY'
     );
 
     let deliveredData = [];
@@ -43,7 +43,7 @@
       const { data, error } = await supabase.from('orders').select('*').eq('is_delivered', true);
       if (error) {
         document.getElementById('delivered-table-body').innerHTML =
-          `<tr><td colspan="17">오류 발생: ${error.message}</td></tr>`;
+          `<tr><td colspan="7">오류 발생: ${error.message}</td></tr>`;
         return;
       }
       deliveredData = data || [];
@@ -51,52 +51,50 @@
     }
 
     function renderDeliveredTable(data) {
-  const tbody = document.getElementById('delivered-table-body');
-  tbody.innerHTML = "";
+      const tbody = document.getElementById('delivered-table-body');
+      tbody.innerHTML = "";
 
-  if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="7">배송 완료된 주문이 없습니다.</td></tr>`;
-    return;
-  }
+      if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="7">배송 완료된 주문이 없습니다.</td></tr>`;
+        return;
+      }
 
-  data.forEach(order => {
-    let items;
-    try {
-      items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
-    } catch {
-      items = [];
+      data.forEach(order => {
+        let items;
+        try {
+          items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+        } catch {
+          items = [];
+        }
+
+        const shippedDate = formatDateOnly(order.tracking_date) || '-';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><button onclick="returnToShipping(${order.order_id})">❌</button></td>
+          <td>${shippedDate}</td>
+          <td>${order.order_id}</td>
+          <td><span class="detail-name">${order.name}</span></td>
+          <td>${order.tracking_number || '-'}</td>
+          <td>${order.remarks || '-'}</td>
+          <td>${order.shipping_note || '-'}</td>
+        `;
+
+        row.querySelector('.detail-name').addEventListener('click', () => {
+          showOrderDetail({ order, items });
+        });
+
+        tbody.appendChild(row);
+      });
     }
 
-    const shippedDate = formatDateOnly(order.tracking_date) || '-';
+    window.showOrderDetail = function({ order, items }) {
+      const shippedDate = formatDateOnly(order.tracking_date) || '-';
+      const itemDetails = items.map(item => `
+- [${item.code}] ${item.name} / 수량: ${item.qty} / 단가: ₩${item.price?.toLocaleString?.() || '-'}
+      `).join('\n');
 
-    const orderSafe = JSON.stringify(order).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    const itemsSafe = JSON.stringify(items).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    const detailCall = `showOrderDetail({ order: ${orderSafe}, items: ${itemsSafe} })`;
-
-   const row = document.createElement('tr');
-
-row.innerHTML = `
-  <td><button onclick="returnToShipping(${order.order_id})">❌</button></td>
-  <td>${shippedDate}</td>
-  <td>${order.order_id}</td>
-  <td><span class="detail-name">${order.name}</span></td>
-  <td>${order.tracking_number || '-'}</td>
-  <td>${order.remarks || '-'}</td>
-  <td>${order.shipping_note || '-'}</td>
-`;
-
-row.querySelector('.detail-name').addEventListener('click', () => {
-  showOrderDetail({ order, items });
-});
-
-tbody.appendChild(row);
-window.showOrderDetail = function({ order, items }) {
-  const shippedDate = formatDateOnly(order.tracking_date) || '-';
-  const itemDetails = items.map(item => `
-    - [${item.code}] ${item.name} / 수량: ${item.qty} / 단가: ₩${item.price?.toLocaleString?.() || '-'}
-  `).join('\n');
-
-  const modalText = `
+      const modalText = `
 출고일: ${shippedDate}
 주문번호: ${order.order_id}
 고객명: ${order.name}
@@ -112,13 +110,13 @@ ${itemDetails}
 송장번호: ${order.tracking_number || '-'}
 비고: ${order.remarks || '-'}
 배송비고: ${order.shipping_note || '-'}
-  `;
+      `;
 
-  document.getElementById('modal-title').textContent = '주문 상세정보';
-  document.getElementById('modal-content').textContent = modalText;
-  document.getElementById('modal').style.display = 'block';
-};
-    
+      document.getElementById('modal-title').textContent = '주문 상세정보';
+      document.getElementById('modal-content').textContent = modalText;
+      document.getElementById('modal').style.display = 'block';
+    };
+
     function sortTableBy(key) {
       if (!deliveredData.length) return;
 
@@ -163,11 +161,6 @@ ${itemDetails}
 
     window.returnToShipping = returnToShipping;
     window.sortTableBy = sortTableBy;
-    window.showDetailModal = function (title, content) {
-      document.getElementById('modal-title').textContent = title;
-      document.getElementById('modal-content').textContent = content;
-      document.getElementById('modal').style.display = 'block';
-    };
 
     document.addEventListener('DOMContentLoaded', loadDeliveredOrders);
   </script>
@@ -196,23 +189,23 @@ ${itemDetails}
     </button>
   </div>
   
-<div style="overflow-x: auto; overflow-y: auto; max-height: 80vh;">
-  <table>
-    <thead>
-  <tr>
-    <th>이동</th>
-    <th data-key="tracking_date" onclick="sortTableBy('tracking_date')">출고일 <span class="sort-icon">⬍</span></th>
-    <th data-key="order_id" onclick="sortTableBy('order_id')">주문번호 <span class="sort-icon">⬍</span></th>
-    <th data-key="name" onclick="sortTableBy('name')">고객명 <span class="sort-icon">⬍</span></th>
-    <th>송장번호</th>
-    <th>비고</th>
-    <th>배송 비고</th>
-  </tr>
-</thead>
-    <tbody id="delivered-table-body">
-      <tr><td colspan="17">불러오는 중...</td></tr>
-    </tbody>
-  </table>
+  <div style="overflow-x: auto; overflow-y: auto; max-height: 80vh;">
+    <table>
+      <thead>
+        <tr>
+          <th>이동</th>
+          <th data-key="tracking_date" onclick="sortTableBy('tracking_date')">출고일 <span class="sort-icon">⬍</span></th>
+          <th data-key="order_id" onclick="sortTableBy('order_id')">주문번호 <span class="sort-icon">⬍</span></th>
+          <th data-key="name" onclick="sortTableBy('name')">고객명 <span class="sort-icon">⬍</span></th>
+          <th>송장번호</th>
+          <th>비고</th>
+          <th>배송 비고</th>
+        </tr>
+      </thead>
+      <tbody id="delivered-table-body">
+        <tr><td colspan="7">불러오는 중...</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <div id="modal">
