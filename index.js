@@ -22,13 +22,14 @@ window.toggleCashReceipt = function () {
     document.getElementById("receiptRequested").checked ? "block" : "none";
 };
 
-// 3️⃣ DOMContentLoaded에서 호출
 document.addEventListener("DOMContentLoaded", () => {
-  bindFaqAccordion();     // 처음 로드된 FAQ에 이벤트 등록
-  loadCustomerSettings(); // DB에서 불러온 후에도 재등록
-});
+  // FAQ 아코디언 바인딩
+  bindFaqAccordion();
 
-document.addEventListener("DOMContentLoaded", () => {
+  // Supabase 설정 불러오기 (faq 덮어씌우면 아코디언 자동 재연결)
+  loadCustomerSettings();
+
+  // 입력값 실시간 포맷 처리
   document.getElementById("phoneNumber").addEventListener("input", function (e) {
     e.target.value = formatPhoneNumberLive(e.target.value);
   });
