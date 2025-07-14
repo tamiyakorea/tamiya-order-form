@@ -74,7 +74,7 @@ function showOrderDetail({ order, items }) {
   const shippedDate = formatDateOnly(order.tracking_date) || '-';
   const totalStr = order.total ? order.total.toLocaleString() : '-';
 
-  // ✅ 주문 정보 필드 구성
+  
   const infoHTML = `
     <div class="field"><div class="field-label">출고일</div><div>${shippedDate}</div></div>
     <div class="field"><div class="field-label">주문번호</div><div>${order.order_id}</div></div>
@@ -87,10 +87,11 @@ function showOrderDetail({ order, items }) {
     <div class="field"><div class="field-label">송장번호</div><div>${order.tracking_number || '-'}</div></div>
     <div class="field"><div class="field-label">비고</div><div>${order.remarks || '-'}</div></div>
     <div class="field"><div class="field-label">배송 비고</div><div>${order.shipping_note || '-'}</div></div>
+    <div class="field"><div class="field-label">현금영수증</div><div>${order.receipt_info || '-'}</div></div>
   `;
   document.getElementById('order-info-section').innerHTML = infoHTML;
 
-  // ✅ 주문 상품 목록 테이블 구성
+  
   const itemsHTML = items.map(item => {
     const priceStr = item.price ? item.price.toLocaleString() : '-';
     return `
