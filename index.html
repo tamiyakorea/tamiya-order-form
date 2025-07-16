@@ -73,6 +73,38 @@
   </div>
   <br />
 
+  <div class="section">
+  <h2>구매 정보 입력</h2>
+
+  <label for="purchaseSource">구매처 선택</label>
+  <select id="purchaseSource" onchange="handlePurchaseSourceChange()">
+    <option value="">선택하세요</option>
+    <option value="online">타미야 공식 쇼핑몰</option>
+    <option value="offline">오프라인 직영매장</option>
+  </select>
+
+  <div id="onlineOrderSection" style="display: none; margin-top: 10px;">
+    <label for="onlineOrderNumber">쇼핑몰 주문번호</label>
+    <input id="onlineOrderNumber" type="text" placeholder="예: 20240701-12345678" />
+  </div>
+
+  <div id="offlineStoreSection" style="display: none; margin-top: 10px;">
+    <label for="storeName">방문 매장 선택</label>
+    <select id="storeName">
+      <option value="">선택하세요</option>
+      <option value="용산점">용산점</option>
+      <option value="하남점">하남점</option>
+      <option value="양재점">양재점</option>
+    </select>
+
+    <label for="offlineOrderDate">매장 주문일시</label>
+    <input id="offlineOrderDate" type="date" />
+
+    <label for="offlineOrderNumber">매장 주문번호</label>
+    <input id="offlineOrderNumber" type="text" placeholder="예: 789456123" />
+  </div>
+</div>
+  
 <div class="section">
   <h2>부품 검색</h2>
   <p style="font-size: 0.8em; margin-top: -10px;">검색시 제품 설명서를 확인해주세요. (7자리 숫자의 경우, 가장 앞자리에 1을 붙여 입력)</p>
