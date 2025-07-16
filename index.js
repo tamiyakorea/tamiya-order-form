@@ -31,53 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
     e.target.value = formatReceiptInfo(e.target.value);
   });
 });
-
-function formatPhoneNumberLive(value) {
-  const digits = value.replace(/\D/g, '');
-  if (digits.length < 4) return digits;
-  if (digits.length < 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  if (digits.length <= 11) return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
-}
-
-function formatReceiptInfo(value) {
-  const digits = value.replace(/\D/g, '');
-  if (digits.length === 11) return digits.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
-  if (digits.length === 10) return digits.replace(/(\d{3})(\d{2})(\d{5})/, "$1-$2-$3");
-  return digits;
-}
-
-function generateOrderNumber() {
-  const now = new Date();
-  const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
-  const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
-  const rand = Math.floor(10 + Math.random() * 90);
-  return Number(MMDD + mmss + rand);
-}
-
-async function compressImage(file, maxWidth = 2000, quality = 0.8) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = event => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const scale = Math.min(maxWidth / img.width, 1);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(blob => {
-          if (blob) resolve(blob);
-          else reject(new Error("Blob 변환 실패"));
-        }, 'image/jpeg', quality);
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
 async function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -89,6 +42,7 @@ async function toBase64(file) {
     reader.onerror = error => reject(error);
   });
 }
+
 window.searchProduct = async function () {
   const serial = document.getElementById("serialSearch").value.trim();
   const serialNum = parseInt(serial, 10);
@@ -151,6 +105,7 @@ window.confirmOrder = async function () {
   const receiptInfoRaw = receiptChecked ? get("receiptInfo").value.trim() : null;
   const receiptInfo = receiptInfoRaw ? formatReceiptInfo(receiptInfoRaw) : null;
 
+  // ❗ 필수 입력값 확인
   if (!name || !phone || !email || !zipcode || !address || !addressDetail) {
     alert("모든 고객 정보를 정확히 입력해 주세요.");
     return;
@@ -166,9 +121,9 @@ window.confirmOrder = async function () {
       return;
     }
   }
-  const orderId = generateOrderNumber();
-  const proofUrl = null;
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + 
+
+  const orderId = generateOrderNumber(); // ✅ 누락된 부분: 주문번호 생성
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) +
     (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
 
   const payload = {
@@ -212,6 +167,7 @@ window.confirmOrder = async function () {
     alert("저장 중 오류가 발생했습니다.");
   }
 };
+
 function renderCart() {
   const tbody = document.getElementById("cartBody");
   const table = document.getElementById("cartTable");
@@ -243,26 +199,6 @@ function renderCart() {
   document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
   table.style.display = cart.length ? "table" : "none";
 }
-
-window.searchOrderById = async function () {
-  const input = document.getElementById("orderSearchInput").value.trim();
-  if (!input || isNaN(input)) {
-    alert("정확한 주문번호(숫자)를 입력해주세요.");
-    return;
-  }
-
-  const orderIdNumber = Number(input);
-
-  try {
-    const response = await fetch('https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/get-order-by-id', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ order_id: orderIdNumber })
-    });
-
-    const result = await response.json();
-    const resultDiv = document.getElementById("orderResult");
-
     if (response.ok && result.data) {
       const data = result.data;
       const items = Array.isArray(data.items) ? data.items : JSON.parse(data.items);
