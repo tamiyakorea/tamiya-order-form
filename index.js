@@ -303,6 +303,7 @@ window.searchOrderById = async function () {
         ${paymentStatus}
         ${confirmationNoteHTML}
         <p><strong>총 금액:</strong> ₩${data.total.toLocaleString()} (배송비: ₩${shipping.toLocaleString()})</p>
+        <p><strong>송장번호(한진택배):</strong> ${data.tracking_number}</p>
         <table style="width:100%; margin-top: 10px; border-collapse: collapse;" border="1">
           <thead style="background:#f0f0f0;">
             <tr>
