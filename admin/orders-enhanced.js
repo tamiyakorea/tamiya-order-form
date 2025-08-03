@@ -118,6 +118,26 @@ function renderOrders(data) {
       `;
       tbody.insertAdjacentHTML('beforeend', rowHtml);
     });
+
+    // 배송비 행 추가 (마지막 아이템 후에만 추가)
+if (order.total < 30000) {
+  const deliveryRow = `
+    <tr class="${order.payment_confirmed ? 'confirmed-row' : ''}">
+      <td>15774577</td>
+      <td>배송비</td>
+      <td>1</td>
+      <td>₩3,000</td>
+      ${isFirstRow ? `
+        <td rowspan="${items.length + 1}">₩${order.total.toLocaleString()}</td>
+        <td rowspan="${items.length + 1}" class="pay-status">...</td>
+        <td rowspan="${items.length + 1}">...</td>
+        <td rowspan="${items.length + 1}">...</td>
+      ` : ''}
+    </tr>
+  `;
+  tbody.insertAdjacentHTML('beforeend', deliveryRow);
+}
+
   });
 }
 
