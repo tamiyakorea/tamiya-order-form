@@ -353,7 +353,7 @@ async function downloadProductExcelFromServer() {
   const res = await fetch("https://order.kidult-hobby.co.kr/generate-excel", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(orderIds)
+    body: JSON.stringify({ orderIds })
   });
 
   if (!res.ok) {
