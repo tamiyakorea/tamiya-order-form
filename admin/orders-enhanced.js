@@ -123,7 +123,9 @@ function renderOrders(data) {
     if (order.total < 30000) {
       const deliveryRow = `
         <tr class="${order.payment_confirmed ? 'confirmed-row' : ''}">
-          <td colspan="4" style="text-align:right; font-weight:bold;">배송비</td>
+          <td style="text-align:right; font-weight:bold;">15774577</td>
+          <td style="text-align:right; font-weight:bold;">배송비</td>
+          <td style="text-align:right; font-weight:bold;">1</td>
           <td>₩3,000</td>
         </tr>
       `;
