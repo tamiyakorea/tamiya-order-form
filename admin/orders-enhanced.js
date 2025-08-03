@@ -9,17 +9,17 @@ const supabase = createClient(
 function formatDateOnly(iso) {
   if (!iso) return '';
   const d = new Date(iso);
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+  return ${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')};
 }
 
 function formatDateInput(iso) {
   const d = new Date(iso);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return ${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')};
 }
 
 function getTodayDateString() {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return ${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')};
 }
 
 async function togglePayment(orderId, current, button) {
@@ -59,78 +59,65 @@ function renderOrders(data) {
         order.confirmation_note ? 'confirmation-warning' : ''
       ].join(' ');
 
-      const rowHtml = `
-        <tr class="${rowClass}">
-          ${isFirstRow ? `
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
-              <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
-              <br>
-              <input type="checkbox" class="download-checkbox" data-order-id="${order.order_id}">
-            </td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">${formatDateOnly(order.created_at)}</td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">${order.order_id}</td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">${order.name}</td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
-              <button class="proof-btn" onclick="showModal('전화번호', \`${order.phone || ''}\`)">확인</button>
-            </td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
-              <button class="proof-btn" onclick="showModal('이메일', \`${order.email || ''}\`)">확인</button>
-            </td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">${order.zipcode}</td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}" class="address-cell">${order.address}</td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}" class="address-detail-cell">${order.address_detail}</td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
-              <button class="proof-btn" onclick="showModal('현금영수증', \`${order.receipt_info || ''}\`)">확인</button>
-            </td>
-          ` : ''}
-          <td>${item.code || '-'}</td>
-          <td class="ellipsis" title="${item.name}">${item.name}</td>
-          <td>${item.qty}</td>
-          <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
-          ${isFirstRow ? `
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">₩${order.total.toLocaleString()}</td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}" class="pay-status">
-              <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
-              <div style="display: flex; gap: 6px; align-items: center;">
-                <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
-                  ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
-                </button>
-                ${order.payment_confirmed ? `
-                  <button onclick="markAsOrdered('${order.order_id}')">✔</button>
-                ` : ''}
-              </div>
-              ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
-            </td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
-              <select class="input-box" onchange="updateField('${order.order_id}', 'confirmation_note', this.value)">
-                <option value="">-</option>
-                <option ${order.confirmation_note === '첨부된 구매증빙이 유효하지 않습니다.' ? 'selected' : ''}>첨부된 구매증빙이 유효하지 않습니다.</option>
-                <option ${order.confirmation_note === '주소가 올바르지 않습니다.' ? 'selected' : ''}>주소가 올바르지 않습니다.</option>
-                <option ${order.confirmation_note === '입금정보 불일치(고객센터로 문의)' ? 'selected' : ''}>입금정보 불일치(고객센터로 문의)</option>
-                <option ${order.confirmation_note === '기타 사유(고객센터로 문의)' ? 'selected' : ''}>기타 사유(고객센터로 문의)</option>
-              </select>
-            </td>
-            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
-              <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
-            </td>
-          ` : ''}
-        </tr>
-      `;
+      const rowHtml = 
+  <tr class="${rowClass}">
+    ${isFirstRow ? 
+      <td rowspan="${items.length}">
+        <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
+        <br>
+        <input type="checkbox" class="download-checkbox" data-order-id="${order.order_id}">
+      </td>
+      <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
+      <td rowspan="${items.length}">${order.order_id}</td>
+      <td rowspan="${items.length}">${order.name}</td>
+      <td rowspan="${items.length}">
+        <button class="proof-btn" onclick="showModal('전화번호', \${order.phone || ''}\)">확인</button>
+      </td>
+      <td rowspan="${items.length}">
+        <button class="proof-btn" onclick="showModal('이메일', \${order.email || ''}\)">확인</button>
+      </td>
+      <td rowspan="${items.length}">${order.zipcode}</td>
+      <td rowspan="${items.length}" class="address-cell">${order.address}</td>
+      <td rowspan="${items.length}" class="address-detail-cell">${order.address_detail}</td>
+      <td rowspan="${items.length}">
+        <button class="proof-btn" onclick="showModal('현금영수증', \${order.receipt_info || ''}\)">확인</button>
+      </td>
+     : ''}
+    <td>${item.code || '-'}</td>
+    <td class="ellipsis" title="${item.name}">${item.name}</td>
+    <td>${item.qty}</td>
+    <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
+    ${isFirstRow ? 
+      <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
+      <td rowspan="${items.length}" class="pay-status">
+        <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
+            ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
+          </button>
+          ${order.payment_confirmed ? 
+            <button onclick="markAsOrdered('${order.order_id}')">✔</button>
+           : ''}
+        </div>
+        ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+      </td>
+      <td rowspan="${items.length}">
+        <select class="input-box" onchange="updateField('${order.order_id}', 'confirmation_note', this.value)">
+          <option value="">-</option>
+          <option ${order.confirmation_note === '첨부된 구매증빙이 유효하지 않습니다.' ? 'selected' : ''}>첨부된 구매증빙이 유효하지 않습니다.</option>
+          <option ${order.confirmation_note === '주소가 올바르지 않습니다.' ? 'selected' : ''}>주소가 올바르지 않습니다.</option>
+          <option ${order.confirmation_note === '입금정보 불일치(고객센터로 문의)' ? 'selected' : ''}>입금정보 불일치(고객센터로 문의)</option>
+          <option ${order.confirmation_note === '기타 사유(고객센터로 문의)' ? 'selected' : ''}>기타 사유(고객센터로 문의)</option>
+        </select>
+      </td>
+      <td rowspan="${items.length}">
+        <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
+      </td>
+     : ''}
+  </tr>
+      ;
       tbody.insertAdjacentHTML('beforeend', rowHtml);
     });
-
-    // 🚚 배송비 행 추가
-    if (order.total < 30000) {
-      const deliveryRow = `
-        <tr class="${order.payment_confirmed ? 'confirmed-row' : ''}">
-          <td>15774577</td>
-          <td>배송비</td>
-          <td>1</td>
-          <td>₩3,000</td>
-        </tr>
-      `;
-      tbody.insertAdjacentHTML('beforeend', deliveryRow);
-    }
   });
 }
 
@@ -167,7 +154,7 @@ async function searchOrders() {
   let query = supabase.from("orders").select("*").eq("is_ready_to_ship", false).eq("is_ordered", false);
   query = /^\d+$/.test(keyword)
     ? query.eq("order_id", keyword)
-    : query.ilike("name", `%${keyword}%`);
+    : query.ilike("name", %${keyword}%);
 
   const { data, error } = await query;
   if (!error) renderOrders(data);
@@ -205,7 +192,7 @@ function showModal(title, content) {
 
   const modal = document.createElement("div");
   modal.className = "popup-modal";
-  modal.innerHTML = `
+  modal.innerHTML = 
     <div class="popup-modal-content">
       <h3>${title}</h3>
       <p>${content || '(비어있음)'}</p>
@@ -213,7 +200,7 @@ function showModal(title, content) {
         <button onclick="this.closest('.popup-modal').remove()">닫기</button>
       </div>
     </div>
-  `;
+  ;
   document.body.appendChild(modal);
 }
 window.showModal = showModal;
@@ -253,13 +240,13 @@ function openEditOrderModal() {
     items.forEach(item => {
       const row = document.createElement("div");
       row.className = "edit-item-row";
-      row.innerHTML = `
+      row.innerHTML = 
         <input type="text" placeholder="시리얼" value="${item.code || ''}" class="editItemCode" style="width:80px;" />
         <input type="text" placeholder="상품명" value="${item.name || ''}" class="editItemName" style="width:200px;" />
         <input type="number" placeholder="수량" value="${item.qty || 1}" class="editItemQty" style="width:60px;" />
         <input type="number" placeholder="단가" value="${item.price || 0}" class="editItemPrice" style="width:80px;" />
         <button type="button" onclick="this.parentElement.remove()">❌</button>
-      `;
+      ;
       itemsList.appendChild(row);
     });
 
@@ -319,13 +306,13 @@ async function applyOrderEdit() {
 function addEditItem() {
   const row = document.createElement("div");
   row.className = "edit-item-row";
-  row.innerHTML = `
+  row.innerHTML = 
     <input type="text" placeholder="시리얼" class="editItemCode" style="width:80px;" />
     <input type="text" placeholder="상품명" class="editItemName" style="width:200px;" />
     <input type="number" placeholder="수량" class="editItemQty" value="1" style="width:60px;" />
     <input type="number" placeholder="단가" class="editItemPrice" value="0" style="width:80px;" />
     <button type="button" onclick="this.parentElement.remove()">❌</button>
-  `;
+  ;
   document.getElementById("editItemsList").appendChild(row);
 }
 
