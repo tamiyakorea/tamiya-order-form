@@ -49,6 +49,16 @@ function renderOrders(data) {
 
   data.forEach(order => {
     const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items || [];
+    const deliveryFee = order.total < 30000 ? 3000 : 0;
+
+  if (deliveryFee > 0) {
+    items.push({
+      code: '15774577',
+      name: '배송비',
+      qty: 1,
+      price: deliveryFee
+    });
+  }
     const paymentDateInput = order.payment_date ? formatDateInput(order.payment_date) : getTodayDateString();
 
     items.forEach((item, idx) => {
