@@ -350,10 +350,10 @@ async function downloadProductExcelFromServer() {
   const orderIds = Array.from(checkboxes).map(cb => cb.dataset.orderId);
   if (orderIds.length === 0) return alert("주문을 선택하세요.");
 
-  const res = await fetch("https://order.kidult-hobby.co.kr/generate-excel", {
+  const res = await fetch("https://localhost:3001/generate-excel", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ orderIds })
+    body: JSON.stringify(orderIds)
   });
 
   if (!res.ok) {
