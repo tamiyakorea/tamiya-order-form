@@ -60,64 +60,75 @@ function renderOrders(data) {
       ].join(' ');
 
       const rowHtml = `
-  <tr class="${rowClass}">
-    ${isFirstRow ? `
-      <td rowspan="${items.length}">
-        <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
-        <br>
-        <input type="checkbox" class="download-checkbox" data-order-id="${order.order_id}">
-      </td>
-      <td rowspan="${items.length}">${formatDateOnly(order.created_at)}</td>
-      <td rowspan="${items.length}">${order.order_id}</td>
-      <td rowspan="${items.length}">${order.name}</td>
-      <td rowspan="${items.length}">
-        <button class="proof-btn" onclick="showModal('전화번호', \`${order.phone || ''}\`)">확인</button>
-      </td>
-      <td rowspan="${items.length}">
-        <button class="proof-btn" onclick="showModal('이메일', \`${order.email || ''}\`)">확인</button>
-      </td>
-      <td rowspan="${items.length}">${order.zipcode}</td>
-      <td rowspan="${items.length}" class="address-cell">${order.address}</td>
-      <td rowspan="${items.length}" class="address-detail-cell">${order.address_detail}</td>
-      <td rowspan="${items.length}">
-        <button class="proof-btn" onclick="showModal('현금영수증', \`${order.receipt_info || ''}\`)">확인</button>
-      </td>
-    ` : ''}
-    <td>${item.code || '-'}</td>
-    <td class="ellipsis" title="${item.name}">${item.name}</td>
-    <td>${item.qty}</td>
-    <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
-    ${isFirstRow ? `
-      <td rowspan="${items.length}">₩${order.total.toLocaleString()}</td>
-      <td rowspan="${items.length}" class="pay-status">
-        <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
-        <div style="display: flex; gap: 6px; align-items: center;">
-          <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
-            ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
-          </button>
-          ${order.payment_confirmed ? `
-            <button onclick="markAsOrdered('${order.order_id}')">✔</button>
+        <tr class="${rowClass}">
+          ${isFirstRow ? `
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
+              <button class="delete-btn" onclick="deleteOrder('${order.order_id}', ${order.payment_confirmed})">삭제</button>
+              <br>
+              <input type="checkbox" class="download-checkbox" data-order-id="${order.order_id}">
+            </td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">${formatDateOnly(order.created_at)}</td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">${order.order_id}</td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">${order.name}</td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
+              <button class="proof-btn" onclick="showModal('전화번호', \`${order.phone || ''}\`)">확인</button>
+            </td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
+              <button class="proof-btn" onclick="showModal('이메일', \`${order.email || ''}\`)">확인</button>
+            </td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">${order.zipcode}</td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}" class="address-cell">${order.address}</td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}" class="address-detail-cell">${order.address_detail}</td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
+              <button class="proof-btn" onclick="showModal('현금영수증', \`${order.receipt_info || ''}\`)">확인</button>
+            </td>
           ` : ''}
-        </div>
-        ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
-      </td>
-      <td rowspan="${items.length}">
-        <select class="input-box" onchange="updateField('${order.order_id}', 'confirmation_note', this.value)">
-          <option value="">-</option>
-          <option ${order.confirmation_note === '첨부된 구매증빙이 유효하지 않습니다.' ? 'selected' : ''}>첨부된 구매증빙이 유효하지 않습니다.</option>
-          <option ${order.confirmation_note === '주소가 올바르지 않습니다.' ? 'selected' : ''}>주소가 올바르지 않습니다.</option>
-          <option ${order.confirmation_note === '입금정보 불일치(고객센터로 문의)' ? 'selected' : ''}>입금정보 불일치(고객센터로 문의)</option>
-          <option ${order.confirmation_note === '기타 사유(고객센터로 문의)' ? 'selected' : ''}>기타 사유(고객센터로 문의)</option>
-        </select>
-      </td>
-      <td rowspan="${items.length}">
-        <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
-      </td>
-    ` : ''}
-  </tr>
+          <td>${item.code || '-'}</td>
+          <td class="ellipsis" title="${item.name}">${item.name}</td>
+          <td>${item.qty}</td>
+          <td>₩${item.price ? item.price.toLocaleString() : '-'}</td>
+          ${isFirstRow ? `
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">₩${order.total.toLocaleString()}</td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}" class="pay-status">
+              <input type="date" class="payment-date" value="${paymentDateInput}" style="width: 120px; margin-bottom: 4px;"><br>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <button onclick="togglePayment('${order.order_id}', ${order.payment_confirmed}, this)">
+                  ${order.payment_confirmed ? '입금 확인됨' : '입금 확인'}
+                </button>
+                ${order.payment_confirmed ? `
+                  <button onclick="markAsOrdered('${order.order_id}')">✔</button>
+                ` : ''}
+              </div>
+              ${order.payment_date ? formatDateOnly(order.payment_date) : ''}
+            </td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
+              <select class="input-box" onchange="updateField('${order.order_id}', 'confirmation_note', this.value)">
+                <option value="">-</option>
+                <option ${order.confirmation_note === '첨부된 구매증빙이 유효하지 않습니다.' ? 'selected' : ''}>첨부된 구매증빙이 유효하지 않습니다.</option>
+                <option ${order.confirmation_note === '주소가 올바르지 않습니다.' ? 'selected' : ''}>주소가 올바르지 않습니다.</option>
+                <option ${order.confirmation_note === '입금정보 불일치(고객센터로 문의)' ? 'selected' : ''}>입금정보 불일치(고객센터로 문의)</option>
+                <option ${order.confirmation_note === '기타 사유(고객센터로 문의)' ? 'selected' : ''}>기타 사유(고객센터로 문의)</option>
+              </select>
+            </td>
+            <td rowspan="${items.length + (order.total < 30000 ? 1 : 0)}">
+              <input class="input-box" value="${order.remarks || ''}" onchange="updateField('${order.order_id}', 'remarks', this.value)" />
+            </td>
+          ` : ''}
+        </tr>
       `;
       tbody.insertAdjacentHTML('beforeend', rowHtml);
     });
+
+    // 🚚 배송비 행 추가
+    if (order.total < 30000) {
+      const deliveryRow = `
+        <tr class="${order.payment_confirmed ? 'confirmed-row' : ''}">
+          <td colspan="4" style="text-align:right; font-weight:bold;">배송비</td>
+          <td>₩3,000</td>
+        </tr>
+      `;
+      tbody.insertAdjacentHTML('beforeend', deliveryRow);
+    }
   });
 }
 
