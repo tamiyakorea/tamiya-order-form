@@ -207,13 +207,13 @@ async function fetchOrder() {
       const shippingFee = Math.max(totalAmount - totalItemsPrice, 0);
 
       // ✅ 배송비를 상품명 열 + 단가 열에 출력
-      html += `<tr>
-        <td>배송비</td>
-        <td></td>
-        <td>${shippingFee.toLocaleString()}원</td>
-        <td></td>
-        <td></td>
-      </tr>`;
+      // html += `<tr>
+      //   <td>배송비</td>
+      //   <td></td>
+      //   <td>${shippingFee.toLocaleString()}원</td>
+      //   <td></td>
+      //   <td></td>
+      // </tr>`;
 
       html += `<tr class="total">
         <td>총계</td>
@@ -278,7 +278,7 @@ function downloadPDF() {
             ['상품명', '수량', '단가', '합계', '입고예정'],
             ...itemsTable,
             // ✅ 배송비 행 수정: 상품명 열 + 단가 열에 출력
-           // ['배송비', '', `${shippingFee.toLocaleString()}원`, '', ''],
+            ['배송비', '', `${shippingFee.toLocaleString()}원`, '', ''],
             ['총계', `${totalQty}`, '', `${totalAmount.toLocaleString()}원`, '']
           ]
         },
@@ -299,5 +299,6 @@ function downloadPDF() {
     </script>
 </body>
 </html>
+
 
 
