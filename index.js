@@ -168,28 +168,64 @@ window.confirmOrder = async function () {
   }
   const orderId = generateOrderNumber();
   const proofUrl = null;
-  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + 
-    (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
+  //const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + 
+  //  (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
 
-  const payload = {
-    order_id: orderId,
-    name,
-    phone,
-    email,
-    zipcode,
-    address,
-    address_detail: addressDetail,
-    receipt_info: receiptInfo,
-    proof_images: [],
-    items: cart.map(item => ({
-      code: item.item_code,
-      name: item.description,
-      qty: item.qty,
-      price: item.price
-    })),
-    total,
-    created_at: new Date().toISOString()
-  };
+ // const payload = {
+  //  order_id: orderId,
+  //  name,
+  //  phone,
+ //   email,
+ //   zipcode,
+ //   address,
+ //   address_detail: addressDetail,
+ //   receipt_info: receiptInfo,
+  //  proof_images: [],
+  //  items: cart.map(item => ({
+ //     code: item.item_code,
+ //     name: item.description,
+  //    qty: item.qty,
+ //     price: item.price
+//    })),
+ //   total,
+ //   created_at: new Date().toISOString()
+//  };
+
+const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+const shippingFee = subtotal < 30000 ? 3000 : 0;
+const total = subtotal + shippingFee;
+
+const items = cart.map(item => ({
+  code: item.item_code,
+  name: item.description,
+  qty: item.qty,
+  price: item.price
+}));
+
+// 배송비가 필요한 경우, 항목 추가
+if (shippingFee > 0) {
+  items.push({
+    code: '15774577',
+    name: '배송비',
+    qty: 1,
+    price: shippingFee
+  });
+}
+
+const payload = {
+  order_id: orderId,
+  name,
+  phone,
+  email,
+  zipcode,
+  address,
+  address_detail: addressDetail,
+  receipt_info: receiptInfo,
+  proof_images: [],
+  items,
+  total,
+  created_at: new Date().toISOString()
+};
 
   try {
     const response = await fetch('https://edgvrwekvnavkhcqwtxa.supabase.co/functions/v1/create-order', {
