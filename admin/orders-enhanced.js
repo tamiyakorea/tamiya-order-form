@@ -295,7 +295,9 @@ async function applyOrderEdit() {
 
   let total = items.reduce((sum, i) => sum + (i.qty * i.price), 0);
   const deliveryFee = total < 30000 ? 3000 : 0;
-  if (staffDiscount) total = Math.round(total * 0.9);
+  if (staffDiscount) {
+  total = Math.round(total * 0.9);
+}
 total += deliveryFee;
 
   const { error } = await supabase.from("orders").update({
