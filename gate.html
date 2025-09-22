@@ -7,15 +7,50 @@
 </head>
 <body>
 
-  <div style="text-align: center; padding: 10px 0; background-color: white;">
+    <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+    }
+    .container {
+      margin-top: 50px;
+    }
+    .logo img {
+      width: 120px;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 20px 0 40px;
+    }
+    .btn {
+      display: block;
+      width: 220px;
+      margin: 15px auto;
+      padding: 15px;
+      border: 2px solid #000;
+      border-radius: 5px;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: bold;
+      color: #000;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn:hover {
+      background: #000;
+      color: #fff;
+    }
+  </style>
+
+  <div style="text-align: center; padding: 45px 0; background-color: white;">
   <img src="images/logo.png" alt="한국타미야 로고" style="height: 180px;" />
   </div>
   
   <main>
-    <!-- 다음 단계 -->
-    <div class="button-area">
-      <button id="nextBtn" disabled>다음</button>
-    </div>
+    <a href="https://order.kidult-hobby.co.kr/new.html" class="btn">신규 주문 하기</a>
+    <a href="https://order.kidult-hobby.co.kr/history.html" class="btn">신청 내역 확인</a>
   </main>
 
  <!-- footer -->
