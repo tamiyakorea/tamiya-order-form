@@ -4,6 +4,9 @@ const supabase = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZ3Zyd2Vrdm5hdmtoY3F3dHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyNDkzNTAsImV4cCI6MjA1OTgyNTM1MH0.Qg5zp-QZPFMcB1IsnxaCZMP7zh7fcrqY_6BV4hyp21E' // ✅ 사용자 anon 키 입력
 );
 
+let deliveredData = [];
+let currentSort = { key: null, asc: true };
+
 window.addEventListener('DOMContentLoaded', loadCompletedOrders);
 
 async function loadCompletedOrders() {
@@ -17,7 +20,7 @@ async function loadCompletedOrders() {
     console.error('불러오기 오류:', error);
     return;
   }
-
+  deliveredData = data || [];
   renderCompletedTable(data);
 }
 
@@ -103,6 +106,49 @@ function bindEvents() {
   });
 }
 
+function sortTableBy(key) {
+  if (!deliveredData.length) return;
+
+  if (currentSort.key === key) {
+    currentSort.asc = !currentSort.asc;
+  } else {
+    currentSort.key = key;
+    currentSort.asc = true;
+  }
+
+  deliveredData.sort((a, b) => {
+    let valA = a[key];
+    let valB = b[key];
+
+    if (key === 'tracking_date') {
+      valA = new Date(valA);
+      valB = new Date(valB);
+    } else {
+      if (typeof valA === 'string') valA = valA.toLowerCase();
+      if (typeof valB === 'string') valB = valB.toLowerCase();
+    }
+
+    if (valA < valB) return currentSort.asc ? -1 : 1;
+    if (valA > valB) return currentSort.asc ? 1 : -1;
+    return 0;
+  });
+
+  updateSortIcons();
+  renderCompletedTable(deliveredData);
+}
+
+function updateSortIcons() {
+  document.querySelectorAll('th[data-key]').forEach(th => {
+    const key = th.dataset.key;
+    if (key === currentSort.key) {
+      th.querySelector('.sort-icon').textContent = currentSort.asc ? '🔼' : '🔽';
+    } else {
+      th.querySelector('.sort-icon').textContent = '⬍';
+    }
+  });
+}
+
+window.sortTableBy = sortTableBy;
 
 window.showModal = function (title, content) {
   document.getElementById('modal-title').textContent = title;
