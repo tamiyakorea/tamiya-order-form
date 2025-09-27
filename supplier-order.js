@@ -43,6 +43,23 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("receiptRequested").checked ? "block" : "none";
 };
 
+  document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("phoneNumber").addEventListener("input", function (e) {
+    e.target.value = formatPhoneNumberLive(e.target.value);
+  });
+
+  document.getElementById("receiptInfo").addEventListener("input", function (e) {
+    e.target.value = formatReceiptInfo(e.target.value);
+  });
+});
+
+  function formatReceiptInfo(value) {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length === 11) return digits.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+  if (digits.length === 10) return digits.replace(/(\d{3})(\d{2})(\d{5})/, "$1-$2-$3");
+  return digits;
+}
+
   // 🔹 사업자 검색 버튼 이벤트 등록
   const searchButton = document.getElementById("supplierSearchButton");
   if (searchButton) {
