@@ -38,6 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("❌ unlockEdit 체크박스를 찾을 수 없습니다.");
   }
 
+  window.toggleCashReceipt = function () {
+  document.getElementById("cashReceiptSection").style.display =
+    document.getElementById("receiptRequested").checked ? "block" : "none";
+};
+
   // 🔹 사업자 검색 버튼 이벤트 등록
   const searchButton = document.getElementById("supplierSearchButton");
   if (searchButton) {
@@ -418,6 +423,7 @@ function confirmOrder() {
       window.location.href = `payment-info.html?orderId=${orderId}`;
     });
 }
+
 
 // ✅ 모듈 내보내기
 export {
