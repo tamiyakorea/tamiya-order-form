@@ -105,6 +105,12 @@
       <label>이메일 주소</label>
       <input type="text" id="supplierEmail" readonly disabled class="disabled-input">
 
+    <div class="checkbox-container">
+  <div class="checkbox-group">
+    <input type="checkbox" id="unlockEdit">
+    <label for="unlockEdit">주문 정보 수정</label>
+  </div>
+</div>
       <label style="margin-top: 15px;">
     <input id="receiptRequested" onchange="toggleCashReceipt()" type="checkbox" /> 현금영수증 신청
   </label>
@@ -112,14 +118,7 @@
     <label for="receiptInfo">현금영수증 정보</label>
     <input id="receiptInfo" placeholder="010-1234-5678 또는 123-45-67890" type="text" />
   </div>
-
-
-    <div class="checkbox-container">
-  <div class="checkbox-group">
-    <input type="checkbox" id="unlockEdit">
-    <label for="unlockEdit">주문 정보 수정</label>
-  </div>
-</div>
+      
   </section>
 
   <!-- 🚀 주문 상품 입력 -->
