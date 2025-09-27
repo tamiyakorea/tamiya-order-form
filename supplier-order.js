@@ -16,6 +16,44 @@ const DELIVERY_FREE_METHODS = [
   "도매 주문과 합배송",
 ];
 
+window.toggleCashReceipt = function () {
+  document.getElementById("cashReceiptSection").style.display =
+    document.getElementById("receiptRequested").checked ? "block" : "none";
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("phoneNumber").addEventListener("input", function (e) {
+    e.target.value = formatPhoneNumberLive(e.target.value);
+  });
+
+  document.getElementById("receiptInfo").addEventListener("input", function (e) {
+    e.target.value = formatReceiptInfo(e.target.value);
+  });
+});
+
+function formatPhoneNumberLive(value) {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length < 4) return digits;
+  if (digits.length < 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  if (digits.length <= 11) return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+}
+
+function formatReceiptInfo(value) {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length === 11) return digits.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+  if (digits.length === 10) return digits.replace(/(\d{3})(\d{2})(\d{5})/, "$1-$2-$3");
+  return digits;
+}
+
+function generateOrderNumber() {
+  const now = new Date();
+  const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
+  const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
+  const rand = Math.floor(10 + Math.random() * 90);
+  return Number(MMDD + mmss + rand);
+}
+
 // ✅ DOMContentLoaded 이벤트 처리
 // ✅ DOMContentLoaded 이벤트 처리
 document.addEventListener("DOMContentLoaded", () => {
@@ -358,54 +396,6 @@ function generateOrderNumber() {
   const rand = Math.floor(10 + Math.random() * 90);
   return Number(MMDD + mmss + rand);
 }
-
-// -----------------------------
-// ✅ 실시간 하이픈 입력 처리
-// -----------------------------
-function formatReceiptInfoLive(input) {
-  const raw = input.value.replace(/\D/g, '');
-  let formatted = '';
-  let cursor = input.selectionStart;
-  
-  // 이전 값과 포커스 위치 저장
-  const prevValue = input.value;
-
-  if (raw.length <= 3) {
-    formatted = raw;
-  } else if (raw.length <= 6) {
-    formatted = `${raw.slice(0,3)}-${raw.slice(3)}`;
-  } else if (raw.length <= 10) {
-    formatted = `${raw.slice(0,3)}-${raw.slice(3,6)}-${raw.slice(6)}`;
-  } else {
-    formatted = `${raw.slice(0,3)}-${raw.slice(3,7)}-${raw.slice(7,11)}`;
-  }
-
-  // 커서 위치 보정: 하이픈 앞에서 입력할 때 커서가 한 칸 뒤로 밀리는 문제 해결
-  let hyphenCountBeforeCursor = (prevValue.slice(0, cursor).match(/-/g) || []).length;
-  let hyphenCountAfterFormat = (formatted.slice(0, cursor).match(/-/g) || []).length;
-  cursor += (hyphenCountAfterFormat - hyphenCountBeforeCursor);
-
-  input.value = formatted;
-  input.setSelectionRange(cursor, cursor);
-}
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const receiptInput = document.getElementById("receiptInfo");
-  if (receiptInput) {
-    receiptInput.addEventListener("input", (e) => {
-      formatReceiptInfoLive(e.target);
-    });
-  }
-
-  // phoneNumber 실시간 하이픈 처리
-  const phoneInput = document.getElementById("phoneNumber");
-  if (phoneInput) {
-    phoneInput.addEventListener("input", (e) => {
-      e.target.value = formatPhoneNumber(e.target.value);
-    });
-  }
-});
 
 
 
