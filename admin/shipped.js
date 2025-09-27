@@ -53,6 +53,7 @@ function renderDeliveredTable(data) {
 
     const row = document.createElement('tr');
 row.innerHTML = `
+  <td><input type="checkbox" class="row-checkbox" value="${order.order_id}"></td>
   <td><button onclick="returnToShipping(${order.order_id})">❌</button></td>
   <td>${shippedDate}</td>
   <td>${order.order_id}</td>
@@ -151,9 +152,35 @@ function updateSortIcons() {
   });
 }
 
+async function deleteSelectedOrders() {
+  const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+  if (!checkboxes.length) {
+    alert("삭제할 주문을 선택하세요.");
+    return;
+  }
+
+  const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+  const confirmDelete = confirm(`선택하신 ${ids.length}개를 정말로 삭제하시겠습니까?`);
+  if (!confirmDelete) return;
+
+  const { error } = await supabase.from('orders').delete().in('order_id', ids);
+  if (error) {
+    alert("삭제 중 오류 발생: " + error.message);
+    return;
+  }
+
+  alert(`${ids.length}개의 주문이 삭제되었습니다.`);
+  loadDeliveredOrders();
+}
+
 // 전역 등록
 window.returnToShipping = returnToShipping;
 window.sortTableBy = sortTableBy;
 window.showOrderDetail = showOrderDetail;
 
 document.addEventListener('DOMContentLoaded', loadDeliveredOrders);
+document.addEventListener('DOMContentLoaded', () => {
+  loadDeliveredOrders();
+  document.getElementById('delete-selected-btn').addEventListener('click', deleteSelectedOrders);
+});
+
