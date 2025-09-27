@@ -67,20 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-  window.toggleCashReceipt = function () {
-  document.getElementById("cashReceiptSection").style.display =
-    document.getElementById("receiptRequested").checked ? "block" : "none";
-};
-
-  document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("phoneNumber").addEventListener("input", function (e) {
-    e.target.value = formatPhoneNumberLive(e.target.value);
-  });
-
-  document.getElementById("receiptInfo").addEventListener("input", function (e) {
-    e.target.value = formatReceiptInfo(e.target.value);
-  });
-});
 
   function formatReceiptInfo(value) {
   const digits = value.replace(/\D/g, '');
@@ -372,6 +358,58 @@ function generateOrderNumber() {
   const rand = Math.floor(10 + Math.random() * 90);
   return Number(MMDD + mmss + rand);
 }
+
+// -----------------------------
+// ✅ 현금영수증 토글
+// -----------------------------
+window.toggleCashReceipt = function () {
+  const section = document.getElementById("cashReceiptSection");
+  section.style.display = document.getElementById("receiptRequested").checked ? "block" : "none";
+
+  // 표시될 때 자동 포커스
+  if (section.style.display === "block") {
+    const input = document.getElementById("receiptInfo");
+    if (input) input.focus();
+  }
+};
+
+// -----------------------------
+// ✅ 실시간 하이픈 입력 처리
+// -----------------------------
+function formatReceiptInfoLive(input) {
+  let cursorPos = input.selectionStart;
+  let digits = input.value.replace(/\D/g, '');
+  let formatted = digits;
+
+  if (digits.length === 11) {
+    formatted = digits.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+  } else if (digits.length === 10) {
+    formatted = digits.replace(/(\d{3})(\d{2})(\d{5})/, "$1-$2-$3");
+  }
+
+  input.value = formatted;
+  input.setSelectionRange(cursorPos, cursorPos); // 커서 위치 유지
+}
+
+// -----------------------------
+// ✅ 이벤트 등록 (DOMContentLoaded 이후)
+// -----------------------------
+document.addEventListener("DOMContentLoaded", () => {
+  const receiptInput = document.getElementById("receiptInfo");
+  if (receiptInput) {
+    receiptInput.addEventListener("input", (e) => {
+      formatReceiptInfoLive(e.target);
+    });
+  }
+
+  // 기존 phoneNumber 자동 하이픈 처리도 동일하게
+  const phoneInput = document.getElementById("phoneNumber");
+  if (phoneInput) {
+    phoneInput.addEventListener("input", (e) => {
+      e.target.value = formatPhoneNumber(e.target.value);
+    });
+  }
+});
 
 // ✅ 주문 확정 처리
 function confirmOrder() {
