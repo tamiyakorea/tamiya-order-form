@@ -402,6 +402,7 @@ function confirmOrder() {
     email: supplierEmail,
     zipcode: supplierZipcode,
     remarks: remarks,
+    receipt_info: receiptInfo,
     items: JSON.stringify(items),
     total: total,
     created_at: new Date().toISOString(),
