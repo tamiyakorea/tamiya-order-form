@@ -402,8 +402,12 @@ function confirmOrder() {
   const orderId = generateOrderNumber();
   
   // ✅ 현금영수증
-  const receiptInfo = document.getElementById("receiptInfo")?.value.trim() || "";
-
+  let receiptInfo = "";
+  const receiptCheckbox = document.getElementById("receiptRequested");
+  if (receiptCheckbox && receiptCheckbox.checked) {
+    const receiptInput = document.getElementById("receiptInfo");
+    receiptInfo = receiptInput ? receiptInput.value.trim() : "";
+  }
   // ✅ 장바구니 항목 정리
   const items = cart.map(item => ({
     code: item.code,
