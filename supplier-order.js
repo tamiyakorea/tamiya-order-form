@@ -16,44 +16,6 @@ const DELIVERY_FREE_METHODS = [
   "도매 주문과 합배송",
 ];
 
-window.toggleCashReceipt = function () {
-  document.getElementById("cashReceiptSection").style.display =
-    document.getElementById("receiptRequested").checked ? "block" : "none";
-};
-
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("phoneNumber").addEventListener("input", function (e) {
-    e.target.value = formatPhoneNumberLive(e.target.value);
-  });
-
-  document.getElementById("receiptInfo").addEventListener("input", function (e) {
-    e.target.value = formatReceiptInfo(e.target.value);
-  });
-});
-
-function formatPhoneNumberLive(value) {
-  const digits = value.replace(/\D/g, '');
-  if (digits.length < 4) return digits;
-  if (digits.length < 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  if (digits.length <= 11) return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
-}
-
-function formatReceiptInfo(value) {
-  const digits = value.replace(/\D/g, '');
-  if (digits.length === 11) return digits.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
-  if (digits.length === 10) return digits.replace(/(\d{3})(\d{2})(\d{5})/, "$1-$2-$3");
-  return digits;
-}
-
-function generateOrderNumber() {
-  const now = new Date();
-  const MMDD = ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2);
-  const mmss = ("0" + now.getMinutes()).slice(-2) + ("0" + now.getSeconds()).slice(-2);
-  const rand = Math.floor(10 + Math.random() * 90);
-  return Number(MMDD + mmss + rand);
-}
-
 // ✅ DOMContentLoaded 이벤트 처리
 // ✅ DOMContentLoaded 이벤트 처리
 document.addEventListener("DOMContentLoaded", () => {
@@ -76,6 +38,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("❌ unlockEdit 체크박스를 찾을 수 없습니다.");
   }
 
+  window.toggleCashReceipt = function () {
+  document.getElementById("cashReceiptSection").style.display =
+    document.getElementById("receiptRequested").checked ? "block" : "none";
+};
 
   // 🔹 사업자 검색 버튼 이벤트 등록
   const searchButton = document.getElementById("supplierSearchButton");
@@ -104,15 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("❌ 배송 방법 선택 요소를 찾을 수 없습니다.");
   }
 });
-
-
-  function formatReceiptInfo(value) {
-  const digits = value.replace(/\D/g, '');
-  if (digits.length === 11) return digits.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
-  if (digits.length === 10) return digits.replace(/(\d{3})(\d{2})(\d{5})/, "$1-$2-$3");
-  return digits;
-}
-
 
 // ✅ 정보 수정 가능 토글 함수
 function toggleEdit(checkbox) {
@@ -397,8 +354,6 @@ function generateOrderNumber() {
   return Number(MMDD + mmss + rand);
 }
 
-
-
 // ✅ 주문 확정 처리
 function confirmOrder() {
   if (!cart.length) {
@@ -426,14 +381,7 @@ function confirmOrder() {
 
   // ✅ 주문 정보 생성
   const orderId = generateOrderNumber();
-  
-  // ✅ 현금영수증
-  let receiptInfo = "";
-  const receiptCheckbox = document.getElementById("receiptRequested");
-  if (receiptCheckbox && receiptCheckbox.checked) {
-    const receiptInput = document.getElementById("receiptInfo");
-    receiptInfo = receiptInput ? receiptInput.value.trim() : "";
-  }
+
   // ✅ 장바구니 항목 정리
   const items = cart.map(item => ({
     code: item.code,
@@ -454,7 +402,6 @@ function confirmOrder() {
     email: supplierEmail,
     zipcode: supplierZipcode,
     remarks: remarks,
-    receipt_info: receiptInfo,
     items: JSON.stringify(items),
     total: total,
     created_at: new Date().toISOString(),
@@ -489,4 +436,3 @@ export {
   confirmOrder,
   searchSupplier
 };
-
