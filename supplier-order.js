@@ -360,40 +360,32 @@ function generateOrderNumber() {
 }
 
 // -----------------------------
-// ✅ 현금영수증 토글
-// -----------------------------
-window.toggleCashReceipt = function () {
-  const section = document.getElementById("cashReceiptSection");
-  section.style.display = document.getElementById("receiptRequested").checked ? "block" : "none";
-
-  // 표시될 때 자동 포커스
-  if (section.style.display === "block") {
-    const input = document.getElementById("receiptInfo");
-    if (input) input.focus();
-  }
-};
-
-// -----------------------------
 // ✅ 실시간 하이픈 입력 처리
 // -----------------------------
 function formatReceiptInfoLive(input) {
-  let cursorPos = input.selectionStart;
-  let digits = input.value.replace(/\D/g, '');
-  let formatted = digits;
-
-  if (digits.length === 11) {
-    formatted = digits.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
-  } else if (digits.length === 10) {
-    formatted = digits.replace(/(\d{3})(\d{2})(\d{5})/, "$1-$2-$3");
+  const cursorPos = input.selectionStart;
+  const rawDigits = input.value.replace(/\D/g, '');
+  let formatted = '';
+  
+  if (rawDigits.length <= 3) {
+    formatted = rawDigits;
+  } else if (rawDigits.length <= 6) {
+    formatted = `${rawDigits.slice(0,3)}-${rawDigits.slice(3)}`;
+  } else if (rawDigits.length <= 10) {
+    // 3-3-4 또는 3-2-5 등 규칙 필요시 수정 가능
+    formatted = `${rawDigits.slice(0,3)}-${rawDigits.slice(3,6)}-${rawDigits.slice(6)}`;
+  } else {
+    formatted = `${rawDigits.slice(0,3)}-${rawDigits.slice(3,7)}-${rawDigits.slice(7,11)}`;
   }
 
+  // 커서 위치 보정
+  const prevLength = input.value.length;
   input.value = formatted;
-  input.setSelectionRange(cursorPos, cursorPos); // 커서 위치 유지
+  const nextLength = formatted.length;
+  const newCursorPos = cursorPos + (nextLength - prevLength);
+  input.setSelectionRange(newCursorPos, newCursorPos);
 }
 
-// -----------------------------
-// ✅ 이벤트 등록 (DOMContentLoaded 이후)
-// -----------------------------
 document.addEventListener("DOMContentLoaded", () => {
   const receiptInput = document.getElementById("receiptInfo");
   if (receiptInput) {
@@ -402,7 +394,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 기존 phoneNumber 자동 하이픈 처리도 동일하게
+  // phoneNumber 실시간 하이픈 처리
   const phoneInput = document.getElementById("phoneNumber");
   if (phoneInput) {
     phoneInput.addEventListener("input", (e) => {
@@ -410,6 +402,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+
 
 // ✅ 주문 확정 처리
 function confirmOrder() {
