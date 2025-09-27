@@ -398,6 +398,9 @@ function confirmOrder() {
 
   // ✅ 주문 정보 생성
   const orderId = generateOrderNumber();
+  
+  // ✅ 현금영수증
+  const receiptInfo = document.getElementById("receiptInfo")?.value.trim() || "";
 
   // ✅ 장바구니 항목 정리
   const items = cart.map(item => ({
