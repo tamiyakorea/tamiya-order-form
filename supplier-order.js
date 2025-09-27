@@ -382,6 +382,14 @@ function confirmOrder() {
   // ✅ 주문 정보 생성
   const orderId = generateOrderNumber();
 
+  // ✅ 현금영수증 체크 + 입력값 가져오기
+  let receiptInfo = "";
+  const receiptCheckbox = document.getElementById("receiptRequested");
+  if (receiptCheckbox && receiptCheckbox.checked) {
+    const receiptInput = document.getElementById("receiptInfo");
+    receiptInfo = receiptInput ? receiptInput.value.trim() : "";
+  }
+
   // ✅ 장바구니 항목 정리
   const items = cart.map(item => ({
     code: item.code,
@@ -402,6 +410,7 @@ function confirmOrder() {
     email: supplierEmail,
     zipcode: supplierZipcode,
     remarks: remarks,
+    receipt_info: receiptInfo,
     items: JSON.stringify(items),
     total: total,
     created_at: new Date().toISOString(),
