@@ -363,28 +363,32 @@ function generateOrderNumber() {
 // ✅ 실시간 하이픈 입력 처리
 // -----------------------------
 function formatReceiptInfoLive(input) {
-  const cursorPos = input.selectionStart;
-  const rawDigits = input.value.replace(/\D/g, '');
+  const raw = input.value.replace(/\D/g, '');
   let formatted = '';
+  let cursor = input.selectionStart;
   
-  if (rawDigits.length <= 3) {
-    formatted = rawDigits;
-  } else if (rawDigits.length <= 6) {
-    formatted = `${rawDigits.slice(0,3)}-${rawDigits.slice(3)}`;
-  } else if (rawDigits.length <= 10) {
-    // 3-3-4 또는 3-2-5 등 규칙 필요시 수정 가능
-    formatted = `${rawDigits.slice(0,3)}-${rawDigits.slice(3,6)}-${rawDigits.slice(6)}`;
+  // 이전 값과 포커스 위치 저장
+  const prevValue = input.value;
+
+  if (raw.length <= 3) {
+    formatted = raw;
+  } else if (raw.length <= 6) {
+    formatted = `${raw.slice(0,3)}-${raw.slice(3)}`;
+  } else if (raw.length <= 10) {
+    formatted = `${raw.slice(0,3)}-${raw.slice(3,6)}-${raw.slice(6)}`;
   } else {
-    formatted = `${rawDigits.slice(0,3)}-${rawDigits.slice(3,7)}-${rawDigits.slice(7,11)}`;
+    formatted = `${raw.slice(0,3)}-${raw.slice(3,7)}-${raw.slice(7,11)}`;
   }
 
-  // 커서 위치 보정
-  const prevLength = input.value.length;
+  // 커서 위치 보정: 하이픈 앞에서 입력할 때 커서가 한 칸 뒤로 밀리는 문제 해결
+  let hyphenCountBeforeCursor = (prevValue.slice(0, cursor).match(/-/g) || []).length;
+  let hyphenCountAfterFormat = (formatted.slice(0, cursor).match(/-/g) || []).length;
+  cursor += (hyphenCountAfterFormat - hyphenCountBeforeCursor);
+
   input.value = formatted;
-  const nextLength = formatted.length;
-  const newCursorPos = cursorPos + (nextLength - prevLength);
-  input.setSelectionRange(newCursorPos, newCursorPos);
+  input.setSelectionRange(cursor, cursor);
 }
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const receiptInput = document.getElementById("receiptInfo");
