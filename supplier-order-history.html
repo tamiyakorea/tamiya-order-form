@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>업체용 개별주문</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body style="margin: 0; background-color: white;">
+
+<div style="text-align: center; padding: 10px 0; background-color: white;">
+  <img src="images/logo.png" alt="한국타미야 로고" style="height: 90px;" />
+</div>
+
+<nav style="background-color: #000; color: #fff;">
+  <ul style="list-style: none; margin: 0; padding: 10px; display: flex; justify-content: center; gap: 20px;">
+    <li><a href="https://order.kidult-hobby.co.kr/supplier-order.html" style="color: #fff; text-decoration: none;">개별주문 신청</a></li>
+    <li><a href="https://order.kidult-hobby.co.kr/supplier-order-history.html" style="color: #fff; text-decoration: none;">주문 확인</a></li>
+  </ul>
+</nav>
+
+<main style="background-color: white; max-width: 800px; margin: 0 auto; padding: 20px;">
+
+  <!-- ✅ 사용법 안내 박스 -->
+<div style="border:1px solid #ccc; background:#f9f9f9; padding:0; margin:20px 0 20px 0; border-radius:6px; overflow:hidden;">
+  <div id="guideHeader" style="padding:12px 15px; cursor:pointer; background:#e9ecef; font-weight:bold; border-bottom:1px solid #ccc;">
+    📘 사이트 이용 안내
+  </div>
+  <div id="guideBox" style="display:block; padding:15px;">
+    <ul style="line-height:1.6; padding-left:20px; margin:0;">
+      <li>이 신청페이지는 <strong>스페셜 오더 (개별 부품)</strong> 주문 건으로 일반 주문이 불가합니다.</li>
+      <li><strong>사업자 검색</strong>에 업체명 혹은 사업자번호를 입력합니다.</li>
+      <li><strong>TAMIYA B2B 사이트 접속 비밀번호</strong>를 입력 후 검색버튼을 클릭하세요.</li>
+      <li>주문정보 수정하기 체크박스에 체크하여 배송정보를 수정할 수 있습니다.</li>
+      <li><strong>부품 검색</strong> 기능을 사용하여 주문하고자 하는 부품을 장바구니에 추가 할 수 있습니다.</li>
+      <li>배송 방법을 선택한 뒤, <strong>주문확정</strong> 버튼을 클릭하여 주문을 신청합니다.</li>
+      <li>주문확정 버튼을 짧은 시간 내 여러번 클릭시 주문이 중복되어 접수 될 수 있습니다.</li>
+    </ul>
+  </div>
+</div>
+
+<div id="orderCheck" class="section">
+  <h2>주문 확인</h2>
+  <p>주문번호를 입력하시면 주문 정보를 확인하실 수 있습니다.</p>
+  <div class="input-with-button">
+  <input id="orderSearchInput" type="text" placeholder="주문번호 9자리 입력" style="padding:8px; width: 200px;" />
+  <button onclick="searchOrderById()">검색</button>
+    </div>
+  <div id="orderResult"></div>
+</div>
+
+</main>
+
+  <div style="text-align: center; margin-top: 20px;">
+  <button onclick="window.location.href='https://order.kidult-hobby.co.kr/agreement.html'" class="confirm">약관 동의 페이지로 돌아가기</button>
+</div>
+  <br />
+  <br />
+
+<!-- footer -->
+<footer style="width: 100%; background-color: #2b2b2f; color: #aaa; padding: 20px 0; font-size: 0.85em; line-height: 1.6;">
+  <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+    <div style="display: flex; justify-content: center; align-items: flex-start; gap: 15px; flex-wrap: wrap;">
+      <img src="images/TamiyaPlamodelFactory.png" alt="한국타미야 로고" style="height: 80px; object-fit: contain;" />
+      <div style="text-align: left; min-width: 250px;">
+        <strong>TEL.</strong> 02-572-5353<br />
+        평일 오전 10:00 ~ 오후 16:00<br />
+        점심시간 오후 12:00 ~ 오후 13:00<br />
+        주말 및 공휴일 휴무
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <div style="margin-bottom: 10px;">
+        <strong>상호</strong> : (주)한국키덜트하비 |
+        <strong>대표자(성명)</strong> : 안진영 |
+        <strong>사업자 등록번호</strong> : 264-88-01483 |
+        <strong>통신판매업 신고</strong> : 2019-서울서초-1752 |
+        <a href="https://www.ftc.go.kr/bizCommPop.do?wrkr_no=2648801483" target="_blank" style="color: #aaa; text-decoration: underline;">사업자 정보 조회</a>
+      </div>
+      <div style="margin-bottom: 10px;">
+        <strong>전화</strong> : 02-572-5353 |
+        <strong>팩스</strong> : 02-572-1177 |
+        <strong>주소</strong> : 서울특별시 서초구 바우뫼로 215
+      </div>
+      <div style="margin-bottom: 10px;">
+        <strong>개인정보보호책임자</strong> : (주)한국키덜트하비 | 
+        <strong>E-mail 문의</strong> : 
+        <a href="mailto:webmaster@tamiya.co.kr" style="color: #aaa; text-decoration: underline;">webmaster@tamiya.co.kr</a>
+      </div>
+      <div style="margin-top: 10px;">
+        copyright (c) kidult-hobby.co.kr all rights reserved.
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="index.js" type="module"></script>
+  
+</body>
+</html>
