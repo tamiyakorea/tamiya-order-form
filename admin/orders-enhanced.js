@@ -114,7 +114,7 @@ function renderOrders(data) {
       <td rowspan="${items.length}">
         <select class="input-box" onchange="updateField('${order.order_id}', 'confirmation_note', this.value)">
           <option value="">-</option>
-          <option ${order.confirmation_note === '첨부된 구매증빙이 유효하지 않습니다.' ? 'selected' : ''}>첨부된 구매증빙이 유효하지 않습니다.</option>
+          <option ${order.confirmation_note === '이메일 및 연락처가 올바르지 않습니다.' ? 'selected' : ''}>이메일 및 연락처가 올바르지 않습니다.</option>
           <option ${order.confirmation_note === '주소가 올바르지 않습니다.' ? 'selected' : ''}>주소가 올바르지 않습니다.</option>
           <option ${order.confirmation_note === '입금정보 불일치(고객센터로 문의)' ? 'selected' : ''}>입금정보 불일치(고객센터로 문의)</option>
           <option ${order.confirmation_note === '기타 사유(고객센터로 문의)' ? 'selected' : ''}>기타 사유(고객센터로 문의)</option>
