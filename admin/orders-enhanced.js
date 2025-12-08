@@ -1,5 +1,4 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-console.log('DEBUG createClient 타입:', typeof createClient, createClient);
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.46.1/+esm';
 import * as XLSX from 'https://cdn.jsdelivr.net/npm/xlsx/+esm';
 
 const supabase = createClient(
