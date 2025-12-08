@@ -138,6 +138,23 @@
     <button onclick="cancelEdit()">아니오</button>
   </div>
 </div>
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+<script>
+function execDaumPostcode() {
+  new daum.Postcode({
+    oncomplete: function(data) {
+      document.querySelector("#editZipcode").value = data.zonecode;
+      document.querySelector("#editAddress").value = data.address;
+      document.querySelector("#editAddressDetail").focus();
+    }
+  }).open();
+}
+</script>
+
+<script type="module" src="orders-enhanced.js"></script>
+</body>
+</html>
 
   <script type="module" src="orders-enhanced.js"></script>
 </body>
