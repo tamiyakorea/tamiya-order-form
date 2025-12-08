@@ -1,4 +1,4 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import * as XLSX from 'https://cdn.jsdelivr.net/npm/xlsx/+esm';
 
 const supabase = createClient(
