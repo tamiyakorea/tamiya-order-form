@@ -1,5 +1,5 @@
 // Supabase 클라이언트 생성
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.46.1/+esm';
 
 const supabase = createClient(
   'https://edgvrwekvnavkhcqwtxa.supabase.co',
