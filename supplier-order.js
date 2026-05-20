@@ -153,9 +153,9 @@ function calculateTotalWithShipping() {
 
   const deliveryMethod = document.getElementById("deliveryMethod").value;
 
-  if (total < 30000 && !DELIVERY_FREE_METHODS.includes(deliveryMethod)) {
+  if (total < 30000 && !DELIVERY_FREE_METHODS.includes(currentMethod)) {
     total += DELIVERY_FEE;
-  }
+}
 
   document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
 }
