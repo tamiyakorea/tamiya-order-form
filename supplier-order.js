@@ -55,18 +55,22 @@ document.addEventListener("DOMContentLoaded", () => {
   // 🔹 배송 방법 변경 시 비고란 업데이트
   const deliverySelect = document.getElementById("deliveryMethod");
   if (deliverySelect) {
-    deliverySelect.addEventListener("change", (event) => {
-      const selectedMethod = event.target.value;
-      const remarksField = document.getElementById("remarks");
+  deliverySelect.addEventListener("change", (event) => {
+    const selectedMethod = event.target.value;
+    const remarksField = document.getElementById("remarks");
 
-      if (selectedMethod === "") {
-        remarksField.value = ""; // 빈 값으로 초기화
-      } else {
-        remarksField.value = selectedMethod;
-      }
-    });
-    console.log("✅ 배송 방법 변경 리스너 등록 완료");
-  } else {
+    if (selectedMethod === "") {
+      remarksField.value = "";
+    } else {
+      remarksField.value = selectedMethod;
+    }
+
+    // ✅ 배송비/총금액 자동 갱신
+    renderCart();
+  });
+
+  console.log("✅ 배송 방법 변경 리스너 등록 완료");
+} else {
     console.error("❌ 배송 방법 선택 요소를 찾을 수 없습니다.");
   }
 });
