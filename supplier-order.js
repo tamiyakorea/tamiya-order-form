@@ -153,11 +153,16 @@ function calculateTotalWithShipping() {
 
   const deliveryMethod = document.getElementById("deliveryMethod").value;
 
-  if (total < 30000 && !DELIVERY_FREE_METHODS.includes(currentMethod)) {
+  // 3만원 미만 + 무료배송 방식이 아닐 경우 배송비 추가
+  if (
+    total < 30000 &&
+    !DELIVERY_FREE_METHODS.includes(deliveryMethod)
+  ) {
     total += DELIVERY_FEE;
-}
+  }
 
-  document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
+  document.getElementById("cartTotal").textContent =
+    `₩${total.toLocaleString()}`;
 }
 
 // ✅ 장바구니 수량 업데이트
