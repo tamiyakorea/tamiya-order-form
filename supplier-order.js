@@ -198,6 +198,15 @@ function renderCart() {
     `;
   });
 
+  const shipping = subtotal < 30000 ? 3000 : 0;
+  const total = subtotal + shipping;
+  tbody.innerHTML += `
+    <tr class="total">
+      <td colspan="4">배송비</td>
+      <td colspan="2">₩${shipping.toLocaleString()}</td>
+    </tr>
+  `;
+
   calculateTotalWithShipping();
 }
 
