@@ -144,28 +144,20 @@ async function searchProduct() {
 
 // ✅ 배송비 포함한 총 금액 계산
 function calculateTotalWithShipping() {
-    let total = 0;
+  let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-    cart.forEach(item => {
-        total += item.price * item.quantity;
-    });
+  if (cart.length === 0) {
+    document.getElementById("cartTotal").textContent = `₩0`;
+    return;
+  }
 
-    const deliverySelect = document.getElementById('deliveryMethod');
+  const deliveryMethod = document.getElementById("deliveryMethod").value;
 
-    let currentMethod = '';
+  if (total < 30000 && !DELIVERY_FREE_METHODS.includes(currentMethod)) {
+    total += DELIVERY_FEE;
+}
 
-    if (deliverySelect) {
-        currentMethod = deliverySelect.value;
-    }
-
-    if (
-        total < 30000 &&
-        !DELIVERY_FREE_METHODS.includes(currentMethod)
-    ) {
-        total += DELIVERY_FEE;
-    }
-
-    return total;
+  document.getElementById("cartTotal").textContent = `₩${total.toLocaleString()}`;
 }
 
 // ✅ 장바구니 수량 업데이트
@@ -201,10 +193,7 @@ function renderCart() {
     `;
   });
 
-  const finalTotal = calculateTotalWithShipping();
-
-  document.getElementById("totalPrice").innerText =
-    "₩" + finalTotal.toLocaleString();
+  calculateTotalWithShipping();
 }
 
 // ✅ 장바구니 항목 삭제
