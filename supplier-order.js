@@ -208,20 +208,22 @@ function renderCart() {
 
   // 배송방법 확인
   const deliveryMethod =
-    document.getElementById("deliveryMethod").value;
+    document.getElementById("deliveryMethod")?.value || "";
 
-  // 배송비 추가 조건
+  // 배송비 조건
   const needShippingFee =
+    cart.length > 0 &&
     total < 30000 &&
     !DELIVERY_FREE_METHODS.includes(deliveryMethod);
 
   // 배송비 row 추가
-  if (cart.length > 0 && needShippingFee) {
+  if (needShippingFee) {
     total += DELIVERY_FEE;
 
     tbody.innerHTML += `
       <tr class="shipping-row">
-        <td colspan="5" style="text-align:right; font-weight:bold;">
+        <td colspan="5"
+            style="text-align:right; font-weight:bold;">
           배송비
         </td>
         <td style="font-weight:bold;">
