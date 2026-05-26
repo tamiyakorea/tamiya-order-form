@@ -182,8 +182,11 @@ function renderCart() {
   const tbody = document.getElementById("cartBody");
   tbody.innerHTML = "";
 
+  let total = 0;
+
   cart.forEach((item, index) => {
     const rowTotal = item.price * item.qty;
+    total += rowTotal;
 
     tbody.innerHTML += `
       <tr>
@@ -191,23 +194,47 @@ function renderCart() {
         <td>${item.name}</td>
         <td>₩${item.consumerPrice.toLocaleString()}</td>
         <td>₩${item.price.toLocaleString()}</td>
-        <td><input type="number" value="${item.qty}" min="1" onchange="updateQty(${index}, this.value)"></td>
+        <td>
+          <input type="number"
+                 value="${item.qty}"
+                 min="1"
+                 onchange="updateQty(${index}, this.value)">
+        </td>
         <td>₩${rowTotal.toLocaleString()}</td>
         <td><button onclick="removeItem(${index})">삭제</button></td>
       </tr>
     `;
   });
 
-  const shipping = subtotal < 30000 ? 3000 : 0;
-  const total = subtotal + shipping;
-  tbody.innerHTML += `
-    <tr class="total">
-      <td colspan="4">배송비</td>
-      <td colspan="2">₩${shipping.toLocaleString()}</td>
-    </tr>
-  `;
+  // 배송방법 확인
+  const deliveryMethod =
+    document.getElementById("deliveryMethod").value;
 
-  calculateTotalWithShipping();
+  // 배송비 추가 조건
+  const needShippingFee =
+    total < 30000 &&
+    !DELIVERY_FREE_METHODS.includes(deliveryMethod);
+
+  // 배송비 row 추가
+  if (cart.length > 0 && needShippingFee) {
+    total += DELIVERY_FEE;
+
+    tbody.innerHTML += `
+      <tr class="shipping-row">
+        <td colspan="5" style="text-align:right; font-weight:bold;">
+          배송비
+        </td>
+        <td style="font-weight:bold;">
+          ₩${DELIVERY_FEE.toLocaleString()}
+        </td>
+        <td></td>
+      </tr>
+    `;
+  }
+
+  // 최종 총액 표시
+  document.getElementById("cartTotal").textContent =
+    `₩${total.toLocaleString()}`;
 }
 
 // ✅ 장바구니 항목 삭제
