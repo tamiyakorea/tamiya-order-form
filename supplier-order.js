@@ -431,6 +431,11 @@ function confirmOrder() {
     receiptInfo = receiptInput ? receiptInput.value.trim() : "";
   }
 
+  // ✅ 총 금액 계산
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const DELIVERY_FEE = subtotal < 30000 ? 3000 : 0;
+  const total = subtotal + DELIVERY_FEE;
+
   // ✅ 장바구니 항목 정리
   const items = cart.map(item => ({
     code: item.code,
@@ -439,8 +444,15 @@ function confirmOrder() {
     price: item.price
   }));
 
-  // ✅ 총 금액 계산
-  const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  // ✅ 배송비가 필요한 경우, 항목 추가
+if (DELIVERY_FEE > 0) {
+  items.push({
+    code: '15774577',
+    name: '배송비',
+    qty: 1,
+    price: DELIVERY_FEE
+  });
+}
 
   // ✅ Payload 생성
   const payload = {
