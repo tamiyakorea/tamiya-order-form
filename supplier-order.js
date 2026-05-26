@@ -201,7 +201,10 @@ function renderCart() {
     `;
   });
 
-  calculateTotalWithShipping();
+  const finalTotal = calculateTotalWithShipping();
+
+  document.getElementById("totalPrice").innerText =
+    "₩" + finalTotal.toLocaleString();
 }
 
 // ✅ 장바구니 항목 삭제
