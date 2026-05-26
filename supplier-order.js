@@ -438,9 +438,20 @@ function confirmOrder() {
   }
 
   // ✅ 총 금액 계산
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const DELIVERY_FEE = subtotal < 30000 ? 3000 : 0;
-  const total = subtotal + DELIVERY_FEE;
+  const subtotal =
+  cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+const deliveryMethod =
+  document.getElementById("deliveryMethod")?.value || "";
+
+const needShippingFee =
+  subtotal < 30000 &&
+  !DELIVERY_FREE_METHODS.includes(deliveryMethod);
+
+const shippingFee =
+  needShippingFee ? DELIVERY_FEE : 0;
+
+const total = subtotal + shippingFee;
 
   // ✅ 장바구니 항목 정리
   const items = cart.map(item => ({
@@ -451,12 +462,12 @@ function confirmOrder() {
   }));
 
   // ✅ 배송비가 필요한 경우, 항목 추가
-if (DELIVERY_FEE > 0) {
+if (shippingFee > 0) {
   items.push({
     code: '15774577',
     name: '배송비',
     qty: 1,
-    price: DELIVERY_FEE
+    price: shippingFee
   });
 }
 
