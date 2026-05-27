@@ -268,7 +268,7 @@ function renderCart() {
       </tr>
     `;
   });
-  const shipping = subtotal < 30000 ? 3000 : 0;
+  const shipping = subtotal < 50000 ? 3000 : 0;
   const total = subtotal + shipping;
   tbody.innerHTML += `
     <tr class="total">
@@ -312,7 +312,7 @@ window.searchOrderById = async function () {
       `).join("");
 
       const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
-      const shipping = subtotal < 30000 ? 3000 : 0;
+      const shipping = subtotal < 50000 ? 3000 : 0;
       const orderDate = new Date(data.created_at).toISOString().split("T")[0];
       const receiptInfo = data.receipt_info ? `<p><strong>현금영수증:</strong> ${data.receipt_info}</p>` : "";
       const paymentDateStr = new Date(data.payment_date).toLocaleDateString("ko-KR", {
