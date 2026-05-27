@@ -157,9 +157,9 @@ function calculateTotalWithShipping() {
 
   const deliveryMethod = document.getElementById("deliveryMethod").value;
 
-  // 3만원 미만 + 무료배송 방식이 아닐 경우 배송비 추가
+  // 5만원 미만 + 무료배송 방식이 아닐 경우 배송비 추가
   if (
-    total < 30000 &&
+    total < 50000 &&
     !DELIVERY_FREE_METHODS.includes(deliveryMethod)
   ) {
     total += DELIVERY_FEE;
@@ -217,7 +217,7 @@ function renderCart() {
   // 배송비 조건
   const needShippingFee =
     cart.length > 0 &&
-    total < 30000 &&
+    total < 50000 &&
     !DELIVERY_FREE_METHODS.includes(deliveryMethod);
 
   // 배송비 row 추가
@@ -445,7 +445,7 @@ const deliveryMethod =
   document.getElementById("deliveryMethod")?.value || "";
 
 const needShippingFee =
-  subtotal < 30000 &&
+  subtotal < 50000 &&
   !DELIVERY_FREE_METHODS.includes(deliveryMethod);
 
 const shippingFee =
