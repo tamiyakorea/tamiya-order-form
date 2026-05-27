@@ -169,7 +169,7 @@ window.confirmOrder = async function () {
   const orderId = generateOrderNumber();
   const proofUrl = null;
   //const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + 
-  //  (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 30000 ? 3000 : 0);
+  //  (cart.reduce((sum, item) => sum + item.price * item.qty, 0) < 50000 ? 3000 : 0);
 
  // const payload = {
   //  order_id: orderId,
@@ -192,7 +192,7 @@ window.confirmOrder = async function () {
 //  };
 
 const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-const shippingFee = subtotal < 30000 ? 3000 : 0;
+const shippingFee = subtotal < 50000 ? 3000 : 0;
 const total = subtotal + shippingFee;
 
 const items = cart.map(item => ({
