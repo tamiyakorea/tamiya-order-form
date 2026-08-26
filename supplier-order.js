@@ -298,7 +298,8 @@ async function searchSupplier() {
     document.getElementById("supplierName").value = data.company_name;
     document.getElementById("businessNumberDisplay").value = data.business_registration_number;
     document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
-    document.getElementById("supplierAddress").value = [data.address, data.address_detail].filter(Boolean).join(" ");
+    document.getElementById("supplierAddress").value = data.address;
+    if (document.getElementById("supplierAddressDetail")) { document.getElementById("supplierAddressDetail").value = data.address_detail || ""; }
     document.getElementById("supplierEmail").value = data.email;
     const zipcodeField = document.getElementById("supplierZipcode");
     if (zipcodeField) {
