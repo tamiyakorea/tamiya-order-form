@@ -80,6 +80,7 @@ function toggleEdit(checkbox) {
   const editableFields = [
     document.getElementById("supplierContact"),
     document.getElementById("supplierAddress"),
+    document.getElementById("supplierAddressDetail"),
     document.getElementById("supplierEmail"),
     document.getElementById("supplierZipcode")
   ];
@@ -414,6 +415,8 @@ function confirmOrder() {
   const supplierName = document.getElementById("supplierName").value.trim();
   const supplierContact = document.getElementById("supplierContact").value.trim();
   const supplierAddress = document.getElementById("supplierAddress").value.trim();
+  const supplierAddressDetailElement = document.getElementById("supplierAddressDetail");
+  const supplierAddressDetail = supplierAddressDetailElement ? supplierAddressDetailElement.value.trim() : "";
   const supplierEmail = document.getElementById("supplierEmail").value.trim();
   const supplierZipcodeElement = document.getElementById("supplierZipcode");
   const remarksElement = document.getElementById("remarks");
@@ -478,6 +481,7 @@ if (shippingFee > 0) {
     name: supplierName,
     phone: supplierContact,
     address: supplierAddress,
+    address_detail: supplierAddressDetail,
     email: supplierEmail,
     zipcode: supplierZipcode,
     remarks: remarks,
