@@ -298,7 +298,7 @@ async function searchSupplier() {
     document.getElementById("supplierName").value = data.company_name;
     document.getElementById("businessNumberDisplay").value = data.business_registration_number;
     document.getElementById("supplierContact").value = formatPhoneNumber(data.phone);
-    document.getElementById("supplierAddress").value = data.address;
+    document.getElementById("supplierAddress").value = `${data.address || ''} ${data.address_detail || ''}`.trim();
     document.getElementById("supplierEmail").value = data.email;
     const zipcodeField = document.getElementById("supplierZipcode");
     if (zipcodeField) {
