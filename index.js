@@ -150,7 +150,23 @@ window.confirmOrder = async function () {
   const receiptChecked = get("receiptRequested").checked;
   const receiptInfoRaw = receiptChecked ? get("receiptInfo").value.trim() : null;
   const receiptInfo = receiptInfoRaw ? formatReceiptInfo(receiptInfoRaw) : null;
+    const totalAgreements = 7; // 총 7개의 주의사항 항목
+    let allAgreed = true;
 
+    for (let i = 1; i <= totalAgreements; i++) {
+        const checkedRadio = document.querySelector(`input[name="agree${i}"]:checked`);
+        if (!checkedRadio || checkedRadio.value === 'no') {
+            allAgreed = false;
+            break;
+        }
+    }
+    if (!allAgreed) {
+        alert("전체 안내사항을 확인하시고 '동의함'을 체크하셔야 주문이 가능합니다.");
+        return;
+    }
+    // ==============================================================
+    // 필수 주의사항 라디오 버튼 검사 로직 끝
+    // ==============================================================
   if (!name || !phone || !email || !zipcode || !address || !addressDetail) {
     alert("모든 고객 정보를 정확히 입력해 주세요.");
     return;
