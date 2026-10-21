@@ -306,7 +306,7 @@ function renderCart() {
   const total = subtotal + shipping;
   tbody.innerHTML += `
     <tr class="total">
-      <td colspan="4">배송비${isJejuAddress() ? ' (제주 특수배송비 적용)' : ''}</td>
+      <td colspan="4">배송비${isJejuAddress() ? : ''}</td>
       <td colspan="2">₩${shipping.toLocaleString()}</td>
     </tr>
   `;
