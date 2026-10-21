@@ -8,11 +8,19 @@ const supabase = createClient(
 
 const cart = [];
 
+// 🔹 제주도 주소 판별 함수 (주소에 '제주'가 있거나 우편번호가 63으로 시작)
+function isJejuAddress() {
+  const address = document.getElementById("address")?.value || "";
+  const zipcode = document.getElementById("zipcode")?.value || "";
+  return address.includes("제주") || zipcode.startsWith("63");
+}
+
 window.execDaumPostcode = function () {
   new daum.Postcode({
     oncomplete: function (data) {
       document.getElementById('zipcode').value = data.zonecode;
       document.getElementById('address').value = data.roadAddress || data.jibunAddress;
+      renderCart();
     }
   }).open();
 };
@@ -208,7 +216,12 @@ window.confirmOrder = async function () {
 //  };
 
 const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-const shippingFee = subtotal < 50000 ? 3000 : 0;
+let shippingFee = 0;
+if (isJejuAddress()) {
+  shippingFee = subtotal < 50000 ? 6000 : 3000;
+} else {
+  shippingFee = subtotal < 50000 ? 3000 : 0;
+}
 const total = subtotal + shippingFee;
 
 const items = cart.map(item => ({
@@ -284,11 +297,16 @@ function renderCart() {
       </tr>
     `;
   });
-  const shipping = subtotal < 50000 ? 3000 : 0;
+  let shipping = 0;
+  if (isJejuAddress()) {
+    shipping = subtotal < 50000 ? 6000 : 3000;
+  } else {
+    shipping = subtotal < 50000 ? 3000 : 0;
+  }
   const total = subtotal + shipping;
   tbody.innerHTML += `
     <tr class="total">
-      <td colspan="4">배송비</td>
+      <td colspan="4">배송비${isJejuAddress() ? ' (제주 특수배송비 적용)' : ''}</td>
       <td colspan="2">₩${shipping.toLocaleString()}</td>
     </tr>
   `;
