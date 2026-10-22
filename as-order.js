@@ -80,6 +80,24 @@ function generateOrderNumber() {
 window.confirmOrder = async function () {
   const get = (id) => document.getElementById(id);
 
+  //필수 확인 사항 검사 (총 6개)
+  const totalAgreements = 6;
+  let allAgreed = true;
+
+  for (let i = 1; i <= totalAgreements; i++) {
+    const checkedRadio = document.querySelector(`input[name="agree${i}"]:checked`);
+    // 선택을 안 했거나 '아니오(no)'를 선택한 경우
+    if (!checkedRadio || checkedRadio.value === 'no') {
+      allAgreed = false;
+      break;
+    }
+  }
+
+  if (!allAgreed) {
+    alert("전체 필수 확인 사항을 확인하시고 모든 항목에 '네'를 선택하셔야 신청이 가능합니다.");
+    return; // 더 이상 진행되지 않고 함수 종료
+  }
+  
   const name = get("customerName").value.trim();
   const phone = get("phoneNumber").value.trim();
   const email = get("email").value.trim();
