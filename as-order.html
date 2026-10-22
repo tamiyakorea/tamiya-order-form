@@ -100,6 +100,22 @@
   <label for="addressDetail">상세주소</label>
   <input id="addressDetail" type="text" placeholder="상세 주소를 입력하세요" />
 
+  <!-- 현금영수증 신청 섹션 -->
+<div style="margin: 20px 0; padding: 15px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #fafafa;">
+  <label style="cursor: pointer; font-weight: bold; font-size: 1em;">
+    <input type="checkbox" id="receiptRequested" onchange="toggleCashReceipt()"> 현금영수증 신청
+  </label>
+  
+  <div id="cashReceiptSection" style="display: none; margin-top: 10px;">
+    <input 
+      type="text" 
+      id="receiptInfo" 
+      placeholder="휴대폰 번호 또는 사업자번호 (숫자만 입력)" 
+      style="width: 100%; max-width: 320px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"
+    />
+  </div>
+</div>
+
     <!-- 제품 찾기 -->
     <section class="section">
       <h2>제품 찾기</h2>
