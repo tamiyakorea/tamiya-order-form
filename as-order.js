@@ -121,7 +121,15 @@ window.confirmOrder = async function () {
   const zipcode = get("zipcode").value.trim();
   const address = get("address").value.trim();
   const addressDetail = get("addressDetail").value.trim();
-  
+  // 🔹 현금영수증 입력값 확인
+  const receiptChecked = get("receiptRequested").checked;
+  const receiptInfoRaw = receiptChecked ? get("receiptInfo").value.trim() : null;
+  const receiptInfo = receiptInfoRaw ? formatReceiptInfo(receiptInfoRaw) : null;
+
+  if (receiptChecked && !receiptInfo) {
+    alert("현금영수증 발행을 위한 휴대폰 번호 또는 사업자등록번호를 입력해주세요.");
+    return;
+  }
   const category = get("category").value;
   const product = get("product").value;
 
@@ -163,7 +171,7 @@ if (requestType === '점검요청') {
     zipcode,
     address,
     address_detail: addressDetail,
-    receipt_info: null,
+    receipt_info: receiptInfo,
     product_name: `${category} > ${product}`,
     message: `고장시기: ${faultDate}\n고장증상: ${faultDescription}\n요청사항: ${requestDetails}`,
     proof_images: [],
