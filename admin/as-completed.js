@@ -52,6 +52,7 @@ function renderCompletedTable(orders) {
     const fields = {
       '연락처': order.phone || '',
       '이메일': order.email || '',
+      '현금영수증' : order.receipt_info || '-',
       '제품분류': category || '',
       '제품명': product || '',
       '신청종류': order.request_type || '',
