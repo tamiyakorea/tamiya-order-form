@@ -66,6 +66,23 @@ window.execDaumPostcode = function () {
   }).open();
 };
 
+// 🔹 현금영수증 입력창 보이기/숨기기 토글 함수
+window.toggleCashReceipt = function () {
+  const isChecked = document.getElementById("receiptRequested").checked;
+  const section = document.getElementById("cashReceiptSection");
+  if (section) {
+    section.style.display = isChecked ? "block" : "none";
+  }
+};
+
+// 🔹 현금영수증 번호 형식 정리 (- 자동 삽입)
+function formatReceiptInfo(value) {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length === 11) return digits.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
+  if (digits.length === 10) return digits.replace(/(\d{3})(\d{2})(\d{5})/, "$1-$2-$3");
+  return digits;
+}
+
 // 🧾 주문번호 생성
 function generateOrderNumber() {
   const now = new Date();
