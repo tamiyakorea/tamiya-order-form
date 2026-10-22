@@ -37,6 +37,10 @@ async function loadOrder(orderId) {
     document.getElementById("email").textContent = data.email || "-";
     document.getElementById("address").textContent =
       `${data.zipcode || ''} ${data.address || ''} ${data.address_detail || ''}`;
+    const receiptEl = document.getElementById("receiptInfo");
+    if (receiptEl) {
+      receiptEl.textContent = data.receipt_info || "-";
+    }
   } catch (err) {
     alert("신청 정보를 불러오지 못했습니다.");
     console.error("❌ Edge Function 오류:", err);
@@ -67,6 +71,7 @@ function downloadPDF() {
           ["연락처", phone],
           ["이메일", email],
           ["주소", address],
+          ["현금영수증", document.getElementById("receiptInfo")?.textContent || "-"],
         ],
       },
       layout: "lightHorizontalLines"
