@@ -71,7 +71,7 @@ function downloadPDF() {
         widths: ['30%', '70%'],
         body: [
           ["주문번호", orderId],
-          ["신일시", createdAt],
+          ["신청일시", createdAt],
           ["고객명", name],
           ["연락처", phone],
           ["이메일", email],
