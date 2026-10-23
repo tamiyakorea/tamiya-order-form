@@ -71,12 +71,12 @@ function downloadPDF() {
         widths: ['30%', '70%'],
         body: [
           ["주문번호", orderId],
-          ["주문일시", createdAt],
+          ["신일시", createdAt],
           ["고객명", name],
           ["연락처", phone],
           ["이메일", email],
           ["주소", address],
-          ["현금영수증", receiptInfo],
+          ["현금영수증", document.getElementById("receiptInfo")?.textContent || "-"],
         ],
       },
       layout: "lightHorizontalLines"
@@ -94,9 +94,9 @@ function downloadPDF() {
               { text: "수리 요청 안내\n\n", bold: true, fontSize: 13 },
               "A/S 신청이 정상적으로 접수되었습니다.\n",
               "수리 요청품을 아래 주소로 보내주시기 바랍니다:\n\n",
-              "서울특별시 서초구 바우뫼로 215\n",
+              "서울특별시 서초구 바우뫼로 215, 2층\n",
               "070-8671-7440 / 수신자: SANWA A/S 담당자\n\n",
-              "수리 기간은 1개월 이상 소요될 수 있으며,\n수리 완료 후 비용이 청구됩니다."
+              "수리 기간은 1~3개월 이상 소요될 수 있으며,\n수리 완료 후 비용이 청구됩니다."
             ]
           }]
         ]
