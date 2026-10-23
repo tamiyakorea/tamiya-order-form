@@ -55,6 +55,11 @@ function formatDate(iso) {
 
 // ✅ PDF 다운로드
 function downloadPDF() {
+  const createdAt = document.getElementById("createdAt")?.textContent || "-";
+  const name = document.getElementById("name")?.textContent || "-";
+  const phone = document.getElementById("phone")?.textContent || "-";
+  const email = document.getElementById("email")?.textContent || "-";
+  const address = document.getElementById("address")?.textContent || "-";
   const doc = {
   content: [
     { text: "A/S 신청 확인서", style: "header" },
@@ -71,7 +76,7 @@ function downloadPDF() {
           ["연락처", phone],
           ["이메일", email],
           ["주소", address],
-          ["현금영수증", document.getElementById("receiptInfo")?.textContent || "-"],
+          ["현금영수증", receiptInfo],
         ],
       },
       layout: "lightHorizontalLines"
