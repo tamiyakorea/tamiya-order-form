@@ -325,6 +325,7 @@ popup.document.write(`
       <tr><th>이메일</th><td>${data.email || '-'}</td></tr>
       <tr><th>우편번호</th><td>${data.zipcode || '-'}</td></tr>
       <tr><th>주소</th><td>${data.address || '-'} ${data.address_detail || ''}</td></tr>
+      <tr><th>현금영수증</th><td>${order.receipt_info || '-'}</td></tr>
       <tr><th>신청종류</th><td>${data.request_type || '-'}</td></tr>
       <tr><th>수리여부</th><td>${data.inspection_followup || '-'}</td></tr>
     </table>
